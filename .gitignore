@@ -16,3 +16,8 @@ build
 
 # Logs:
 *.log
+
+#pycharm
+.idea/*
+#south
+bilanci_project/bilanci/migrations/
