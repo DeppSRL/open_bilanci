@@ -193,6 +193,8 @@ DJANGO_APPS = (
     
     # Django add-ons
     'django_extensions',
+
+    'django.contrib.gis',
 )
 
 THIRD_PARTY_APPS = (
@@ -210,6 +212,8 @@ LOCAL_APPS = (
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 ########## END APP CONFIGURATION
+
+POSTGIS_VERSION = (2, 0, 0)
 
 
 ########## LOGGING CONFIGURATION

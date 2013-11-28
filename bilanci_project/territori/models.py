@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from model_utils import Choices
-from progetti.models import Progetto
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 import struct
@@ -65,8 +64,6 @@ class Territorio(models.Model):
 
     objects = TerritoriManager()
 
-    def progetti(self):
-        return self.progetto_set.all()
 
     @property
     def codice(self):
@@ -76,23 +73,6 @@ class Territorio(models.Model):
             return self.cod_prov
         else:
             return self.cod_reg
-
-    @property
-    def n_progetti(self):
-        return self.progetto_set.count()
-
-    @property
-    def progetti_deep(self):
-        """
-        returns all projects related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.territorio == self.TERRITORIO.R:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg)
-        elif self.territorio == self.TERRITORIO.P:
-            return Progetto.objects.filter(localizzazione__territorio__cod_prov=self.cod_prov)
-        else:
-            return Progetto.objects.filter(localizzazione__territorio__cod_com=self.cod_com)
 
     @property
     def code(self):
@@ -135,19 +115,6 @@ class Territorio(models.Model):
         return [(t.denominazione, t.get_absolute_url()) for t in self.get_hierarchy()]
 
     @property
-    def n_progetti_deep(self):
-        """
-        returns number of project related to this or underlying locations
-        (for regions and provinces)
-        """
-        if self.territorio == self.TERRITORIO.R:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_reg).count()
-        elif self.territorio == self.TERRITORIO.P:
-            return Progetto.objects.filter(localizzazione__territorio__cod_reg=self.cod_prov).count()
-        else:
-            return self.n_progetti
-
-    @property
     def nome(self):
         if self.denominazione_ted:
             return u"%s - %s" % (self.denominazione, self.denominazione_ted)
@@ -179,34 +146,6 @@ class Territorio(models.Model):
 
     def __unicode__(self):
         return self.nome
-
-    def get_progetti_search_url(self, **kwargs):
-        """
-        returns the correct search url in progetti faceted navigation
-        can be used with optional filters:
-        tema=TemaInstance
-        natura=ClassificazioneAzioneInstance
-        """
-        search_url = reverse('progetti_search') + "?q="
-
-        if 'tema' in kwargs:
-            tema = kwargs['tema']
-            search_url += "&selected_facets=tema:{0}".format(tema.codice)
-
-        if 'natura' in kwargs:
-            natura = kwargs['natura']
-            search_url += "&selected_facets=natura:{0}".format(natura.codice)
-
-        if 'programma' in kwargs:
-            programma = kwargs['programma']
-            search_url += "&selected_facets=fonte_fin:{0}".format(programma.codice)
-
-        for t in self.get_hierarchy():
-            d = t.get_cod_dict()
-            key = d.keys()[0]
-            search_url += "&territorio{0}={1}".format(key[3:], d[key])
-
-        return search_url
 
 
     @models.permalink

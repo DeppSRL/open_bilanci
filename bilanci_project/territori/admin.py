@@ -1,5 +1,5 @@
 from django.contrib.gis import admin
-from models import Territorio
+from .models import Territorio
 
 class TerritorioAdmin(admin.OSMGeoAdmin):
     list_filter = ('territorio',)
