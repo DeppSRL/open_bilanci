@@ -42,7 +42,7 @@ class ValoreBilanciComunali(Valore):
         )
 
     tipo_certificato = models.CharField(max_length=2, choices=TIPO_CERTIFICATO, default='0')
-    ente = models.ForeignKey(Ente)
+    ente = models.ForeignKey(Ente, null=False, default=0)
 
     class Meta:
         abstract = True
@@ -52,20 +52,14 @@ class ValoreBilanciComunali(Valore):
 class Spesa(ValoreBilanciComunali):
 
     TIPO_SPESA = Choices(
-        ('0', 'Corrente'),
-        ('1', 'Conto capitale'),
-    )
-
-    TIPO_ESBORSO = Choices(
-        ('0', 'Impegni'),
-        ('1', 'Conto competenza'),
-        ('2', 'Conto residui'),
-        ('3', 'Preventivato'),
+        ('0', 'Preventivo'),
+        ('1', 'Consuntivo Impegni'),
+        ('2', 'Consuntivo Conto competenza'),
+        ('3', 'Consuntivo Conto residui'),
         )
 
-    tipo_spesa = models.CharField(max_length=2, choices=TIPO_SPESA)
-    tipo_esborso = models.CharField(max_length=2, choices=TIPO_ESBORSO, default='0')
 
+    tipo_spesa = models.CharField(max_length=2, choices=TIPO_SPESA)
 
     class Meta:
         verbose_name_plural = u'Spese'
@@ -75,6 +69,15 @@ class Spesa(ValoreBilanciComunali):
 
 
 class Entrata(ValoreBilanciComunali):
+
+    TIPO_ENTRATA = Choices(
+        ('0', 'Preventivo'),
+        ('1', 'Consuntivo Accertamenti'),
+        ('2', 'Consuntivo Conto competenza'),
+        ('3', 'Consuntivo Conto residui'),
+        )
+
+    tipo_e= models.CharField(max_length=2, choices=TIPO_ENTRATA)
 
     class Meta:
         verbose_name_plural = u'Entrate'
