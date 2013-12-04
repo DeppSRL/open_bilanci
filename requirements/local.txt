@@ -5,3 +5,4 @@ django-discover-runner==1.0
 django-debug-toolbar==0.11.0
 Sphinx==1.2b3
 werkzeug==0.9.4
+Scrapy==0.20.1
