@@ -5,11 +5,18 @@
 #
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
+LOG_LEVEL = "DEBUG"
 
 BOT_NAME = 'scraper_project'
 
-SPIDER_MODULES = ['scraper_project.spiders']
-NEWSPIDER_MODULE = 'scraper_project.spiders'
+SPIDER_MODULES = ['scraper.spiders']
+NEWSPIDER_MODULE = 'scraper.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'scraper_project (+http://www.yourdomain.com)'
+USER_AGENT = 'bilanci_scraper'
+
+OUTPUT_FOLDER = 'scraper/output/'
+LISTA_COMUNI = 'listacomuni'
+LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
+LOGFILE = 'scraper_logfile'
+LOGFILE_PATH =OUTPUT_FOLDER +LOGFILE
