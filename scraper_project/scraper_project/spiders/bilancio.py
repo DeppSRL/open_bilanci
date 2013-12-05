@@ -1,6 +1,7 @@
 from scrapy.selector import Selector
 from scrapy.spider import BaseSpider
 from utils import UnicodeWriter
+from slugify import slugify
 
 class ListaComuniSpider(BaseSpider):
     name = "listacomuni"
@@ -12,7 +13,7 @@ class ListaComuniSpider(BaseSpider):
 
     def parse(self, response):
 
-        uw = UnicodeWriter(f=open('output/listacomuni',mode='w'))
+        uw = UnicodeWriter(f=open('output/listacomuni',mode='w'), dialect='excel')
         hxs = Selector(response)
 
         comuni = hxs.xpath("//li/@onclick")
@@ -25,7 +26,7 @@ class ListaComuniSpider(BaseSpider):
             comune_string = comune_string[10:len(comune_string)-3]
             nome_comune = comune_string.split(u"','")[0]
             codice_comune = comune_string.split(u"','")[1]
-            row_comune = [nome_comune,codice_comune]
+            row_comune = [slugify(nome_comune).upper(),codice_comune]
             uw.writerow(row_comune)
 
             # ZUGLIO:2060851360
