@@ -3,6 +3,7 @@ from scrapy.spider import BaseSpider
 from utils import UnicodeWriter
 from slugify import slugify
 
+
 class ListaComuniSpider(BaseSpider):
     name = "listacomuni"
     allowed_domains = ["http://finanzalocale.interno.it"]
@@ -13,7 +14,7 @@ class ListaComuniSpider(BaseSpider):
 
     def parse(self, response):
 
-        uw = UnicodeWriter(f=open('output/listacomuni',mode='w'), dialect='excel')
+        uw = UnicodeWriter(f=open('output/listacomuni',mode='w'), dialect="excel_quote_all")
         hxs = Selector(response)
 
         comuni = hxs.xpath("//li/@onclick")

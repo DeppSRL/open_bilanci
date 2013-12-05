@@ -74,6 +74,14 @@ class excel_semicolon(csv.excel):
 
 register_dialect("excel_semicolon", excel_semicolon)
 
+class excel_quote_all(csv.excel):
+    """Extends excel Dialect in order to set semicolon as delimiter."""
+    delimiter = ','
+    quotechar = '"'
+    quoting = QUOTE_ALL
+
+register_dialect("excel_quote_all", excel_semicolon)
+
 
 class UnicodeWriter:
     """
