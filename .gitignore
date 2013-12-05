@@ -21,5 +21,4 @@ build
 .idea/*
 #south
 bilanci_project/bilanci/migrations/
-scraper/*.json
-scraper/output
+scraper_project/scraper/output/

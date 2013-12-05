@@ -52,7 +52,7 @@ class BilancioSpider(BaseSpider):
 
 
     def __init__(self,**kwargs):
-        log.start()
+
         super(BilancioSpider, self).__init__(self.name, **kwargs)
 
         # initialize start_urls with all comune codes, years and type of bilancio
@@ -60,8 +60,8 @@ class BilancioSpider(BaseSpider):
         try:
             udr = UnicodeDictReader(f=open(LISTA_COMUNI_PATH,mode='r'), dialect="excel_quote_all",)
         except IOError:
-            log.msg('Impossibile to open the file',level=log.ERROR)
-            # print "Impossible to open the file: %s.Closing the spider..." % LISTA_COMUNI_PATH
+
+            print "Impossible to open the file: %s.Closing the spider..." % LISTA_COMUNI_PATH
             return
 
 

@@ -15,8 +15,8 @@ NEWSPIDER_MODULE = 'scraper.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = 'bilanci_scraper'
 
-OUTPUT_FOLDER = 'scraper/output/'
-LISTA_COMUNI = 'listacomuni'
+OUTPUT_FOLDER = 'output/'
+LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
 LOGFILE = 'scraper_logfile'
 LOGFILE_PATH =OUTPUT_FOLDER +LOGFILE
