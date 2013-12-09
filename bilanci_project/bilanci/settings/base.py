@@ -1,5 +1,5 @@
 """Common settings and globals."""
-
+import os
 
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
@@ -226,6 +226,12 @@ POSTGIS_VERSION = (2, 0, 0)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -236,7 +242,12 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'standard'
+        },
     },
     'loggers': {
         'django.request': {
@@ -244,6 +255,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'management': {
+            'handlers': ['console',],
+            'level': 'DEBUG',
+            'propagate': True,
+            }
     }
 }
 ########## END LOGGING CONFIGURATION
@@ -253,3 +269,16 @@ LOGGING = {
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
+
+# scrapers settings
+START_YEAR = 2002
+END_YEAR = 2012
+
+# preventivi url
+URL_PREVENTIVI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/3/md/0/tipo_modello/U"
+# consuntivi url
+URL_CONSUNTIVI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/4/md/0/tipo_modello/U"
+
+OUTPUT_FOLDER = '../scraper_project/scraper/output/'
+LISTA_COMUNI = 'listacomuni.csv'
+LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI

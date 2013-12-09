@@ -1,10 +1,12 @@
 import pprint
+from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.selector import Selector
 from scrapy.spider import BaseSpider
+from scrapy.contrib.spiders import CrawlSpider, Rule
 from utils import UnicodeWriter, UnicodeDictReader
 from slugify import slugify
 from scrapy import log
-from ..settings import LISTA_COMUNI_PATH,LOGFILE_PATH
+from ..settings import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI,URL_PREVENTIVI
 
 
 class ListaComuniSpider(BaseSpider):
@@ -39,15 +41,15 @@ class ListaComuniSpider(BaseSpider):
 
             # ZUGLIO:2060851360
 
-
-
         return
 
 class BilancioSpider(BaseSpider):
     name = "bilancio"
     allowed_domains = ["http://finanzalocale.interno.it"]
-    start_urls = ["http://finanzalocale.interno.it",]
+    start_urls = []
     lista_comuni = []
+    anni_considerati = range(START_YEAR, END_YEAR)
+    quadri_considerati = [2,3,4,5,]
 
 
 
@@ -60,26 +62,26 @@ class BilancioSpider(BaseSpider):
         try:
             udr = UnicodeDictReader(f=open(LISTA_COMUNI_PATH,mode='r'), dialect="excel_quote_all",)
         except IOError:
-
-            print "Impossible to open the file: %s.Closing the spider..." % LISTA_COMUNI_PATH
+            log.msg(message='test',level=log.ERROR)
+            # print "Impossible to open the file: %s.Closing the spider..." % LISTA_COMUNI_PATH
             return
 
-
         # get comuni name and code from lista comuni
-        # for row in udr:
-        #     self.lista_comuni.append(row)
+        for row in udr:
+            self.lista_comuni.append(row)
 
-        # get list of considered years
-        anni_considerati = range(2002, 2012)
+        # creates the start urls list
+        # per ogni comune, per ogni anno considerato, i quadri considerati di prev. e cons.
+        for anno in self.anni_considerati:
+            for comune in self.lista_comuni:
+                url_prev =URL_PREVENTIVI % (comune['CODICE_COMUNE'],anno)
+                url_cons =URL_CONSUNTIVI % (comune['CODICE_COMUNE'],anno)
+                self.start_urls.append(url_prev)
+                self.start_urls.append(url_cons)
         return
 
 
-
     def parse(self, response):
-
-
-
-
 
 
         return None
