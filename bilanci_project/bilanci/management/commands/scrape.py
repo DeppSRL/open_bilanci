@@ -26,32 +26,45 @@ class Command(BaseCommand):
 
     def scrape_table(self,*args,**options):
         if options['table'] is not None:
-            #scrape table
-            table = options['table']
-            titolo = None
-            sottotitolo=None
+            #scraped table
+            table_html = options['table']
+            titolo = ''
+            sottotitolo=''
+            # data struct to return
+            table_data={'meta':{'titolo':None,'sottotitolo':None},'columns':[],'data':{}}
 
             # cerca il titolo
-            for previous_element in table.previous_elements:
+            for previous_element in table_html.previous_elements:
                 if previous_element.name == "div" and previous_element.get('class'):
                     if previous_element.get('class')[0]=='acentro':
                         contents=previous_element.contents
                         if len(contents)==2:
-                            titolo = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'')
+                            table_data['meta']['titolo'] = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'')
                             break
 
             # cerca il sottotitolo
-            caption = table.find("caption")
+            caption = table_html.find("caption")
             if caption:
-                sottotitolo = caption.text.strip()
+                table_data['meta']['sottotitolo'] = caption.text.strip()
+
+            # prende la prima riga della tabella, che descrive le colonne
+            for th in table_html.findAll("th"):
+                if th.text.lower() != "voci":
+                    table_data['columns'].append(th.text)
+
+            # prende i dati dalla tabella
+            for tr in table_html.findAll("tr"):
+                for (col_counter,td) in enumerate(tr.findAll("td")):
+                    if col_counter == 0 :
+                        table_data['data'][td.text]=[]
+                        row_key = td.text
+                    else:
+                        table_data['data'][row_key].append(td.text)
+                    # pprint(td)
 
 
-            # print "titolo:"+titolo
-            # print "sottotitolo:"+sottotitolo
-            slug = slugify(titolo+"-"+sottotitolo)
-            print slug
+            return {'slug':slugify(titolo+"-"+sottotitolo),'data':table_data}
 
-        return
 
     def scrape_bilancio(self, *args, **options):
         # crea la struttura dati e fa lo scraping di ogni quadro
@@ -59,15 +72,17 @@ class Command(BaseCommand):
         if options['url'] is not None:
             url_list = options['url']
             for quadro,url in url_list.items():
-                self.logger.info(msg="Scrape quadro:%s"%(quadro,))
+                data[quadro]={}
+                self.logger.info(msg="Scraping quadro:%s"%(quadro,))
                 soup = BeautifulSoup(requests.get(url).text)
                 # non considera la prima tabella (con i dati riassuntivi del comune)
                 # e le ultime due: l'indice delle pagine e una tabella vuota
                 considered_tables = soup.findAll("table")[1:-2]
 
                 for table in considered_tables:
-                    data[quadro]=self.scrape_table(table=table)
-                pass
+                    return_value = self.scrape_table(table=table)
+                    data[quadro][return_value['slug']]=return_value['data']
+
 
         return data
 
@@ -119,9 +134,11 @@ class Command(BaseCommand):
             self.logger.info("Scraping year: "+str(anno_key))
             for comune_key, comune_obj in anno_obj.items():
                 self.logger.info("Scraping Comune: "+str(comune_key))
-                #scrape consuntivo
+
+                self.logger.info("Scraping preventivo")
                 comune_obj['P']['data']=self.scrape_bilancio(url=comune_obj['P']['url'])
-                #scrape preventivo
+
+                self.logger.info("Scraping consuntivo")
                 comune_obj['C']['data']=self.scrape_bilancio(url=comune_obj['C']['url'])
 
 
