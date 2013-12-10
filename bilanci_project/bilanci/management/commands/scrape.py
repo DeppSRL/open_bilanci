@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-import pprint
+from pprint import pprint
 from django.core.management.base import BaseCommand, CommandError
 import logging
 from bs4 import BeautifulSoup
 import requests
+from slugify import slugify
 from bilanci.utils import UnicodeDictReader
 from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI,URL_PREVENTIVI
 
@@ -25,21 +26,46 @@ class Command(BaseCommand):
 
     def scrape_table(self,*args,**options):
         if options['table'] is not None:
-            # todo: scrape table
-            pass
+            #scrape table
+            table = options['table']
+            titolo = None
+            sottotitolo=None
+
+            # cerca il titolo
+            for previous_element in table.previous_elements:
+                if previous_element.name == "div" and previous_element.get('class'):
+                    if previous_element.get('class')[0]=='acentro':
+                        contents=previous_element.contents
+                        if len(contents)==2:
+                            titolo = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'')
+                            break
+
+            # cerca il sottotitolo
+            caption = table.find("caption")
+            if caption:
+                sottotitolo = caption.text.strip()
+
+
+            # print "titolo:"+titolo
+            # print "sottotitolo:"+sottotitolo
+            slug = slugify(titolo+"-"+sottotitolo)
+            print slug
+
         return
+
     def scrape_bilancio(self, *args, **options):
         # crea la struttura dati e fa lo scraping di ogni quadro
         data = {}
         if options['url'] is not None:
             url_list = options['url']
             for quadro,url in url_list.items():
-
+                self.logger.info(msg="Scrape quadro:%s"%(quadro,))
                 soup = BeautifulSoup(requests.get(url).text)
-                tables = soup.findAll("table", {"class" : "tabfin"})
-                # skip last table
-                considered_tables = tables[:-1]
-                for table in tables:
+                # non considera la prima tabella (con i dati riassuntivi del comune)
+                # e le ultime due: l'indice delle pagine e una tabella vuota
+                considered_tables = soup.findAll("table")[1:-2]
+
+                for table in considered_tables:
                     data[quadro]=self.scrape_table(table=table)
                 pass
 

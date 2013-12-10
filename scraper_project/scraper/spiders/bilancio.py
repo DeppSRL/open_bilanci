@@ -6,7 +6,7 @@ from scrapy.contrib.spiders import CrawlSpider, Rule
 from utils import UnicodeWriter, UnicodeDictReader
 from slugify import slugify
 from scrapy import log
-from ..settings import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI,URL_PREVENTIVI
+from ..settings import LISTA_COMUNI_PATH
 
 
 class ListaComuniSpider(BaseSpider):
