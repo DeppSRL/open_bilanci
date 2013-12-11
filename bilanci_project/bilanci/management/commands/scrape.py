@@ -7,6 +7,7 @@ import requests
 from slugify import slugify
 from bilanci.utils import UnicodeDictReader
 from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI,URL_PREVENTIVI
+import couchdb
 
 class Command(BaseCommand):
 
@@ -20,8 +21,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.handle_scrape(*args, **options)
-
-
 
 
     def scrape_table(self,*args,**options):
@@ -39,27 +38,29 @@ class Command(BaseCommand):
                     if previous_element.get('class')[0]=='acentro':
                         contents=previous_element.contents
                         if len(contents)==2:
-                            table_data['meta']['titolo'] = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'')
+                            table_data['meta']['titolo'] = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'').strip(' \t\n\r')
                             break
 
             # cerca il sottotitolo
             caption = table_html.find("caption")
             if caption:
-                table_data['meta']['sottotitolo'] = caption.text.strip()
+                table_data['meta']['sottotitolo'] = caption.text.strip(' \t\n\r')
 
             # prende la prima riga della tabella, che descrive le colonne
             for th in table_html.findAll("th"):
                 if th.text.lower() != "voci":
-                    table_data['columns'].append(th.text)
+                    table_data['columns'].append(th.text.strip(' \t\n\r'))
 
             # prende i dati dalla tabella
             for tr in table_html.findAll("tr"):
                 for (col_counter,td) in enumerate(tr.findAll("td")):
+                    row_key=None
                     if col_counter == 0 :
-                        table_data['data'][td.text]=[]
-                        row_key = td.text
+                        row_key = td.text.strip(' \t\n\r')
+                        table_data['data'][row_key]=[]
+
                     else:
-                        table_data['data'][row_key].append(td.text)
+                        table_data['data'][row_key].append(td.text.strip(' \t\n\r'))
                     # pprint(td)
 
 
@@ -95,6 +96,8 @@ class Command(BaseCommand):
         scrape_list = {}
         anni_considerati = range(START_YEAR, END_YEAR)
         quadri_considerati = ['02','03','04','05']
+        couch_server = couchdb.Server()
+        bilanci_db = couch_server['bilanci']
         try:
             udr = UnicodeDictReader(f=open(LISTA_COMUNI_PATH,mode='r'), dialect="excel_quote_all",)
         except IOError:
@@ -136,12 +139,12 @@ class Command(BaseCommand):
                 self.logger.info("Scraping Comune: "+str(comune_key))
 
                 self.logger.info("Scraping preventivo")
-                comune_obj['P']['data']=self.scrape_bilancio(url=comune_obj['P']['url'])
+                preventivo=self.scrape_bilancio(url=comune_obj['P']['url'])
 
                 self.logger.info("Scraping consuntivo")
-                comune_obj['C']['data']=self.scrape_bilancio(url=comune_obj['C']['url'])
+                consuntivo=self.scrape_bilancio(url=comune_obj['C']['url'])
 
-
+                bilanci_db["{0}_{1}".format(anno_key,comune_key)]={'preventivo':preventivo,'consuntivo':consuntivo}
 
 
 

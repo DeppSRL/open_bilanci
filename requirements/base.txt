@@ -11,3 +11,4 @@ Scrapy==0.20.1
 python-slugify==0.0.6
 beautifulsoup4==4.3.2
 requests==2.1.0
+CouchDB==0.9
