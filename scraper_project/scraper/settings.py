@@ -6,7 +6,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 LOG_LEVEL = "DEBUG"
-
+DOWNLOAD_DELAY = 0.3
 BOT_NAME = 'scraper_project'
 
 SPIDER_MODULES = ['scraper.spiders']
