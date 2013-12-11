@@ -50,7 +50,7 @@ class ListaComuniSpider(BaseSpider):
 
 class BilanciPagesSpider(CrawlSpider):
     name = "bilanci_pages"
-    allowed_domains = ["http://finanzalocale.interno.it"]
+    allowed_domains = ["http://finanzalocale.interno.it",'finanzalocale.interno.it']
     start_urls = []
     lista_comuni = []
     anni_considerati = range(START_YEAR_SPIDER, END_YEAR_SPIDER)
@@ -66,7 +66,7 @@ class BilanciPagesSpider(CrawlSpider):
                     # preventivi url
                     r"http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/\d+/cod/3/anno/\d+/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/\d+",
                     # consuntivi url
-                    r"http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/\d+/cod/4/anno/d+/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/\d+",
+                    r"http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/\d+/cod/4/anno/\d+/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/\d+",
                 ]
             ),
 
