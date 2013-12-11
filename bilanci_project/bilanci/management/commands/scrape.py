@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 from slugify import slugify
 from bilanci.utils import UnicodeDictReader
-from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI,URL_PREVENTIVI
+from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI_QUADRI,URL_PREVENTIVI_QUADRI
 import couchdb
 
 class Command(BaseCommand):
@@ -120,8 +120,8 @@ class Command(BaseCommand):
                 scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['C']={}
 
                 for quadro in quadri_considerati:
-                    url_prev[quadro]=URL_PREVENTIVI % (comune['CODICE_COMUNE'],anno, quadro)
-                    url_cons[quadro]=URL_CONSUNTIVI % (comune['CODICE_COMUNE'],anno, quadro)
+                    url_prev[quadro]=URL_PREVENTIVI_QUADRI % (comune['CODICE_COMUNE'],anno, quadro)
+                    url_cons[quadro]=URL_CONSUNTIVI_QUADRI % (comune['CODICE_COMUNE'],anno, quadro)
 
                 scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['P']['url'] = url_prev
                 scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['C']['url'] = url_cons

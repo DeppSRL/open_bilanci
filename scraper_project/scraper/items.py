@@ -9,3 +9,14 @@ class ScraperProjectItem(Item):
     # define the fields for your item here like:
     # name = Field()
     pass
+
+class BilanciPageItem(Item):
+    body = Field()
+    # codice ente
+    comune = Field()
+    # anno
+    anno = Field()
+    # preventivo o consuntivo
+    tipologia = Field()
+    # numero quadro
+    quadro = Field()
