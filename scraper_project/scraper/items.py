@@ -20,3 +20,4 @@ class BilanciPageItem(Item):
     tipologia = Field()
     # numero quadro
     quadro = Field()
+

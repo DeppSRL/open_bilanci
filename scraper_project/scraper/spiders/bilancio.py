@@ -52,7 +52,7 @@ class BilanciPagesSpider(CrawlSpider):
     name = "bilanci_pages"
     allowed_domains = ["http://finanzalocale.interno.it",'finanzalocale.interno.it']
     start_urls = []
-    lista_comuni = []
+    lista_comuni = {}
     anni_considerati = range(START_YEAR_SPIDER, END_YEAR_SPIDER)
     quadri_considerati = []
 
@@ -93,14 +93,14 @@ class BilanciPagesSpider(CrawlSpider):
 
         # get comuni name and code from lista comuni
         for row in udr:
-            self.lista_comuni.append(row)
+            self.lista_comuni[row['CODICE_COMUNE']]=row['NOME_COMUNE']
 
         # creates the start urls list
         # per ogni comune, per ogni anno considerato, i quadri considerati di prev. e cons.
         for anno in self.anni_considerati:
-            for comune in self.lista_comuni:
-                url_prev =URL_PREVENTIVI_PRINCIPALE % (comune['CODICE_COMUNE'],anno)
-                url_cons =URL_CONSUNTIVI_PRINCIPALE % (comune['CODICE_COMUNE'],anno)
+            for comune in self.lista_comuni.keys():
+                url_prev =URL_PREVENTIVI_PRINCIPALE % (comune,anno)
+                url_cons =URL_CONSUNTIVI_PRINCIPALE % (comune,anno)
                 self.start_urls.append(url_prev)
                 self.start_urls.append(url_cons)
 
@@ -121,7 +121,7 @@ class BilanciPagesSpider(CrawlSpider):
 
         splitted_url=split(response.url[76:],'/')
         bilancio = BilanciPageItem()
-        bilancio['comune'] = splitted_url[0]
+        bilancio['comune'] = self.lista_comuni[splitted_url[0]]+"--"+splitted_url[0]
         bilancio['tipologia'] = preventivo_consuntivo[splitted_url[2]]
         bilancio['anno'] = splitted_url[4]
         bilancio['quadro'] = splitted_url[12]

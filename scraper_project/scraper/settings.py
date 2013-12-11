@@ -29,7 +29,7 @@ URL_PREVENTIVI_PRINCIPALE = "http://finanzalocale.interno.it/apps/floc.php/certi
 URL_CONSUNTIVI_PRINCIPALE ="http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/4/md/0/tipo_modello/U"
 
 START_YEAR_SPIDER = 2002
-END_YEAR_SPIDER = 2003
+END_YEAR_SPIDER = 2012
 
 ITEM_PIPELINES = {
     'scraper.pipelines.BilanciPagesPipeline': 300,
