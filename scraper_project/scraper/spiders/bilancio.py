@@ -53,7 +53,7 @@ class BilanciPagesSpider(CrawlSpider):
     allowed_domains = ["http://finanzalocale.interno.it",'finanzalocale.interno.it']
     start_urls = []
     lista_comuni = {}
-    anni_considerati = range(START_YEAR_SPIDER, END_YEAR_SPIDER)
+    anni_considerati = range(START_YEAR_SPIDER, END_YEAR_SPIDER+1)
     quadri_considerati = []
 
 

@@ -27,10 +27,8 @@ class Command(BaseCommand):
         if options['table'] is not None:
             #scraped table
             table_html = options['table']
-            titolo = ''
-            sottotitolo=''
             # data struct to return
-            table_data={'meta':{'titolo':None,'sottotitolo':None},'columns':[],'data':{}}
+            table_data={'meta':{'titolo':None,'sottotitolo':None,'columns':[]},'data':{}}
 
             # cerca il titolo
             for previous_element in table_html.previous_elements:
@@ -49,22 +47,28 @@ class Command(BaseCommand):
             # prende la prima riga della tabella, che descrive le colonne
             for th in table_html.findAll("th"):
                 if th.text.lower() != "voci":
-                    table_data['columns'].append(th.text.strip(' \t\n\r'))
+                    table_data['meta']['columns'].append(th.text.strip(' \t\n\r'))
 
             # prende i dati dalla tabella
             for tr in table_html.findAll("tr"):
+                row_key=None
                 for (col_counter,td) in enumerate(tr.findAll("td")):
-                    row_key=None
                     if col_counter == 0 :
                         row_key = td.text.strip(' \t\n\r')
                         table_data['data'][row_key]=[]
 
                     else:
                         table_data['data'][row_key].append(td.text.strip(' \t\n\r'))
-                    # pprint(td)
 
 
-            return {'slug':slugify(titolo+"-"+sottotitolo),'data':table_data}
+            slug = ''
+            if table_data['meta']['titolo']:
+                slug = slug + table_data['meta']['titolo']
+            if table_data['meta']['sottotitolo']:
+                slug = slug + table_data['meta']['sottotitolo']
+
+
+            return {'slug':slugify(slug),'data':table_data}
 
 
     def scrape_bilancio(self, *args, **options):
@@ -77,9 +81,8 @@ class Command(BaseCommand):
                 self.logger.info(msg="Scraping quadro:%s"%(quadro,))
                 soup = BeautifulSoup(requests.get(url).text)
                 # non considera la prima tabella (con i dati riassuntivi del comune)
-                # e le ultime due: l'indice delle pagine e una tabella vuota
-                considered_tables = soup.findAll("table")[1:-2]
-
+                # e le ultima: l'indice delle pagine
+                considered_tables = soup.findAll("table")[1:-1]
                 for table in considered_tables:
                     return_value = self.scrape_table(table=table)
                     data[quadro][return_value['slug']]=return_value['data']
@@ -95,7 +98,7 @@ class Command(BaseCommand):
         lista_comuni = []
         scrape_list = {}
         anni_considerati = range(START_YEAR, END_YEAR)
-        quadri_considerati = ['02','03','04','05']
+        quadri_considerati = ['01','02','03','04','05']
         couch_server = couchdb.Server()
         bilanci_db = couch_server['bilanci']
         try:
@@ -141,10 +144,16 @@ class Command(BaseCommand):
                 self.logger.info("Scraping preventivo")
                 preventivo=self.scrape_bilancio(url=comune_obj['P']['url'])
 
-                self.logger.info("Scraping consuntivo")
+                self.logger.info("Scraping consuntivo: "+comune_obj['C']['url']['03'])
                 consuntivo=self.scrape_bilancio(url=comune_obj['C']['url'])
 
-                bilanci_db["{0}_{1}".format(anno_key,comune_key)]={'preventivo':preventivo,'consuntivo':consuntivo}
+                bilancio_id = "{0}_{1}".format(anno_key,comune_key)
+                bilancio_data = {'preventivo':preventivo,'consuntivo':consuntivo}
+                # se esiste l'oggetto lo aggiorna, se no lo aggiunge
+                if bilanci_db[bilancio_id]:
+                    bilancio_data['_rev']=bilanci_db[bilancio_id].rev
+
+                bilanci_db[bilancio_id]=bilancio_data
 
 
 

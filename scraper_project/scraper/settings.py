@@ -21,7 +21,7 @@ LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
 LOGFILE = 'scraper_logfile'
 LOGFILE_PATH =OUTPUT_FOLDER +LOGFILE
 
-BILANCI_PAGES_FOLDER = '/home/nishant/NAS/bilanci'
+BILANCI_PAGES_FOLDER = '/home/nishant/NAS/stefano/bilanci_subset'
 
 # preventivi url
 URL_PREVENTIVI_PRINCIPALE = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/3/md/0/tipo_modello/U"
