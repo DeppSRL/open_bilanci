@@ -4,13 +4,12 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 
 class Ente(models.Model):
-
     name = models.CharField(max_length=255, blank=True)
     short_name = models.CharField(max_length=45, blank=True)
 
 class Voce(MPTTModel):
     denominazione = models.CharField(max_length=100)
-    descrizione = models.TextField(max_length=500)
+    descrizione = models.TextField(max_length=500, blank=True, null=True)
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 

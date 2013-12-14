@@ -1,0 +1,47 @@
+- Entrate:
+  - Tributi:
+    - Imposte:
+      - "ICI/IMU"
+      - Altro
+    - Tasse:
+      - Tassa rifiuti
+      - Altro
+    - Altri tributi:
+      - Affissioni
+      - Altro
+  - Contributi e trasferimenti:
+    - Contributi e trasferimenti dallo Stato
+    - Contributi e trasferimenti dalla Regione
+    - Contributi e trasferimenti dalla Regione per funzioni delegate
+    - Contributi e trasferimenti dalla UE e Organismi Internazionali
+    - Contributi e trasferimenti da altri enti
+  - Entrate extratributarie:
+    - Servizi pubblici:
+      - Polizia municipale, multe
+      - Assistenza, trasporto, mense
+      - Viabilità, circolazione stradale
+      - Asili nido
+      - Residenze per anziani
+      - Altri servizi pubblici
+    - "Proventi di bene dell'ente"
+    - "Interessi su anticipazioni o crediti"
+    - "Proventi diversi"
+  - "Alienazioni, trasferimenti, riscossioni":
+    - Alienazione del patrimonio:
+      - Alienazione beni immobili
+      - Altro
+    - Trasferimenti di capitali dallo stato
+    - Trasferimenti di capitali dalla Regione
+    - Trasferimenti di capitali da altri enti pubblici
+    - Altri trasferimenti di capitali:
+      - Permessi di costruire e sanzioni
+      - Altro
+    - Riscossione di crediti
+  - Prestiti:
+    - Anticipazioni di cassa
+    - Finanziamenti a breve termine
+    - Assunzioni di mutui e prestiti
+    - Emissioni di prestiti obbligazionari
+  - Servizi per conto terzi
+
+
