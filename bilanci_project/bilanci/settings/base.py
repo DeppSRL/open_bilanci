@@ -274,12 +274,17 @@ WSGI_APPLICATION = 'wsgi.application'
 START_YEAR = 2002
 END_YEAR = 2012
 
+OUTPUT_PATH = '../scraper_project/scraper/output/'
+LISTA_COMUNI = 'listacomuni.csv'
+LISTA_COMUNI_PATH =OUTPUT_PATH +LISTA_COMUNI
+
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-
-OUTPUT_FOLDER = '../scraper_project/scraper/output/'
-LISTA_COMUNI = 'listacomuni.csv'
-LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
+PATH_PREVENTIVI = "/home/nishant/NAS/stefano/bilanci_subset"
+# preventivi url
+PATH_PREVENTIVO_QUADRI = PATH_PREVENTIVI+"/%s/%s/Preventivo/%s.html"
+# consuntivi PATH
+PATH_CONSUNTIVO_QUADRI = PATH_PREVENTIVI+"/%s/%s/Consuntivo/%s.html"

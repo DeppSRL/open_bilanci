@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 import requests
 from slugify import slugify
 from bilanci.utils import UnicodeDictReader
-from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, URL_CONSUNTIVI_QUADRI,URL_PREVENTIVI_QUADRI
+from bilanci.settings.base import LISTA_COMUNI_PATH,START_YEAR, END_YEAR, \
+    PATH_CONSUNTIVO_QUADRI, PATH_PREVENTIVO_QUADRI
 import couchdb
 
 class Command(BaseCommand):
@@ -76,16 +77,20 @@ class Command(BaseCommand):
         data = {}
         if options['url'] is not None:
             url_list = options['url']
-            for quadro,url in url_list.items():
+            for quadro,file_path in url_list.items():
                 data[quadro]={}
                 self.logger.info(msg="Scraping quadro:%s"%(quadro,))
-                soup = BeautifulSoup(requests.get(url).text)
-                # non considera la prima tabella (con i dati riassuntivi del comune)
-                # e le ultima: l'indice delle pagine
-                considered_tables = soup.findAll("table")[1:-1]
-                for table in considered_tables:
-                    return_value = self.scrape_table(table=table)
-                    data[quadro][return_value['slug']]=return_value['data']
+                try:
+                    soup = BeautifulSoup(open(file_path))
+                except IOError:
+                    self.logger.error(msg="File does not exist:%s"%(file_path,))
+                else:
+                    # non considera la prima tabella (con i dati riassuntivi del comune)
+                    # e le ultima: l'indice delle pagine
+                    considered_tables = soup.findAll("table")[1:-1]
+                    for table in considered_tables:
+                        return_value = self.scrape_table(table=table)
+                        data[quadro][return_value['slug']]=return_value['data']
 
 
         return data
@@ -116,21 +121,22 @@ class Command(BaseCommand):
         for anno in anni_considerati:
             scrape_list[anno] = {}
             for comune in lista_comuni:
-                url_prev={}
-                url_cons={}
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]={}
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['P']={}
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['C']={}
+                path_prev={}
+                path_prev={}
+                comune_slug = comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']
+                scrape_list[anno][comune_slug]={}
+                scrape_list[anno][comune_slug]['P']={}
+                scrape_list[anno][comune_slug]['C']={}
 
                 for quadro in quadri_considerati:
-                    url_prev[quadro]=URL_PREVENTIVI_QUADRI % (comune['CODICE_COMUNE'],anno, quadro)
-                    url_cons[quadro]=URL_CONSUNTIVI_QUADRI % (comune['CODICE_COMUNE'],anno, quadro)
+                    path_prev[quadro]=PATH_PREVENTIVO_QUADRI % (anno, comune_slug, quadro)
+                    path_prev[quadro]=PATH_CONSUNTIVO_QUADRI % (anno,comune_slug, quadro)
 
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['P']['url'] = url_prev
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['C']['url'] = url_cons
+                scrape_list[anno][comune_slug]['P']['url'] = path_prev
+                scrape_list[anno][comune_slug]['C']['url'] = path_prev
 
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['P']['data'] = {}
-                scrape_list[anno][comune["NOME_COMUNE"]+"--"+comune['CODICE_COMUNE']]['C']['data'] = {}
+                scrape_list[anno][comune_slug]['P']['data'] = {}
+                scrape_list[anno][comune_slug]['C']['data'] = {}
 
 
         self.logger.info("Start scraping")
