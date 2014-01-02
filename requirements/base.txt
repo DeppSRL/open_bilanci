@@ -13,3 +13,4 @@ beautifulsoup4==4.3.2
 requests==2.1.0
 CouchDB==0.9
 psycopg2==2.5.1
+django-treeadmin==0.4.1
