@@ -280,7 +280,9 @@ URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certifica
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
+BILANCI_PATH = ""
 
-OUTPUT_FOLDER = '../scraper_project/scraper/output/'
-LISTA_COMUNI = 'listacomuni.csv'
+OUTPUT_FOLDER = ''
+LISTA_COMUNI = ''
 LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
+BILANCI_RAW_DB = ''
