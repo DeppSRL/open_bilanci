@@ -105,7 +105,7 @@ class Command(BaseCommand):
         anni_considerati = range(settings.START_YEAR, settings.END_YEAR)
         quadri_considerati = ['01', '02', '03', '04', '05']
         couch_server = couchdb.Server()
-        bilanci_db = couch_server['bilanci_raw']
+        bilanci_db = couch_server[settings.BILANCI_RAW_DB]
         try:
             udr = UnicodeDictReader(f=open(settings.LISTA_COMUNI_PATH, mode='r'), dialect="excel_quote_all", )
         except IOError:
