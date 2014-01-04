@@ -19,6 +19,8 @@ build
 
 #pycharm
 .idea/
+.env
+
 #south
 bilanci_project/bilanci/migrations/
 scraper_project/scraper/output/

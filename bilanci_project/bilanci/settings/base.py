@@ -1,31 +1,33 @@
 """Common settings and globals."""
-import os
-
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
+import environ
+
+root = environ.Path(__file__) - 4  # (/open_bilanci/bilanci_project/bilanci/settings/ - 4 = /)
+
+# set default values and casting
+env = environ.Env(
+    DEBUG=(bool, True),
+)
+env.read_env(root('.env'))
 
 
 ########## PATH CONFIGURATION
-# Absolute filesystem path to the Django project directory:
-DJANGO_ROOT = dirname(dirname(abspath(__file__)))
-
-# Absolute filesystem path to the top-level project folder:
-SITE_ROOT = dirname(DJANGO_ROOT)
-
-# Site name:
-SITE_NAME = basename(DJANGO_ROOT)
+REPO_ROOT = root()
+PROJECT_ROOT = root('bilanci_project')
 
 # Add our project to our pythonpath, this way we don't need to type our project
 # name in our dotted import paths:
-path.append(DJANGO_ROOT)
+path.append(PROJECT_ROOT)
+
+# Site name:
+SITE_ROOT = root('bilanci_project/bilanci')
+SITE_NAME = basename(SITE_ROOT)
 ########## END PATH CONFIGURATION
 
 
 ########## DEBUG CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
-DEBUG = False
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
+DEBUG = env('DEBUG') # False if not in os.environ
 TEMPLATE_DEBUG = DEBUG
 ########## END DEBUG CONFIGURATION
 
@@ -44,24 +46,17 @@ MANAGERS = ADMINS
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
+    'default': env.db('DB_DEFAULT_URL'),
 }
 ########## END DATABASE CONFIGURATION
 
 
 ########## GENERAL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-TIME_ZONE = 'America/Los_Angeles'
+TIME_ZONE = 'Europe/Rome'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'it-IT'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
@@ -78,24 +73,18 @@ USE_TZ = True
 
 
 ########## MEDIA CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
-MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_ROOT = root('assets')
 MEDIA_URL = '/media/'
 ########## END MEDIA CONFIGURATION
 
 
 ########## STATIC FILE CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = normpath(join(SITE_ROOT, 'assets'))
-
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
+STATIC_ROOT = root('static')
 STATIC_URL = '/static/'
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
-    normpath(join(SITE_ROOT, 'static')),
+    normpath(join(PROJECT_ROOT, 'static')),
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
@@ -107,9 +96,7 @@ STATICFILES_FINDERS = (
 
 
 ########## SECRET CONFIGURATION
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-# Note: This key only used for development and testing.
-SECRET_KEY = r"di**%ef+jjhm3tg_omg466!3i3i-ijnfoz&@xj2+)ldnadh6!v"
+SECRET_KEY = env('SECRET_KEY')  # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
 ########## END SECRET CONFIGURATION
 
 
@@ -123,7 +110,7 @@ ALLOWED_HOSTS = []
 ########## FIXTURE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-FIXTURE_DIRS
 FIXTURE_DIRS = (
-    normpath(join(SITE_ROOT, 'fixtures')),
+    normpath(join(PROJECT_ROOT, 'fixtures')),
 )
 ########## END FIXTURE CONFIGURATION
 
@@ -149,7 +136,7 @@ TEMPLATE_LOADERS = (
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
 TEMPLATE_DIRS = (
-    normpath(join(SITE_ROOT, 'templates')),
+    normpath(join(PROJECT_ROOT, 'templates')),
 )
 ########## END TEMPLATE CONFIGURATION
 
