@@ -8,6 +8,21 @@ from pprint import pprint
 server = couchdb.Server('http://localhost:5984')
 db = server['bilanci_raw']
 
+def cons_titoli_getkeys(doc):
+    # funzione che raccoglie per tutti i bilanci consuntivi tutti i nomi
+    # dei titoli, quadro per quadro
+    all_keys={}
+    if 'consuntivo' in doc.keys():
+        for quadro_n, quadro_v  in doc['consuntivo'].iteritems():
+
+            if quadro_n not in all_keys.keys():
+                all_keys[quadro_n]=[]
+
+            all_keys[quadro_n]=quadro_v.keys()
+
+    yield ('key', all_keys)
+
+
 
 def quadro4_getkeys(doc):
     all_keys = {
@@ -43,24 +58,29 @@ def quadro4_getkeys(doc):
 
 
 def keys_reduce(keys,values,rereduce):
-    total={'a':[],'b':[],'c':[]}
+    total={}
 
     all_keys_list = values
     for all_key in all_keys_list:
         for titolo_name in all_key.keys():
+            # se total[titolo_name] non esiste, lo crea
+            if titolo_name not in total.keys():
+                total[titolo_name]=[]
+
             for voce in all_key[titolo_name]:
                 if voce not in total[titolo_name]:
                     total[titolo_name].append(voce)
 
     # ordina alfabeticamente i risultati
-    for titolo_name in total.keys():
-        total[titolo_name]=sorted(total[titolo_name])
+    # for titolo_name in total.keys():
+    #     total[titolo_name]=sorted(total[titolo_name])
 
     return total
 
 
 # sync the view
-view = ViewDefinition('tree_getkeys', 'quadro4_getkeys', map_fun=quadro4_getkeys, reduce_fun=keys_reduce, language='python')
+# view = ViewDefinition('tree_getkeys', 'quadro4_getkeys', map_fun=quadro4_getkeys, reduce_fun=keys_reduce, language='python')
+view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=cons_titoli_getkeys, reduce_fun=keys_reduce, language='python')
 view.sync(db)
 
 
@@ -70,7 +90,7 @@ view.sync(db)
 docs = []
 c = 0
 
-for row in db.view('tree_getkeys/quadro4_getkeys'):
+for row in db.view('tree_getkeys/cons_titoli_getkeys'):
     docs.append(row)
 
 
