@@ -4,21 +4,24 @@ import json
 from couchdb.design import ViewDefinition
 from pprint import pprint
 
+server_host = 'http://op:op42@staging.depp.it'
+db_name = 'bilanci'
+server = couchdb.Server('http://op:op42@'+server_host+':5984/')
+db = server[db_name]
 
-server = couchdb.Server('http://localhost:5984')
-db = server['bilanci_raw']
-
-def cons_titoli_getkeys(doc):
+def titoli_getkeys(doc):
     # funzione che raccoglie per tutti i bilanci consuntivi tutti i nomi
     # dei titoli, quadro per quadro
-    all_keys={}
-    if 'consuntivo' in doc.keys():
-        for quadro_n, quadro_v  in doc['consuntivo'].iteritems():
+    all_keys={'preventivo':{},'consuntivo':{}}
 
-            if quadro_n not in all_keys.keys():
-                all_keys[quadro_n]=[]
+    for tipo_bilancio in all_keys.keys():
+        if tipo_bilancio in doc.keys():
+            for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
 
-            all_keys[quadro_n]=quadro_v.keys()
+                if quadro_n not in all_keys[tipo_bilancio].keys():
+                    all_keys[tipo_bilancio][quadro_n]=[]
+
+                all_keys[tipo_bilancio][quadro_n]=quadro_v.keys()
 
     yield ('key', all_keys)
 
@@ -58,29 +61,30 @@ def quadro4_getkeys(doc):
 
 
 def keys_reduce(keys,values,rereduce):
-    total={}
+    total={'preventivo':{},'consuntivo':{}}
 
     all_keys_list = values
     for all_key in all_keys_list:
-        for titolo_name in all_key.keys():
-            # se total[titolo_name] non esiste, lo crea
-            if titolo_name not in total.keys():
-                total[titolo_name]=[]
+        for tipo_bilancio in all_key:
+            for titolo_name in all_key[tipo_bilancio].keys():
+                # se total[titolo_name] non esiste, lo crea
+                if titolo_name not in total[tipo_bilancio].keys():
+                    total[tipo_bilancio][titolo_name]=[]
 
-            for voce in all_key[titolo_name]:
-                if voce not in total[titolo_name]:
-                    total[titolo_name].append(voce)
+                for voce in all_key[tipo_bilancio][titolo_name]:
+                    if voce not in total[tipo_bilancio][titolo_name]:
+                        total[tipo_bilancio][titolo_name].append(voce)
 
     # ordina alfabeticamente i risultati
-    # for titolo_name in total.keys():
-    #     total[titolo_name]=sorted(total[titolo_name])
+    for tipo_bilancio in total.keys():
+        for titolo_name in total[tipo_bilancio].keys():
+            total[tipo_bilancio][titolo_name]=sorted(total[tipo_bilancio][titolo_name])
 
     return total
 
 
 # sync the view
-# view = ViewDefinition('tree_getkeys', 'quadro4_getkeys', map_fun=quadro4_getkeys, reduce_fun=keys_reduce, language='python')
-view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=cons_titoli_getkeys, reduce_fun=keys_reduce, language='python')
+view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=titoli_getkeys, reduce_fun=keys_reduce, language='python')
 view.sync(db)
 
 
