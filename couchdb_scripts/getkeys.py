@@ -4,27 +4,12 @@ import json
 from couchdb.design import ViewDefinition
 from pprint import pprint
 
-server_host = 'http://op:op42@staging.depp.it'
-db_name = 'bilanci'
-server = couchdb.Server('http://op:op42@'+server_host+':5984/')
+
+# db_name = 'bilanci'
+db_name = 'bilanci_raw'
+# server = couchdb.Server('http://op:op42@staging.depp.it:5984/')
+server = couchdb.Server('http://localhost:5984/')
 db = server[db_name]
-
-def titoli_getkeys(doc):
-    # funzione che raccoglie per tutti i bilanci consuntivi tutti i nomi
-    # dei titoli, quadro per quadro
-    all_keys={'preventivo':{},'consuntivo':{}}
-
-    for tipo_bilancio in all_keys.keys():
-        if tipo_bilancio in doc.keys():
-            for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
-
-                if quadro_n not in all_keys[tipo_bilancio].keys():
-                    all_keys[tipo_bilancio][quadro_n]=[]
-
-                all_keys[tipo_bilancio][quadro_n]=quadro_v.keys()
-
-    yield ('key', all_keys)
-
 
 
 def quadro4_getkeys(doc):
@@ -60,6 +45,25 @@ def quadro4_getkeys(doc):
     yield ('key', all_keys)
 
 
+
+def titoli_getkeys(doc):
+    # funzione che raccoglie per tutti i bilanci consuntivi tutti i nomi
+    # dei titoli, quadro per quadro
+    all_keys={'preventivo':{},'consuntivo':{}}
+
+    for tipo_bilancio in all_keys.keys():
+        if tipo_bilancio in doc.keys():
+            for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
+
+                if quadro_n not in all_keys[tipo_bilancio].keys():
+                    all_keys[tipo_bilancio][quadro_n]=[]
+                # genera una chiave che contiene tipo di bilancio, quadro e la voce
+                # il valore 1 ci permette di fare somme con la reduce function _sum()
+                for voce in quadro_v.keys():
+                    yield ([doc['_id'][:4],tipo_bilancio,quadro_n,voce],1)
+
+
+
 def keys_reduce(keys,values,rereduce):
     total={'preventivo':{},'consuntivo':{}}
 
@@ -82,9 +86,8 @@ def keys_reduce(keys,values,rereduce):
 
     return total
 
-
 # sync the view
-view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=titoli_getkeys, reduce_fun=keys_reduce, language='python')
+view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=titoli_getkeys,  language='python')
 view.sync(db)
 
 
@@ -93,9 +96,9 @@ view.sync(db)
 # get view values
 docs = []
 c = 0
-
-for row in db.view('tree_getkeys/cons_titoli_getkeys'):
-    docs.append(row)
-
-
-print json.dumps(docs, indent=4)
+#
+# for row in db.view('tree_getkeys/cons_titoli_getkeys'):
+#     docs.append(row)
+#
+#
+# print json.dumps(docs, indent=4)
