@@ -60,7 +60,7 @@ def titoli_getkeys(doc):
                 # genera una chiave che contiene tipo di bilancio, quadro e la voce
                 # il valore 1 ci permette di fare somme con la reduce function _sum()
                 for voce in quadro_v.keys():
-                    yield ([doc['_id'][:4],tipo_bilancio,quadro_n,voce],1)
+                    yield ([tipo_bilancio,quadro_n,voce,doc['_id'][:4]],1)
 
 
 
