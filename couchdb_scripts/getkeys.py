@@ -1,16 +1,9 @@
-__author__ = 'stefano'
+import sys
 import couchdb
 import json
+import argparse
 from couchdb.design import ViewDefinition
 from pprint import pprint
-
-
-# db_name = 'bilanci'
-db_name = 'bilanci_raw'
-# server = couchdb.Server('http://op:op42@staging.depp.it:5984/')
-server = couchdb.Server('http://localhost:5984/')
-db = server[db_name]
-
 
 def quadro4_getkeys(doc):
     all_keys = {
@@ -86,19 +79,69 @@ def keys_reduce(keys,values,rereduce):
 
     return total
 
-# sync the view
-view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=titoli_getkeys,  language='python')
-view.sync(db)
+
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(description='Get Titolo names and voce labels from bilanci')
+    server_name = None
+    check_function= None
+
+    accepted_servers = {
+        'localhost': {
+            'host': 'localhost',
+            'port': '5984',
+            'user': '',
+            'password':'',
+            'db_name':'bilanci_raw'
+
+        },
+        'staging': {
+            'host': 'staging.depp.it',
+            'port': '5984',
+            'user': 'op',
+            'password':'op42',
+            'db_name':'bilanci'
+        },
+    }
+
+
+    parser.add_argument('--server','-s', dest='server_name', action='store',
+                   default='localhost',
+                   help='Server name: localhost | staging')
+
+    parser.add_argument("--check-function","-ck", help="check function after synch",
+                    action="store_true")
+
+    args = parser.parse_args()
+    server_name= args.server_name
+    check_function= args.check_function
+
+    if server_name and check_function:
+        # costruisce la stringa per la connessione al server aggiungendo user/passw se necessario
+        server_string ='http://'
+        if accepted_servers[server_name]['user']:
+            server_string+=accepted_servers[server_name]['user']+":"
+            if accepted_servers[server_name]['password']:
+                server_string+=accepted_servers[server_name]['password']+"@"
+
+        server_string+=accepted_servers[server_name]['host']+":"+accepted_servers[server_name]['port']
+
+        print "Connecting to:"+server_string
+        # open db connection
+        server = couchdb.Server(server_string)
+        db = server[accepted_servers[server_name]['db_name']]
+        # sync the view
+        view = ViewDefinition('tree_getkeys', 'cons_titoli_getkeys', map_fun=titoli_getkeys, reduce_fun='_sum()', language='python')
+        view.sync(db)
+
+        if check_function:
+            # get view values
+            check = db.view('tree_getkeys/cons_titoli_getkeys')
 
 
 
 
-# get view values
-docs = []
-c = 0
-#
-# for row in db.view('tree_getkeys/cons_titoli_getkeys'):
-#     docs.append(row)
-#
-#
-# print json.dumps(docs, indent=4)
+# launches main function
+if __name__ == "__main__":
+   main(sys.argv[1:])
