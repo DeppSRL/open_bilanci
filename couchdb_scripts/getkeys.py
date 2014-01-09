@@ -40,45 +40,19 @@ def quadro4_getkeys(doc):
 
 
 def titoli_getkeys(doc):
-    # funzione che raccoglie per tutti i bilanci consuntivi tutti i nomi
+    # funzione che raccoglie per tutti i bilanci tutti i nomi
     # dei titoli, quadro per quadro
-    all_keys={'preventivo':{},'consuntivo':{}}
+    ignored_keys =["_rev", "_id"]
+    if doc:
+        for doc_keys in doc.keys():
+            if doc_keys not in ignored_keys:
+                tipo_bilancio = doc_keys
+                for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
 
-    for tipo_bilancio in all_keys.keys():
-        if tipo_bilancio in doc.keys():
-            for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
-
-                if quadro_n not in all_keys[tipo_bilancio].keys():
-                    all_keys[tipo_bilancio][quadro_n]=[]
-                # genera una chiave che contiene tipo di bilancio, quadro e la voce
-                # il valore 1 ci permette di fare somme con la reduce function _sum()
-                for voce in quadro_v.keys():
-                    yield ([tipo_bilancio,quadro_n,voce,doc['_id'][:4]],1)
-
-
-
-def keys_reduce(keys,values,rereduce):
-    total={'preventivo':{},'consuntivo':{}}
-
-    all_keys_list = values
-    for all_key in all_keys_list:
-        for tipo_bilancio in all_key:
-            for titolo_name in all_key[tipo_bilancio].keys():
-                # se total[titolo_name] non esiste, lo crea
-                if titolo_name not in total[tipo_bilancio].keys():
-                    total[tipo_bilancio][titolo_name]=[]
-
-                for voce in all_key[tipo_bilancio][titolo_name]:
-                    if voce not in total[tipo_bilancio][titolo_name]:
-                        total[tipo_bilancio][titolo_name].append(voce)
-
-    # ordina alfabeticamente i risultati
-    for tipo_bilancio in total.keys():
-        for titolo_name in total[tipo_bilancio].keys():
-            total[tipo_bilancio][titolo_name]=sorted(total[tipo_bilancio][titolo_name])
-
-    return total
-
+                    # genera una chiave che contiene tipo di bilancio, quadro e la voce
+                    # il valore 1 ci permette di fare somme con la reduce function _sum()
+                    for nome_titolo in quadro_v.keys():
+                        yield ([tipo_bilancio,quadro_n,nome_titolo,doc['_id'][:4]],1)
 
 
 
