@@ -5,40 +5,6 @@ import argparse
 from couchdb.design import ViewDefinition
 from pprint import pprint
 
-def quadro4_getkeys(doc):
-    all_keys = {
-        'a':[],
-        'b':[],
-        'c':[]
-    }
-
-    possible_values = {
-        'a':['quadro-4-a-impegni','quadro-4-a-impegni-1'],
-        'b':['quadro-4-b-pagamenti-in-conto-competenza','quadro-4-b-pagamenti-in-conto-competenza-1'],
-        'c':['quadro-4-c-pagamenti-in-conto-residui','quadro-4-c-pagamenti-in-conto-residui-1']
-    }
-
-    for titolo_key,titolo_values in possible_values.iteritems():
-        for titolo_name in titolo_values:
-            if titolo_name in doc['consuntivo']['04'].keys():
-                for sottovoce in doc['consuntivo']['04'][titolo_name]['data'].keys():
-                    clean_sottovoce = sottovoce.lower().strip()
-                    # se presente toglie il carattere - iniziale
-                    try:
-                        if clean_sottovoce.index('- ') == 0:
-                            clean_sottovoce = clean_sottovoce[2:]
-                    except ValueError:
-                        pass
-
-                    all_keys[titolo_key].append(clean_sottovoce)
-
-    all_keys['a']=sorted(all_keys['a'])
-    all_keys['b']=sorted(all_keys['b'])
-    all_keys['c']=sorted(all_keys['c'])
-    yield ('key', all_keys)
-
-
-
 def titoli_getkeys(doc):
     # funzione che raccoglie per tutti i bilanci tutti i nomi
     # dei titoli, quadro per quadro
@@ -53,13 +19,6 @@ def titoli_getkeys(doc):
                     # il valore 1 ci permette di fare somme con la reduce function _sum()
                     for nome_titolo in quadro_v.keys():
                         yield ([tipo_bilancio,quadro_n,nome_titolo,doc['_id'][:4]],1)
-
-
-def translate_titolo(nome_titolo):
-    # funzione che traduce il nome titolo in ingresso nel corrispondente nome titolo
-    # dell'albero semplificato
-
-    return nome_titolo
 
 
 def voci_getkeys(doc):
@@ -84,11 +43,35 @@ def voci_getkeys(doc):
 
 
 
-
 def main(argv):
     parser = argparse.ArgumentParser(description='Get Titolo names and voce labels from bilanci')
     server_name = None
     check_function= None
+
+    voci_getkeys_js = '''
+        function (doc) {
+        var considered_keys= new Array( "consuntivo", "preventivo" );
+            if(doc!==null){
+                for (var document_keys in doc) {
+                    if(considered_keys.indexOf(document_keys) > -1){
+                        var tipo_bilancio = document_keys;
+                        for(var quadro_n in doc[tipo_bilancio]){
+                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+
+                                if(doc[tipo_bilancio][quadro_n][nome_titolo]['data']!==null){
+                                    for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                        emit([tipo_bilancio,quadro_n,nome_titolo,voce,doc['_id'].substring(0,4)],1);
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+           }
+        }
+    '''
 
     accepted_servers = {
         'localhost': {
@@ -109,9 +92,24 @@ def main(argv):
     }
 
     accepted_views = {
-        'voci':voci_getkeys,
-        'titoli': titoli_getkeys
+        'voci':{
+            'design_document': 'tree_getkeys',
+            'mapping_function':voci_getkeys,
+            'language': 'python'
+        },
+        'voci_js':{
+            'design_document': 'tree_getkeys_js',
+            'mapping_function': voci_getkeys_js,
+            'language': 'javascript'
+        },
+        'titoli':{
+            'design_document': 'tree_getkeys',
+            'mapping_function': titoli_getkeys,
+            'language': 'python'
+        },
     }
+
+    accepted_language = ['python','javascript']
 
 
     parser.add_argument('--server','-s', dest='server_name', action='store',
@@ -120,7 +118,7 @@ def main(argv):
 
     parser.add_argument('--function','-f', dest='function', action='store',
                default='voci',
-               help='Function to sync: titoli | voci')
+               help='Function to sync: titoli | voci| voci_js')
 
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
@@ -129,8 +127,9 @@ def main(argv):
     server_name= args.server_name
     check_function= args.check_function
     function_to_sync = args.function
+    
 
-    if server_name and check_function:
+    if server_name in accepted_servers.keys():
         # costruisce la stringa per la connessione al server aggiungendo user/passw se necessario
         server_string ='http://'
         if accepted_servers[server_name]['user']:
@@ -144,19 +143,26 @@ def main(argv):
         # open db connection
         server = couchdb.Server(server_string)
         db = server[accepted_servers[server_name]['db_name']]
-        print "Done!"
+        print "Db connection ok!"
 
-        if function_to_sync in accepted_views:
+        if function_to_sync in accepted_views.keys():
             view_name = function_to_sync
-            reduce_function = accepted_views[view_name]
+            reduce_function = accepted_views[view_name]['mapping_function']
 
             # sync the view
-            view = ViewDefinition('tree_getkeys',view_name, map_fun=reduce_function, reduce_fun='_sum()', language='python')
+            view = ViewDefinition(accepted_views[view_name]['design_document'],
+                                  view_name,
+                                  map_fun=reduce_function,
+                                  reduce_fun='_sum()',
+                                  language=accepted_views[view_name]['language']
+            )
+
             view.sync(db)
+            print "Sync done!"
 
             if check_function:
                 # get view values
-                check = db.view('tree_getkeys/'+view_name)
+                check = db.view(accepted_views[view_name]['design_document']+'/'+view_name)
                 # dummy code just to test the function
                 for row in check:
                     print "Test output:"
@@ -165,6 +171,8 @@ def main(argv):
 
         else:
             print "Function "+function_to_sync+" not accepted"
+    else:
+        print "no op:"+server_name+","+str(check_function)
 
 
 # launches main function
