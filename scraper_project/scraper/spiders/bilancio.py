@@ -37,8 +37,7 @@ class ListaComuniSpider(BaseSpider):
             comune_string = comune.extract()
             # transforms to => ZUGLIO','2060851360
             comune_string = comune_string[10:len(comune_string)-3]
-            nome_comune = comune_string.split(u"','")[0]
-            codice_comune = comune_string.split(u"','")[1]
+            (nome_comune, codice_comune) = comune_string.split(u"','")
             row_comune = [slugify(nome_comune).upper(),codice_comune]
             uw.writerow(row_comune)
 

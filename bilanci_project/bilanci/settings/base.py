@@ -200,6 +200,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
     # Database migration helpers:
     'south',
+    'treeadmin',
     'mptt',
 )
 
@@ -283,8 +284,10 @@ URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certifica
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-PATH_PREVENTIVI = "/home/nishant/NAS/stefano/bilanci_subset"
-# preventivi url
-PATH_PREVENTIVO_QUADRI = PATH_PREVENTIVI+"/%s/%s/Preventivo/%s.html"
-# consuntivi PATH
-PATH_CONSUNTIVO_QUADRI = PATH_PREVENTIVI+"/%s/%s/Consuntivo/%s.html"
+BILANCI_PATH = ""
+
+OUTPUT_FOLDER = ''
+LISTA_COMUNI = ''
+LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
+BILANCI_RAW_DB = ''
+

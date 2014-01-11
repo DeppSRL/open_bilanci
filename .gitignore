@@ -18,7 +18,9 @@ build
 *.log
 
 #pycharm
-.idea/*
+.idea/
 #south
 bilanci_project/bilanci/migrations/
 scraper_project/scraper/output/
+bilanci_project/bilanci/settings/local.py
+couchdb_scripts/output
