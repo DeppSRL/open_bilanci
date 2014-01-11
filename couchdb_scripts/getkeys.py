@@ -50,25 +50,30 @@ def main(argv):
 
     voci_getkeys_js = '''
         function (doc) {
-        var considered_keys= new Array( "consuntivo", "preventivo" );
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
             if(doc!==null){
-                for (var document_keys in doc) {
-                    if(considered_keys.indexOf(document_keys) > -1){
-                        var tipo_bilancio = document_keys;
-                        for(var quadro_n in doc[tipo_bilancio]){
-                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+                for (var i = 0; i < considered_keys.length; i++) {
+                	  if(considered_keys[i] in doc){
+                	  	if(doc[considered_keys[i]]!=null){
+                        var tipo_bilancio = considered_keys[i];
+                        for (var j = 0; j < considered_quadro.length; j++) {
+			    				  quadro_n = considered_quadro[j];
+			    				  if( quadro_n in doc[tipo_bilancio] ){
+			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
 
-                                if(doc[tipo_bilancio][quadro_n][nome_titolo]['data']!==null){
-                                    for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                        emit([tipo_bilancio,quadro_n,nome_titolo,voce,doc['_id'].substring(0,4)],1);
-                                    }
+                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
+                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                     emit([tipo_bilancio,quadro_n,nome_titolo,voce,doc['_id'].substring(0,4)],1);
+                                 }
 
-                                }
+                             }
                             }
+			    				  }
                         }
                     }
+                	}
                 }
-
            }
         }
     '''
