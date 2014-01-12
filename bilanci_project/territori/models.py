@@ -56,10 +56,11 @@ class Territorio(models.Model):
     cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_prov = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
-    prov = models.CharField(max_length=2)
+    prov = models.CharField(max_length=2, blank=True, null=True)
     denominazione = models.CharField(max_length=128, db_index=True)
     slug = models.SlugField(max_length=256, null=True, blank=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
+    abitanti = models.IntegerField(default=0)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
 
     objects = TerritoriManager()
@@ -104,6 +105,9 @@ class Territorio(models.Model):
             return u"{0} (Provincia)".format(self.nome)
         else:
             return self.nome
+
+    def __unicode__(self):
+        return self.denominazione
 
     class Meta:
         verbose_name = u'Località'
