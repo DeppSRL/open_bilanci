@@ -1,6 +1,5 @@
 import logging
 from optparse import make_option
-import pprint
 import re
 from bs4 import BeautifulSoup
 import couchdb
@@ -27,7 +26,7 @@ class Command(BaseCommand):
         make_option('--cities',
                     dest='cities',
                     default='',
-                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino'),
+                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
         make_option('--base-url',
                     dest='base_url',
                     default='http://finanzalocale.mirror.openpolis.it',
@@ -59,7 +58,8 @@ class Command(BaseCommand):
             raise Exception("Missing city parameter")
 
         cities = self.get_cities(cities_codes)
-        self.logger.info("Scraping cities: {0}".format(cities))
+        if cities_codes.lower() != 'all':
+            self.logger.info("Scraping cities: {0}".format(cities))
 
 
         years = options['years']
@@ -161,9 +161,14 @@ class Command(BaseCommand):
         starting from codes or slugs.
 
         The type of strings passed is automatically guessed.
+
+        Return the complete list, if the All shortcut is used.
         """
         if not self.comuni_dicts:
             self.comuni_dicts = self.get_comuni_dicts()
+
+        if codes.lower() == 'all':
+            return self.comuni_dicts['codes'].values()
 
         codes = [c.strip().upper() for c in codes.split(",")]
 

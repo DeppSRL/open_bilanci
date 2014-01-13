@@ -20,6 +20,9 @@ class TerritoriManager(models.GeoManager):
     def provincie(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.P )
 
+    def province(self):
+        return self.provincie()
+
     def comuni(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.C )
 
@@ -53,14 +56,12 @@ class Territorio(models.Model):
     cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_prov = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
+    prov = models.CharField(max_length=2, blank=True, null=True)
     denominazione = models.CharField(max_length=128, db_index=True)
-    denominazione_ted = models.CharField(max_length=128, blank=True, null=True, db_index=True)
     slug = models.SlugField(max_length=256, null=True, blank=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
+    abitanti = models.IntegerField(default=0)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
-    popolazione_totale = models.IntegerField(null=True, blank=True)
-    popolazione_maschile = models.IntegerField(null=True, blank=True)
-    popolazione_femminile = models.IntegerField(null=True, blank=True)
 
     objects = TerritoriManager()
 
@@ -73,27 +74,6 @@ class Territorio(models.Model):
             return self.cod_prov
         else:
             return self.cod_reg
-
-    @property
-    def code(self):
-        return self.get_cod_dict().values()[0]
-
-    def get_cod_dict(self, prefix=''):
-        """
-        return a dict with {prefix}cod_{type} key initialized with correct value
-        """
-        if self.territorio == self.TERRITORIO.R:
-            return { '{0}cod_reg'.format(prefix): self.cod_reg }
-        elif self.territorio == self.TERRITORIO.P:
-            return { '{0}cod_prov'.format(prefix): self.cod_prov }
-        elif self.territorio == self.TERRITORIO.C:
-            return { '{0}cod_com'.format(prefix) : self.cod_com }
-        elif self.territorio == self.TERRITORIO.N:
-            return { '{0}cod_reg'.format(prefix): 0 }
-        elif self.territorio == self.TERRITORIO.E:
-            return { '{0}pk'.format(prefix): self.pk }
-
-        raise Exception('Territorio non interrogabile %s' % self)
 
     def get_hierarchy(self):
         """
@@ -116,10 +96,7 @@ class Territorio(models.Model):
 
     @property
     def nome(self):
-        if self.denominazione_ted:
-            return u"%s - %s" % (self.denominazione, self.denominazione_ted)
-        else:
-            return u"%s" % self.denominazione
+        return u"%s" % self.denominazione
 
 
     @property
@@ -129,39 +106,8 @@ class Territorio(models.Model):
         else:
             return self.nome
 
-    @property
-    def ambito_territoriale(self):
-        """
-        returns: a Region (for C,P or R), Nazionale, or Estero
-        """
-        if self.territorio == self.TERRITORIO.R:
-            return self.nome
-        elif self.territorio == self.TERRITORIO.P or self.territorio == self.TERRITORIO.C:
-            regione = Territorio.objects.regioni().get(cod_reg=self.cod_reg)
-            return regione.nome
-        elif self.territorio == self.TERRITORIO.N:
-            return 'Nazionale'
-        else:
-            return 'Estero'
-
     def __unicode__(self):
-        return self.nome
-
-
-    @models.permalink
-    def get_absolute_url(self):
-        url_name = 'territori_{0}'.format({
-            self.TERRITORIO.R: 'regione',
-            self.TERRITORIO.P: 'provincia',
-            self.TERRITORIO.C: 'comune',
-            self.TERRITORIO.N: 'nazionale',
-            self.TERRITORIO.E: 'estero',
-            }[self.territorio])
-        if self.territorio in (Territorio.TERRITORIO.N, Territorio.TERRITORIO.E):
-            return url_name
-        return (url_name, (), {
-            'slug': self.slug
-        })
+        return self.denominazione
 
     class Meta:
         verbose_name = u'Località'

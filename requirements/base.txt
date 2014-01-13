@@ -14,3 +14,4 @@ requests==2.1.0
 CouchDB==0.9
 psycopg2==2.5.1
 django-treeadmin==0.4.1
+-e git+git@github.com:joke2k/django-environ.git@156b9344a42597e66bcb1d75d21f6101e4d12359#egg=environ
