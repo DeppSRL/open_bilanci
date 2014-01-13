@@ -48,15 +48,15 @@ def main(argv):
     server_name = None
     check_function= None
 
-    voci_getkeys_js = '''
-        function (doc) {
+    voci_consuntivo_getkeys_js = '''
+       function (doc) {
         var considered_keys= [ "consuntivo", "preventivo" ];
         var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[0];
             if(doc!==null){
-                for (var i = 0; i < considered_keys.length; i++) {
-                	  if(considered_keys[i] in doc){
-                	  	if(doc[considered_keys[i]]!=null){
-                        var tipo_bilancio = considered_keys[i];
+                	  if(tipo_bilancio in doc){
+                	  	if(doc[tipo_bilancio]!==null){
+
                         for (var j = 0; j < considered_quadro.length; j++) {
 			    				  quadro_n = considered_quadro[j];
 			    				  if( quadro_n in doc[tipo_bilancio] ){
@@ -64,7 +64,7 @@ def main(argv):
 
                              if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                                  for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     emit([tipo_bilancio,quadro_n,nome_titolo,voce,doc['_id'].substring(0,4)],1);
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce],1);
                                  }
 
                              }
@@ -73,7 +73,37 @@ def main(argv):
                         }
                     }
                 	}
-                }
+
+           }
+        }
+    '''
+
+    voci_preventivo_getkeys_js = '''
+       function (doc) {
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[1];
+            if(doc!==null){
+                	  if(tipo_bilancio in doc){
+                	  	if(doc[tipo_bilancio]!==null){
+
+                        for (var j = 0; j < considered_quadro.length; j++) {
+			    				  quadro_n = considered_quadro[j];
+			    				  if( quadro_n in doc[tipo_bilancio] ){
+			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+
+                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
+                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce],1);
+                                 }
+
+                             }
+                            }
+			    				  }
+                        }
+                    }
+                	}
+
            }
         }
     '''
@@ -102,9 +132,14 @@ def main(argv):
             'mapping_function':voci_getkeys,
             'language': 'python'
         },
-        'voci_js':{
+        'voci_consuntivo_js':{
             'design_document': 'tree_getkeys_js',
-            'mapping_function': voci_getkeys_js,
+            'mapping_function': voci_consuntivo_getkeys_js,
+            'language': 'javascript'
+        },
+        'voci_preventivo_js':{
+            'design_document': 'tree_getkeys_js',
+            'mapping_function': voci_preventivo_getkeys_js,
             'language': 'javascript'
         },
         'titoli':{
@@ -123,7 +158,7 @@ def main(argv):
 
     parser.add_argument('--function','-f', dest='function', action='store',
                default='voci',
-               help='Function to sync: titoli | voci| voci_js')
+               help='Function to sync: titoli | voci| voci_preventivo_js | voci_consuntivo_js')
 
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
