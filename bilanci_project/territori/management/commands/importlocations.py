@@ -35,6 +35,14 @@ class Command(BaseCommand):
                     dest='classification',
                     default='istat-reg',
                     help='The classification slug. Defaults to istat-reg.'),
+        make_option('--limit',
+                    dest='limit',
+                    default=0,
+                    help='Limit of records to import'),
+        make_option('--offset',
+                    dest='offset',
+                    default=0,
+                    help='Offset of records to start from'),
     )
 
     logger = logging.getLogger('management')
@@ -54,6 +62,9 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        offset = int(options['offset'])
+        limit = int(options['limit'])
+
         self.dryrun = options['dryrun']
         self.apidomain = options['apidomain']
         if options['auth']:
@@ -64,10 +75,12 @@ class Command(BaseCommand):
 
         classification = options['classification']
 
+        c = 0
+
         cl = requests.get("{0}/maps/classifications/{1}".format(self.baseurl, classification)).json()
+
         eu = requests.get(cl['root_node']).json()
         it = requests.get(eu['children'][0]).json()
-
         it_place = requests.get(it['place']['_self']).json()
         self.add_place(it_place)
 
@@ -75,28 +88,33 @@ class Command(BaseCommand):
         for region_url in regions_urls:
             region = requests.get(region_url).json()
             region_place = requests.get(region['place']['_self']).json()
-            self.add_place(region_place)
+            self.add_place(region_place, counter=c)
 
             provinces_urls = region['children']
             for prov_url in provinces_urls:
                 prov = requests.get(prov_url).json()
                 prov_place = requests.get(prov['place']['_self']).json()
-                self.add_place(prov_place)
+                self.add_place(prov_place, counter=c)
 
                 cities_urls = prov['children']
                 for city_url in cities_urls:
+                    c += 1
+                    if c < offset:
+                        continue
+                    if limit and c >= limit + offset:
+                        break
+                    self.logger.debug("CITY_URL: {0}".format(city_url))
                     city = requests.get(city_url).json()
                     city_place = requests.get(city['place']['_self']).json()
-                    self.add_place(city_place, parent_url=city['parent'])
+                    self.add_place(city_place, parent_url=city['parent'], counter=c)
 
-
-    def add_place(self, place, parent_url=None):
+    def add_place(self, place, parent_url=None, counter=0):
         slug = place['slug']
 
+        self.logger.info(
+            u": {0} - adding {1}".format(counter, place['_self'])
+        )
         if self.dryrun:
-            self.logger.info(
-                u": {0} - dryrun".format(slug)
-            )
             return
 
         denominazione = place['name']
@@ -134,9 +152,7 @@ class Command(BaseCommand):
             defaults=defaults
         )
         if created:
-            self.logger.info(
-                u"New place added: {0}".format(slug)
-            )
+            self.logger.info(' -- added')
         else:
             t.denominazione = denominazione
             t.territorio = tipo_territorio
@@ -152,9 +168,7 @@ class Command(BaseCommand):
             if 'prov' in defaults:
                 t.prov = defaults['prov']
             t.save()
-            self.logger.info(
-                u"Place overwritten: {0}".format(slug)
-            )
+            self.logger.info(' -- modified')
 
 
 
