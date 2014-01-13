@@ -26,3 +26,4 @@ bilanci_project/*/migrations/
 scraper_project/scraper/output/
 bilanci_project/bilanci/settings/local.py
 couchdb_scripts/output
+couchdb_scripts/settings_local.py

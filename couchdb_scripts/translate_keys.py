@@ -1,9 +1,11 @@
 import sys
 import couchdb
 import json
+import gspread
 import argparse
 from couchdb.design import ViewDefinition
 from pprint import pprint
+from settings_local import *
 
 
 def main(argv):
@@ -33,7 +35,12 @@ def main(argv):
     }
 
 
-    accepted_language = ['python','javascript']
+    accepted_functions = {
+        'titoli':{
+            'gdoc_url':'',
+
+        }
+    }
 
 
     parser.add_argument('--server','-s', dest='server_name', action='store',
@@ -69,6 +76,24 @@ def main(argv):
         source_db = server[accepted_servers[server_name]['source_db_name']]
         # destination_db = server[accepted_servers[server_name]['destination_db_name']]
         print "Db connection ok!"
+
+
+        # Login with the script Google account
+        gc = gspread.login(g_user, g_password)
+
+        # open the list worksheet
+        list_sheet = None
+        try:
+            list_sheet = gc.open_by_key(gdoc_keys['voci'])
+        except gspread.exceptions.SpreadsheetNotFound:
+            print "gdoc url not found"
+            return
+
+
+        # Select worksheet by index. Worksheet indexes start from zero
+        list_worksheet = list_sheet.get_worksheet(0)
+        list_values = list_worksheet.get_all_values()
+
 
     else:
         print "no op:"+server_name+","+str(check_function)
