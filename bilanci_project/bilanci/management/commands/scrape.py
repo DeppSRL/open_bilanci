@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 import requests
 from slugify import slugify
 from bilanci.utils import UnicodeDictReader
-from django.conf import settings
 
+from django.conf import settings
 
 import couchdb
 
@@ -85,6 +85,7 @@ class Command(BaseCommand):
                     soup = BeautifulSoup(open(url))
                 except IOError:
                     self.logger.error(msg="Scraping quadro:%s failed: no such file:%s" % (quadro,url))
+
                 else:
                     # non considera la prima tabella (con i dati riassuntivi del comune)
                     # e le ultima: l'indice delle pagine
@@ -92,6 +93,7 @@ class Command(BaseCommand):
                     for table in considered_tables:
                         return_value = self.scrape_table(table=table)
                         data[quadro][return_value['slug']] = return_value['data']
+
 
         return data
 
@@ -121,6 +123,7 @@ class Command(BaseCommand):
         for anno in anni_considerati:
             scrape_list[anno] = {}
             for comune in lista_comuni:
+
                 url_prev = {}
                 url_cons = {}
                 comune_slug = comune["NOME_COMUNE"] + "--" + comune['CODICE_COMUNE']

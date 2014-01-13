@@ -262,6 +262,10 @@ WSGI_APPLICATION = 'wsgi.application'
 START_YEAR = 2002
 END_YEAR = 2012
 
+OUTPUT_PATH = '../scraper_project/scraper/output/'
+LISTA_COMUNI = 'listacomuni.csv'
+LISTA_COMUNI_PATH =OUTPUT_PATH +LISTA_COMUNI
+
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
@@ -273,3 +277,4 @@ OUTPUT_FOLDER = ''
 LISTA_COMUNI = ''
 LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
 BILANCI_RAW_DB = ''
+
