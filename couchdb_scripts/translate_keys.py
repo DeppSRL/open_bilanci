@@ -1,9 +1,7 @@
 import sys
 import couchdb
-import json
 import gspread
 import argparse
-from couchdb.design import ViewDefinition
 from pprint import pprint
 import requests
 from settings_local import *
@@ -12,39 +10,22 @@ from settings_local import *
 def main(argv):
     parser = argparse.ArgumentParser(description='Translate bilanci keys, copying elements from a db to a new one')
 
-    accepted_servers = {
-        'localhost': {
-            'host': 'localhost',
-            'port': '5984',
-            'user': '',
-            'password':'',
-            'source_db_name':'bilanci_raw',
-            'destination_db_name':'bilanci_raw_titoli'
-
-        },
-        'staging': {
-            'host': 'staging.depp.it',
-            'port': '5984',
-            'user': 'op',
-            'password':'op42',
-            'source_db_name':'bilanci',
-            'destination_db_name':'bilanci_titoli'
-        },
-    }
-
     translation_map = {}
+
+    accepted_servers_help = "Server name: "
+    for accepted_servers_name in accepted_servers.keys():
+        accepted_servers_help+= accepted_servers_name+" | "
+
 
     parser.add_argument('--server','-s', dest='server_name', action='store',
                default='localhost',
-               help='Server name: localhost | staging')
-
-    parser.add_argument("--create-db","-create", help="create new destination db",
-                    action="store_true")
+               help=accepted_servers_help
+        )
 
     args = parser.parse_args()
     
     server_name= args.server_name
-    create_db= args.create_db
+
 
     if server_name in accepted_servers.keys():
         # Login with the script Google account
@@ -97,22 +78,14 @@ def main(argv):
         source_db = server[accepted_servers[server_name]['source_db_name']]
         print "Source DB connection ok!"
 
-        if create_db:
-            # se esiste il db lo cancella
-            if accepted_servers[server_name]['destination_db_name'] in server:
-                del server[accepted_servers[server_name]['destination_db_name']]
-                print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" deleted"
-            # crea il db
-            destination_db = server.create(accepted_servers[server_name]['destination_db_name'])
-            print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" created"
-        else:
-            #     apre una connessione con destination db
-            try:
-                destination_db = server[accepted_servers[server_name]['destination_db_name']]
-            except couchdb.http.ResourceNotFound:
-                print "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" not found"
-                return
 
+        # se esiste il db lo cancella
+        if accepted_servers[server_name]['destination_db_name'] in server:
+            del server[accepted_servers[server_name]['destination_db_name']]
+            print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" deleted"
+        # crea il db
+        destination_db = server.create(accepted_servers[server_name]['destination_db_name'])
+        print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" created"
 
 
         # legge la lista di id per recuperare tutti gli oggetti del db
