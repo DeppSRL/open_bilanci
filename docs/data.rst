@@ -42,13 +42,47 @@ Overall couchDB size for the parsed documents is around 3GB.
 
 Normalization
 -------------
-**TODO**
 
-Titles
-++++++
+Bilanci data normalization is necessary because data from different objects varies in structure and labelling of data along
+different years and different Comune.
 
-Keys
-++++
+Data normalization process consist of two steps:
+
++ on the source couch Db instance a view document is inserted to map all the possible values of keys and count keys
+  occurrences with a _sum function as a reduce function.
+
++ the results of the view documents are converted from json to csv with the script json2csv.py
+
++ the csv file is uploaded to Google Drive, creating a new spreadsheet
++ skilled operators perform the many-to-one key mapping based on typhography of keys
++ the map is read and used by the normalization script, translate_keys, to create a new couchdb database based on the
+  existing database and the key map stored in Google Drive document
+  
+
+Data normalization is applied twice in this project in the following order
+
++ titoli labels normalization
+ 
++ voci labels normalization
+    
+
+
+Simplification
+-------------
+
+After normalizing titoli and voci the result is a normalized but comprehensive bilanci couchdb database.
+The web application relies on a database which contains only a fraction of the data contained in the normalized database, moreover the application db requires a simplificated structure in which some keys get summed up to a single key in the application db. 
+
+The process converts the last normalized db, the one with voci and titoli normalized, to a simplified db and it is executed through a script which 
+
++ reads Google Drive document contained the mapping info
++ reads all the documents in the normalized db
++ transforms the documents following the mapping algorithm
++ writes the transformed docs in the simplified db
+
+
+
+
 
 
 
