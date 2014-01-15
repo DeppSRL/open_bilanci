@@ -64,7 +64,7 @@ def main(argv):
 
                              if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                                  for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce],1);
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase()],1);
                                  }
 
                              }
@@ -94,7 +94,7 @@ def main(argv):
 
                              if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                                  for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce],1);
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase()],1);
                                  }
 
                              }
