@@ -122,7 +122,7 @@ def main(argv):
             'port': '5984',
             'user': 'op',
             'password':'op42',
-            'db_name':'bilanci'
+            'db_name':'bilanci_titoli'
         },
     }
 
@@ -133,12 +133,12 @@ def main(argv):
             'language': 'python'
         },
         'voci_consuntivo_js':{
-            'design_document': 'tree_getkeys_js',
+            'design_document': 'consuntivo_getkeys_js',
             'mapping_function': voci_consuntivo_getkeys_js,
             'language': 'javascript'
         },
         'voci_preventivo_js':{
-            'design_document': 'tree_getkeys_js',
+            'design_document': 'preventivo_getkeys_js',
             'mapping_function': voci_preventivo_getkeys_js,
             'language': 'javascript'
         },
