@@ -48,7 +48,7 @@ def main(argv):
     server_name = None
     check_function= None
 
-    voci_consuntivo_getkeys_js = '''
+    voci_consuntivo = '''
        function (doc) {
         var considered_keys= [ "consuntivo", "preventivo" ];
         var considered_quadro=['01','02','03','04','05','06'];
@@ -78,7 +78,37 @@ def main(argv):
         }
     '''
 
-    voci_preventivo_getkeys_js = '''
+    voci_consuntivo_anni = '''
+    function (doc) {
+    var considered_keys= [ "consuntivo", "preventivo" ];
+    var considered_quadro=['01','02','03','04','05','06'];
+    var tipo_bilancio = considered_keys[0];
+        if(doc!==null){
+                  if(tipo_bilancio in doc){
+                    if(doc[tipo_bilancio]!==null){
+
+                    for (var j = 0; j < considered_quadro.length; j++) {
+                              quadro_n = considered_quadro[j];
+                              if( quadro_n in doc[tipo_bilancio] ){
+                                for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+
+                         if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
+                             for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                 emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
+                             }
+
+                         }
+                        }
+                              }
+                    }
+                }
+                }
+
+       }
+    }
+    '''
+
+    voci_preventivo = '''
        function (doc) {
         var considered_keys= [ "consuntivo", "preventivo" ];
         var considered_quadro=['01','02','03','04','05','06'];
@@ -95,6 +125,37 @@ def main(argv):
                              if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                                  for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
                                      emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase()],1);
+                                 }
+
+                             }
+                            }
+			    				  }
+                        }
+                    }
+                	}
+
+           }
+        }
+    '''
+
+
+    voci_preventivo_anni = '''
+       function (doc) {
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[1];
+            if(doc!==null){
+                	  if(tipo_bilancio in doc){
+                	  	if(doc[tipo_bilancio]!==null){
+
+                        for (var j = 0; j < considered_quadro.length; j++) {
+			    				  quadro_n = considered_quadro[j];
+			    				  if( quadro_n in doc[tipo_bilancio] ){
+			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+
+                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
+                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
                                  }
 
                              }
@@ -127,26 +188,29 @@ def main(argv):
     }
 
     accepted_views = {
-        'voci':{
-            'design_document': 'tree_getkeys',
-            'mapping_function':voci_getkeys,
-            'language': 'python'
-        },
-        'voci_consuntivo_js':{
-            'design_document': 'consuntivo_getkeys_js',
-            'mapping_function': voci_consuntivo_getkeys_js,
+
+        'voci_consuntivo':{
+            'design_document': 'voci_consuntivo',
+            'mapping_function': voci_consuntivo,
             'language': 'javascript'
         },
-        'voci_preventivo_js':{
-            'design_document': 'preventivo_getkeys_js',
-            'mapping_function': voci_preventivo_getkeys_js,
+        'voci_preventivo':{
+            'design_document': 'voci_preventivo',
+            'mapping_function': voci_preventivo,
             'language': 'javascript'
         },
-        'titoli':{
-            'design_document': 'tree_getkeys',
-            'mapping_function': titoli_getkeys,
-            'language': 'python'
+
+        'voci_consuntivo_anni':{
+            'design_document': 'voci_consuntivo_anni',
+            'mapping_function': voci_consuntivo_anni,
+            'language': 'javascript'
         },
+        'voci_preventivo_anni':{
+            'design_document': 'voci_preventivo_anni',
+            'mapping_function': voci_preventivo_anni,
+            'language': 'javascript'
+        },
+
     }
 
     accepted_language = ['python','javascript']
@@ -157,8 +221,8 @@ def main(argv):
                help='Server name: localhost | staging')
 
     parser.add_argument('--function','-f', dest='function', action='store',
-               default='voci',
-               help='Function to sync: titoli | voci| voci_preventivo_js | voci_consuntivo_js')
+               default='voci_preventivo',
+               help='Function to sync: voci_preventivo | voci_consuntivo | voci_preventivo_anni | voci_consuntivo_anni')
 
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
