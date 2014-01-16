@@ -11,7 +11,7 @@ class TerritoriSearchForm(forms.Form):
         widget=TerritoriChoices.widget(
             select2_options={
                 'width': '20em',
-                'placeholder': _(u"Search location"),
+                'placeholder': _(u"Cerca fra i Comuni"),
             }
         )
     )
