@@ -8,10 +8,8 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='base.html')),
 
-    # Examples:
-    # url(r'^$', 'open_bilanci.views.home', name='home'),
-    # url(r'^open_bilanci/', include('open_bilanci.foo.urls')),
-    url(r'^territori.json$', TerritoriJSONListView.as_view(), name="territori_listJSON"),
+    url(r'^select2/', include('django_select2.urls')),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

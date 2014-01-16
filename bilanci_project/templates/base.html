@@ -21,6 +21,9 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
+    {# jQuery include needed in head for select2 search widget   #}
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
     <!-- This file store project specific CSS -->
     <link href="{% static 'css/project.css' %}" rel="stylesheet">
 
@@ -44,20 +47,10 @@
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="#">Home</a></li>
-
             <li>
-              {#            disable the form submit when pressing enter #}
-                <script type='text/javascript'>
-                    var oktosubmit = false;
-                </script>
-                <form method="get" action="" class="navbar-search form-search pull-left" onsubmit="return oktosubmit;">
-                    <section  class="ui-widget">
-                        <input type="text"
-                               class="search-query "
-                               id="comune-search"
-                               placeholder="Cerca tra i Comuni" />
-                    </section>
-                </form>
+             <div class="form-group form-horizontal text-center autosubmit">
+               {{ search_form.territori }}
+            </div>
             </li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -81,61 +74,11 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
     <!-- place project specific Javascript in this file -->
     <script src="{% static 'js/project.js' %}"></script>
-
-
-
-
-    <script type="text/javascript">
-    //       names of hidden inputs for donation
-    
-    $(document).ready(function() {
-
-        $('#comune-search').focus(function(){
-            if ($(this)._cleared) return;
-            $(this).val('');
-            $(this)._cleared = true;
-        });
-
-
-        $( "#comune-search" ).autocomplete({
-            source: function( request, response ) {
-                $.getJSON(
-                       "{{ SITE_URL }}/comuni.json",
-                        {'qterm': request.term },
-                        function( data ) {
-                            response( $.map( data, function( item ) {
-                                return {
-                                    label: item.fields.denominazione,
-                                    value: item.fields.slug
-                                }
-                            }));
-                        }
-                );
-            },
-            minLength: 4,
-            select: function( event, ui ) {
-                window.location.href = "../comune/"+ ui.item.value;
-            },
-            open: function() {
-               $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
-            },
-            close: function() {
-                $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
-            }
-        }).css('z-index', 10000);
-
-
-
-    });
-
-    </script>
-
-
 
     {% block extra_js %}{% endblock extra_js %}
   </body>

@@ -126,6 +126,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+
+    # bilanci project context processor
+    'bilanci.context_processor.main_settings',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
@@ -189,6 +192,7 @@ THIRD_PARTY_APPS = (
     'south',
     'treeadmin',
     'mptt',
+    'django_select2',
 )
 
 # Apps specific for this project go here.
