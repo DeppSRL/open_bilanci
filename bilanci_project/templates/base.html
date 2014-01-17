@@ -48,9 +48,11 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="#">Home</a></li>
             <li>
-             <div class="form-group form-horizontal text-center autosubmit">
-               {{ search_form.territori }}
-            </div>
+            <form action="/territori/search" method="get">
+                 <div class="form-group form-horizontal text-center autosubmit">
+                   {{ search_form.territori }}
+                </div>
+            </form>
             </li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -63,7 +65,7 @@
 
       {% block content %}
 
-        <p>home page content</p>
+        <p>Hello!</p>
 
       {% endblock content %}
 
