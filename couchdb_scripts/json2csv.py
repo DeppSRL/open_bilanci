@@ -1,9 +1,10 @@
-
+from pprint import pprint
 import sys
 import argparse
 import csv
 import json
 import utils
+from settings_local import *
 
 
 def main(argv):
@@ -19,22 +20,12 @@ def main(argv):
                help='Type to convert: titoli | voci')
 
 
-    accepted_types={
-        'voci':{
-            'keys':["tipo_quadro_titolo", "voce",]
-        },
-        'titoli':{
-            'keys':["tipo_quadro", "titolo",]
-        }
-    }
-
     args = parser.parse_args()
     json_filename= args.filename
-    # todo fare anche la versione per i titoli
-    type= args.type
+    translation_type= args.type
 
 
-    if type in accepted_types.keys():
+    if translation_type in accepted_types.keys():
 
         # apre il file json
         with open(json_filename, 'r') as content_file:
@@ -43,14 +34,34 @@ def main(argv):
         json_data = json.loads(json_file_content)
         csv_file = open(json_filename.replace('json', 'csv'), "wb+")
 
-        udw = utils.UnicodeDictWriter(csv_file, ["tipo_quadro_titolo", "voce",], dialect=csv.excel, encoding="utf-8")
+        udw = utils.UnicodeDictWriter(csv_file, accepted_types[translation_type]['csv_keys'], dialect=csv.excel, encoding="utf-8")
 
-        for row in json_data['rows']:
+        for json_row in json_data['rows']:
 
-            mydict = { "tipo_quadro_titolo": row['key'][0], "voce": row['key'][1] }
-            udw.writerow(mydict)
+            # fa lo split del valore sull'underscore
+            row_keys = json_row['key'][0].split('_')
+            # aggiunge al vettore la colonna con il valore
+            # in questo modo il vettore row_keys ha tutti i valori splittati che ci servono
+            # per i titoli
+            # tipo, quadro, titolo, titolo normalizzato
+            # per le voci
+            # tipo, quadro, titolo, voce, voce normalizzata
+            row_keys.append(json_row['key'][1])
+            csv_dict = {}
+
+            if len(row_keys) == len(accepted_types[translation_type]['csv_keys']):
+                
+                for (counter, key) in enumerate(accepted_types[translation_type]['csv_keys']):
+                    csv_dict[key]=''
+                    csv_dict[key]=row_keys[counter]
+                    
+                udw.writerow(csv_dict)
+            else:
+                print "Error: number of keys in settings != number of keys in Json file, exiting..."
+                return
+
     else:
-        print "Error: Type "+type+" not accepted"
+        print "Error: Type "+translation_type+" not accepted"
 
 
 
