@@ -65,6 +65,23 @@ Data normalization is applied twice in this project in the following order
  
 + voci labels normalization
     
+The mapping Google Document must have fixed structure for the algorithm to work and the structure is different for
+Titoli and Voci.
+
+For Titoli the columns are
+
++ Tipo bilancio ( preventivo / consuntivo)
++ Quadro, zero-filled ( es. '04')
++ Titolo name
++ normalized Titolo name
+ 
+For Voci the columns are:
+
++ Tipo bilancio ( preventivo / consuntivo)
++ Quadro, zero-filled ( es. '04')
++ normalized Titolo name
++ Voce name
++ normalized Voce name
 
 
 Simplification
