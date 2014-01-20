@@ -33,8 +33,10 @@ def main(argv):
 
         json_data = json.loads(json_file_content)
         csv_file = open(json_filename.replace('json', 'csv'), "wb+")
-
         udw = utils.UnicodeDictWriter(csv_file, accepted_types[translation_type]['csv_keys'], dialect=csv.excel, encoding="utf-8")
+
+        # scrive l'intestazione
+        udw.writeheader()
 
         for json_row in json_data['rows']:
 
@@ -54,7 +56,7 @@ def main(argv):
                 for (counter, key) in enumerate(accepted_types[translation_type]['csv_keys']):
                     csv_dict[key]=''
                     csv_dict[key]=row_keys[counter]
-                    
+
                 udw.writerow(csv_dict)
             else:
                 print "Error: number of keys in settings != number of keys in Json file, exiting..."
