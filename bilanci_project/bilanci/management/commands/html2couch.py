@@ -118,6 +118,10 @@ class Command(BaseCommand):
                 }
 
                 if not dryrun:
+                    # se non trova il db lo crea
+                    if 'bilanci' not in couch_server:
+                        destination_db = couch_server.create('bilanci')
+
                     bilanci_db = couch_server['bilanci']
 
                     # create or update budget data on couchdb
