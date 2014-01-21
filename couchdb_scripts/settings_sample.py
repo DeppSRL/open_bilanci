@@ -8,6 +8,16 @@ gdoc_keys= {
         'INSERT_DOCUMENT_KEY_HERE'
 }
 
+accepted_types={
+    'voci':{
+        'csv_keys':["tipo","quadro","titolo", "voce"],
+    },
+    'titoli':{
+        'csv_keys':["tipo","quadro", "titolo"]
+    }
+}
+
+
 accepted_servers = {
     'localhost': {
         'host': 'localhost',
