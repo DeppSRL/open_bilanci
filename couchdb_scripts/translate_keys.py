@@ -182,19 +182,16 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                                                     # se c'e' una traduzione da effettuare per la voce, la effettua
                                                     u_voce_name = unicode(voce_name).lower()
                                                     voce_name_translated = u_voce_name
-                                                    if titolo_name in translation_map[bilancio_name][quadro_name].keys():
-                                                        if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
+                                                    if quadro_name in translation_map[bilancio_name].keys():
+                                                        if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                                            if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
 
-                                                            voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
-                                                            # debug
-                                                            print "converto "+bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
-                                                        else:
-                                                            print "voce non trovata:"+u_voce_name+" in "+bilancio_name+","+quadro_name+","+titolo_name
+                                                                voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
+                                                                # debug
+                                                                # print "converto "+bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
+                                                            # else:
+                                                            #     print "voce non trovata:"+u_voce_name+" in "+bilancio_name+","+quadro_name+","+titolo_name
 
-                                                    # debug
-                                                    if u_voce_name == u'imposta comunale sulla pubblicità' and bilancio_name == 'consuntivo':
-                                                        print bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
-                                                        return
 
                                                     # crea il dizionario con il nome tradotto
                                                     destination_document[bilancio_name][quadro_name]\
