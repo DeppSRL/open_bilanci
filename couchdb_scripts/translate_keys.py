@@ -140,9 +140,6 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
             # la chiave e' tipo_bilancio, numero_quadro , nome_titolo
             translation_map[tipo_bilancio][n_quadro][titolo][voce_raw]=voce_normalizzata
 
-    #
-    # pprint(translation_map)
-    # return
 
     if 'rows' in id_list_response.keys():
                 id_list=id_list_response['rows']
@@ -187,10 +184,6 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                                                             if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
 
                                                                 voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
-                                                                # debug
-                                                                # print "converto "+bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
-                                                            # else:
-                                                            #     print "voce non trovata:"+u_voce_name+" in "+bilancio_name+","+quadro_name+","+titolo_name
 
 
                                                     # crea il dizionario con il nome tradotto
