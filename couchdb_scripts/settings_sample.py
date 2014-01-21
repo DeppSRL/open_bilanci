@@ -14,16 +14,18 @@ accepted_servers = {
         'port': '5984',
         'user': '',
         'password':'',
-        'source_db_name':'INSERT_DB_NAME_HERE',
-        'destination_db_name':'INSERT_DB_NAME_HERE'
-
+        'raw_db_name':'DB_NAME_HERE',
+        'normalized_titoli_db_name':'DB_NAME_HERE',
+        'normalized_voci_db_name': 'DB_NAME_HERE',
     },
-    'remote': {
-        'host': 'REMOTE_HOST',
+    'staging': {
+        'host': 'staging.depp.it',
         'port': '5984',
         'user': 'USER',
-        'password':'PASSWORD',
-        'source_db_name':'INSERT_DB_NAME_HERE',
-        'destination_db_name':'INSERT_DB_NAME_HERE'
+        'password':'PASSW',
+        'raw_db_name':'DB_NAME_HERE',
+        'normalized_titoli_db_name':'DB_NAME_HERE',
+        'normalized_voci_db_name': 'DB_NAME_HERE',
     },
 }
+

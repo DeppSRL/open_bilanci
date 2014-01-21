@@ -1,9 +1,10 @@
 import sys
 import couchdb
-import json
 import argparse
 from couchdb.design import ViewDefinition
 from pprint import pprint
+from settings_local import *
+
 
 def titoli_getkeys(doc):
     # funzione che raccoglie per tutti i bilanci tutti i nomi
@@ -48,6 +49,57 @@ def main(argv):
     server_name = None
     check_function= None
 
+
+    titoli_consuntivo = '''
+       function (doc) {
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[0];
+            if(doc!==null){
+                	  if(tipo_bilancio in doc){
+                	  	if(doc[tipo_bilancio]!==null){
+
+                        for (var j = 0; j < considered_quadro.length; j++) {
+                          quadro_n = considered_quadro[j];
+                          if( quadro_n in doc[tipo_bilancio] ){
+                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo],1);
+                            }
+                          }
+                        }
+                    }
+                	}
+
+           }
+        }
+    '''
+
+    titoli_preventivo = '''
+       function (doc) {
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[1];
+            if(doc!==null){
+                	  if(tipo_bilancio in doc){
+                	  	if(doc[tipo_bilancio]!==null){
+
+                        for (var j = 0; j < considered_quadro.length; j++) {
+                          quadro_n = considered_quadro[j];
+                          if( quadro_n in doc[tipo_bilancio] ){
+                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo],1);
+                            }
+                          }
+                        }
+                    }
+                	}
+
+           }
+        }
+    '''
+
+
+
     voci_consuntivo = '''
        function (doc) {
         var considered_keys= [ "consuntivo", "preventivo" ];
@@ -79,34 +131,34 @@ def main(argv):
     '''
 
     voci_consuntivo_anni = '''
-    function (doc) {
-    var considered_keys= [ "consuntivo", "preventivo" ];
-    var considered_quadro=['01','02','03','04','05','06'];
-    var tipo_bilancio = considered_keys[0];
-        if(doc!==null){
-                  if(tipo_bilancio in doc){
-                    if(doc[tipo_bilancio]!==null){
+        function (doc) {
+        var considered_keys= [ "consuntivo", "preventivo" ];
+        var considered_quadro=['01','02','03','04','05','06'];
+        var tipo_bilancio = considered_keys[0];
+            if(doc!==null){
+                      if(tipo_bilancio in doc){
+                        if(doc[tipo_bilancio]!==null){
 
-                    for (var j = 0; j < considered_quadro.length; j++) {
-                              quadro_n = considered_quadro[j];
-                              if( quadro_n in doc[tipo_bilancio] ){
-                                for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
+                        for (var j = 0; j < considered_quadro.length; j++) {
+                                  quadro_n = considered_quadro[j];
+                                  if( quadro_n in doc[tipo_bilancio] ){
+                                    for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
 
-                         if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                             for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                 emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
+                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
+                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
+                                 }
+
                              }
-
-                         }
+                            }
+                                  }
                         }
-                              }
                     }
-                }
-                }
+                    }
 
-       }
-    }
-    '''
+           }
+        }
+        '''
 
     voci_preventivo = '''
        function (doc) {
@@ -169,25 +221,18 @@ def main(argv):
         }
     '''
 
-    accepted_servers = {
-        'localhost': {
-            'host': 'localhost',
-            'port': '5984',
-            'user': '',
-            'password':'',
-            'db_name':'bilanci_raw'
-
-        },
-        'staging': {
-            'host': 'staging.depp.it',
-            'port': '5984',
-            'user': 'op',
-            'password':'op42',
-            'db_name':'bilanci_titoli'
-        },
-    }
-
     accepted_views = {
+         'titoli_consuntivo':{
+            'design_document': 'titoli_consuntivo',
+            'mapping_function': titoli_consuntivo,
+            'language': 'javascript'
+        },
+
+         'titoli_preventivo':{
+            'design_document': 'titoli_preventivo',
+            'mapping_function': titoli_preventivo,
+            'language': 'javascript'
+        },
 
         'voci_consuntivo':{
             'design_document': 'voci_consuntivo',
@@ -222,7 +267,7 @@ def main(argv):
 
     parser.add_argument('--function','-f', dest='function', action='store',
                default='voci_preventivo',
-               help='Function to sync: voci_preventivo | voci_consuntivo | voci_preventivo_anni | voci_consuntivo_anni')
+               help='Function to sync: titoli_preventivo | titoli_consuntivo | voci_preventivo | voci_consuntivo | voci_preventivo_anni | voci_consuntivo_anni')
 
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
@@ -243,15 +288,21 @@ def main(argv):
 
         server_string+=accepted_servers[server_name]['host']+":"+accepted_servers[server_name]['port']
 
-        print "Connecting to: "+server_string+" ..."
-        # open db connection
-        server = couchdb.Server(server_string)
-        db = server[accepted_servers[server_name]['db_name']]
-        print "Db connection ok!"
-
         if function_to_sync in accepted_views.keys():
             view_name = function_to_sync
             reduce_function = accepted_views[view_name]['mapping_function']
+
+
+            print "Connecting to: "+server_string+" ..."
+            # open db connection
+            server = couchdb.Server(server_string)
+            if "voci" in function_to_sync:
+                db_name = accepted_servers[server_name]['normalized_titoli_db_name']
+            elif "titoli" in function_to_sync:
+                db_name = accepted_servers[server_name]['raw_db_name']
+
+            db = server[db_name]
+            print "Db connection ok!"
 
             # sync the view
             view = ViewDefinition(accepted_views[view_name]['design_document'],

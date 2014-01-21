@@ -27,17 +27,23 @@ def main(argv):
 
     if translation_type in accepted_types.keys():
 
-        # apre il file json
-        with open(json_filename, 'r') as content_file:
-            json_file_content = content_file.read()
+        print "Open json file: "+json_filename
+        try:
+            # apre il file json
+            with open(json_filename, 'r') as content_file:
+                json_file_content = content_file.read()
+        except IOError:
+            print "Error: File does not exist: "+json_filename
+            return
 
         json_data = json.loads(json_file_content)
-        csv_file = open(json_filename.replace('json', 'csv'), "wb+")
+        csv_filename = json_filename.replace('json', 'csv')
+        csv_file = open(csv_filename, "wb+")
         udw = utils.UnicodeDictWriter(csv_file, accepted_types[translation_type]['csv_keys'], dialect=csv.excel, encoding="utf-8")
 
         # scrive l'intestazione
         udw.writeheader()
-
+        print "Write CSV file: "+csv_filename
         for json_row in json_data['rows']:
 
             # fa lo split del valore sull'underscore
@@ -62,6 +68,7 @@ def main(argv):
                 print "Error: number of keys in settings != number of keys in Json file, exiting..."
                 return
 
+        print "Finished writing file: "+csv_filename
     else:
         print "Error: Type "+translation_type+" not accepted"
 

@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+# coding: utf-8
 import sys
 import couchdb
 import gspread
@@ -7,10 +9,226 @@ import requests
 from settings_local import *
 
 
-def main(argv):
-    parser = argparse.ArgumentParser(description='Translate bilanci keys, copying elements from a db to a new one')
+def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
 
     translation_map = {}
+    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
+    ws_values = list_sheet.worksheet("preventivo").get_all_values()[2:]
+    ws_values.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+
+    for row in ws_values:
+        # considero valide solo le righe che hanno l'ultimo valore (titolo di destinazione) non nullo
+        if row[3]:
+            
+            tipo_bilancio = row[0]
+            # zero padding per n_quadro: '2' -> '02'
+            n_quadro=row[1].zfill(2)
+            titolo_raw = row[2]
+            titolo_normalizzato = row[3]
+            
+            if tipo_bilancio not in translation_map:
+                translation_map[tipo_bilancio] = {}
+            if n_quadro not in translation_map[tipo_bilancio]:
+                translation_map[tipo_bilancio][n_quadro] = {}
+            if titolo_raw not in translation_map[tipo_bilancio][n_quadro]:
+                translation_map[tipo_bilancio][n_quadro][titolo_raw] = {}
+
+            #  crea la mappa di conversione dei titoli
+            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo_raw
+            translation_map[tipo_bilancio][n_quadro][titolo_raw]=titolo_normalizzato
+
+
+    if 'rows' in id_list_response.keys():
+                id_list=id_list_response['rows']
+
+                for id_object in id_list:
+                    source_document = source_db.get(id_object['id'])
+
+
+                    if source_document is not None:
+                        destination_document = {'_id': id_object['id']}
+
+                        if "_design/" not in id_object['id']:
+
+                            print "Copying document id:"+id_object['id']
+                            #  per ogni tipo di bilancio
+                            for bilancio_name in ['preventivo','consuntivo']:
+                                if bilancio_name in source_document.keys():
+                                    bilancio_object = source_document[bilancio_name]
+                                    destination_document[bilancio_name]={}
+
+                                    for quadro_name, quadro_object in bilancio_object.iteritems():
+                                        destination_document[bilancio_name][quadro_name]={}
+                                        for titolo_name, titolo_object in quadro_object.iteritems():
+                                            # per ogni titolo presente, se il titolo e' nella translation map
+                                            # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
+
+                                            if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                                titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
+                                            else:
+                                                titolo_name_translated = titolo_name
+
+                                            # crea il dizionario con il nome tradotto
+                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
+                                            # crea i meta
+                                            if 'meta' in titolo_object.keys():
+                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
+                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
+
+                                            # passa i dati sul nuovo oggetto
+                                            if 'data' in titolo_object.keys():
+                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
+                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
+                                                            titolo_object['data']
+
+
+                            # controlla che alcune voci di titoli non siano andate perse nella traduzione
+                            if bilancio_name in source_document:
+                                if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
+                                    print "Error: Different number of keys for doc_id:"+id_object['id']
+
+                        else:
+                            # se il documennto e' un design doc, lo copia nella sua interezza
+                            print "Copying design document id:"+id_object['id']
+                            destination_document['language']=''
+                            destination_document['language'] = source_document['language']
+                            destination_document['views']={}
+                            destination_document['views']=source_document['views']
+
+
+                        # scrive il nuovo oggetto nel db di destinazione
+                        destination_db.save(destination_document)
+
+    else:
+        print "Error: document list is empty"
+    return
+
+
+
+
+def translate_voci(source_db, destination_db, id_list_response, list_sheet):
+
+    translation_map = {}
+    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
+    ws_values = list_sheet.worksheet("preventivo").get_all_values()[2:]
+    ws_values.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+
+    for row in ws_values:
+
+        # considero valide solo le righe che hanno l'ultimo valore (voce normalizzata) non nullo
+        if row[4]:
+
+            tipo_bilancio = unicode(row[0]).lower()
+            # zero padding per n_quadro: '2' -> '02'
+            n_quadro=row[1].zfill(2)
+            titolo = unicode(row[2]).lower()
+            voce_raw = unicode(row[3]).lower()
+            voce_normalizzata = unicode(row[4]).lower()
+            
+            if tipo_bilancio not in translation_map:
+                translation_map[tipo_bilancio] = {}
+            if n_quadro not in translation_map[tipo_bilancio]:
+                translation_map[tipo_bilancio][n_quadro] = {}
+            if titolo not in translation_map[tipo_bilancio][n_quadro]:
+                translation_map[tipo_bilancio][n_quadro][titolo] = {}
+            
+            if voce_raw not in translation_map[tipo_bilancio][n_quadro][titolo]:
+                translation_map[tipo_bilancio][n_quadro][titolo][voce_raw] = {}
+
+
+            #  crea la mappa di conversione dei titoli
+            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo
+            translation_map[tipo_bilancio][n_quadro][titolo][voce_raw]=voce_normalizzata
+
+    #
+    # pprint(translation_map)
+    # return
+
+    if 'rows' in id_list_response.keys():
+                id_list=id_list_response['rows']
+
+                for id_object in id_list:
+                    source_document = source_db.get(id_object['id'])
+
+
+                    if source_document is not None:
+                        destination_document = {'_id': id_object['id']}
+
+                        if "_design/" not in id_object['id']:
+
+                            print "Copying document id:"+id_object['id']
+                            #  per ogni tipo di bilancio
+                            for bilancio_name in ['preventivo','consuntivo']:
+                                if bilancio_name in source_document.keys():
+                                    bilancio_object = source_document[bilancio_name]
+                                    destination_document[bilancio_name]={}
+
+                                    for quadro_name, quadro_object in bilancio_object.iteritems():
+                                        destination_document[bilancio_name][quadro_name]={}
+                                        for titolo_name, titolo_object in quadro_object.iteritems():
+                                            # per ogni titolo presente analizza tutte le voci
+                                            destination_document[bilancio_name][quadro_name][titolo_name]={}
+                                            # crea i meta
+                                            if 'meta' in titolo_object.keys():
+                                                destination_document[bilancio_name][quadro_name][titolo_name]['meta']={}
+                                                destination_document[bilancio_name][quadro_name][titolo_name]['meta']=\
+                                                    titolo_object['meta']
+                                            
+                                            # passa i dati sul nuovo oggetto
+                                            if 'data' in titolo_object.keys():
+                                                destination_document[bilancio_name][quadro_name][titolo_name]['data']={}
+                                                
+                                                for voce_name, voce_obj in titolo_object['data'].iteritems():
+                                                    # se c'e' una traduzione da effettuare per la voce, la effettua
+                                                    u_voce_name = unicode(voce_name).lower()
+                                                    voce_name_translated = u_voce_name
+                                                    if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                                        if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
+
+                                                            voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
+                                                            # debug
+                                                            print "converto "+bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
+                                                        else:
+                                                            print "voce non trovata:"+u_voce_name+" in "+bilancio_name+","+quadro_name+","+titolo_name
+
+                                                    # debug
+                                                    if u_voce_name == u'imposta comunale sulla pubblicità' and bilancio_name == 'consuntivo':
+                                                        print bilancio_name+","+quadro_name+","+titolo_name+","+u_voce_name + ": "+voce_name_translated
+                                                        return
+
+                                                    # crea il dizionario con il nome tradotto
+                                                    destination_document[bilancio_name][quadro_name]\
+                                                        [titolo_name]['data'][voce_name_translated]={}
+                                                    destination_document[bilancio_name][quadro_name]\
+                                                        [titolo_name]['data'][voce_name_translated]=voce_obj
+
+
+                                                # controlla che alcune voci non siano andate perse nella traduzione
+                                                if len(destination_document[bilancio_name][quadro_name]\
+                                                            [titolo_name].keys()) != \
+                                                        len(source_document[bilancio_name][quadro_name][titolo_name].keys()):
+                                                    print "Error: Different number of keys for doc_id:"+id_object['id']
+
+                        else:
+                            # se il documennto e' un design doc, lo copia nella sua interezza
+                            print "Copying design document id:"+id_object['id']
+                            destination_document['language']=''
+                            destination_document['language'] = source_document['language']
+                            destination_document['views']={}
+                            destination_document['views']=source_document['views']
+
+
+                        # scrive il nuovo oggetto nel db di destinazione
+                        destination_db.save(destination_document)
+
+    else:
+        print "Error: document list is empty"
+    return
+
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(description='Translate bilanci keys, copying elements from a db to a new one')
 
     accepted_servers_help = "Server name: "
     for accepted_servers_name in accepted_servers.keys():
@@ -22,128 +240,81 @@ def main(argv):
                help=accepted_servers_help
         )
 
+    parser.add_argument('--type','-t', dest='type', action='store',
+           default='titoli',
+           help='Type to translate: titoli | voci')
+
+
     args = parser.parse_args()
     
     server_name= args.server_name
+    translation_type = args.type
+
+    if translation_type in accepted_types.keys():
+
+        if server_name in accepted_servers.keys():
+            # Login with the script Google account
+            gc = gspread.login(g_user, g_password)
+
+            # open the list worksheet
+            list_sheet = None
+            try:
+                list_sheet = gc.open_by_key(gdoc_keys[translation_type])
+            except gspread.exceptions.SpreadsheetNotFound:
+                print "Error: gdoc url not found"
+                return
 
 
-    if server_name in accepted_servers.keys():
-        # Login with the script Google account
-        gc = gspread.login(g_user, g_password)
+            # connessione a couchdb
+            # costruisce la stringa per la connessione al server aggiungendo user/passw se necessario
+            server_connection_address ='http://'
+            if accepted_servers[server_name]['user']:
+                server_connection_address+=accepted_servers[server_name]['user']+":"
+                if accepted_servers[server_name]['password']:
+                    server_connection_address+=accepted_servers[server_name]['password']+"@"
 
-        # open the list worksheet
-        list_sheet = None
-        try:
-            list_sheet = gc.open_by_key(gdoc_keys['voci'])
-        except gspread.exceptions.SpreadsheetNotFound:
-            print "gdoc url not found"
-            return
+            server_connection_address+=accepted_servers[server_name]['host']+":"+accepted_servers[server_name]['port']
 
+            print "Connecting to: "+server_connection_address+" ..."
+            # open db connection
+            server = couchdb.Server(server_connection_address)
 
-        # Select worksheet by index. Worksheet indexes start from zero
-        titoli_ws_values = list_sheet.get_worksheet(0).get_all_values()
+            # set source db name / destination db name
+            if translation_type == 'voci':
+                source_db_name = accepted_servers[server_name]['normalized_titoli_db_name']
+                destination_db_name = accepted_servers[server_name]['normalized_voci_db_name']
+            else:
+                source_db_name = accepted_servers[server_name]['raw_db_name']
+                destination_db_name = accepted_servers[server_name]['normalized_titoli_db_name']
 
+            source_db = server[source_db_name]
+            print "Source DB connection ok: db name: "+source_db_name+"!"
 
-        for row in titoli_ws_values[1:]:
-            # considero valide solo le righe che hanno l'ultimo valore (titolo di destinazione) non nullo
-            if row[3]:
-                # zero padding per n_quadro: '2' -> '02'
-                n_quadro=row[1].zfill(2)
+            # se esiste il db lo cancella
 
-                if row[0] not in translation_map:
-                    translation_map[row[0]] = {}
-                if n_quadro not in translation_map[row[0]]:
-                    translation_map[row[0]][n_quadro] = {}
-                if row[2] not in translation_map[row[0]][n_quadro]:
-                    translation_map[row[0]][n_quadro][row[2]] = {}
-
-                #  crea la mappa di conversione dei titoli
-                # la chiave e' tipo_bilancio, numero_quadro , nome_titolo
-                translation_map[row[0]][n_quadro][row[2]]=row[3]
-
-
-        # connessione a couchdb
-        # costruisce la stringa per la connessione al server aggiungendo user/passw se necessario
-        server_connection_address ='http://'
-        if accepted_servers[server_name]['user']:
-            server_connection_address+=accepted_servers[server_name]['user']+":"
-            if accepted_servers[server_name]['password']:
-                server_connection_address+=accepted_servers[server_name]['password']+"@"
-
-        server_connection_address+=accepted_servers[server_name]['host']+":"+accepted_servers[server_name]['port']
-
-        print "Connecting to: "+server_connection_address+" ..."
-        # open db connection
-        server = couchdb.Server(server_connection_address)
-        source_db = server[accepted_servers[server_name]['source_db_name']]
-        print "Source DB connection ok!"
+            if destination_db_name in server:
+                del server[destination_db_name]
+                print  "Destination db: "+  destination_db_name +" deleted"
+            # crea il db
+            destination_db = server.create(destination_db_name)
+            print  "Destination db: "+  destination_db_name +" created"
 
 
-        # se esiste il db lo cancella
-        if accepted_servers[server_name]['destination_db_name'] in server:
-            del server[accepted_servers[server_name]['destination_db_name']]
-            print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" deleted"
-        # crea il db
-        destination_db = server.create(accepted_servers[server_name]['destination_db_name'])
-        print  "Destination db: "+  accepted_servers[server_name]['destination_db_name'] +" created"
+            # legge la lista di id per recuperare tutti gli oggetti del db
+            get_all_docs_url = server_connection_address+'/'+source_db_name+'/_all_docs?include_docs=false'
+
+            id_list_response = requests.get(get_all_docs_url ).json()
+
+            if translation_type == 'voci':
+                translate_voci(source_db, destination_db, id_list_response, list_sheet)
+            elif translation_type == 'titoli':
+                translate_titoli(source_db, destination_db, id_list_response, list_sheet)
 
 
-        # legge la lista di id per recuperare tutti gli oggetti del db
-        get_all_docs_url = server_connection_address+'/'+accepted_servers[server_name]['source_db_name']+'/_all_docs?include_docs=false'
-
-        id_list_response = requests.get(get_all_docs_url ).json()
-
-        if 'rows' in id_list_response.keys():
-            id_list=id_list_response['rows']
-
-            for row in id_list:
-                source_document = source_db.get(row['id'])
-                print "Analyzing doc_id:"+row['id']
-
-                if source_document is not None:
-                    destination_document = {'_id': row['id']}
-
-                    #  per ogni tipo di bilancio
-                    for bilancio_name in ['preventivo','consuntivo']:
-                        if bilancio_name in source_document.keys():
-                            bilancio_object = source_document[bilancio_name]
-                            destination_document[bilancio_name]={}
-
-                            for quadro_name, quadro_object in bilancio_object.iteritems():
-                                destination_document[bilancio_name][quadro_name]={}
-                                for titolo_name, titolo_object in quadro_object.iteritems():
-                                    # per ogni titolo presente, se il titolo e' nella translation map
-                                    # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
-
-                                    if titolo_name in translation_map[bilancio_name][quadro_name].keys():
-                                        titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
-                                    else:
-                                        titolo_name_translated = titolo_name
-
-                                    # crea il dizionario con il nome tradotto
-                                    destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
-                                    # crea i meta
-                                    if 'meta' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
-
-                                    # passa i dati sul nuovo oggetto
-                                    if 'data' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
-                                                    titolo_object['data']
-
-
-                    # controlla che alcune voci di titoli non siano andate perse nella traduzione
-                    if bilancio_name in source_document:
-                        if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
-                            print "Error: Different number of keys for doc_id:"+row['id']
-
-                    # scrive il nuovo oggetto nel db di destinazione
-                    destination_db.save(destination_document)
-
+        else:
+            print "server not accepted:"+server_name
     else:
-        print "server not accepted:"+server_name
+        print "Type not accepted: " + translation_type
 
 
 # launches main function
