@@ -216,6 +216,14 @@ class Command(BaseCommand):
                 if ret is not None:
                     data[quadro][ret['slug']] = ret['data']
 
+            # se il quadro considerato non esiste per il bilancio in questione
+            # elimina la chiave relativa al quadro dalla struttura dati
+            # in questo modo evitiamo di avere dizionari vuoti nella struttura quando
+            # il quadro non esiste
+            if any(data[quadro]) is False:
+                data.pop(quadro, None)
+
+
         return data
 
 
@@ -227,7 +235,7 @@ class Command(BaseCommand):
             table_data={'meta':{'titolo':None,'sottotitolo':None,'columns':[]},'data':{}}
 
             # cerca il titolo negli elementi precedenti la tabella
-            
+
             table_counter = 0
             for previous_element in table_html.previous_elements:
                 if previous_element.name == "div" and previous_element.get('class'):
