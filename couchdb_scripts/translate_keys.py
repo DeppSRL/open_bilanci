@@ -84,8 +84,9 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
 
                             # controlla che alcune voci di titoli non siano andate perse nella traduzione
                             if bilancio_name in source_document:
-                                if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
-                                    print "Error: Different number of keys for doc_id:"+id_object['id']
+                                if quadro_name in destination_document[bilancio_name]:
+                                    if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
+                                        print "Error: Different number of keys for doc_id:"+id_object['id']
 
                         else:
                             # se il documennto e' un design doc, lo copia nella sua interezza
