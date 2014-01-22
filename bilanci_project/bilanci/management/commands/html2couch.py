@@ -1,5 +1,6 @@
 import logging
 from optparse import make_option
+from pprint import pprint
 import re
 from bs4 import BeautifulSoup
 import couchdb
@@ -7,6 +8,7 @@ from django.core.management import BaseCommand
 from django.conf import settings
 from django.utils.text import slugify
 import requests
+import time
 from bilanci.utils import UnicodeDictReader
 __author__ = 'guglielmo'
 
@@ -210,7 +212,9 @@ class Command(BaseCommand):
             considered_tables = soup.findAll("table")[1:-1]
             for table in considered_tables:
                 ret = self.scrape_table(table=table)
-                data[quadro][ret['slug']] = ret['data']
+                # ret == none se la tabella non conteneva dati
+                if ret is not None:
+                    data[quadro][ret['slug']] = ret['data']
 
         return data
 
@@ -222,14 +226,27 @@ class Command(BaseCommand):
             # data struct to return
             table_data={'meta':{'titolo':None,'sottotitolo':None,'columns':[]},'data':{}}
 
-            # cerca il titolo
+            # cerca il titolo negli elementi precedenti la tabella
+            
+            table_counter = 0
             for previous_element in table_html.previous_elements:
                 if previous_element.name == "div" and previous_element.get('class'):
                     if previous_element.get('class')[0]=='acentro':
                         contents=previous_element.contents
                         if len(contents)==2:
-                            table_data['meta']['titolo'] = previous_element.contents[1].text.replace("(gli importi sono espressi in euro)",'').strip(' \t\n\r')
+                            table_data['meta']['titolo'] = previous_element.contents[1].text.\
+                                replace("(gli importi sono espressi in euro)",'').strip(' \t\n\r')
                             break
+                elif previous_element.name == "table":
+                    table_counter+=1
+
+
+            if table_data['meta']['titolo'] is None:
+                # creates dummy title with timestamp to avoid overwriting other tables
+                dummy_title = "Tabella-senza-titolo-"
+                timestamp = str(time.time()).replace('.','')
+                table_data['meta']['titolo'] = dummy_title+timestamp
+
 
             # cerca il sottotitolo
             caption = table_html.find("caption")
@@ -241,23 +258,35 @@ class Command(BaseCommand):
                 if th.text.lower() != "voci":
                     table_data['meta']['columns'].append(th.text.strip(' \t\n\r'))
 
+            if len(table_html.findAll("th")) == 0:
+                self.logger.warning(u"No columns found in table: {0}".format(table_data['meta']['titolo']))
+
             # prende i dati dalla tabella
+            # table_is_empy e' un controllo che ci permette di non salvare tabelle che non hanno nemmeno
+            # un valore, solitamente si tratta di tabelle di note
+            table_is_empty = True
             for tr in table_html.findAll("tr"):
                 row_key=None
                 for (col_counter,td) in enumerate(tr.findAll("td")):
+
                     if col_counter == 0 :
                         row_key = td.text.strip(' \t\n\r')
                         table_data['data'][row_key]=[]
 
                     else:
                         table_data['data'][row_key].append(td.text.strip(' \t\n\r'))
+                        table_is_empty=False
 
 
             slug = ''
             if table_data['meta']['titolo']:
                 slug = slug + table_data['meta']['titolo']
             if table_data['meta']['sottotitolo']:
-                slug = slug + table_data['meta']['sottotitolo']
+                slug += table_data['meta']['sottotitolo']
+            else:
+                slug += str(table_counter)
 
-
-            return {'slug': slugify(slug), 'data': table_data}
+            if table_is_empty:
+                return None
+            else:
+                return {'slug': slugify(unicode(slug)), 'data': table_data}
