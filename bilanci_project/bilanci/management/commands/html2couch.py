@@ -205,7 +205,7 @@ class Command(BaseCommand):
             soup = BeautifulSoup(
                 requests.get(
                     "{0}/{1}.html".format(path, quadro)
-                ).text
+                ).content
             )
             # non considera la prima tabella (con i dati riassuntivi del comune)
             # e le ultima: l'indice delle pagine
@@ -251,8 +251,8 @@ class Command(BaseCommand):
 
             if table_data['meta']['titolo'] is None:
                 # creates dummy title with timestamp to avoid overwriting other tables
-                dummy_title = "Tabella-senza-titolo-"
-                timestamp = str(time.time()).replace('.','')
+                dummy_title = u"Tabella-senza-titolo-"
+                timestamp = unicode(time.time()).replace('.','')
                 table_data['meta']['titolo'] = dummy_title+timestamp
 
 
@@ -265,9 +265,6 @@ class Command(BaseCommand):
             for th in table_html.findAll("th"):
                 if th.text.lower() != "voci":
                     table_data['meta']['columns'].append(th.text.strip(' \t\n\r'))
-
-            if len(table_html.findAll("th")) == 0:
-                self.logger.warning(u"No columns found in table: {0}".format(table_data['meta']['titolo']))
 
             # prende i dati dalla tabella
             # table_is_empy e' un controllo che ci permette di non salvare tabelle che non hanno nemmeno
@@ -286,15 +283,24 @@ class Command(BaseCommand):
                         table_is_empty=False
 
 
+            # crea lo slug della tabella che servira' come chiave nel dizionario dei dati
+            # in questo caso lo slug e' il titolo di bilancio e viene costruito usando
+            # titolo e sottotitolo della tabella. nel caso il sottotitolo non sia presente
+            # si aggiunge il table_counter, che conta il n. di tabelle che hanno un unico titolo
+
             slug = ''
             if table_data['meta']['titolo']:
                 slug = slug + table_data['meta']['titolo']
             if table_data['meta']['sottotitolo']:
                 slug += table_data['meta']['sottotitolo']
-            else:
-                slug += str(table_counter)
+            elif table_counter > 0:
+                slug += "-count-" +str(table_counter)
+
+            slug = slugify(unicode(slug))
 
             if table_is_empty:
                 return None
             else:
-                return {'slug': slugify(unicode(slug)), 'data': table_data}
+                if len(table_data['meta']['columns']) == 0:
+                    self.logger.warning(u"No columns found in table: {0}".format(slug))
+                return {'slug': slug, 'data': table_data}
