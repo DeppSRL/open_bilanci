@@ -4,9 +4,14 @@ g_password = 'PASSWORD'
 
 # gdoc keys
 gdoc_keys= {
+    'titoli':
+        'INSERT_DOCUMENT_KEY_HERE',
     'voci':
-        'INSERT_DOCUMENT_KEY_HERE'
+        'INSERT_DOCUMENT_KEY_HERE',
+    'simplify':
+        'INSERT_DOCUMENT_KEY_HERE',
 }
+
 
 accepted_types={
     'voci':{

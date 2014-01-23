@@ -11,6 +11,34 @@ from settings_local import *
 
 
 def simplify(source_db, destination_db, id_list_response, list_sheet):
+    translation_map = {}
+    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
+    ws_values = list_sheet.worksheet("preventivo").get_all_values()[2:]
+    ws_values.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+
+    for row in ws_values:
+        # considero valide solo le righe che hanno l'ultimo valore (titolo di destinazione) non nullo
+        if row[3]:
+
+            tipo_bilancio = row[0]
+            # zero padding per n_quadro: '2' -> '02'
+            n_quadro=row[1].zfill(2)
+            titolo_raw = row[2]
+            titolo_normalizzato = row[3]
+
+            if tipo_bilancio not in translation_map:
+                translation_map[tipo_bilancio] = {}
+            if n_quadro not in translation_map[tipo_bilancio]:
+                translation_map[tipo_bilancio][n_quadro] = {}
+            if titolo_raw not in translation_map[tipo_bilancio][n_quadro]:
+                translation_map[tipo_bilancio][n_quadro][titolo_raw] = {}
+
+            #  crea la mappa di conversione dei titoli
+            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo_raw
+            translation_map[tipo_bilancio][n_quadro][titolo_raw]=titolo_normalizzato
+
+
+
     return
 
 
