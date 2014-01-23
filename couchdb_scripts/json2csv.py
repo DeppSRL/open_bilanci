@@ -54,7 +54,8 @@ def main(argv):
             # tipo, quadro, titolo, titolo normalizzato
             # per le voci
             # tipo, quadro, titolo, voce, voce normalizzata
-            row_keys.append(json_row['key'][1])
+            if "voci" in translation_type:
+                row_keys.append(json_row['key'][1])
             csv_dict = {}
 
             if len(row_keys) == len(accepted_types[translation_type]['csv_keys']):
