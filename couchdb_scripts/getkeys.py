@@ -1,3 +1,4 @@
+import socket
 import sys
 import couchdb
 import argparse
@@ -301,7 +302,10 @@ def main(argv):
             elif "titoli" in function_to_sync:
                 db_name = accepted_servers[server_name]['raw_db_name']
 
-            db = server[db_name]
+            try:
+                db = server[db_name]
+            except socket.gaierror:
+                print "Connection ERROR. Quitting..."
             print "Db connection ok!"
 
             # sync the view
