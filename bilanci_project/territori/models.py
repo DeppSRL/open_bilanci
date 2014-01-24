@@ -53,6 +53,19 @@ class Territorio(models.Model):
         ('N', 'Nazionale'),
         ('E', 'Estero'),
         )
+
+    CLUSTER = Choices(
+        ('1', 'I più piccoli'),
+        ('2', 'Molto piccoli'),
+        ('3', 'Piccoli 1'),
+        ('4', 'Piccoli 2'),
+        ('5', 'Medio piccoli'),
+        ('6', 'Medi'),
+        ('7', 'Grandi'),
+        ('8', 'Molto grandi'),
+        ('9', 'I più grandi'),
+        )
+
     cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_prov = models.IntegerField(default=0, blank=True, null=True, db_index=True)
     cod_com = models.IntegerField(default=0, blank=True, null=True, db_index=True)
@@ -62,7 +75,7 @@ class Territorio(models.Model):
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
     abitanti = models.IntegerField(default=0)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
-
+    cluster = models.CharField(max_length=1, choices=CLUSTER, db_index=True)
     objects = TerritoriManager()
 
 
