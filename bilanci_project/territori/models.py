@@ -55,15 +55,15 @@ class Territorio(models.Model):
         )
 
     CLUSTER = Choices(
-        ('1', 'I più piccoli'),
-        ('2', 'Molto piccoli'),
-        ('3', 'Piccoli 1'),
-        ('4', 'Piccoli 2'),
-        ('5', 'Medio piccoli'),
-        ('6', 'Medi'),
-        ('7', 'Grandi'),
-        ('8', 'Molto grandi'),
-        ('9', 'I più grandi'),
+        ('1',"i_piu_piccoli", 'I più piccoli'),
+        ('2', "molto_piccoli", 'Molto piccoli'),
+        ('3', "piccoli_1", 'Piccoli 1'),
+        ('4', "piccoli_2", 'Piccoli 2'),
+        ('5', "medio_piccoli", 'Medio piccoli'),
+        ('6', "medi", 'Medi'),
+        ('7', "grandi", 'Grandi'),
+        ('8', "molto_grandi", 'Molto grandi'),
+        ('9', "i_piu_grandi", 'I più grandi'),
         )
 
     cod_reg = models.IntegerField(default=0, blank=True, null=True, db_index=True)
