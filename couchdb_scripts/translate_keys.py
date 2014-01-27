@@ -179,6 +179,10 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                                                 for voce_name, voce_obj in titolo_object['data'].iteritems():
                                                     # se c'e' una traduzione da effettuare per la voce, la effettua
                                                     u_voce_name = unicode(voce_name).lower()
+                                                    # se la voce inizia con "- " lo elimina, cosi come abbiamo fatto
+                                                    # nella view
+                                                    if u_voce_name.find("- ") == 0:
+                                                        u_voce_name = u_voce_name.replace("- ","")
                                                     voce_name_translated = u_voce_name
                                                     if quadro_name in translation_map[bilancio_name].keys():
                                                         if titolo_name in translation_map[bilancio_name][quadro_name].keys():
