@@ -7,6 +7,25 @@
 
 {% block content %}
 
-    Contenuto del Bilancio per l'anno X
+    <div class="row">
+        <div class="col-md-12">
+            Contenuto del Bilancio per l'anno X
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            Confronta il Comune di {{ territorio }} con
+        </div>
+        <div class="col-md-6">
+            <form action="" method="get">
+                 <div class="form-group form-horizontal text-center autosubmit">
+                   {{ territori_comparison_search_form.cluster_territori }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
 
 {% endblock %}
