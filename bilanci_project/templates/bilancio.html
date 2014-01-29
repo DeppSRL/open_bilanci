@@ -1,6 +1,10 @@
 {%  extends "base.html" %}
 
 {% block page_title %}
+    Home page del Comune {{ territorio.denominazione }}
+{% endblock %}
+
+{% block content_title %}
     Home page del bilancio per il Comune di {{ territorio }} <br/>
     Cluster: {{ territorio.get_cluster_display }}
 {% endblock %}
@@ -19,7 +23,7 @@
         </div>
         <div class="col-md-2">
             <form action="/confronto/" method="get">
-                 <div class="form-group form-horizontal text-center">a
+                 <div class="form-group form-horizontal text-center">
                    {{ territori_comparison_search_form.territorio_1 }}
                 </div>
                 <div>

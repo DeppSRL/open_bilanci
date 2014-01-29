@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}open_bilanci{% endblock title %}</title>
+    <title>Open Bilanci - {% block page_title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -30,6 +30,8 @@
     <!-- Use this to quickly test CSS changes in a template,
         then move to project.css -->
     {% block extra_css %}{% endblock extra_css %}
+
+
   </head>
 
   <body>
@@ -61,7 +63,7 @@
 
     <div class="container">
 
-      <h1>{% block page_title %}Open bilanci home page{% endblock page_title %}</h1>
+      <h1>{% block content_title %}Open bilanci home page{% endblock content_title %}</h1>
 
       {% block content %}
 
