@@ -8,7 +8,7 @@ from bilanci.views import BilancioDetailView, TerritoriSearchRedirectView, Confr
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='base.html')),
+    url(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
 
     url(r'^territori/search', TerritoriSearchRedirectView.as_view()),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioDetailView.as_view(), name='bilanci-detail'),
