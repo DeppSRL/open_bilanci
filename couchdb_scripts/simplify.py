@@ -11,33 +11,83 @@ from settings_local import *
 
 
 def simplify(source_db, destination_db, id_list_response, list_sheet):
-    translation_map = {}
-    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
-    ws_values = list_sheet.worksheet("preventivo").get_all_values()[2:]
-    ws_values.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+    voci_map = {}
+    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di intestazione
+    voci_ws = list_sheet.worksheet("preventivo").get_all_values()[2:]
+    voci_ws.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
 
-    for row in ws_values:
-        # considero valide solo le righe che hanno l'ultimo valore (titolo di destinazione) non nullo
-        if row[3]:
+    # crea la mappa per voci e funzioni
+    for row in voci_ws:
+        # considero valide solo le righe che hanno i valori di entrata/uscita e di titolo non nulli
+        if row[6] and row[7]:
 
-            tipo_bilancio = row[0]
+            tipo_bilancio = unicode(row[0]).lower()
             # zero padding per n_quadro: '2' -> '02'
-            n_quadro=row[1].zfill(2)
-            titolo_raw = row[2]
-            titolo_normalizzato = row[3]
-
-            if tipo_bilancio not in translation_map:
-                translation_map[tipo_bilancio] = {}
-            if n_quadro not in translation_map[tipo_bilancio]:
-                translation_map[tipo_bilancio][n_quadro] = {}
-            if titolo_raw not in translation_map[tipo_bilancio][n_quadro]:
-                translation_map[tipo_bilancio][n_quadro][titolo_raw] = {}
-
-            #  crea la mappa di conversione dei titoli
-            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo_raw
-            translation_map[tipo_bilancio][n_quadro][titolo_raw]=titolo_normalizzato
+            quadro_norm=row[1].zfill(2)
+            titolo_norm = unicode(row[2]).lower()
+            voce_norm = unicode(row[3]).lower()
 
 
+            if tipo_bilancio not in voci_map:
+                voci_map[tipo_bilancio] = {}
+            if quadro_norm not in voci_map[tipo_bilancio]:
+                voci_map[tipo_bilancio][quadro_norm] = {}
+            if titolo_norm not in voci_map[tipo_bilancio][quadro_norm]:
+                voci_map[tipo_bilancio][quadro_norm][titolo_norm] = {}
+
+            if voce_norm not in voci_map[tipo_bilancio][quadro_norm][titolo_norm]:
+                voci_map[tipo_bilancio][quadro_norm][titolo_norm][voce_norm] = {}
+
+
+            #  crea la mappa di conversione delle voci
+            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo, voce_raw
+
+            voci_map[tipo_bilancio][quadro_norm][titolo_norm][voce_norm]=\
+                {
+                'tipo_bilancio': tipo_bilancio,
+                'entrata_uscita': unicode(row[7]).lower(),
+                'titolo': unicode(row[6]).lower(),
+                'categoria': unicode(row[5]).lower(),
+                'voce': unicode(row[4]).lower(),
+
+            }
+
+    # todo: creare la mappa per gli interventi
+
+
+    # per ogni documento nel db applica la conversione
+    if 'rows' in id_list_response.keys():
+        id_list=id_list_response['rows']
+
+        for id_object in id_list:
+            source_document = source_db.get(id_object['id'])
+
+
+            if source_document is not None:
+                destination_document = {'_id': id_object['id']}
+
+                if "_design/" not in id_object['id']:
+
+                    print "Copying document id:"+id_object['id']
+                    #  per ogni tipo di bilancio
+                    for bilancio_name in ['preventivo','consuntivo']:
+                        if bilancio_name in source_document.keys():
+                            bilancio_object = source_document[bilancio_name]
+                            destination_document[bilancio_name]={}
+
+                            for quadro_name, quadro_object in bilancio_object.iteritems():
+                                destination_document[bilancio_name][quadro_name]={}
+                                for titolo_name, titolo_object in quadro_object.iteritems():
+                                    # analizza i titoli e traduce titoli e voci
+                                    pass
+
+                        else:
+                            # se il documento e' un design doc, non lo copia
+                            pass
+
+
+                        # scrive il nuovo oggetto nel db di destinazione
+                        destination_db.save(destination_document)
 
     return
 

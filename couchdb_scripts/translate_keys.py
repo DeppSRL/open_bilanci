@@ -137,72 +137,72 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                 translation_map[tipo_bilancio][n_quadro][titolo][voce_raw] = {}
 
 
-            #  crea la mappa di conversione dei titoli
-            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo
+            #  crea la mappa di conversione delle voci
+            # la chiave e' tipo_bilancio, numero_quadro , nome_titolo, voce_raw
             translation_map[tipo_bilancio][n_quadro][titolo][voce_raw]=voce_normalizzata
 
 
     if 'rows' in id_list_response.keys():
-                id_list=id_list_response['rows']
+        id_list=id_list_response['rows']
 
-                for id_object in id_list:
-                    source_document = source_db.get(id_object['id'])
-
-
-                    if source_document is not None:
-                        destination_document = {'_id': id_object['id']}
-
-                        if "_design/" not in id_object['id']:
-
-                            print "Copying document id:"+id_object['id']
-                            #  per ogni tipo di bilancio
-                            for bilancio_name in ['preventivo','consuntivo']:
-                                if bilancio_name in source_document.keys():
-                                    bilancio_object = source_document[bilancio_name]
-                                    destination_document[bilancio_name]={}
-
-                                    for quadro_name, quadro_object in bilancio_object.iteritems():
-                                        destination_document[bilancio_name][quadro_name]={}
-                                        for titolo_name, titolo_object in quadro_object.iteritems():
-                                            # per ogni titolo presente analizza tutte le voci
-                                            destination_document[bilancio_name][quadro_name][titolo_name]={}
-                                            # crea i meta
-                                            if 'meta' in titolo_object.keys():
-                                                destination_document[bilancio_name][quadro_name][titolo_name]['meta']={}
-                                                destination_document[bilancio_name][quadro_name][titolo_name]['meta']=\
-                                                    titolo_object['meta']
-                                            
-                                            # passa i dati sul nuovo oggetto
-                                            if 'data' in titolo_object.keys():
-                                                destination_document[bilancio_name][quadro_name][titolo_name]['data']={}
-                                                
-                                                for voce_name, voce_obj in titolo_object['data'].iteritems():
-                                                    # se c'e' una traduzione da effettuare per la voce, la effettua
-                                                    u_voce_name = unicode(voce_name).lower()
-                                                    # se la voce inizia con "- " lo elimina, cosi come abbiamo fatto
-                                                    # nella view
-                                                    if u_voce_name.find("- ") == 0:
-                                                        u_voce_name = u_voce_name.replace("- ","")
-                                                    voce_name_translated = u_voce_name
-                                                    if quadro_name in translation_map[bilancio_name].keys():
-                                                        if titolo_name in translation_map[bilancio_name][quadro_name].keys():
-                                                            if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
-
-                                                                voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
+        for id_object in id_list:
+            source_document = source_db.get(id_object['id'])
 
 
-                                                    # crea il dizionario con il nome tradotto
-                                                    destination_document[bilancio_name][quadro_name]\
-                                                        [titolo_name]['data'][voce_name_translated]={}
-                                                    destination_document[bilancio_name][quadro_name]\
-                                                        [titolo_name]['data'][voce_name_translated]=voce_obj
+            if source_document is not None:
+                destination_document = {'_id': id_object['id']}
+
+                if "_design/" not in id_object['id']:
+
+                    print "Copying document id:"+id_object['id']
+                    #  per ogni tipo di bilancio
+                    for bilancio_name in ['preventivo','consuntivo']:
+                        if bilancio_name in source_document.keys():
+                            bilancio_object = source_document[bilancio_name]
+                            destination_document[bilancio_name]={}
+
+                            for quadro_name, quadro_object in bilancio_object.iteritems():
+                                destination_document[bilancio_name][quadro_name]={}
+                                for titolo_name, titolo_object in quadro_object.iteritems():
+                                    # per ogni titolo presente analizza tutte le voci
+                                    destination_document[bilancio_name][quadro_name][titolo_name]={}
+                                    # crea i meta
+                                    if 'meta' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta']={}
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta']=\
+                                            titolo_object['meta']
+
+                                    # passa i dati sul nuovo oggetto
+                                    if 'data' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['data']={}
+
+                                        for voce_name, voce_obj in titolo_object['data'].iteritems():
+                                            # se c'e' una traduzione da effettuare per la voce, la effettua
+                                            u_voce_name = unicode(voce_name).lower()
+                                            # se la voce inizia con "- " lo elimina, cosi come abbiamo fatto
+                                            # nella view
+                                            if u_voce_name.find("- ") == 0:
+                                                u_voce_name = u_voce_name.replace("- ","")
+                                            voce_name_translated = u_voce_name
+                                            if quadro_name in translation_map[bilancio_name].keys():
+                                                if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                                    if u_voce_name in translation_map[bilancio_name][quadro_name][titolo_name].keys():
+
+                                                        voce_name_translated = translation_map[bilancio_name][quadro_name][titolo_name][u_voce_name]
 
 
-                                                # controlla che alcune voci non siano andate perse nella traduzione
-                                                if len(destination_document[bilancio_name][quadro_name]\
-                                                            [titolo_name].keys()) != \
-                                                        len(source_document[bilancio_name][quadro_name][titolo_name].keys()):
-                                                    print "Error: Different number of keys for doc_id:"+id_object['id']
+                                            # crea il dizionario con il nome tradotto
+                                            destination_document[bilancio_name][quadro_name]\
+                                                [titolo_name]['data'][voce_name_translated]={}
+                                            destination_document[bilancio_name][quadro_name]\
+                                                [titolo_name]['data'][voce_name_translated]=voce_obj
+
+
+                                        # controlla che alcune voci non siano andate perse nella traduzione
+                                        if len(destination_document[bilancio_name][quadro_name]\
+                                                    [titolo_name].keys()) != \
+                                                len(source_document[bilancio_name][quadro_name][titolo_name].keys()):
+                                            print "Error: Different number of keys for doc_id:"+id_object['id']
 
                         else:
                             # se il documennto e' un design doc, lo copia nella sua interezza
