@@ -16,12 +16,13 @@ class TerritoriSearchForm(forms.Form):
         )
     )
 
-    text = forms.CharField(max_length=20, required=False)
 
 
 class TerritoriComparisonSearchForm(forms.Form):
 
-    cluster_territori = TerritoriClusterChoices(
+    territorio_1 = forms.CharField(widget=forms.HiddenInput())
+
+    territorio_2 = TerritoriClusterChoices(
         required=False,
         widget=TerritoriClusterChoices.widget(
             select2_options={
@@ -31,4 +32,4 @@ class TerritoriComparisonSearchForm(forms.Form):
         )
     )
 
-    text = forms.CharField(max_length=20, required=False)
+

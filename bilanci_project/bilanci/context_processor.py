@@ -10,7 +10,6 @@ def main_settings(request):
     return {
         'site': get_current_site(request),
         'territori_search_form': TerritoriSearchForm(request.GET),
-        'territori_comparison_search_form': TerritoriComparisonSearchForm(request.GET),
         'settings': {
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
