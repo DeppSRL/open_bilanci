@@ -87,14 +87,15 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
 
 
                         # scrive il nuovo oggetto nel db di destinazione
-                        destination_db.save(destination_document)
+                        # destination_db.save(destination_document)
 
     return
 
 
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Simplify DB structure, copying elements from a db to a new one')
+    description = 'Simplify DB structure, copying elements from voci normalized db to the simplified db'
+    parser = argparse.ArgumentParser(description=description)
 
     accepted_servers_help = "Server name: "
     for accepted_servers_name in accepted_servers.keys():

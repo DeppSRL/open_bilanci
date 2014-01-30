@@ -39,66 +39,66 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
 
 
     if 'rows' in id_list_response.keys():
-                id_list=id_list_response['rows']
+        id_list=id_list_response['rows']
 
-                for id_object in id_list:
-                    source_document = source_db.get(id_object['id'])
-
-
-                    if source_document is not None:
-                        destination_document = {'_id': id_object['id']}
-
-                        if "_design/" not in id_object['id']:
-
-                            print "Copying document id:"+id_object['id']
-                            #  per ogni tipo di bilancio
-                            for bilancio_name in ['preventivo','consuntivo']:
-                                if bilancio_name in source_document.keys():
-                                    bilancio_object = source_document[bilancio_name]
-                                    destination_document[bilancio_name]={}
-
-                                    for quadro_name, quadro_object in bilancio_object.iteritems():
-                                        destination_document[bilancio_name][quadro_name]={}
-                                        for titolo_name, titolo_object in quadro_object.iteritems():
-                                            # per ogni titolo presente, se il titolo e' nella translation map
-                                            # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
-
-                                            if titolo_name in translation_map[bilancio_name][quadro_name].keys():
-                                                titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
-                                            else:
-                                                titolo_name_translated = titolo_name
-
-                                            # crea il dizionario con il nome tradotto
-                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
-                                            # crea i meta
-                                            if 'meta' in titolo_object.keys():
-                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
-                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
-
-                                            # passa i dati sul nuovo oggetto
-                                            if 'data' in titolo_object.keys():
-                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
-                                                destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
-                                                            titolo_object['data']
+        for id_object in id_list:
+            source_document = source_db.get(id_object['id'])
 
 
-                            # controlla che alcune voci di titoli non siano andate perse nella traduzione
-                            if bilancio_name in source_document:
-                                if quadro_name in destination_document[bilancio_name]:
-                                    if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
-                                        print "Error: Different number of keys for doc_id:"+id_object['id']
+            if source_document is not None:
+                destination_document = {'_id': id_object['id']}
 
-                        else:
-                            # se il documennto e' un design doc, lo copia nella sua interezza
-                            print "Copying design document id:"+id_object['id']
-                            destination_document['language']=''
-                            destination_document['language'] = source_document['language']
-                            destination_document['views']={}
-                            destination_document['views']=source_document['views']
+                if "_design/" not in id_object['id']:
+
+                    print "Copying document id:"+id_object['id']
+                    #  per ogni tipo di bilancio
+                    for bilancio_name in ['preventivo','consuntivo']:
+                        if bilancio_name in source_document.keys():
+                            bilancio_object = source_document[bilancio_name]
+                            destination_document[bilancio_name]={}
+
+                            for quadro_name, quadro_object in bilancio_object.iteritems():
+                                destination_document[bilancio_name][quadro_name]={}
+                                for titolo_name, titolo_object in quadro_object.iteritems():
+                                    # per ogni titolo presente, se il titolo e' nella translation map
+                                    # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
+
+                                    if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                        titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
+                                    else:
+                                        titolo_name_translated = titolo_name
+
+                                    # crea il dizionario con il nome tradotto
+                                    destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
+                                    # crea i meta
+                                    if 'meta' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
+                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
+
+                                    # passa i dati sul nuovo oggetto
+                                    if 'data' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
+                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
+                                                    titolo_object['data']
 
 
-                        # scrive il nuovo oggetto nel db di destinazione
-                        destination_db.save(destination_document)
+                    # controlla che alcune voci di titoli non siano andate perse nella traduzione
+                    if bilancio_name in source_document:
+                        if quadro_name in destination_document[bilancio_name]:
+                            if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
+                                print "Error: Different number of keys for doc_id:"+id_object['id']
+
+                else:
+                    # se il documennto e' un design doc, lo copia nella sua interezza
+                    print "Copying design document id:"+id_object['id']
+                    destination_document['language']=''
+                    destination_document['language'] = source_document['language']
+                    destination_document['views']={}
+                    destination_document['views']=source_document['views']
+
+
+                # scrive il nuovo oggetto nel db di destinazione
+                destination_db.save(destination_document)
 
     else:
         print "Error: document list is empty"
@@ -205,7 +205,7 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                                             print "Error: Different number of keys for doc_id:"+id_object['id']
 
                         else:
-                            # se il documennto e' un design doc, lo copia nella sua interezza
+                            # se il documento e' un design doc, lo copia nella sua interezza
                             print "Copying design document id:"+id_object['id']
                             destination_document['language']=''
                             destination_document['language'] = source_document['language']
