@@ -204,17 +204,18 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
                                                 len(source_document[bilancio_name][quadro_name][titolo_name].keys()):
                                             print "Error: Different number of keys for doc_id:"+id_object['id']
 
-                        else:
-                            # se il documento e' un design doc, lo copia nella sua interezza
-                            print "Copying design document id:"+id_object['id']
-                            destination_document['language']=''
-                            destination_document['language'] = source_document['language']
-                            destination_document['views']={}
-                            destination_document['views']=source_document['views']
 
+                else:
+                    # se il documento e' un design doc, lo copia nella sua interezza
+                    print "Copying design document id:"+id_object['id']
+                    destination_document['language']=''
+                    destination_document['language'] = source_document['language']
+                    destination_document['views']={}
+                    destination_document['views']=source_document['views']
 
-                        # scrive il nuovo oggetto nel db di destinazione
-                        destination_db.save(destination_document)
+                
+                # scrive il nuovo oggetto nel db di destinazione
+                destination_db.save(destination_document)
 
     else:
         print "Error: document list is empty"
