@@ -11,79 +11,8 @@ import requests
 from settings_local import *
 
 
-def simplify(source_db, destination_db, id_list_response, list_sheet):
-    voci_map = {}
-    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di intestazione
-    try:
-        voci_ws = list_sheet.worksheet("preventivo").get_all_values()[2:]
-        voci_ws.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
-    except URLError:
-        print "Connection error to Gdrive"
-        return
-
-    # prima di creare la mappa di voci fa una passata sulla lista e marca con un booleano le voci
-    # che saranno soggette a somme
-
-    # per identificare le voci in cui si effettuera' una somma usero' la colonna 8 della lista
-    # per cui prima faccio una passata e metto la colonna 8 a False, eliminando possibili valori sporchi presi dal gdoc
-
-    for row in voci_ws:
-        if len(row)> 8:
-            del row[-1]
-
-        row.append(None)
-
-    # contatori per statistiche e controllo
-    c_uniche=0
-    c_no=0
-
-    # scorre la lista delle voci una per una confrontando ogni voce con tutte le altre.
-    # se trova che una voce e' ripetuta piu' di una volta la marca con somma=True,
-    # in questo modo quando andro' a fare la traduzione delle voci se la voce che
-    # viene analizzata confluisce in una voce semplificata per cui e' prevista la somma
-    # andro' a sommare il valore a quelli eventualmente gia' presenti nell'albero semplificato
-    # viceversa sara' un assegnamento semplice
-
-
-    for actual_row_idx, actual_row_val in enumerate(voci_ws):
-        tipo_bilancio_ar = unicode(actual_row_val[0]).lower()
-        entrata_uscita_ar = unicode(actual_row_val[7]).lower()
-        titolo_ar = unicode(actual_row_val[6]).lower()
-        categoria_ar = unicode(actual_row_val[5]).lower()
-        voce_ar = unicode(actual_row_val[4]).lower()
-        somma_ar = actual_row_val[8]
-
-        # se somma_ar == None allora vuol dire che non e' ancora stato analizzato
-        # se e' True o False vuol dire che e' gia' stato marcato dall'algoritmo
-        if somma_ar is None:
-            trovato = False
-            for compare_row_idx, compare_row_val in enumerate(voci_ws):
-                # evita di comparare la riga considerata con se' stessa nel secondo loop
-                if compare_row_idx != actual_row_idx:
-                    if tipo_bilancio_ar == unicode(compare_row_val[0]).lower() and \
-                        entrata_uscita_ar == unicode(compare_row_val[7]).lower() and \
-                        titolo_ar == unicode(compare_row_val[6]).lower() and \
-                        categoria_ar == unicode(compare_row_val[5]).lower() and \
-                        voce_ar == unicode(compare_row_val[4]).lower():
-
-                            # ha trovato almeno un valore uguale per cui
-                            # mette a True somma_ar per compare_row
-                            # e mette a True trovato per mettere a True somma_ar anche per actual_row
-                            trovato = True
-                            compare_row_val[8]=True
-
-            # assegna come valore di somma_ar il valore di Trovato
-            actual_row_val[8] = trovato
-
-            # incrementa contatori statistiche
-            if trovato is True:
-                c_uniche+=1
-            else:
-                c_no +=1
-
-
-
-
+def create_map(voci_ws):
+    voci_map ={}
     # crea la mappa per voci e funzioni
     for row in voci_ws:
         # considero valide solo le righe che hanno i valori di entrata/uscita e di titolo non nulli
@@ -125,6 +54,112 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                 translation_dict['voce']=unicode(row[4]).lower()
 
             voci_map[tipo_bilancio_norm][quadro_norm][titolo_norm][voce_norm]= translation_dict
+
+    return voci_map
+
+
+def simplify(source_db, destination_db, id_list_response, list_sheet):
+    voci_map = {}
+    #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di intestazione
+    try:
+        voci_ws = list_sheet.worksheet("preventivo").get_all_values()[2:]
+        voci_ws.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+    except URLError:
+        print "Connection error to Gdrive"
+        return
+
+    # prima di creare la mappa di voci fa una passata sulla lista e marca con un booleano le voci
+    # che saranno soggette a somme
+
+    # per identificare le voci in cui si effettuera' una somma usero' la colonna 8 della lista
+    # per cui prima faccio una passata e metto la colonna 8 a False, eliminando possibili valori sporchi presi dal gdoc
+
+    for row in voci_ws:
+        if len(row)> 8:
+            del row[-1]
+
+        row.append(None)
+
+    # contatori per statistiche e controllo
+    c_uniche=0
+    c_no=0
+
+    # scorre la lista delle voci una per una confrontando ogni voce con tutte le altre.
+    # se trova che una voce e' ripetuta piu' di una volta la marca con somma=True,
+    # in questo modo quando andro' a fare la traduzione delle voci se la voce che
+    # viene analizzata confluisce in una voce semplificata per cui e' prevista la somma
+    # andro' a sommare il valore a quelli eventualmente gia' presenti nell'albero semplificato
+    # viceversa sara' un assegnamento semplice
+
+    # contemporaneamente fa il check sulle voci dell'albero semplificato per cercare eventuali voci con livelli diversi
+    # se una voce  ha il seguente valore
+    # considerando le colonne: voce normalizzata,Categoria,titolo,entrate / uscite
+    # Imposte (altro),IMPOSTE,IMPOSTE E TASSE,ENTRATE
+    # ed esiste una voce
+    # IMPOSTE,IMPOSTE E TASSE,ENTRATE
+    # da' errore perche' le due voci non sarebbero comparabili
+
+    different_level_errors = []
+    for actual_row_idx, actual_row_val in enumerate(voci_ws):
+        different_level_error = False
+        actual_row_dict = {'tipo_bilancio': unicode(actual_row_val[0]).lower(),
+                           'entrata_uscita': unicode(actual_row_val[7]).lower(),
+                           'titolo': unicode(actual_row_val[6]).lower(),
+                           'categoria': unicode(actual_row_val[5]).lower(), 'voce': unicode(actual_row_val[4]).lower(),
+                           'somma': actual_row_val[8]}
+
+        # se somma_ar == None allora vuol dire che non e' ancora stato analizzato
+        # se e' True o False vuol dire che e' gia' stato marcato dall'algoritmo
+        if actual_row_dict['somma'] is None:
+            trovato = False
+            for compare_row_idx, compare_row_val in enumerate(voci_ws):
+                # evita di comparare la riga considerata con se' stessa nel secondo loop
+                if compare_row_idx != actual_row_idx:
+                    if actual_row_dict['tipo_bilancio'] == unicode(compare_row_val[0]).lower() and \
+                        actual_row_dict['entrata_uscita'] == unicode(compare_row_val[7]).lower() and \
+                        actual_row_dict['titolo'] == unicode(compare_row_val[6]).lower() and \
+                        actual_row_dict['categoria'] == unicode(compare_row_val[5]).lower() and \
+                        actual_row_dict['voce'] == unicode(compare_row_val[4]).lower():
+
+                            # ha trovato almeno un valore uguale per cui
+                            # mette a True actual_row_dict['somma'] per compare_row
+                            # e mette a True trovato per mettere a True actual_row_dict['somma'] anche per actual_row
+                            trovato = True
+                            compare_row_val[8]=True
+                    else:
+                        if actual_row_dict['tipo_bilancio'] == unicode(compare_row_val[0]).lower() and \
+                            actual_row_dict['entrata_uscita'] == unicode(compare_row_val[7]).lower() and \
+                            actual_row_dict['titolo'] == unicode(compare_row_val[6]).lower() and \
+                            actual_row_dict['categoria'] == unicode(compare_row_val[5]).lower() \
+                            and different_level_error is False:
+                                if actual_row_dict['voce'] == u'' and unicode(compare_row_val[4]) != u'':
+                                    different_level_errors.append(actual_row_dict)
+                                    different_level_error=True
+                                elif actual_row_dict['voce'] != u'' and unicode(compare_row_val[4]) == u'':
+                                    different_level_errors.append(actual_row_dict)
+                                    different_level_error=True
+
+
+
+
+
+            # assegna come valore di somma_ar il valore di Trovato
+            actual_row_val[8] = trovato
+
+            # incrementa contatori statistiche
+            if trovato is True:
+                c_uniche+=1
+            else:
+                c_no +=1
+
+    if len(different_level_errors)>0:
+        print "Error on different level voci: quitting..."
+        # debug
+        pprint(different_level_errors)
+    return
+
+
+    voci_map = create_map(voci_ws)
 
     # todo: creare la mappa per gli interventi
 
@@ -196,7 +231,7 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                                                                     except TypeError:
                                                                         print "Error: different levels for "+tipo_bilancio_simple,\
                                                                             entrata_uscita_simple,titolo_simple,categoria_simple,voce_simple
-                                                                        return
+                                                                        # return
 
 
                                                         if somma_simple is True:
@@ -220,10 +255,6 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                                                                     print "Error: voce_simple != None and categoria_simple == None"
                                                                     print "Error in following voce_translation_map:"
                                                                     pprint(voce_translation_map)
-
-
-
-
 
 
 
