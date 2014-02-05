@@ -268,17 +268,42 @@ END_YEAR = 2012
 
 OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
-LISTA_COMUNI_PATH =OUTPUT_PATH +LISTA_COMUNI
+LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
 
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-BILANCI_PATH = ""
 
-OUTPUT_FOLDER = ''
-LISTA_COMUNI = ''
-LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
-BILANCI_RAW_DB = ''
 
+# Google Account credentials
+GOOGLE_USER = env('GOOGLE_USER')
+GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
+
+# Google Docs keys
+GDOC_KEYS= {
+    'titoli': env('GDOC_TITOLI_KEY'),
+    'voci': env('GDOC_VOCI_KEY'),
+    'simplify':env('GDOC_VOCI_SIMPL_KEY'),
+}
+
+COUCHDB_RAW_NAME = 'bilanci'
+COUCHDB_NORMALIZED_TITOLI_NAME = 'bilanci_titoli'
+COUCHDB_NORMALIZED_VOCI_NAME = 'bilanci_voci'
+COUCHDB_SIMPLIFIED_NAME = 'bilanci_simple'
+
+COUCHDB_SERVERS = {
+    'localhost': {
+        'host': 'localhost',
+        'port': '5984',
+        'user': 'op',
+        'password':'op42',
+    },
+    'staging': {
+        'host': 'staging.depp.it',
+        'port': '5984',
+        'user': 'op',
+        'password':'op42',
+    },
+}
