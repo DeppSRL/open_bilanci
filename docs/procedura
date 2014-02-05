@@ -52,8 +52,8 @@ stessa cosa per il preventivo
 crea il db_voci partendo dal gdoc
 python translate_keys.py -s localhost -t voci (start 17.04, circa 2 ore su staging per 65k documenti)
 
-apri
 
+# voci_preventivo and voci_consuntivo views are copied from bilanci_titoli couchdb
 http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4
 http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
 
