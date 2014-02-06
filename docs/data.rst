@@ -179,7 +179,7 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
 + the simplification mapping is read from google and used by the simplification script (``simplify.py``),
   to create the simplified couchdb instance::
 
-    python simplify.py
+    python manage.py simplify --couchdb-server=staging --cities=roma --years=2004-2012 --verbosity=2
 
 
 
