@@ -155,7 +155,8 @@ a simplified structure in which some keys get summed up to a single key in the a
 This last process converts the *normalized* ``bilanci_voci`` db,
 the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`` db.
 
-+ the ``voci_preventivo`` and ``voci_consuntivo`` views are *copied* from the ``bilanci_titoli`` couchdb
++ the ``voci_preventivo`` and ``voci_consuntivo`` views are *copied* automatically from the ``bilanci_titoli`` couchdb
+  when the ``translate_key`` script is invoked.
 + the views are generated, by browsing and the json documents are downloaded::
 
     # browse to the view and wait for view generation to finisc (status)
@@ -179,9 +180,12 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
 + the simplification mapping is read from google and used by the simplification script (``simplify.py``),
   to create the simplified couchdb instance::
 
-    python simplify.py
+    python manage.py simplify --couchdb-server=staging --cities=roma --years=2004-2012 --verbosity=2
 
+The simplification process logs every single import task in ``log/import_log`` and it is possible to extract
+the unique warnings with the help of awk::
 
+    grep WARNING ../log/import_logfile | grep "No matching" | awk '{for (i=5; i<=NF; i++) printf $i " "; print $NF}' | sort | uniq
 
 
 

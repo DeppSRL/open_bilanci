@@ -21,8 +21,11 @@ build
 .idea/
 .env
 
+/log/*
+
 #south
 bilanci_project/*/migrations/
+
 scraper_project/scraper/output/
 bilanci_project/bilanci/settings/local.py
 couchdb_scripts/output

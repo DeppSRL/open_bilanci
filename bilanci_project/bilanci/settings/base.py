@@ -240,6 +240,13 @@ LOGGING = {
             'class':'logging.StreamHandler',
             'formatter': 'standard'
         },
+        'import_logfile': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': REPO_ROOT + "/log/import_logfile",
+            'mode': 'w',
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'django.request': {
@@ -248,9 +255,9 @@ LOGGING = {
             'propagate': True,
         },
         'management': {
-            'handlers': ['console',],
+            'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
             }
     }
 }
@@ -283,9 +290,10 @@ GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
 
 # Google Docs keys
 GDOC_KEYS= {
-    'titoli': env('GDOC_TITOLI_KEY'),
-    'voci': env('GDOC_VOCI_KEY'),
-    'simplify':env('GDOC_VOCI_SIMPL_KEY'),
+    'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
+    'voci_map': env('GDOC_VOCI_MAP_KEY'),
+    'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
+    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
