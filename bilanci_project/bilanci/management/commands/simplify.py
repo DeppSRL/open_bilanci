@@ -6,37 +6,12 @@ import gspread
 from  gspread.exceptions import SpreadsheetNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
+from bilanci.models import PreventivoBudgetTreeDict
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
 
-class TreeDict(dict):
-    """
-    Extends the standard dict, with an add_leaf method.
-    """
-
-
-    def add_leaf(self, breadcrumbs, default_val = 0):
-        """
-        Add a leaf to a tree, starting from the breadcrumbs list.
-        Creates the needed nodes in the process.
-
-        The default value of the list can be specified in the arguments.
-        """
-        current_node = self
-        for item in breadcrumbs:
-            if item not in current_node:
-                if breadcrumbs[-1] == item:
-                    current_node[item] = default_val
-                    return
-                else:
-                    current_node[item] = {}
-            current_node = current_node[item]
-
-
-
 class Command(BaseCommand):
-
 
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
@@ -184,9 +159,9 @@ class Command(BaseCommand):
         # the first two rows are removed (labels)
         try:
             self.logger.info("reading preventivo ...")
-            voci_map = list_sheet.worksheet("preventivo").get_all_values()[2:]
+            voci_map_preventivo = list_sheet.worksheet("preventivo").get_all_values()[2:]
             self.logger.info("reading consuntivo ...")
-            voci_map.extend(list_sheet.worksheet("consuntivo").get_all_values()[2:])
+            voci_map_consuntivo = list_sheet.worksheet("consuntivo").get_all_values()[2:]
         except URLError:
             raise Exception("Connection error to Gdrive")
 
@@ -238,9 +213,20 @@ class Command(BaseCommand):
                 doc_id = "{0}_{1}".format(year, city)
                 source_doc = source_db.get(doc_id)
 
-                # build the tree pieces, using the mapping and the source doc
-                preventivo_tree = self.build_entrate_tree(preventivo_entrate, mapping = (voci_map, source_doc))
-                consuntivo_tree = self.build_entrate_tree(consuntivo_entrate, mapping = (voci_map, source_doc))
+                # build the sub-trees, using the mapping and the source doc
+                preventivo_tree = PreventivoBudgetTreeDict().build_tree(
+                    leaves=preventivo_entrate,
+                    mapping=(voci_map_preventivo, source_doc),
+                    logger=self.logger
+                )
+
+                """
+                consuntivo_tree = BudgetTreeDict().build_tree(
+                    leaves=consuntivo_entrate,
+                    mapping=(voci_map_consuntivo, source_doc),
+                    logger=self.logger
+                )
+                """
 
                 # remove the dest db and re-create the empty simplified tree
                 if doc_id in dest_db:
@@ -248,96 +234,5 @@ class Command(BaseCommand):
                     dest_db.delete(dest_doc)
                 dest_db[doc_id] = {
                     'preventivo': preventivo_tree,
-                    'consuntivo': consuntivo_tree,
+                    # 'consuntivo': consuntivo_tree,
                 }
-
-    def build_entrate_tree(self, items_list, mapping=None, city='', year=''):
-        """
-        Build and return a TreeDict object, out of a list of items.
-        Each item is a sequence of paths.
-
-        Leaf values are computed using the mapping tuple (voci_map, source_doc), if specified.
-        The default value (0) is assigned to leaf if the mapping tuple is not specified.
-        """
-        ret = TreeDict()
-        for item_bc in items_list:
-
-            # remove last element if empty
-            if not item_bc[-1]:
-                item_bc.pop()
-
-            self.logger.debug("processing {0}".format(item_bc))
-
-            value = 0
-            if mapping:
-                (voci_map, source_doc) = mapping
-                value = self.compute_sum(item_bc, voci_map, source_doc)
-
-            # add this leaf to the tree, with the computed value
-            ret.add_leaf(item_bc, value)
-
-        return ret
-
-
-    def compute_sum(self, simplified_bc, voci_map, normalized_doc):
-        """
-        Compute the sum of all voices in the normalized budget doc
-        that corresponds to the simplified voice
-        (identified by the simplified_bc breadcrumbs),
-        according to the voci_map mapping.
-        """
-        ret = 0
-
-        ###
-        #   get matching voices (uses mapping)
-        ###
-
-        # pad with empty value, if needed,
-        if len(simplified_bc) == 3:
-            simplified_bc.append('')
-        # reverse and lowercase breadcrumbs
-        bc = [i.lower() for i in simplified_bc][::-1]
-
-        # fetch matches in the mapping
-        voci_matches = []
-        for voce_map in voci_map:
-            if [i.lower() for i in voce_map[-4:]] == bc:
-                voci_matches.append(voce_map[:4])
-
-        if not voci_matches:
-            self.logger.warning(u"No matching voci found for: {0}.".format(
-                bc
-            ))
-
-        # compute the sum of the matching voices
-        for voce_match in voci_matches:
-
-            tipo = voce_match[0]
-            quadro = "{:02d}".format(int(voce_match[1]))
-            normalized_quadro = normalized_doc[tipo][quadro]
-
-            titolo = voce_match[2]
-            if titolo not in normalized_quadro:
-                self.logger.warning(u"Titolo {0} not found for {1}, quadro: {2}.".format(
-                    titolo, tipo, quadro
-                ))
-                continue
-            normalized_titolo = normalized_quadro[titolo]
-
-            voce = voce_match[3]
-            if voce not in normalized_titolo['data']:
-                self.logger.warning(u"Voce {0} not found for {1}, quadro: {2}, titolo: {3}.".format(
-                    voce, tipo, quadro, titolo
-                ))
-                continue
-            normalized_voce = normalized_titolo['data'][voce]
-
-            if len(normalized_voce) == 1:
-                val = normalized_voce[0]
-                ret += int(val.replace(',00', '').replace('.',''))
-            else:
-                self.logger.warning(u"More than one value found for tipo:{0}, quadro: {1}, titolo: {2}, voce: {3}.".format(
-                    tipo, quadro, titolo, voce
-                ))
-
-        return ret
