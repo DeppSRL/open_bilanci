@@ -3,12 +3,25 @@ from model_utils import Choices
 from mptt.models import MPTTModel, TreeForeignKey
 import abc
 
+class SubtreeIsEmpty(Exception):
+    pass
+
+class SubtreeDoesNotExist(Exception):
+    pass
+
 class BudgetTreeDict(dict):
 
     """
-    Represents the simplified BudgetTree (abstract base class).
+    An Abstract Base Class, representing the simplified BudgetTree.
 
     Extends the standard dict and can be serialized as json and exported to couchdb.
+
+    It MUST be subclassed by dedicated classes:
+    - PreventivoBudgetTreeDict,
+    - ConsuntivoEntrateBudgetTreeDict,
+    - ConsuntivoUsciteBudgetTreeDict
+
+    Every sub-tree is built according to a slightly different logic.
     """
 
     __metaclass__  = abc.ABCMeta
@@ -64,14 +77,77 @@ class BudgetTreeDict(dict):
         """
 
 
-    @abc.abstractmethod
-    def _compute_sum(self, simplified_bc, voci_map, normalized_doc, logger=None):
+    def _compute_sum(self, simplified_bc, voci_map, normalized_doc, col_idx=None, logger=None):
         """
-        Compute the sum of all voices in the normalized budget doc
-        that corresponds to the simplified voice
-        (identified by the simplified_bc breadcrumbs),
+        Compute the sum of all voices in the normalized budget doc (source)
+        that corresponds to the simplified voice (destination)
         according to the voci_map mapping.
+
+        :simplified_bc:  - the simplified destination tree, as breadcrumbs
+        :voci_map:       - the mapping between source and destination voices
+        :normalized_doc: - the couchdb source document,
+        :col_idx:        - integer, representing the column index to fetch (optional)
+        :logger:         - the logging.Logger instance used for logging purposes (optional)
+
+        the method always returns a scalar value
         """
+        ret = 0
+
+        # get all voices in mormalized tree, matching the voce in simplified tree
+        voci_matches = self._get_matching_voci(simplified_bc, voci_map)
+        if not voci_matches:
+            self._emit_warning(u"No matching voci found for: {0}.".format(
+                simplified_bc
+            ), logger)
+
+
+        # compute the sum of the matching voices
+        for voce_match in voci_matches:
+
+            tipo = voce_match[0]
+            if normalized_doc[tipo] == {}:
+                raise SubtreeIsEmpty(u"[{0}] has no content (missing from source)".format(
+                    tipo
+                ))
+
+            quadro = "{:02d}".format(int(voce_match[1]))
+
+
+            if quadro not in normalized_doc[tipo]:
+                raise SubtreeDoesNotExist(u"Missing quadro [{0}] for [{1}]".format(
+                    quadro, tipo
+                ))
+            normalized_quadro = normalized_doc[tipo][quadro]
+
+            titolo = voce_match[2]
+            if titolo not in normalized_quadro:
+                self._emit_debug(u"Titolo [{0}] not found for [{1}], quadro [{2}].".format(
+                    titolo, tipo, quadro
+                ), logger)
+                continue
+            normalized_titolo = normalized_quadro[titolo]
+
+            voce = voce_match[3]
+            if voce not in normalized_titolo['data']:
+                self._emit_debug(u"Voce [{0}] not found for [{1}], quadro [{2}], titolo [{3}].".format(
+                    voce, tipo, quadro, titolo
+                ), logger)
+                continue
+            normalized_voce = normalized_titolo['data'][voce]
+
+            if len(normalized_voce) == 1:
+                val = normalized_voce[0]
+                ret += int(val.replace(',00', '').replace('.',''))
+            else:
+                if col_idx is None:
+                    self._emit_warning(u"More than one value found for tipo: [{0}], quadro [{1}], titolo [{2}], voce [{3}].".format(
+                        tipo, quadro, titolo, voce
+                    ), logger)
+                else:
+                    val = normalized_voce[col_idx]
+                    ret += int(val.replace(',00', '').replace('.',''))
+
+        return ret
 
 
     def _get_matching_voci(self, simplified_bc, voci_map, logger=None):
@@ -95,22 +171,17 @@ class BudgetTreeDict(dict):
         if logger:
             logger.warning(message)
 
+    def _emit_debug(self, message, logger=None):
+        if logger:
+            logger.debug(message)
+
 
 
 class PreventivoBudgetTreeDict(BudgetTreeDict):
 
     def build_tree(self, leaves, mapping=None, logger=None):
         """
-        Builds a BudgetTreeDict, out of the leaves.
-        Can be passed an optional mapping argument, to map the leaves to an original tree,
-        where values can be computed.
-
-        :
-        * :leaves:  - the list of leaves, each expressed as a breadcrumbs sequence
-        * :mapping: - a tuple, containing the map to the original values
-          * :mapping[0]: - the mapping between old and new couchdb tree
-          * :mapping[1]: - the old couchdb document (where to read values)
-
+        Builds a BudgetTreeDict for the consuntivo/entrate section.
         """
         for source_bc in leaves:
             value = None
@@ -126,52 +197,38 @@ class PreventivoBudgetTreeDict(BudgetTreeDict):
         return self
 
 
-    def _compute_sum(self, simplified_bc, voci_map, normalized_doc, logger=None):
+
+
+class ConsuntivoEntrateBudgetTreeDict(BudgetTreeDict):
+
+    def build_tree(self, leaves, mapping=None, logger=None):
         """
-        Compute the sum of all voices in the normalized budget doc
-        that corresponds to the simplified voice
-        (identified by the simplified_bc breadcrumbs),
-        according to the voci_map mapping.
+        Builds a BudgetTreeDict for the consuntivo/entrate section.
+
+        It splits the section into 4 different sub-sections.
         """
-        ret = 0
+        sections = {
+            'Accertamenti': 0,
+            'Riscossioni in conto competenza': 1,
+            'Riscossioni in conto residui': 2,
+#            'Cassa': '1+2'
+        }
 
-        # get all voices in mormalized tree, matching the voce in simplified tree
-        voci_matches = self._get_matching_voci(simplified_bc, voci_map)
-        if not voci_matches:
-            self._emit_warning(u"No matching voci found for: {0}.".format(
-                simplified_bc
-            ), logger)
+        for section_name, section_idx in sections.iteritems():
+            for source_bc in leaves:
+                value = None
+                if mapping:
+                    (voci_map, source_doc) = mapping
+                    value = self._compute_sum(source_bc, voci_map, source_doc, logger=logger, col_idx=section_idx)
 
+                # massage source_bc, before adding the leaf,
+                # since the structure of the tree needs to consider
+                # the sections
+                bc = source_bc[:]
+                bc.insert(1, section_name)
+                # add the leaf to the tree, with the computed value
+                self.add_leaf(bc, value)
 
-        # compute the sum of the matching voices
-        for voce_match in voci_matches:
-
-            tipo = voce_match[0]
-            quadro = "{:02d}".format(int(voce_match[1]))
-            normalized_quadro = normalized_doc[tipo][quadro]
-
-            titolo = voce_match[2]
-            if titolo not in normalized_quadro:
-                self._emit_warning(u"Titolo {0} not found for {1}, quadro: {2}.".format(
-                    titolo, tipo, quadro
-                ), logger)
-                continue
-            normalized_titolo = normalized_quadro[titolo]
-
-            voce = voce_match[3]
-            if voce not in normalized_titolo['data']:
-                self._emit_warning(u"Voce {0} not found for {1}, quadro: {2}, titolo: {3}.".format(
-                    voce, tipo, quadro, titolo
-                ), logger)
-                continue
-            normalized_voce = normalized_titolo['data'][voce]
-
-            if len(normalized_voce) == 1:
-                val = normalized_voce[0]
-                ret += int(val.replace(',00', '').replace('.',''))
-            else:
-                self._emit_warning(u"More than one value found for tipo:{0}, quadro: {1}, titolo: {2}, voce: {3}.".format(
-                    tipo, quadro, titolo, voce
-                ), logger)
-
-        return ret
+        # allows constructs such as
+        # tree = BudgetDictTree().build_tree(leaves, mapping)
+        return self
