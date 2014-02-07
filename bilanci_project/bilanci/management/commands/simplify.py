@@ -6,7 +6,8 @@ import gspread
 from  gspread.exceptions import SpreadsheetNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
-from bilanci.models import PreventivoBudgetTreeDict
+from bilanci.models import PreventivoBudgetTreeDict, ConsuntivoEntrateBudgetTreeDict, SubtreeDoesNotExist, \
+    SubtreeIsEmpty
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -214,19 +215,22 @@ class Command(BaseCommand):
                 source_doc = source_db.get(doc_id)
 
                 # build the sub-trees, using the mapping and the source doc
-                preventivo_tree = PreventivoBudgetTreeDict().build_tree(
-                    leaves=preventivo_entrate,
-                    mapping=(voci_map_preventivo, source_doc),
-                    logger=self.logger
-                )
-
-                """
-                consuntivo_tree = BudgetTreeDict().build_tree(
-                    leaves=consuntivo_entrate,
-                    mapping=(voci_map_consuntivo, source_doc),
-                    logger=self.logger
-                )
-                """
+                # catch exceptions for non-existing sections in source doc
+                preventivo_tree = {}
+                consuntivo_tree = {}
+                try:
+                    preventivo_tree = PreventivoBudgetTreeDict().build_tree(
+                        leaves=preventivo_entrate,
+                        mapping=(voci_map_preventivo, source_doc),
+                        logger=self.logger
+                    )
+                    consuntivo_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
+                        leaves=consuntivo_entrate,
+                        mapping=(voci_map_consuntivo, source_doc),
+                        logger=self.logger
+                    )
+                except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
+                    self.logger.error(e)
 
                 # remove the dest db and re-create the empty simplified tree
                 if doc_id in dest_db:
@@ -234,5 +238,5 @@ class Command(BaseCommand):
                     dest_db.delete(dest_doc)
                 dest_db[doc_id] = {
                     'preventivo': preventivo_tree,
-                    # 'consuntivo': consuntivo_tree,
+                    'consuntivo': consuntivo_tree,
                 }
