@@ -185,7 +185,7 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
 The simplification process logs every single import task in ``log/import_log`` and it is possible to extract
 the unique warnings with the help of awk::
 
-    grep WARNING ../log/import_logfile | grep "No matching" | awk '{for (i=5; i<=NF; i++) printf $i " "; print $NF}' | sort | uniq
+    grep WARNING ../log/import_logfile | grep "No matching" | awk '{for (i=5; i<NF; i++) printf $i " "; print $NF}' | sort | uniq
 
 
 
