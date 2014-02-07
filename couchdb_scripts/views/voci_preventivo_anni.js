@@ -15,11 +15,11 @@ function (doc) {
 			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
 
                              if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     if(voce.indexOf("- ") == 0){
-                                         voce = voce.replace("- ","");
+                                 for(funzione in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
+                                     if(funzione.indexOf("- ") == 0){
+                                         funzione = funzione.replace("- ","");
                                          }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase(),doc['_id'].substring(0,4)],1);
                                  }
 
                              }
