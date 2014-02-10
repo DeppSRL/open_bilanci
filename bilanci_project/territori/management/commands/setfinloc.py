@@ -74,6 +74,8 @@ class Command(BaseCommand):
         # all cities in the DB
         comuni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
 
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+
         c = 0
         for comune in comuni:
             c += 1
@@ -107,7 +109,6 @@ class Command(BaseCommand):
                 if 'minint-city-id' in identifier:
                     city_id = int(value)
 
-            mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
             # build numeric code for finanzalocale
             num_cod_finloc = "{0:d}{1:02d}{2:03d}{3:04d}".format(
