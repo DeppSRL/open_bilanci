@@ -68,3 +68,8 @@ class FLMapper(object):
 
         return ret
 
+
+    def get_city(self, code):
+        if isinstance(code, list):
+            code = code[0]
+        return  self.get_cities(code)[0]

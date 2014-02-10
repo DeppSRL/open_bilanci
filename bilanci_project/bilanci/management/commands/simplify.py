@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
         make_option('--couchdb-server',
                     dest='couchdb_server',
-                    default='localhost',
+                    default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server to connect to (defaults to localhost).'),
         make_option('--source-db-name',
                     dest='source_db_name',
@@ -192,15 +192,18 @@ class Command(BaseCommand):
             self.logger.info("reading consuntivo entrate ...")
             consuntivo_entrate = list_sheet.worksheet("Entrate cons").get_all_values()
             self.logger.info("reading preventivo uscite ...")
-            preventivo_uscite = list_sheet.worksheet("Uscite prev").get_all_values()
+            preventivo_uscite = list_sheet.worksheet("Spese prev").get_all_values()
             self.logger.info("reading consuntivo uscite ...")
-            consuntivo_uscite = list_sheet.worksheet("Uscite cons").get_all_values()
+            consuntivo_uscite = list_sheet.worksheet("Spese cons").get_all_values()
         except URLError:
             raise Exception("Connection error to Gdrive")
 
         self.logger.info("done with reading the tree list.")
 
         for city in cities:
+
+            complete_tree = {}
+
             for year in years:
                 # need this for logging
                 self.city = city
@@ -213,6 +216,7 @@ class Command(BaseCommand):
                 # get the source doc
                 doc_id = "{0}_{1}".format(year, city)
                 source_doc = source_db.get(doc_id)
+
 
                 # build the sub-trees, using the mapping and the source doc
                 # catch exceptions for non-existing sections in source doc
@@ -232,11 +236,17 @@ class Command(BaseCommand):
                 except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                     self.logger.error(e)
 
-                # remove the dest db and re-create the empty simplified tree
-                if doc_id in dest_db:
-                    dest_doc = dest_db[doc_id]
-                    dest_db.delete(dest_doc)
-                dest_db[doc_id] = {
+                year_tree = {
                     'preventivo': preventivo_tree,
                     'consuntivo': consuntivo_tree,
                 }
+
+                complete_tree[year] = year_tree
+
+            # remove the dest db and re-create the empty simplified tree
+            dest_doc_id = city
+            if dest_doc_id in dest_db:
+                dest_doc = dest_db[dest_doc_id]
+                dest_db.delete(dest_doc)
+            dest_db[dest_doc_id] = complete_tree
+

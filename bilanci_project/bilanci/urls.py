@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
-from bilanci.views import BilancioDetailView, TerritoriSearchRedirectView, ConfrontoView
+from bilanci.views import BilancioDetailView, TerritoriSearchRedirectView, ConfrontoView, BilancioRedirectView
 
 admin.autodiscover()
 
@@ -11,7 +11,8 @@ urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
 
     url(r'^territori/search', TerritoriSearchRedirectView.as_view()),
-    url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioDetailView.as_view(), name='bilanci-detail'),
+    url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioRedirectView.as_view(), name='bilanci-detail'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/(?P<year>[\d]+)$', BilancioDetailView.as_view(), name='bilanci-detail-year'),
     url(r'^confronto/', ConfrontoView.as_view(), name='confronto'),
     
 

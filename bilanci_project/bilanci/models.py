@@ -1,6 +1,3 @@
-from django.db import models
-from model_utils import Choices
-from mptt.models import MPTTModel, TreeForeignKey
 import abc
 
 class SubtreeIsEmpty(Exception):
