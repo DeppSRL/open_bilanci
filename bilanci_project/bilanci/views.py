@@ -20,9 +20,7 @@ class BilancioRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         territorio = Territorio.objects.get(slug=kwargs['slug'])
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        city = mapper.get_city(territorio.cod_finloc)
-        couch_data = couch.get(city)
+        couch_data = couch.get(territorio.cod_finloc)
 
         # last year with data
         kwargs.update({'year': sorted(couch_data.keys())[-3]})
@@ -48,9 +46,7 @@ class BilancioDetailView(DetailView):
             )
 
         # get the couchdb doc
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        city = mapper.get_city(territorio.cod_finloc)
-        couch_data = couch.get(city)
+        couch_data = couch.get(territorio.cod_finloc)
 
         context['year'] = self.kwargs['year']
         context['bilanci'] = couch_data

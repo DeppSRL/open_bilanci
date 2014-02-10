@@ -8,6 +8,7 @@ from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.models import PreventivoBudgetTreeDict, ConsuntivoEntrateBudgetTreeDict, SubtreeDoesNotExist, \
     SubtreeIsEmpty
+from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -132,73 +133,10 @@ class Command(BaseCommand):
         self.logger.info("Hooked to destination DB: {0}".format(dest_db_name))
 
 
-        ###
-        #   Get mapping data from gdoc spreadsheet
-        ###
-
-        # get all gdocs keys
-        gdoc_keys = settings.GDOC_KEYS
-
-        # log into Google account
-        gc = gspread.login(settings.GOOGLE_USER, settings.GOOGLE_PASSWORD)
-
-        # open the list worksheet
-        list_sheet = None
-        try:
-            list_sheet = gc.open_by_key(gdoc_keys['simple_map'])
-        except SpreadsheetNotFound:
-            raise Exception("Error: gdoc url not found: {0}".format(
-                gdoc_keys['simple_map']
-            ))
-
-        self.logger.info("Spreadsheet gdoc read: {0}".format(
-            gdoc_keys['simple_map']
-        ))
-
-        # put the mapping into the voci_map dict
-        # preventivo and consuntivo sheets are appended in a single list
-        # the first two rows are removed (labels)
-        try:
-            self.logger.info("reading preventivo ...")
-            voci_map_preventivo = list_sheet.worksheet("preventivo").get_all_values()[2:]
-            self.logger.info("reading consuntivo ...")
-            voci_map_consuntivo = list_sheet.worksheet("consuntivo").get_all_values()[2:]
-        except URLError:
-            raise Exception("Connection error to Gdrive")
-
-        self.logger.info("done with reading the mapping list.")
-
-        ###
-        #   get the simplified tree structure from gDoc
-        ###
-
-        # open the list worksheet
-        list_sheet = None
-        try:
-            list_sheet = gc.open_by_key(gdoc_keys['simple_tree'])
-        except SpreadsheetNotFound:
-            raise Exception("Error: gdoc url not found: {0}".format(
-                gdoc_keys['simple_tree']
-            ))
-
-        self.logger.info("Spreadsheet gdoc read: {0}".format(
-            gdoc_keys['simple_tree']
-        ))
-
-        # get the tree voices from gDoc spreadsheet
-        try:
-            self.logger.info("reading preventivo entrate ...")
-            preventivo_entrate = list_sheet.worksheet("Entrate prev").get_all_values()
-            self.logger.info("reading consuntivo entrate ...")
-            consuntivo_entrate = list_sheet.worksheet("Entrate cons").get_all_values()
-            self.logger.info("reading preventivo uscite ...")
-            preventivo_uscite = list_sheet.worksheet("Spese prev").get_all_values()
-            self.logger.info("reading consuntivo uscite ...")
-            consuntivo_uscite = list_sheet.worksheet("Spese cons").get_all_values()
-        except URLError:
-            raise Exception("Connection error to Gdrive")
-
-        self.logger.info("done with reading the tree list.")
+        # connect to google account and fetch tree mapping and simple tree structure
+        gc = gdocs.get_connection()
+        voci_map_preventivo, voci_map_consuntivo = gdocs.get_simple_map(connection=gc)
+        preventivo_entrate, consuntivo_entrate, preventivo_uscite, consuntivo_uscite = gdocs.get_simplified_leaves(connection=gc)
 
         for city in cities:
 
