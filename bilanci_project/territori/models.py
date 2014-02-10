@@ -66,7 +66,7 @@ class Territorio(models.Model):
         ('9', "i_piu_grandi", 'I più grandi'),
         )
 
-    cod_finloc = models.CharField(max_length=12, blank=True, null=True, db_index=True)
+    cod_finloc = models.CharField(max_length=128, blank=True, null=True, db_index=True)
     prov = models.CharField(max_length=2, blank=True, null=True)
     denominazione = models.CharField(max_length=128, db_index=True)
     slug = models.SlugField(max_length=256, null=True, blank=True)

@@ -85,6 +85,10 @@ class Command(BaseCommand):
             self.logger.debug("CITY_URL: {0}".format(city_url))
             place = requests.get(city_url).json()
 
+            self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
+                c, comune
+            ))
+
             # get identifiers needed and build the finloc code
             identifiers = place['placeidentifiers']
             macroregion_id = None
@@ -103,12 +107,24 @@ class Command(BaseCommand):
                 if 'minint-city-id' in identifier:
                     city_id = int(value)
 
-            comune.cod_finloc = "{0:d}{1:02d}{2:03d}{3:04d}".format(
+            mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+
+            # build numeric code for finanzalocale
+            num_cod_finloc = "{0:d}{1:02d}{2:03d}{3:04d}".format(
                 macroregion_id, region_id, province_id, city_id
             )
-            self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
-                c, comune
-            ))
+
+            # store complete finloc code inside the database
+            try:
+                comune.cod_finloc = mapper.get_city(num_cod_finloc)
+            except IndexError:
+                name = "-".join(comune.slug.split('-')[:-2])
+                try:
+                    comune.cod_finloc = mapper.get_city(name)
+                except IndexError:
+                    self.logger.warning("Could not find city: {0}".format(comune.slug))
+                    continue
+
             if not self.dryrun:
                 comune.save()
 
