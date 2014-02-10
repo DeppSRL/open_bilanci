@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            Contenuto del Bilancio per l'anno X
+            Contenuto del Bilancio per l'anno {{ year }}
         </div>
     </div>
     <div class="row" style="margin-top: 30px;">
@@ -36,6 +36,12 @@
 
             </form>
         </div>
+    </div>
+    <div class="row">
+        Bilancio
+        <pre>
+            {{ bilanci.2012.preventivo }}
+        </pre>
     </div>
 
 
