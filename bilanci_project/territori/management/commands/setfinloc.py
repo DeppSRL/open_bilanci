@@ -87,10 +87,6 @@ class Command(BaseCommand):
             self.logger.debug("CITY_URL: {0}".format(city_url))
             place = requests.get(city_url).json()
 
-            self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
-                c, comune
-            ))
-
             # get identifiers needed and build the finloc code
             identifiers = place['placeidentifiers']
             macroregion_id = None
@@ -125,6 +121,11 @@ class Command(BaseCommand):
                 except IndexError:
                     self.logger.warning("Could not find city: {0}".format(comune.slug))
                     continue
+
+            self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
+                c, comune
+            ))
+
 
             if not self.dryrun:
                 comune.save()

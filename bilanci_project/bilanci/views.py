@@ -1,12 +1,8 @@
-from pprint import pprint
-import couchdb
-from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
 from bilanci.forms import TerritoriComparisonSearchForm
-from bilanci.utils.comuni import FLMapper
 from bilanci.utils import couch
 
 from territori.models import Territorio

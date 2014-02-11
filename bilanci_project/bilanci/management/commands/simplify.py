@@ -41,6 +41,11 @@ class Command(BaseCommand):
                     dest='dest_db_name',
                     default='bilanci_simple',
                     help='The name of the destination couchdb instance (defaults to bilanci_simple)'),
+        make_option('--force-google',
+                    dest='force_google',
+                    action='store_true',
+                    default=False,
+                    help='Force reloading mapping file and simplified subtrees leaves from gdocs (invalidate the csv cache)'),
 
 
     )
@@ -63,6 +68,8 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+
+        force_google = options['force_google']
 
         cities_codes = options['cities']
         if not cities_codes:
@@ -97,7 +104,7 @@ class Command(BaseCommand):
 
 
         ###
-        #   Setup couchdb connections
+        #   Couchdb connections
         ###
 
         couchdb_server_settings = settings.COUCHDB_SERVERS[couchdb_server_name]
@@ -133,10 +140,12 @@ class Command(BaseCommand):
         self.logger.info("Hooked to destination DB: {0}".format(dest_db_name))
 
 
+        ###
+        #   Mapping file and simplified leaves subtrees
+        ###
         # connect to google account and fetch tree mapping and simple tree structure
-        gc = gdocs.get_connection()
-        voci_map_preventivo, voci_map_consuntivo = gdocs.get_simple_map(connection=gc)
-        preventivo_entrate, consuntivo_entrate, preventivo_uscite, consuntivo_uscite = gdocs.get_simplified_leaves(connection=gc)
+        voci_map = gdocs.get_simple_map(n_header_lines=2, force_google=force_google)
+        simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
         for city in cities:
 
@@ -162,13 +171,13 @@ class Command(BaseCommand):
                 consuntivo_tree = {}
                 try:
                     preventivo_tree = PreventivoBudgetTreeDict().build_tree(
-                        leaves=preventivo_entrate,
-                        mapping=(voci_map_preventivo, source_doc),
+                        leaves=simplified_subtrees_leaves['preventivo_entrate'],
+                        mapping=(voci_map['preventivo'], source_doc),
                         logger=self.logger
                     )
                     consuntivo_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
-                        leaves=consuntivo_entrate,
-                        mapping=(voci_map_consuntivo, source_doc),
+                        leaves=simplified_subtrees_leaves['consuntivo_entrate'],
+                        mapping=(voci_map['consuntivo'], source_doc),
                         logger=self.logger
                     )
                 except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
