@@ -1,4 +1,5 @@
 {%  extends "base.html" %}
+{% load bilanci_print %}
 
 {% block page_title %}
     Home page del Comune {{ territorio.denominazione }}
@@ -40,9 +41,11 @@
     <div class="row">
         Bilancio
         <pre>
-            {{ bilanci.2012.preventivo }}
+            {% bilanci_print bilanci year "preventivo" %}
         </pre>
     </div>
+
+
 
 
 
