@@ -28,7 +28,7 @@ class BilancioRedirectView(RedirectView):
             year =  sorted(couch_data.keys())[-3]
             kwargs.update({'slug': territorio.slug})
             try:
-                url = reverse('bilanci-detail-year', args=args , kwargs=kwargs)
+                url = reverse('bilanci-detail', args=args , kwargs=kwargs)
             except NoReverseMatch:
                 return reverse('404')
 
@@ -52,7 +52,7 @@ class BilancioDetailView(DetailView):
         # get the couchdb doc
         couch_data = couch.get(territorio.cod_finloc)
 
-        context['year'] = self.request.REQUEST['year']
+        context['year'] = self.request.GET['year']
         context['bilanci'] = couch_data
 
         return context
