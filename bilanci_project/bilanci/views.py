@@ -3,8 +3,10 @@ import couchdb
 from django.conf import settings
 from django.core.cache import cache
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
+
 from bilanci.forms import TerritoriComparisonSearchForm
 from bilanci.utils.comuni import FLMapper
 from bilanci.utils import couch
@@ -18,19 +20,25 @@ class HomeView(TemplateView):
 class BilancioRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
-        territorio = Territorio.objects.get(slug=kwargs['slug'])
+
+        territorio = get_object_or_404(Territorio, pk=int(self.request.GET.get('territori',0)))
 
         couch_data = couch.get(territorio.cod_finloc)
 
         # last year with data
-        kwargs.update({'year': sorted(couch_data.keys())[-3]})
+        if couch_data:
 
-        try:
-            url = reverse('bilanci-detail-year', args=args, kwargs=kwargs)
-        except NoReverseMatch:
-            return None
+            # put in new values via regular dict
+            year =  sorted(couch_data.keys())[-3]
+            kwargs.update({'slug': territorio.slug})
+            try:
+                url = reverse('bilanci-detail-year', args=args , kwargs=kwargs)
+            except NoReverseMatch:
+                return reverse('404')
 
-        return url
+            return url + '?year=' + year
+        else:
+            return reverse('404')
 
 class BilancioDetailView(DetailView):
     model = Territorio
@@ -48,20 +56,10 @@ class BilancioDetailView(DetailView):
         # get the couchdb doc
         couch_data = couch.get(territorio.cod_finloc)
 
-        context['year'] = self.kwargs['year']
+        context['year'] = self.request.REQUEST['year']
         context['bilanci'] = couch_data
 
         return context
-
-
-
-class TerritoriSearchRedirectView(RedirectView):
-
-    def get_redirect_url(self, *args, **kwargs):
-
-        territorio = get_object_or_404(Territorio, pk=int(self.request.GET.get('territori',0)))
-
-        return reverse('bilanci-detail', args=(territorio.slug,))
 
 
 class ConfrontoView(TemplateView):
