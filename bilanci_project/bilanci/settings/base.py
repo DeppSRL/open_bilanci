@@ -239,7 +239,7 @@ LOGGING = {
             'formatter': 'standard'
         },
         'import_logfile': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': REPO_ROOT + "/log/import_logfile",
             'mode': 'w',
