@@ -153,10 +153,10 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                 c_no +=1
 
     if len(different_level_errors)>0:
-        print "Error on different level voci: quitting..."
+        print "Error on different level voci:"
         # debug
         pprint(different_level_errors)
-    return
+        return
 
 
     voci_map = create_map(voci_ws)
@@ -231,7 +231,7 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                                                                     except TypeError:
                                                                         print "Error: different levels for "+tipo_bilancio_simple,\
                                                                             entrata_uscita_simple,titolo_simple,categoria_simple,voce_simple
-                                                                        # return
+                                                                        return
 
 
                                                         if somma_simple is True:
@@ -255,8 +255,33 @@ def simplify(source_db, destination_db, id_list_response, list_sheet):
                                                                     print "Error: voce_simple != None and categoria_simple == None"
                                                                     print "Error in following voce_translation_map:"
                                                                     pprint(voce_translation_map)
+                                                                    return
+
+                                else:
+                                    # se stiamo trattando i quadri 4 o 5
+                                    # se siamo in preventivo abbiamo una tabella singola (dopo 2007) oppure
+                                    # molte tabelle (prima del 2007)
+                                    # se siamo nel consuntivo abbiamo tre tabelle: impegni, conto competenza e residui
+                                    # ognuna di queste tabelle ha funzioni e interventi
+                                    if tipo_bilancio_norm == 'preventivo':
+
+                                        # conta quanti sono i titoli. se ne trova piu' di uno allora abbiamo piu' tabelle
+                                        # viceversa una sola tabella
+                                        if len(quadro_norm.keys())>1:
+                                            for titolo_name_norm, titolo_norm in quadro_norm.iteritems():
+                                                # analizza i titoli e traduce titoli e voci
+                                                pass
+
+                                        else:
+                                            pass
 
 
+
+                                    else:
+                                        pass
+
+
+                                    pass
 
                         else:
                             # se il documento e' un design doc, non lo copia

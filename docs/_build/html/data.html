@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data &mdash; open_bilanci 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="open_bilanci 0.1 documentation" href="index.html" />
+    <link rel="next" title="Deploy" href="deploy.html" />
+    <link rel="prev" title="Install" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="deploy.html" title="Deploy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Install"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">open_bilanci 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data">
+<h1>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<p>Data are fetched from the source as HTML files (no images, styles, or js scripts).
+This is done in order to prevent damage whenever tehy should disappear from the source.</p>
+<p>HTML files are then parsed into couchdb documents. All tables are transformed into json structures.</p>
+<p>Budget titles and labels are normalized, by finding the MCD, defining a mapping and replicating the
+raw couchdb. This is a 2 steps process.</p>
+<p>The final product is a normalized set of budget documents, available on couchdb (through a RESTFUL API),
+that can be used both as source to build HTML page and to compute indicators and averages (through map-reduce).</p>
+<div class="section" id="data-source">
+<h2>Data source<a class="headerlink" href="#data-source" title="Permalink to this headline">¶</a></h2>
+<p>The source is <a class="reference external" href="http://finanzalocale.interno.it/">http://finanzalocale.interno.it/</a> (response times are good).</p>
+<p>The complete list of municipalities, with slugs and codes may be
+extracted at: <a class="reference external" href="http://finanzalocale.interno.it/apps/floc.php/ajax/searchComune/">http://finanzalocale.interno.it/apps/floc.php/ajax/searchComune/</a></p>
+</div>
+<div class="section" id="fetch">
+<h2>Fetch<a class="headerlink" href="#fetch" title="Permalink to this headline">¶</a></h2>
+<p>HTML documents are parsed with the <tt class="docutils literal"><span class="pre">scrapy</span></tt> parser:</p>
+<div class="highlight-python"><pre>cd /home/open_bilanci/scraper_project
+scrapy crawl bilanci_pages</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">scraper/settings.py</span></tt> file contains instruction on the source URIs,
+what to scrape (years and cities) and where to put the results:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">OUTPUT_FOLDER</span> <span class="o">=</span> <span class="s">&#39;scraper/output/&#39;</span>
+<span class="n">LISTA_COMUNI</span> <span class="o">=</span> <span class="s">&#39;listacomuni.csv&#39;</span>
+<span class="n">BILANCI_PAGES_FOLDER</span> <span class="o">=</span> <span class="s">&#39;/home/open_bilanci/dati/finanzalocale&#39;</span>
+
+<span class="c"># preventivi url</span>
+<span class="n">URL_PREVENTIVI_PRINCIPALE</span> <span class="o">=</span> <span class="s">&quot;http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/</span><span class="si">%s</span><span class="s">/anno/</span><span class="si">%s</span><span class="s">/cod/3/md/0/tipo_modello/U&quot;</span>
+<span class="c"># consuntivi url</span>
+<span class="n">URL_CONSUNTIVI_PRINCIPALE</span> <span class="o">=</span><span class="s">&quot;http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/</span><span class="si">%s</span><span class="s">/anno/</span><span class="si">%s</span><span class="s">/cod/4/md/0/tipo_modello/U&quot;</span>
+
+<span class="n">START_YEAR_SPIDER</span> <span class="o">=</span> <span class="mi">2002</span>
+<span class="n">END_YEAR_SPIDER</span> <span class="o">=</span> <span class="mi">2003</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mirror">
+<h2>Mirror<a class="headerlink" href="#mirror" title="Permalink to this headline">¶</a></h2>
+<p>Fetched HTML files are published at <a class="reference external" href="http://finanzalocale.mirror.openpolis.it/">http://finanzalocale.mirror.openpolis.it/</a>, through an Nginx server
+on the <tt class="docutils literal"><span class="pre">staging.depp.it</span></tt> machine. The config file is <tt class="docutils literal"><span class="pre">/etc/nginx/sites-enabled/finanzalocale</span></tt>.
+The documents path is specified in <tt class="docutils literal"><span class="pre">BILANCI_PAGES_FOLDER</span></tt>.</p>
+<p>The estimated size of the HTML files is ~100GB (9Gb per year).</p>
+</div>
+<div class="section" id="parse-into-couchdb">
+<h2>Parse into couchdb<a class="headerlink" href="#parse-into-couchdb" title="Permalink to this headline">¶</a></h2>
+<p>Data are parsed from HTML into the couchdb local server with the html2couch management task:</p>
+<div class="highlight-python"><pre>cd /home/open_bilanci/bilanci_project
+python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
+html2couch --cities=Roma --years=2003,2004 -v2</pre>
+</div>
+<p>The default value for the <tt class="docutils literal"><span class="pre">base_url</span></tt> parameter is <a class="reference external" href="http://finanzalocale.mirror.openpolis.it">http://finanzalocale.mirror.openpolis.it</a>.
+The couchdb server is always localhost.</p>
+<p>Overall couchDB size for the parsed documents is around 3GB.</p>
+</div>
+<div class="section" id="normalization">
+<h2>Normalization<a class="headerlink" href="#normalization" title="Permalink to this headline">¶</a></h2>
+<p>Bilanci data <em>normalization</em> is required because data from different cities and years vary in structure and labelling.
+The raw data, as parsed from HTML, are normalized twice in this project, once for <strong>titoli</strong> and, successively,
+another time for <strong>voci</strong> labels.</p>
+<p>A single normalization process consists of these steps (the procedure descriptions are valid both for
+titoli and for voci):</p>
+<ul>
+<li><p class="first">a <strong>view</strong> on the source couchdb builds the set of all possible values of the keys,
+counting keys occurrences in the process, with a <tt class="docutils literal"><span class="pre">_sum</span></tt> reduce function:</p>
+<div class="highlight-python"><pre># start in the right directory
+cd couchdb_scripts
+
+# load views in couchdb bilanci
+python getkeys.py -f [titoli_preventivo|vista_preventivo]
+python getkeys.py -f [titoli_consuntivo|vista_consuntivo]
+# browse to the view and wait for view generation to finisc (status)
+
+# save views to json files (may take time, if launched for the first time)
+curl -o output/[titoli|voci]_consuntivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_consuntivo/_view/[titoli|voci]_consuntivo?group_level=4
+curl -o output/[titoli|voci]_preventivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_preventivo/_view/[titoli|voci]_preventivo?group_level=4</pre>
+</div>
+</li>
+<li><p class="first">the results of the view documents are converted from json to csv with the script <tt class="docutils literal"><span class="pre">json2csv.py</span></tt>:</p>
+<div class="highlight-python"><pre># convert json file to csv (the name is unchanged)
+python json2csv.py -f=output/[titoli|voci]_consuntivo.json -t=[titoli|voci]
+python json2csv.py -f=output/[titoli|voci]_preventivo.json -t=[titoli|voci]</pre>
+</div>
+</li>
+<li><p class="first">the csv file is uploaded to <strong>Google Drive</strong>, creating a new spreadsheet
+and skilled operators perform the many-to-one key mapping, based on keys typography:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># open gDrive spreadsheet</span>
+<span class="c"># titoli</span>
+<span class="c"># https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dEJ4LVRpRGpQcjdRTE40Vkh5UElmYUE&amp;usp=drive_web#gid=0</span>
+<span class="c"># voci</span>
+<span class="c"># https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFRYTTJyakhULWpZTFBjS3RYZFduLUE&amp;usp=drive_web#gid=10</span>
+
+<span class="c"># import csv *consuntivo* to a new, blank sheet</span>
+<span class="c"># select all and paste to *consuntivo* sheet</span>
+
+<span class="c"># import csv *preventivo* to a new sheet</span>
+<span class="c"># select all and paste to *preventivo* sheet</span>
+
+<span class="c"># remove temporary sheets</span>
+
+<span class="c"># let the skilled operators operate (skillfully)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">the mapping is read and used by the normalization script (<tt class="docutils literal"><span class="pre">translate_keys.py</span></tt>),
+to create a new normalized couchdb database:</p>
+<div class="highlight-python"><pre>python translate_keys.py -t [titoli|voci]</pre>
+</div>
+</li>
+</ul>
+<p>The Google Document mapping spreadsheet must have a fixed structure for the algorithm to work.</p>
+<p>Titoli and Voci structures are different.</p>
+<p>Titoli&#8217;s columns:</p>
+<ul class="simple">
+<li>Tipo bilancio ( preventivo / consuntivo)</li>
+<li>Quadro, zero-filled ( es. &#8216;04&#8217;)</li>
+<li>Titolo name</li>
+<li>normalized Titolo name</li>
+</ul>
+<p>Voci&#8217;s columns:</p>
+<ul class="simple">
+<li>Tipo bilancio ( preventivo / consuntivo)</li>
+<li>Quadro, zero-filled ( es. &#8216;04&#8217;)</li>
+<li>normalized Titolo name</li>
+<li>Voce name</li>
+<li>normalized Voce name</li>
+</ul>
+</div>
+<div class="section" id="simplification">
+<h2>Simplification<a class="headerlink" href="#simplification" title="Permalink to this headline">¶</a></h2>
+<p>After normalizing titoli and voci labels, the result is a normalized but
+comprehensive bilanci couchdb database (named <tt class="docutils literal"><span class="pre">bilanci_voci</span></tt>).</p>
+<p>The web application relies on a database which contains only a fraction of
+the data contained in the normalized database, moreover the application db requires
+a simplified structure in which some keys get summed up to a single key in the application db.</p>
+<p>This last process converts the <em>normalized</em> <tt class="docutils literal"><span class="pre">bilanci_voci</span></tt> db,
+the one with both voci and titoli normalized, to a <em>simplified</em> <tt class="docutils literal"><span class="pre">bilanci_simpl</span></tt> db.</p>
+<ul>
+<li><p class="first">the <tt class="docutils literal"><span class="pre">voci_preventivo</span></tt> and <tt class="docutils literal"><span class="pre">voci_consuntivo</span></tt> views are <em>copied</em> from the <tt class="docutils literal"><span class="pre">bilanci_titoli</span></tt> couchdb</p>
+</li>
+<li><p class="first">the views are generated, by browsing and the json documents are downloaded:</p>
+<div class="highlight-python"><pre># browse to the view and wait for view generation to finisc (status)
+
+# save views to json files (may take time, if launched for the first time)
+curl -o output/voci_consuntivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
+curl -o output/voci_preventivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4</pre>
+</div>
+</li>
+<li><p class="first">the resulting documents are converted from json to csv:</p>
+<div class="highlight-python"><pre># convert json file to csv (the name is unchanged)
+python json2csv.py -f=output/voci_consuntivo_norm.json -t=voci
+python json2csv.py -f=output/voci_preventivo_norm.json -t=voci</pre>
+</div>
+</li>
+<li><p class="first">the CSV is uploaded to the gDoc spreadsheet:</p>
+<div class="highlight-python"><pre>https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&amp;usp=drive_web#gid=9</pre>
+</div>
+</li>
+<li><p class="first">the skilled operator proceeds to do the semplification mapping</p>
+</li>
+<li><p class="first">the simplification mapping is read from google and used by the simplification script (<tt class="docutils literal"><span class="pre">simplify.py</span></tt>),
+to create the simplified couchdb instance:</p>
+<div class="highlight-python"><pre>python simplify.py</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data</a><ul>
+<li><a class="reference internal" href="#data-source">Data source</a></li>
+<li><a class="reference internal" href="#fetch">Fetch</a></li>
+<li><a class="reference internal" href="#mirror">Mirror</a></li>
+<li><a class="reference internal" href="#parse-into-couchdb">Parse into couchdb</a></li>
+<li><a class="reference internal" href="#normalization">Normalization</a></li>
+<li><a class="reference internal" href="#simplification">Simplification</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Install</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="deploy.html"
+                        title="next chapter">Deploy</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/data.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="deploy.html" title="Deploy"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Install"
+             >previous</a> |</li>
+        <li><a href="index.html">open_bilanci 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, ChangeMyName.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b3.
+    </div>
+  </body>
+</html>

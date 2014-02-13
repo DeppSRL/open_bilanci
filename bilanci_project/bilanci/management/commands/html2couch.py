@@ -1,6 +1,5 @@
 import logging
 from optparse import make_option
-from pprint import pprint
 import re
 from bs4 import BeautifulSoup
 import couchdb
@@ -10,6 +9,8 @@ from django.utils.text import slugify
 import requests
 import time
 from bilanci.utils import UnicodeDictReader
+from bilanci.utils.comuni import FLMapper
+
 __author__ = 'guglielmo'
 
 class Command(BaseCommand):
@@ -59,7 +60,8 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing city parameter")
 
-        cities = self.get_cities(cities_codes)
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
             self.logger.info("Scraping cities: {0}".format(cities))
 
@@ -134,63 +136,6 @@ class Command(BaseCommand):
                     self.logger.info("Data written to couchdb")
                 else:
                     self.logger.info("Couchdb writing skipped because of --dry-run")
-
-
-    def get_comuni_dicts(self):
-        """
-        read list of comuni from CSV into a single dictionary
-        having the code as key and the slug as value
-        """
-        lista_comuni_csv = settings.LISTA_COMUNI_PATH
-        try:
-            udr = UnicodeDictReader(f=open(lista_comuni_csv, mode='r'), dialect="excel_quote_all",)
-        except IOError:
-            raise Exception("Impossible to open file:%s" % lista_comuni_csv)
-
-        comuni_by_codes = {}
-        comuni_by_slugs = {}
-        for row in udr:
-            complete = "{0}--{1}".format(row['NOME_COMUNE'].upper(), row['CODICE_COMUNE'])
-            comuni_by_codes[row['CODICE_COMUNE']] = complete
-            comuni_by_slugs[row['NOME_COMUNE']] = complete
-
-        return {'codes': comuni_by_codes, 'slugs': comuni_by_slugs}
-
-
-    _digits = re.compile('\d')
-    def contains_digits(self, d):
-        return bool(self._digits.search(d))
-
-    def get_cities(self, codes):
-        """
-        Returns the list of complete names of the cities, used in the html files
-        starting from codes or slugs.
-
-        The type of strings passed is automatically guessed.
-
-        Return the complete list, if the All shortcut is used.
-        """
-        if not self.comuni_dicts:
-            self.comuni_dicts = self.get_comuni_dicts()
-
-        if codes.lower() == 'all':
-            return self.comuni_dicts['codes'].values()
-
-        codes = [c.strip().upper() for c in codes.split(",")]
-
-        ret = []
-        for code in codes:
-            try:
-                if self.contains_digits(code):
-                    # it's a code
-                    ret.append(self.comuni_dicts['codes'][code])
-                else:
-                    # it's a slug
-                    ret.append(self.comuni_dicts['slugs'][code])
-            except KeyError:
-                continue
-
-        return ret
 
 
     def scrape(self, path, pages=None):

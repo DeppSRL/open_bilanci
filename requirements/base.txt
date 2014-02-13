@@ -6,14 +6,12 @@ django-extensions==1.2.5
 django-model-utils==1.5.0
 logutils==0.3.3
 South==0.8.4
-django-mptt==0.6.0
 Scrapy==0.20.2
 python-slugify==0.0.6
 beautifulsoup4==4.3.2
 requests==2.1.0
 CouchDB==0.9
 psycopg2==2.5.1
-django-treeadmin==0.4.1
 gspread==0.1.0
 -e git+git@github.com:joke2k/django-environ.git@156b9344a42597e66bcb1d75d21f6101e4d12359#egg=environ
 Django-Select2==4.2.2

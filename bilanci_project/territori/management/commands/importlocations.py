@@ -77,7 +77,11 @@ class Command(BaseCommand):
 
         c = 0
 
-        cl = requests.get("{0}/maps/classifications/{1}".format(self.baseurl, classification)).json()
+        cl = requests.get("{0}/maps/classifications/{1}".format(self.baseurl, classification))
+        if cl.status_code == 403:
+            raise Exception("Authentication failed. {0}/maps/classifications/{1}".format(self.baseurl, classification))
+        else:
+            cl = cl.json()
 
         eu = requests.get(cl['root_node']).json()
         it = requests.get(eu['children'][0]).json()
@@ -126,15 +130,29 @@ class Command(BaseCommand):
             'abitanti': abitanti,
         }
 
-        # identifiers
+        # get identifiers needed and build the finloc code
         identifiers = place['placeidentifiers']
+        macroregion_id = None
+        region_id = None
+        province_id = None
+        city_id = None
         for i in identifiers:
-            if i == "http://{0}/maps/identifiers/istat-region-id".format(self.apidomain):
-                defaults['cod_reg'] = i.value
-            if i == "http://{0}/maps/identifiers/istat-province-id".format(self.apidomain):
-                defaults['cod_prov'] = i.value
-            if i == "http://{0}/maps/identifiers/istat-city-id".format(self.apidomain):
-                defaults['cod_com'] = i.value
+            identifier = i['identifier']
+            value = i['value']
+            if 'istat-macroregion-id' in identifier:
+                macroregion_id = int(value)
+            if 'minint-region-id' in identifier:
+                region_id = int(value)
+            if 'minint-province-id' in identifier:
+                province_id = int(value)
+            if 'minint-city-id' in identifier:
+                city_id = int(value)
+
+        if macroregion_id and region_id and province_id and city_id:
+            defaults['cod_finloc'] = "{0:d}{1:02d}{2:03d}{3:04d}".format(
+                macroregion_id, region_id, province_id, city_id
+            )
+
 
         # geometry features
         geom = place['geoinfo']['geom']
@@ -157,12 +175,8 @@ class Command(BaseCommand):
             t.denominazione = denominazione
             t.territorio = tipo_territorio
             t.abitanti = abitanti
-            if 'cod_reg' in defaults:
-                t.cod_reg = defaults['cod_reg']
-            if 'cod_prov' in defaults:
-                t.cod_prov = defaults['cod_prov']
-            if 'cod_com' in defaults:
-                t.cod_com = defaults['cod_com']
+            if 'cod_finloc' in defaults:
+                t.cod_finloc = defaults['cod_finloc']
             if 'geom' in defaults:
                 t.geom = defaults['geom']
             if 'prov' in defaults:

@@ -190,8 +190,6 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
     # Database migration helpers:
     'south',
-    'treeadmin',
-    'mptt',
     'django_select2',
 )
 
@@ -240,6 +238,13 @@ LOGGING = {
             'class':'logging.StreamHandler',
             'formatter': 'standard'
         },
+        'import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': REPO_ROOT + "/log/import_logfile",
+            'mode': 'w',
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'django.request': {
@@ -248,9 +253,9 @@ LOGGING = {
             'propagate': True,
         },
         'management': {
-            'handlers': ['console',],
+            'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
-            'propagate': True,
+            'propagate': False,
             }
     }
 }
@@ -268,17 +273,57 @@ END_YEAR = 2012
 
 OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
-LISTA_COMUNI_PATH =OUTPUT_PATH +LISTA_COMUNI
+LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
 
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-BILANCI_PATH = ""
 
-OUTPUT_FOLDER = ''
-LISTA_COMUNI = ''
-LISTA_COMUNI_PATH =OUTPUT_FOLDER +LISTA_COMUNI
-BILANCI_RAW_DB = ''
 
+# Google Account credentials
+GOOGLE_USER = env('GOOGLE_USER')
+GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
+
+# Google Docs keys
+GDOC_KEYS= {
+    'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
+    'voci_map': env('GDOC_VOCI_MAP_KEY'),
+    'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
+    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY')
+}
+
+COUCHDB_RAW_NAME = 'bilanci'
+COUCHDB_NORMALIZED_TITOLI_NAME = 'bilanci_titoli'
+COUCHDB_NORMALIZED_VOCI_NAME = 'bilanci_voci'
+COUCHDB_SIMPLIFIED_NAME = 'bilanci_simple'
+
+COUCHDB_SERVERS = {
+    'localhost': {
+        'host': 'localhost',
+        'port': '5984',
+        'user': env('COUCHDB_STAGING_USER'),
+        'password':env('COUCHDB_STAGING_PASSWORD'),
+    },
+    'staging': {
+        'host': 'staging.depp.it',
+        'port': '5984',
+        'user': env('COUCHDB_LOCALHOST_USER'),
+        'password':env('COUCHDB_LOCALHOST_PASSWORD'),
+    },
+}
+COUCHDB_DEFAULT_SERVER = 'staging'
+
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "127.0.0.1:6379:1",  # db 1
+        "TIMEOUT": 0,
+        "OPTIONS": {
+            "CLIENT_CLASS": "redis_cache.client.DefaultClient",
+        }
+    }
+}
+
+CACHE_PAGE_DURATION_SECS = 3600

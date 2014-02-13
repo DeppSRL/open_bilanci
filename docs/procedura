@@ -1,0 +1,72 @@
+python getkeys.py -f titoli_preventivo -ck
+python getkeys.py -f titoli_consuntivo -ck
+
+http://staging.depp.it:5984/bilanci/_design/titoli_consuntivo/_view/titoli_consuntivo?group_level=4
+save txt file
+rename to json
+http://staging.depp.it:5984/bilanci/_design/titoli_preventivo/_view/titoli_preventivo?group_level=4
+save txt file
+rename to json
+
+python json2csv.py -f=output/titoli_consuntivo.json -t=titoli
+python json2csv.py -f=output/titoli_preventivo.json -t=titoli
+
+open drive "Classificazione titoli di bilancio"
+https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dEJ4LVRpRGpQcjdRTE40Vkh5UElmYUE&usp=drive_web#gid=0
+
+import csv consuntivo to a new sheet
+seleziona tutto e incolla sul foglio "consuntivo"
+stessa cosa per il preventivo
+
+cancella i fogli che si sono aggiunti
+proteggi le prime 3 colonne dei due fogli
+
+* processo di normalizzazione titoli
+
+crea il db_titoli partendo dal gdoc
+python translate_keys.py -s localhost -t titoli (start 17.04, circa 2 ore su staging per 65k documenti)
+
+push view sul server
+python getkeys.py -s staging -f voci_preventivo_anni
+python getkeys.py -s staging -f voci_consuntivo_anni
+
+lancia la view voci_consuntivo_js , voci_preventivo_js per il calcolo delle viste (tempo 1h a vista)
+
+apri
+
+http://staging.depp.it:5984/bilanci_titoli/_design/voci_preventivo/_view/voci_preventivo?group_level=4
+http://staging.depp.it:5984/bilanci_titoli/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
+rename a json
+mv output/voci_preventivo.txt output/voci_preventivo.json
+mv output/voci_consuntivo.txt output/voci_consuntivo.json
+
+python json2csv.py -f=output/voci_preventivo.json -t=voci
+python json2csv.py -f=output/voci_consuntivo.json -t=voci
+
+open drive "Classificazione voci di bilancio"
+https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFRYTTJyakhULWpZTFBjS3RYZFduLUE&usp=drive_web#gid=10
+import csv consuntivo to a new sheet
+seleziona tutto e incolla sul foglio "consuntivo"
+stessa cosa per il preventivo
+
+crea il db_voci partendo dal gdoc
+python translate_keys.py -s localhost -t voci (start 17.04, circa 2 ore su staging per 65k documenti)
+
+
+# voci_preventivo and voci_consuntivo views are copied from bilanci_titoli couchdb
+http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4
+http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
+
+salva i file txt come voci_preventivo_norm e voci_consuntivo_norm
+rename a json
+mv output/voci_preventivo_norm.txt output/voci_preventivo_norm.json
+mv output/voci_consuntivo_norm.txt output/voci_consuntivo_norm.json
+convert to csv
+python json2csv.py -f=output/voci_preventivo_norm.json -t=voci
+python json2csv.py -f=output/voci_consuntivo_norm.json -t=voci
+
+apri il gdoc "Semplificazione bilancio"
+https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
+
+ricordarsi di condividere tutti i Gdoc con script openpolis!!!
+

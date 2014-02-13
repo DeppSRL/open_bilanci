@@ -1,3 +1,5 @@
+from os import listdir
+from os.path import isfile, join
 import socket
 import sys
 import couchdb
@@ -7,269 +9,18 @@ from pprint import pprint
 from settings_local import *
 
 
-def titoli_getkeys(doc):
-    # funzione che raccoglie per tutti i bilanci tutti i nomi
-    # dei titoli, quadro per quadro
-    considered_keys =["consuntivo", "preventivo"]
-    if doc:
-        for doc_keys in doc.keys():
-            if doc_keys in considered_keys:
-                tipo_bilancio = doc_keys
-                for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
-
-                    # genera una chiave che contiene tipo di bilancio, quadro e la voce
-                    # il valore 1 ci permette di fare somme con la reduce function _sum()
-                    for nome_titolo in quadro_v.keys():
-                        yield ([tipo_bilancio,quadro_n,nome_titolo,doc['_id'][:4]],1)
-
-
-def voci_getkeys(doc):
-    # funzione che raccoglie per tutti i bilanci tutti i nomi
-    # delle voci, titolo per titolo, quadro per quadro
-    considered_keys =["consuntivo", "preventivo"]
-    if doc:
-        for document_keys in doc.keys():
-            if document_keys in considered_keys:
-                tipo_bilancio = document_keys
-                for quadro_n, quadro_v  in doc[tipo_bilancio].iteritems():
-
-                    # genera una chiave che contiene tipo di bilancio, quadro e la voce
-                    # il valore 1 ci permette di fare somme con la reduce function _sum()
-                    for nome_titolo, contenuto in quadro_v.iteritems():
-
-                        if 'data' in contenuto.keys():
-                            if len(contenuto['data'])>0:
-                                for voce in contenuto['data']:
-                                    anno = doc['_id'][:4]
-                                    yield ([tipo_bilancio,quadro_n,nome_titolo,voce,anno],1)
-
-
 
 def main(argv):
     parser = argparse.ArgumentParser(description='Get Titolo names and voce labels from bilanci')
     server_name = None
     check_function= None
 
+    views_folder = 'views'
 
-    titoli_consuntivo = '''
-       function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[0];
-            if(doc!==null){
-                	  if(tipo_bilancio in doc){
-                	  	if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-                          quadro_n = considered_quadro[j];
-                          if( quadro_n in doc[tipo_bilancio] ){
-                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo],1);
-                            }
-                          }
-                        }
-                    }
-                	}
-
-           }
-        }
-    '''
-
-    titoli_preventivo = '''
-       function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[1];
-            if(doc!==null){
-                	  if(tipo_bilancio in doc){
-                	  	if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-                          quadro_n = considered_quadro[j];
-                          if( quadro_n in doc[tipo_bilancio] ){
-                            for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo],1);
-                            }
-                          }
-                        }
-                    }
-                	}
-
-           }
-        }
-    '''
+    # crea un vettore con le accepted views sulla base dei file contenuti in views ed escludendo i file temporanei
+    accepted_views = [ f.replace('.js','') for f in listdir(views_folder) if isfile(join(views_folder,f)) and f.find('~') == -1 ]
 
 
-
-    voci_consuntivo = '''
-       function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[0];
-            if(doc!==null){
-                	  if(tipo_bilancio in doc){
-                	  	if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-			    				  quadro_n = considered_quadro[j];
-			    				  if( quadro_n in doc[tipo_bilancio] ){
-			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-
-                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                    if(voce.indexOf("- ") == 0){
-                                     voce = voce.replace("- ","");
-                                     }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase()],1);
-                                 }
-
-                             }
-                            }
-			    				  }
-                        }
-                    }
-                	}
-
-           }
-        }
-    '''
-
-    voci_consuntivo_anni = '''
-        function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[0];
-            if(doc!==null){
-                      if(tipo_bilancio in doc){
-                        if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-                                  quadro_n = considered_quadro[j];
-                                  if( quadro_n in doc[tipo_bilancio] ){
-                                    for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-
-                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     if(voce.indexOf("- ") == 0){
-                                         voce = voce.replace("- ","");
-                                         }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
-                                 }
-
-                             }
-                            }
-                                  }
-                        }
-                    }
-                    }
-
-           }
-        }
-        '''
-
-    voci_preventivo = '''
-       function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[1];
-            if(doc!==null){
-                	  if(tipo_bilancio in doc){
-                	  	if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-			    				  quadro_n = considered_quadro[j];
-			    				  if( quadro_n in doc[tipo_bilancio] ){
-			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-
-                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     if(voce.indexOf("- ") == 0){
-                                         voce = voce.replace("- ","");
-                                         }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase()],1);
-                                 }
-
-                             }
-                            }
-			    				  }
-                        }
-                    }
-                	}
-
-           }
-        }
-    '''
-
-
-    voci_preventivo_anni = '''
-       function (doc) {
-        var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
-        var tipo_bilancio = considered_keys[1];
-            if(doc!==null){
-                	  if(tipo_bilancio in doc){
-                	  	if(doc[tipo_bilancio]!==null){
-
-                        for (var j = 0; j < considered_quadro.length; j++) {
-			    				  quadro_n = considered_quadro[j];
-			    				  if( quadro_n in doc[tipo_bilancio] ){
-			    				  	for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-
-                             if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
-                                 for(voce in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
-                                     if(voce.indexOf("- ") == 0){
-                                         voce = voce.replace("- ","");
-                                         }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,voce.toLowerCase(),doc['_id'].substring(0,4)],1);
-                                 }
-
-                             }
-                            }
-			    				  }
-                        }
-                    }
-                	}
-
-           }
-        }
-    '''
-
-    accepted_views = {
-         'titoli_consuntivo':{
-            'design_document': 'titoli_consuntivo',
-            'mapping_function': titoli_consuntivo,
-            'language': 'javascript'
-        },
-
-         'titoli_preventivo':{
-            'design_document': 'titoli_preventivo',
-            'mapping_function': titoli_preventivo,
-            'language': 'javascript'
-        },
-
-        'voci_consuntivo':{
-            'design_document': 'voci_consuntivo',
-            'mapping_function': voci_consuntivo,
-            'language': 'javascript'
-        },
-        'voci_preventivo':{
-            'design_document': 'voci_preventivo',
-            'mapping_function': voci_preventivo,
-            'language': 'javascript'
-        },
-
-        'voci_consuntivo_anni':{
-            'design_document': 'voci_consuntivo_anni',
-            'mapping_function': voci_consuntivo_anni,
-            'language': 'javascript'
-        },
-        'voci_preventivo_anni':{
-            'design_document': 'voci_preventivo_anni',
-            'mapping_function': voci_preventivo_anni,
-            'language': 'javascript'
-        },
-
-    }
 
     accepted_language = ['python','javascript']
 
@@ -280,7 +31,13 @@ def main(argv):
 
     parser.add_argument('--function','-f', dest='function', action='store',
                default='voci_preventivo',
-               help='Function to sync: titoli_preventivo | titoli_consuntivo | voci_preventivo | voci_consuntivo | voci_preventivo_anni | voci_consuntivo_anni')
+               help='Function to sync: '+  ' | '.join(accepted_views) )
+
+    parser.add_argument('--database','-db', dest='database', action='store',
+               default='voci',
+               help='Db to use: titoli | voci | simple')
+
+
 
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
@@ -289,6 +46,7 @@ def main(argv):
     server_name= args.server_name
     check_function= args.check_function
     function_to_sync = args.function
+    database_type = args.database
     
 
     if server_name in accepted_servers.keys():
@@ -301,31 +59,40 @@ def main(argv):
 
         server_string+=accepted_servers[server_name]['host']+":"+accepted_servers[server_name]['port']
 
-        if function_to_sync in accepted_views.keys():
+        if function_to_sync in accepted_views:
             view_name = function_to_sync
-            reduce_function = accepted_views[view_name]['mapping_function']
 
+            with file(views_folder+"/"+view_name+".js") as f: s = f.read()
+            map_function = s
 
             print "Connecting to: "+server_string+" ..."
             # open db connection
             server = couchdb.Server(server_string)
-            if "voci" in function_to_sync:
-                db_name = accepted_servers[server_name]['normalized_titoli_db_name']
-            elif "titoli" in function_to_sync:
-                db_name = accepted_servers[server_name]['raw_db_name']
 
-            try:
-                db = server[db_name]
-            except socket.gaierror:
-                print "Connection ERROR. Quitting..."
-            print "Db connection ok!"
+            db_name = ''
+            if database_type == 'titoli':
+                db_name = accepted_servers[server_name]['normalized_titoli_db_name']
+            elif database_type == 'voci':
+                db_name = accepted_servers[server_name]['normalized_voci_db_name']
+            elif database_type == 'simple':
+                db_name = accepted_servers[server_name]['simplified_db_name']
+
+            if db_name == '':
+                print "Db name not found. Quitting..."
+                return
+            else:
+                try:
+                    db = server[db_name]
+                except socket.gaierror:
+                    print "Connection ERROR. Quitting..."
+                print "Db connection ok!"
 
             # sync the view
-            view = ViewDefinition(accepted_views[view_name]['design_document'],
+            view = ViewDefinition(view_name,
                                   view_name,
-                                  map_fun=reduce_function,
+                                  map_fun=map_function,
                                   reduce_fun='_sum()',
-                                  language=accepted_views[view_name]['language']
+                                  language='javascript',
             )
 
             view.sync(db)
@@ -333,7 +100,7 @@ def main(argv):
 
             if check_function:
                 # get view values
-                check = db.view(accepted_views[view_name]['design_document']+'/'+view_name)
+                check = db.view(view_name+'/'+view_name)
                 # dummy code just to test the function
                 for row in check:
                     print "Test output:"
