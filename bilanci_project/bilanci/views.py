@@ -26,13 +26,16 @@ class BilancioRedirectView(RedirectView):
 
             # put in new values via regular dict
             year =  sorted(couch_data.keys())[-3]
+            tipo_bilancio = "consuntivo"
+            if couch_data[year][tipo_bilancio] == {}:
+                tipo_bilancio = "preventivo"
             kwargs.update({'slug': territorio.slug})
             try:
                 url = reverse('bilanci-detail', args=args , kwargs=kwargs)
             except NoReverseMatch:
                 return reverse('404')
 
-            return url + '?year=' + year
+            return url + '?year=' + year +"&type=" + tipo_bilancio
         else:
             return reverse('404')
 
