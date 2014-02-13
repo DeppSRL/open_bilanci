@@ -126,9 +126,7 @@ class Command(BaseCommand):
                     ))
                 else:
                     for tipologia in tipologie_bilancio:
-                        # avoid logging for consuntivo 2012 as currently there are no data in the db for that kind of bilanci
-                        if tipologia == 'consuntivo' and year == 2012:
-                            break
+                        # todo: prevedere una lista di esclusioni da shell
                         if tipologia not in source_document.keys():
                             self.logger.error("Missing {0} for Comune:{1}, yr:{2}".format(
                                     tipologia,city,year
