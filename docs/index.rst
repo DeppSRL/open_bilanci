@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to open_bilanci's documentation!
-====================================
+========================================
 
 Contents:
 
@@ -13,7 +13,11 @@ Contents:
 
    install
    data
+   ai
+   page_elements
+   templates
    deploy
+
 
 
 
