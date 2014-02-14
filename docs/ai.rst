@@ -6,7 +6,7 @@ Architecture Information
 Main sections
 -------------
 
-The web application has 3 main sections and a series of static pages::
+The web application has 4 main sections and a series of static pages::
 
 
                                   +------------+

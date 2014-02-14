@@ -21,9 +21,7 @@ Contents:
 
 
 
-Indices and tables
-==================
+Indexes and functions
+=====================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
