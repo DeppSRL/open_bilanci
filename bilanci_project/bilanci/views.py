@@ -54,6 +54,7 @@ class BilancioView(DetailView):
 
         context['year'] = self.request.GET['year']
         context['bilanci'] = couch_data
+        context['tipo_bilancio'] = self.request.GET['type']
 
         return context
 

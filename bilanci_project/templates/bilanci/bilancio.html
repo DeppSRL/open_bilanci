@@ -2,11 +2,11 @@
 {% load bilanci_print %}
 
 {% block page_title %}
-    Home page del Comune {{ territorio.denominazione }}
+    Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
 {% endblock %}
 
 {% block content_title %}
-    Home page del bilancio per il Comune di {{ territorio }} <br/>
+    Bilancio {{ tipo_bilancio }} anno: {{ year }} per il Comune di {{ territorio }} <br/>
     Cluster: {{ territorio.get_cluster_display }}
 {% endblock %}
 
@@ -15,7 +15,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            Contenuto del Bilancio per l'anno {{ year }}
+            Contenuto del Bilancio {{ tipo_bilancio }} per l'anno {{ year }}
         </div>
     </div>
     <div class="row" style="margin-top: 30px;">

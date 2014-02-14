@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     url(r'^bilanci/search', BilancioRedirectView.as_view()),
     url(r'^bilanci/(?P<slug>[-\w]+)', BilancioDetailView.as_view(), name='bilanci-detail'),
-    url(r'^confronto/', ConfrontoView.as_view(), name='confronto'),
+    url(r'^confronto/(?P<slugA>[-\w]+)/(?P<slugB>[-\w]+)', ConfrontoView.as_view(), name='confronto'),
     url(r'^page-not-found$', TemplateView.as_view(template_name='404.html'), name='404'),
 
     url(r'^select2/', include('django_select2.urls')),
