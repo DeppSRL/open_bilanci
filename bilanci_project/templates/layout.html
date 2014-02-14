@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>OpenBilanci</title>
+        <!-- Bootstrap -->
+        <link href="scripts/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Cusotm style -->
+        <link href="css/main.css?v=1.1" rel="stylesheet">
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="container">
+            <!-- Static navbar -->
+            <div class="navbar navbar-default navbar-main" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Mostra/nascondi nvigazione</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Open<strong>Bilanci</strong><small>tagline</small></a>
+                    <form role="search" class="pull-left">
+                        <div class="form-group">
+                            <label class="sr-only" for="city">Cerca un comune</label>
+                            <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </div>
+                        <!--button type="submit" class="btn btn-default">Submit</button-->
+                    </form>
+                </div>
+
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="#"><span class="glyphicon glyphicon-map-marker"></span> mappa</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-tasks"></span> classifiche</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-user"></span> community</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> login</a></li>
+                    </ul>
+                </div><!-- /nav-collapse -->
+            </div>
+
+            <!-- Main panel -->
+            <div class="panel" id="main-content">
+
+                <div class="panel-heading">
+                    <a href="" class="pull-right share">Condividi <span class="glyphicon glyphicon-share"></span></a>
+                    <h1 class="panel-title">TITOLO</h1>
+                    <p class="details">
+                        <span class="location">VA, lombardia</span>
+                        <span class="category"><span class="glyphicon glyphicon-record"></span> CENTRI PICCOLISSIMI, 1.203 abitanti</span>
+                    </p>
+                </div>
+
+                <div class="panel-body">
+                    <nav class="navbar navbar-subnav" role="navigation">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#">voce 1</a></li>
+                            <li><a href="#">voce 2</a></li>
+                            <li class="active"><a href="#">voce 3</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="#" class="download">Scarica <span class="glyphicon glyphicon-download"></span></a></li>
+                        </ul>
+                    </nav>
+                    <div class="panel" id="voce3">
+                        <div class="panel-heading">
+                            <h2 class="panel-title text-alt">voce 3</h2>
+                        </div>
+                        <div class="panel-body">
+
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs nav-justified">
+                                <li class="active"><a href="#voce3-1" data-toggle="tab">VOCE 3.1</a></li>
+                                <li><a href="#voce3-2" data-toggle="tab">VOCE 3.2</a></li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+
+                                <div class="tab-pane fade in active" id="voce3-1">
+                                    <figure class="stripe thumbnail">
+                                        <img src="http://cambelt.co/1500x200" class="img-responsive" alt="Responsive image">
+                                    </figure>
+                                    <hr class="no-border">
+
+                                    <!-- Default panel contents -->
+                                    <h3>TITOLO VOCE 3.1</h3>
+                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+
+                                    <!-- Main table -->
+                                    <div class="table-responsive">
+                                        <table class="table" id="results">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <div class="dropdown">
+                                                            <button class="btn dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+                                                                MOSTRA FUNZIONI
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
+                                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Another action</a></li>
+                                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
+                                                                <li role="presentation" class="divider"></li>
+                                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </th>
+                                                    <th>PINO SULLA SPONTA DEL LAGO</th>
+                                                    <th class="alt">ROMA</th>
+                                                    <th>RAPPORTO INVESTIMENTI/SPESE CORRENTI</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <a class="collapse-toggle" href="#row1"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 1</a>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                <span class="sr-only">40%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                <span class="sr-only">60%</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr class="panel-collapse collapse" id="row1">
+                                                    <td colspan="4">
+                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <a class="collapse-toggle" href="#row2"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 2</a>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                <span class="sr-only">40%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                <span class="sr-only">60%</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr class="panel-collapse collapse" id="row2">
+                                                    <td colspan="4">
+                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <a class="collapse-toggle" href="#row3"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3 APERTA</a>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                    </td>
+                                                    <td>
+                                                        <div class="progress">
+                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                <span class="sr-only">40%</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="progress">
+                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                <span class="sr-only">60%</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr class="panel-collapse collapse" id="row3">
+                                                    <td colspan="4">
+                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+
+                                                        <!-- Sub table level 1 -->
+                                                        <table class="table table-condensed">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        <a class="collapse-toggle" href="#row31"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.1</a>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                <span class="sr-only">40%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                <span class="sr-only">60%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="panel-collapse collapse" id="row31">
+                                                                    <td colspan="4">
+                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <a class="collapse-toggle" href="#row32"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.2</a>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                <span class="sr-only">40%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                <span class="sr-only">60%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="panel-collapse collapse" id="row32">
+                                                                    <td colspan="4">
+                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <a class="collapse-toggle" href="#row33"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3 APERTA</a>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                <span class="sr-only">40%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                <span class="sr-only">60%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="panel-collapse collapse" id="row33">
+                                                                    <td colspan="4">
+                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+
+                                                                        <!-- Subtable level 2 -->
+                                                                        <table class="table  table-condensed">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <a class="collapse-toggle" href="#row331"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3.1</a>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div class="progress">
+                                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                                <span class="sr-only">40%</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="progress">
+                                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                                <span class="sr-only">60%</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr class="panel-collapse collapse" id="row331">
+                                                                                    <td colspan="4">
+                                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <a class="collapse-toggle" href="#row332"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3.2 APERTA</a>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                                    </td>
+                                                                                    <td class="text-center">
+                                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <div class="progress">
+                                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                                <span class="sr-only">40%</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="progress">
+                                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                                <span class="sr-only">60%</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <tr class="panel-collapse collapse" id="row332">
+                                                                                    <td colspan="4">
+                                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <a class="collapse-toggle" href="#row34"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.4</a>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                                                                <span class="sr-only">40%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="progress">
+                                                                            <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                                                                <span class="sr-only">60%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr class="panel-collapse collapse" id="row34">
+                                                                    <td colspan="4">
+                                                                        <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div> <!-- /table-responsive -->
+                                </div> <!-- /tab-pane -->
+                                <div class="tab-pane fade" id="voce3-2">
+                                    <figure class="stripe thumbnail">
+                                        <img src="http://cambelt.co/1500x200" class="img-responsive" alt="Responsive image">
+                                    </figure>
+                                    <hr class="no-border">
+
+                                    <!-- Default panel contents -->
+                                    <h3>TITOLO VOCE 3.1</h3>
+                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+
+                                </div> <!-- /tab-pane -->
+
+
+                            </div> <!-- /tab-content -->
+
+                            <div id="comments">
+                                <h3>3 COMMENTI</h3>
+
+                                <form class="form" role="form">
+                                        <span class="glyphicon glyphicon-user pull-left text-center"></span>
+                                        <div class="form-group">
+                                            <label class="sr-only" for="message">Email address</label>
+                                            <input type="text" class="form-control" id="message" placeholder="Partecipa alla discussione">
+                                        </div>
+                                </form>
+
+                                <ul class="list-unstyled">
+                                    <li class="media">
+                                        <figure class="pull-left img-circle">
+                                            <img class="media-object" src="http://cambelt.co/42x42/Colors?color=5e6a77" alt="avatar">
+                                        </figure>
+                                        <article class="media-body">
+                                            <header>
+                                                <h4>Nome Utente <small>16 ore fa</small></h4>
+                                            </header>
+                                            <div class="text">
+                                                <p>In publishing and graphic design, lorem ipsum is a placeholder</p>
+                                            </div>
+                                            <footer>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-up"></span></a>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-down"></span></a>
+                                                <a href="#">Rispondi</a>
+                                                <a href="#">Condividi</a>
+                                            </footer>
+                                        </article>
+                                    </li>
+
+                                    <li class="media">
+                                        <figure class="pull-left img-circle">
+                                            <img class="media-object" src="http://cambelt.co/42x42/Colors?color=e55f3b" alt="avatar">
+                                        </figure>
+                                        <article class="media-body">
+                                            <header>
+                                                <h4>Nome Utente <small>16 ore fa</small></h4>
+                                            </header>
+                                            <div class="text">
+                                                <p>In publishing and graphic design, lorem ipsum is a placeholder</p>
+                                            </div>
+                                            <footer>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-up"></span></a>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-down"></span></a>
+                                                <a href="#">Rispondi</a>
+                                                <a href="#">Condividi</a>
+                                            </footer>
+                                        </article>
+                                    </li>
+
+                                    <li class="media">
+                                        <figure class="pull-left img-circle">
+                                            <img class="media-object" src="http://cambelt.co/42x42/Colors?color=a0180d" alt="avatar">
+                                        </figure>
+                                        <article class="media-body">
+                                            <header>
+                                                <h4>Nome Utente <small>16 ore fa</small></h4>
+                                            </header>
+                                            <div class="text">
+                                                <p>In publishing and graphic design, lorem ipsum is a placeholder</p>
+                                            </div>
+                                            <footer>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-up"></span></a>
+                                                <a href="#"><span class="glyphicon glyphicon-chevron-down"></span></a>
+                                                <a href="#">Rispondi</a>
+                                                <a href="#">Condividi</a>
+                                            </footer>
+                                        </article>
+                                    </li>
+
+
+
+
+                                </ul>
+                            </div> <!-- /comments -->
+
+
+                        </div> <!-- /panel-body (sub) -->
+                    </div><!-- /panel (sub) -->
+
+                </div><!-- /panel-body -->
+            </div><!-- /panel -->
+
+            <footer id="footer">
+                <!-- Static navbar -->
+                <div class="navbar navbar-default navbar-main" role="navigation">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#">Open<strong>Bilanci</strong><small>tagline</small></a>
+                        <form role="search" class="pull-left">
+                            <div class="form-group">
+                                <label class="sr-only" for="city">Cerca un comune</label>
+                                <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </div>
+                            <!--button type="submit" class="btn btn-default">Submit</button-->
+                        </form>
+                    </div>
+                    <ul class="nav nav-stacked pull-left">
+                        <li class="active"><a href="#"><span class="glyphicon glyphicon-map-marker"></span> mappa</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-tasks"></span> classifiche</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-user"></span> community</a></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> login</a></li>
+                    </ul>
+                    <ul class="nav nav-stacked pull-left no-icons">
+                        <li><a href="#">il progetto</a></li>
+                        <li><a href="#">servizi a pagamento</a></li>
+                        <li><a href="#">dati</a></li>
+                        <li><a href="#">condizioni d'uso</a></li>
+                        <li><a href="#">faq</a></li>
+                    </ul>
+                </div>
+            </footer>
+        </div> <!-- /container -->
+
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="scripts/vendor/jquery/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="scripts/vendor/bootstrap/js/bootstrap.min.js"></script>
+        <!-- Custom scripts -->
+        <script src="scripts/main.js?v=1.1"></script>
+    </body>
+</html>

@@ -1,0 +1,337 @@
+/**
+ * Main style
+ * @author mleone
+ * @version 1.1
+ **/
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
+body {
+  background-color: #5e6a77;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  color: #2a3037;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  color: #2a3037;
+}
+a {
+  color: #99a5b1;
+}
+a:hover,
+a:focus {
+  color: #2a3037;
+  outline: none;
+}
+.share {
+  color: #e55f3b;
+  text-transform: uppercase;
+  font-size: .8em;
+  padding: 9px 15px;
+}
+.share .glyphicon {
+  margin-left: .3em;
+}
+.share:hover {
+  color: #a0180d;
+}
+.download {
+  text-transform: uppercase;
+  font-size: .8em;
+  padding: 5px;
+}
+.download .glyphicon {
+  margin-left: .3em;
+}
+.download:hover {
+  color: #99a5b1;
+}
+.location {
+  border-right: 1px solid #ddd;
+  margin-right: 4px;
+  padding-right: 6px;
+}
+.text-alt {
+  color: #e55f3b;
+}
+.no-border {
+  border-color: transparent;
+  margin: 15px 0;
+}
+.stripe {
+  margin-top: 30px;
+}
+.navbar-main {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+  margin-top: 20px;
+}
+.navbar-main .navbar-brand {
+  color: #fff;
+  font-size: 30px;
+  padding-top: 10px;
+}
+.navbar-main .navbar-brand small {
+  display: block;
+  font-size: 12px;
+  text-align: right;
+}
+.navbar-main .navbar-brand:hover,
+.navbar-main .navbar-brand:focus {
+  color: #fff;
+}
+.navbar-main .navbar-header form {
+  margin: 7px 0;
+  width: 190px;
+}
+.navbar-main .navbar-header form .form-group {
+  margin-bottom: 0;
+  position: relative;
+}
+.navbar-main .navbar-header form .form-control {
+  background: transparent;
+  color: #fff;
+  padding-right: 34px;
+}
+.navbar-main .navbar-header form .form-control:-moz-placeholder {
+  color: #99a5b1;
+  font-weight: 300;
+}
+.navbar-main .navbar-header form .form-control::-moz-placeholder {
+  color: #99a5b1;
+  font-weight: 300;
+}
+.navbar-main .navbar-header form .form-control:-ms-input-placeholder {
+  color: #99a5b1;
+  font-weight: 300;
+}
+.navbar-main .navbar-header form .form-control::-webkit-input-placeholder {
+  color: #99a5b1;
+  font-weight: 300;
+}
+.navbar-main .navbar-header form .glyphicon-search {
+  position: absolute;
+  top: 10px;
+  left: auto;
+  right: 12px;
+}
+.navbar-main .navbar-nav > li > a {
+  color: #fff;
+}
+.navbar-main .navbar-nav > li > a .glyphicon {
+  margin-right: .3em;
+  font-size: small;
+}
+.navbar-main .nav > li.active > a,
+.navbar-main .nav > li.active > a:hover,
+.navbar-main .nav > li > a:hover,
+.navbar-main .nav > li > a:focus {
+  background: none;
+  color: #2a3037;
+}
+.navbar-subnav {
+  margin-top: 0;
+  background: #2a3037;
+  min-height: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+.navbar-subnav .nav > li {
+  border-right: 1px solid #fff;
+}
+.navbar-subnav .nav > li > a {
+  color: #fff;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.navbar-subnav .nav > li.active > a,
+.navbar-subnav .nav > li.active > a:hover,
+.navbar-subnav .nav > li > a:hover,
+.navbar-subnav .nav > li > a:focus {
+  background-color: #99a5b1;
+}
+.navbar-subnav .navbar-nav {
+  margin: 0;
+}
+.navbar-subnav .navbar-nav.navbar-right:last-child {
+  margin-right: 0;
+}
+#main-content > .panel-heading {
+  padding-bottom: 0;
+  padding-top: 30px;
+}
+#main-content > .panel-heading > .panel-title {
+  font-size: 34px;
+}
+#main-content .panel-title.text-alt {
+  font-size: 30px;
+}
+#main-content .nav-tabs.nav-justified > li > a {
+  text-align: left;
+  font-size: 120%;
+}
+#results {
+  border-bottom: 1px solid #ddd;
+}
+#results > thead > tr > th {
+  background: #e55f3b;
+  font-weight: 300;
+  color: #fff;
+  border-bottom: 0 none;
+  border-right: 1px solid #fff;
+}
+#results > thead > tr > th .btn {
+  border: none;
+  background: transparent;
+  font-weight: 300;
+  color: #fff;
+  padding: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+}
+#results thead > tr > th:last-child {
+  border-right: 0 none;
+}
+#results th.alt {
+  background: #a0180d;
+}
+#results .collapse-toggle {
+  color: #2a3037;
+}
+#results tbody > tr > td {
+  width: 25%;
+}
+#results tbody > tr > td:first-child {
+  width: 20%;
+}
+#results tbody > tr > td:last-child {
+  width: 30%;
+}
+#results small {
+  font-weight: 400;
+  font-size: 75%;
+  display: block;
+}
+#results .shown > td,
+#results .shown .collapse-toggle {
+  color: #e55f3b;
+}
+#results .collapse-toggle .glyphicon {
+  margin-right: 6px;
+}
+#results .panel-collapse td {
+  border-top-style: dashed;
+}
+#results .panel-collapse > td {
+  border-top: none;
+}
+#results .progress {
+  margin-bottom: 1px;
+  height: 16px;
+}
+#results .progress .progress-bar.light {
+  background-color: #e55f3b;
+}
+#results .progress .progress-bar.dark {
+  background-color: #a0180d;
+}
+#comments > h3 {
+  font-size: 20px;
+  margin: 60px 0 30px;
+}
+#comments .form-group {
+  width: 80%;
+}
+#comments .glyphicon-user {
+  color: #99a5b1;
+  font-size: 30px;
+  margin-right: 10px;
+  width: 42px;
+}
+#comments .media {
+  margin-bottom: 30px;
+}
+#comments .media figure {
+  width: 42px;
+  height: 42px;
+  margin-top: 10px;
+  display: inline-block;
+  overflow: hidden;
+  background: #ccc;
+}
+#comments .media figure img {
+  width: 42px;
+}
+#comments .media h4 {
+  color: #e55f3b;
+  margin-bottom: 0;
+}
+#comments .media h4 small {
+  font-weight: 300;
+  margin-left: 16px;
+  text-transform: uppercase;
+}
+#comments .media footer a {
+  border-right: 1px solid #ddd;
+  padding-right: 6px;
+  margin-right: 6px;
+  color: #e55f3b;
+}
+#comments .media footer a:last-child {
+  border-right: 0 none;
+  padding-right: 0;
+  margin-right: 0;
+}
+#footer {
+  margin-top: 40px;
+}
+#footer .nav {
+  margin-top: 8px;
+  margin-left: 40px;
+}
+#footer .nav > li > a {
+  padding: 3px 15px;
+  color: #fff;
+}
+#footer .nav > li.active > a,
+#footer .nav > li > a:hover {
+  color: #2a3037;
+  background: none;
+}
+#footer .nav.no-icons > li > a {
+  padding: 0 15px;
+}
+@media (max-width: 992px) {
+  .navbar-main .navbar-header form {
+    width: 95px;
+  }
+}
+@media (max-width: 768px) {
+  #footer .navbar-brand {
+    font-size: 26px;
+  }
+  #footer .nav {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  #footer .nav > li > a {
+    padding: 3px 25px;
+  }
+}

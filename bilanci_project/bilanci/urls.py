@@ -8,7 +8,7 @@ from bilanci.views import BilancioDetailView, ConfrontoView, BilancioRedirectVie
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
+    url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
 
     url(r'^bilanci/search', BilancioRedirectView.as_view()),
     url(r'^bilanci/(?P<slug>[-\w]+)', BilancioDetailView.as_view(), name='bilanci-detail'),
