@@ -22,13 +22,17 @@ extracted at: http://finanzalocale.interno.it/apps/floc.php/ajax/searchComune/
 
 Fetch
 -----
-HTML documents are parsed with the ``scrapy`` parser::
+HTML documents are parsed with the ``scrapy`` parser:
+
+.. code-block:: bash
 
     cd /home/open_bilanci/scraper_project
     scrapy crawl bilanci_pages
 
 The ``scraper/settings.py`` file contains instruction on the source URIs,
-what to scrape (years and cities) and where to put the results::
+what to scrape (years and cities) and where to put the results:
+
+.. code-block:: bash
 
     OUTPUT_FOLDER = 'scraper/output/'
     LISTA_COMUNI = 'listacomuni.csv'
@@ -53,7 +57,9 @@ The estimated size of the HTML files is ~100GB (9Gb per year).
 
 Parse into couchdb
 ------------------
-Data are parsed from HTML into the couchdb local server with the html2couch management task::
+Data are parsed from HTML into the couchdb local server with the html2couch management task:
+
+.. code-block:: bash
 
     cd /home/open_bilanci/bilanci_project
     python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
@@ -76,7 +82,10 @@ A single normalization process consists of these steps (the procedure descriptio
 titoli and for voci):
 
 + a **view** on the source couchdb builds the set of all possible values of the keys,
-  counting keys occurrences in the process, with a ``_sum`` reduce function::
+  counting keys occurrences in the process, with a ``_sum`` reduce function:
+
+  .. code-block:: bash
+
 
     # start in the right directory
     cd couchdb_scripts
@@ -90,14 +99,19 @@ titoli and for voci):
     curl -o output/[titoli|voci]_consuntivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_consuntivo/_view/[titoli|voci]_consuntivo?group_level=4
     curl -o output/[titoli|voci]_preventivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_preventivo/_view/[titoli|voci]_preventivo?group_level=4
 
-+ the results of the view documents are converted from json to csv with the script ``json2csv.py``::
++ the results of the view documents are converted from json to csv with the script ``json2csv.py``:
+
+  .. code-block:: bash
+
 
     # convert json file to csv (the name is unchanged)
     python json2csv.py -f=output/[titoli|voci]_consuntivo.json -t=[titoli|voci]
     python json2csv.py -f=output/[titoli|voci]_preventivo.json -t=[titoli|voci]
 
 + the csv file is uploaded to **Google Drive**, creating a new spreadsheet
-  and skilled operators perform the many-to-one key mapping, based on keys typography::
+  and skilled operators perform the many-to-one key mapping, based on keys typography:
+
+  .. code-block:: bash
 
     # open gDrive spreadsheet
     # titoli
@@ -116,7 +130,9 @@ titoli and for voci):
     # let the skilled operators operate (skillfully)
 
 + the mapping is read and used by the normalization script (``translate_keys.py``),
-  to create a new normalized couchdb database::
+  to create a new normalized couchdb database:
+
+  .. code-block:: bash
 
     python translate_keys.py -t [titoli|voci]
 
@@ -157,7 +173,10 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
 
 + the ``voci_preventivo`` and ``voci_consuntivo`` views are *copied* automatically from the ``bilanci_titoli`` couchdb
   when the ``translate_key`` script is invoked.
-+ the views are generated, by browsing and the json documents are downloaded::
++ the views are generated, by browsing and the json documents are downloaded:
+
+  .. code-block:: bash
+
 
     # browse to the view and wait for view generation to finisc (status)
 
@@ -165,25 +184,33 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
     curl -o output/voci_consuntivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
     curl -o output/voci_preventivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4
 
-+ the resulting documents are converted from json to csv::
++ the resulting documents are converted from json to csv:
+
+  .. code-block:: bash
 
     # convert json file to csv (the name is unchanged)
     python json2csv.py -f=output/voci_consuntivo_norm.json -t=voci
     python json2csv.py -f=output/voci_preventivo_norm.json -t=voci
 
-+ the CSV is uploaded to the gDoc spreadsheet::
++ the CSV is uploaded to the gDoc spreadsheet:
+
+  .. code-block:: bash
 
     https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
 
 + the skilled operator proceeds to do the semplification mapping
 
 + the simplification mapping is read from google and used by the simplification script (``simplify.py``),
-  to create the simplified couchdb instance::
+  to create the simplified couchdb instance:
+
+  .. code-block:: bash
 
     python manage.py simplify --couchdb-server=staging --cities=roma --years=2004-2012 --verbosity=2
 
 The simplification process logs every single import task in ``log/import_log`` and it is possible to extract
-the unique warnings with the help of awk::
+the unique warnings with the help of awk:
+
+.. code-block:: bash
 
     grep WARNING ../log/import_logfile | grep "No matching" | awk '{for (i=5; i<NF; i++) printf $i " "; print $NF}' | sort | uniq
 

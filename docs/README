@@ -1,0 +1,10 @@
+After the documentation is changed.
+
+1. Save
+
+1. rebuild the html from the rst sources with
+make html
+
+
+2. Sync the changed content to the web server
+rsync -rtvuz _build/html/ --exclude=.DS_Store root@ovhb2:/home/documentation.depp.it/open_bilanci/
