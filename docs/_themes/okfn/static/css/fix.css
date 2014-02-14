@@ -2,3 +2,14 @@ body {
         padding-top: 60px;
         padding-bottom: 40px;
       }
+
+li p {
+    margin-bottom: 0;
+}
+
+a.image-reference img {
+    border: 1px solid black;
+    padding: 3px;
+    margin-bottom: 1em;
+}
+

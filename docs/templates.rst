@@ -2,7 +2,12 @@ Templates
 =========
 The way templates are handled in ``django`` suggests a hierarchy of templates, extending from base.
 
-The templates are listed, along with the components they include.
+The extension point is indicated right after the template complete name, between round brackets.
+
+The urls where the template is used are shown among square brackets, after the title.
+
+The templates are listed, along with the UI elements they include. A link to the corresponding UI element
+detailed description is present, when available.
 
 Blocks are within square brackets, with the default components shown after the column (i.e. [content: composizione]).
 
@@ -22,38 +27,38 @@ Generic Templates
 Bilanci templates
 -----------------
 
-**bilanci/bilancio.html** (base.html) [url: ``/bilanci/comune-slug``]
+**bilanci/bilancio.html** (base.html) [url: ``/bilanci/<comune-slug>``]
     - [content]:
         - :ref:`city-data`
-        - [bilanci_navigation_menu]: :ref:`bilanci-menu` (composizione selected)
+        - [bilanci_navigation_menu]: :ref:`bilanci-menu` (bilancio selected)
         - [sidebar_rollaway_menu]: :ref:`rollaway-menu-for-value-types`
         - [timeline]: :ref:`timeline`
         - [bilanci_content]:
             - :ref:`budget-composition-widget` (total)
 
-**bilanci/entrate.html** (bilanci/bilancio.html) [url: ``/bilanci/comune-slug/entrate``]
+**bilanci/entrate.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/entrate``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (entrate selected)
     - [bilanci_content]:
         - :ref:`budget-composition-widget` (entrate)
         - :ref:`trend-and-analysis-charts` (entrate)
 
-**bilanci/spese.html** (bilanci/bilancio.html) [url: ``/bilanci/comune-slug/spese``]
+**bilanci/spese.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/spese``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (spese selected)
     - [bilanci_content]:
         - :ref:`budget-composition-widget` (spese)
         - :ref:`trend-and-analysis-charts` (spese)
 
-**bilanci/entrate_dettaglio.html** (bilanci/entrate.html) [url: ``/bilanci/comune-slug/entrate_dettaglio``]
+**bilanci/entrate_dettaglio.html** (bilanci/entrate.html) [url: ``/bilanci/<comune-slug>/entrate_dettaglio``]
     - [bilanci_content]:
         - :ref:`lines-chart-over-the-years` (entrate, average)
         - :ref:`accordion` (entrate)
 
-**bilanci/spese_dettaglio.html** (bilanci/spese.html) [url: ``/bilanci/comune-slug/spese_dettaglio``]
+**bilanci/spese_dettaglio.html** (bilanci/spese.html) [url: ``/bilanci/<comune-slug>/spese_dettaglio``]
     - [bilanci_content]:
         - :ref:`lines-chart-over-the-years` (spese, average)
         - :ref:`accordion` (spese)
 
-**bilanci/indicatori.html** (bilanci/bilancio.html) [url: ``/bilanci/comune-slug/indicatori``]
+**bilanci/indicatori.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/indicatori``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (indicatori selected)
     - [timeline]: -
     - [sidebar_rollaway_menu]: :ref:`rollaway-menu-with-for-indicators` (multiple)

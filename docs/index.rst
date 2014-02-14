@@ -14,7 +14,7 @@ Contents:
    install
    data
    ai
-   page_elements
+   elements
    templates
    deploy
 
