@@ -13,7 +13,7 @@ Prepare the virtualenv environment::
 
 Clone the repository from github::
 
-    git clone git://.....
+    git clone git@github.com:DeppSRL/open_bilanci.git
     cp .env.sample .env
 
 Modify the ``.env`` file, adding these password and keys:
