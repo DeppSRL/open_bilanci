@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'open_bilanci'
-copyright = u'2013, ChangeMyName'
+project = u'Open Bilanci'
+copyright = u'© 2013, Ass. Openpolis'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -91,7 +91,12 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+sys.path.append(os.path.abspath('_themes'))
+html_theme_path = ['_themes',]
+html_theme = 'okfn'
+html_sidebars = {
+        '**': ['globaltoc.html', 'localtoc.html', 'relations.html']
+    }
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -183,8 +188,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'open_bilanci.tex', u'open_bilanci Documentation',
-   u'ChangeToMyName', 'manual'),
+  ('index', 'open_bilanci.tex', u'OpenBilanci Documentation',
+   u'DEPP Srl', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,8 +218,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'open_bilanci', u'open_bilanci Documentation',
-     [u'ChangeToMyName'], 1)
+    ('index', 'open_bilanci', u'OpenBilanci Documentation',
+     [u'Depp SRL'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -227,8 +232,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'open_bilanci', u'open_bilanci Documentation',
-   u'ChangeToMyName', 'open_bilanci', 'One line description of project.',
+  ('index', 'open_bilanci', u'OpenBilanci Documentation',
+   u'DEPP Srl', 'open_bilanci', 'One line description of project.',
    'Miscellaneous'),
 ]
 

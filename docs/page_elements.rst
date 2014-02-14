@@ -14,10 +14,15 @@ These are the elements present in any page.
 
 Main menu
 +++++++++
-    * Logo + Tagline
-    * City autocompleter
-    * Link to classifiche
-    * Link to Glossario
+
+.. image:: _static/img/main-menu.png
+    :width: 100%
+
+* Logo + Tagline
+* City autocompleter
+* Link to classifiche
+* Link to the Blog
+* Link to Glossario (it's a link to wikipedia, actually)
 
 
 
@@ -25,17 +30,41 @@ Main menu
 
 Footer
 ++++++
-    * Logo + Tagline
-    * City autocompleter
-    * Link to classifiche
-    * Link to Glossario
-    * Links to static pages
 
-      * il progetto
-      * servizi a pagamento
-      * dati
-      * condizioni d'uso
-      * faq
+.. image:: _static/img/footer.png
+    :width: 100%
+
+* Logo + Tagline
+* City autocompleter
+* Link to classifiche
+* Link to Glossario
+* Links to static pages
+
+  * il progetto
+  * servizi a pagamento
+  * dati
+  * condizioni d'uso
+  * faq
+
+
+.. _lines-chart-over-the-years:
+
+Lines chart over the years
+++++++++++++++++++++++++++
+
+.. image:: _static/img/lines-chart-over-the-years.png
+    :width: 100%
+
+
+.. _accordion:
+
+Accordion
++++++++++
+
+.. image:: _static/img/accordion.png
+    :width: 100%
+
+
 
 
 Bilanci elements
@@ -49,19 +78,28 @@ Elements used in the bilanci section.
 
 City and name data
 ++++++++++++++++++
+.. image:: _static/img/city-data.png
+    :width: 100%
 
 
 .. _bilanci-menu:
 
 Bilanci section navigation menu
 +++++++++++++++++++++++++++++++
+.. image:: _static/img/bilanci-menu.png
+    :width: 100%
 
 
 .. _rollaway-menu-for-value-types:
 
 Rollaway menu for value types
 +++++++++++++++++++++++++++++
+.. image:: _static/img/rollaway-menu-for-value-types.png
 
+.. _city-positions-charts:
+
+City positions charts
++++++++++++++++++++++
 
 .. _rollaway-menu-with-for-indicators:
 
@@ -71,8 +109,8 @@ Rollaway menu for indicators selection
 
 .. _timeline:
 
-Timeline compoent
-+++++++++++++++++
+Timeline component
+++++++++++++++++++
 
 
 .. _budget-composition-widget:
@@ -87,16 +125,20 @@ Trend and analysis charts
 +++++++++++++++++++++++++
 
 
-.. _lines-chart-over-the-years:
 
-Lines chart over the years
-++++++++++++++++++++++++++
+Confronti elements
+------------------
 
+.. _cities-selector:
 
-.. _accordion:
+Cities selector
++++++++++++++++
 
-Accordion
-+++++++++
+.. _confronti-menu:
+
+Confronti navigation menu
++++++++++++++++++++++++++
+
 
 
 
