@@ -39,7 +39,7 @@ class BilancioRedirectView(RedirectView):
         else:
             return reverse('404')
 
-class BilancioDetailView(DetailView):
+class BilancioView(DetailView):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio.html'
@@ -47,10 +47,7 @@ class BilancioDetailView(DetailView):
     def get_context_data(self, **kwargs ):
 
         territorio = self.get_object()
-        context = super(BilancioDetailView, self).get_context_data(**kwargs)
-        context['territori_comparison_search_form'] = TerritoriComparisonSearchForm(
-            initial={'territorio_1':territorio.pk}
-            )
+        context = super(BilancioView, self).get_context_data(**kwargs)
 
         # get the couchdb doc
         couch_data = couch.get(territorio.cod_finloc)
@@ -60,6 +57,8 @@ class BilancioDetailView(DetailView):
 
         return context
 
+class BilancioDetailView(BilancioView):
+    pass
 
 class ConfrontoView(TemplateView):
     template_name = "confronto.html"
