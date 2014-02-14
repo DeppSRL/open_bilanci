@@ -87,11 +87,16 @@ def main(argv):
                     print "Connection ERROR. Quitting..."
                 print "Db connection ok!"
 
+            reduce_fun = '_sum()'
+            # se la view punta ed esportare un csv, non serve la funzione di reduce
+            if "csv" in function_to_sync:
+                reduce_fun = None
+
             # sync the view
             view = ViewDefinition(view_name,
                                   view_name,
                                   map_fun=map_function,
-                                  reduce_fun='_sum()',
+                                  reduce_fun=reduce_fun,
                                   language='javascript',
             )
 
