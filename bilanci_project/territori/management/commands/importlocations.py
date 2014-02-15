@@ -39,6 +39,11 @@ class Command(BaseCommand):
                     dest='limit',
                     default=0,
                     help='Limit of records to import'),
+        make_option('--geom',
+                    dest='geom',
+                    action='store_true',
+                    default=False,
+                    help='If geometry info must be imported'),
         make_option('--offset',
                     dest='offset',
                     default=0,
@@ -65,6 +70,7 @@ class Command(BaseCommand):
         offset = int(options['offset'])
         limit = int(options['limit'])
 
+        self.import_geom = options['geom']
         self.dryrun = options['dryrun']
         self.apidomain = options['apidomain']
         if options['auth']:
@@ -110,9 +116,9 @@ class Command(BaseCommand):
                     self.logger.debug("CITY_URL: {0}".format(city_url))
                     city = requests.get(city_url).json()
                     city_place = requests.get(city['place']['_self']).json()
-                    self.add_place(city_place, parent_url=city['parent'], counter=c)
+                    self.add_place(city_place, parent_url=city['parent'], region=region['place']['name'], counter=c)
 
-    def add_place(self, place, parent_url=None, counter=0):
+    def add_place(self, place, parent_url=None, counter=0, region=''):
         slug = place['slug']
 
         self.logger.info(
@@ -155,15 +161,21 @@ class Command(BaseCommand):
 
 
         # geometry features
-        geom = place['geoinfo']['geom']
-        if geom is not None:
-            defaults['geom'] = GEOSGeometry(json.dumps(geom))
+        if self.import_geom:
+            geom = place['geoinfo']['geom']
+            if geom is not None:
+                defaults['geom'] = GEOSGeometry(json.dumps(geom))
 
         # acronym for cities
         if tipo_territorio == 'C':
             prov = requests.get(parent_url).json()
             prov_place = requests.get(prov['place']['_self']).json()
             defaults['prov'] = prov_place['acronym']
+
+            if region:
+                defaults['region'] = region
+
+
 
         t, created = Territorio.objects.get_or_create(
             slug=slug,
@@ -181,6 +193,8 @@ class Command(BaseCommand):
                 t.geom = defaults['geom']
             if 'prov' in defaults:
                 t.prov = defaults['prov']
+            if 'region' in defaults:
+                t.regione = defaults['region']
             t.save()
             self.logger.info(' -- modified')
 

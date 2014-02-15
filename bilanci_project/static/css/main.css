@@ -335,3 +335,15 @@ a:focus {
     padding: 3px 25px;
   }
 }
+
+
+.navbar-main .navbar-header form .select2-container .select2-choice{
+    background: rgba(0, 0, 0, 0);
+    color: #FFF;
+    height: 34px;
+    padding-top: 3px;
+}
+
+.navbar-main .navbar-header form .select2-search input {
+    background: white;
+}

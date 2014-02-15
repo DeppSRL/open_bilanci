@@ -8,13 +8,10 @@
             <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="#">Open<strong>Bilanci</strong><small>tagline</small></a>
-        <form role="search" class="pull-left">
+        <form role="search" class="pull-left" action="/bilanci/search" method="get">
             <div class="form-group">
-                <label class="sr-only" for="city">Cerca un comune</label>
-                <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE">
-                <span class="glyphicon glyphicon-search"></span>
+                 {{ territori_search_form }}
             </div>
-            <!--button type="submit" class="btn btn-default">Submit</button-->
         </form>
     </div>
 

@@ -8,11 +8,11 @@ from territori.models import Territorio
 class TerritoriSearchForm(forms.Form):
 
     territori = TerritoriChoices(
-        required=False,
+        required=False, label='',
         widget=TerritoriChoices.widget(
             select2_options={
                 'width': '20em',
-                'placeholder': _(u"Cerca fra i Comuni"),
+                'placeholder': _(u"CERCA UN COMUNE"),
             }
         )
     )
@@ -28,7 +28,7 @@ class TerritoriComparisonSearchForm(forms.Form):
         widget=TerritoriClusterChoices.widget(
             select2_options={
                 'width': '20em',
-                'placeholder': _(u"Cerca fra i Comuni"),
+                'placeholder': _(u"CERCA UN COMUNE"),
             }
         )
     )

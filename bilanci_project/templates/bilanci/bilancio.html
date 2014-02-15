@@ -1,48 +1,29 @@
 {%  extends "base.html" %}
 {% load bilanci_print %}
+{% load humanize %}
 
 {% block page_title %}
     Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
 {% endblock %}
 
-{% block content_title %}
-    Bilancio {{ tipo_bilancio }} anno: {{ year }} per il Comune di {{ territorio }} <br/>
-    Cluster: {{ territorio.get_cluster_display }}
-{% endblock %}
 
 
 {% block content %}
 
+    {% block city_and_name_data %}
+        <div class="panel-heading">
+            <a href="" class="pull-right share">Condividi <span class="glyphicon glyphicon-share"></span></a>
+            <h1 class="panel-title">{{territorio.denominazione}}</h1>
+            <p class="details">
+                <span class="location">{{ territorio.prov }}, {{ territorio.regione|lower }} </span>
+                <span class="category"><span class="glyphicon glyphicon-record"></span>
+                    {{ territorio.get_cluster_display }}, {{ territorio.abitanti|intcomma }} abitanti</span>
+            </p>
+        </div>
+    {% endblock %}
+
     <div class="row">
-        <div class="col-md-12">
-            Contenuto del Bilancio {{ tipo_bilancio }} per l'anno {{ year }}
-        </div>
-    </div>
-    <div class="row" style="margin-top: 30px;">
-        <div class="col-md-3">
-            Confronta il Comune di {{ territorio }} con
-        </div>
-        <div class="col-md-2">
-            <form action="/confronto/" method="get">
-                 <div class="form-group form-horizontal text-center">
-                   {{ territori_comparison_search_form.territorio_1 }}
-                </div>
-                <div>
-                    {{ territori_comparison_search_form.territorio_2 }}
-                </div>
-
-                <div class="">
-                    <button>Invia</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        Bilancio
-
         {% bilanci_print bilanci year "preventivo" %}
-
     </div>
 
 {% endblock %}

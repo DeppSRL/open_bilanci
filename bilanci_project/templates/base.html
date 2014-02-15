@@ -7,7 +7,10 @@
 
         <title>Open Bilanci - {% block page_title %}{% endblock %}</title>
 
-        <!-- Bootstrap -->
+        <!-- jQuery (needed in head for select2) -->
+        <script src="{% static 'scripts/vendor/jquery/jquery.min.js' %}"></script>
+
+        <!-- Bootstrap Styles -->
         <link href="{% static 'scripts/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 
         <!-- Cusotm style -->
@@ -45,8 +48,6 @@
         </div> <!-- /container -->
 
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="{% static 'scripts/vendor/jquery/jquery.min.js' ‰}"></script>
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <script src="{% static 'scripts/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
         <!-- Custom scripts -->
