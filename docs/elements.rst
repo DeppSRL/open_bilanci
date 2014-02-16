@@ -150,11 +150,11 @@ Bilanci section navigation menu
 The navigation menu for the bilanci section. The section visited at the moment is highlighted.
 
 
-.. _rollaway-menu-for-value-types:
+.. _retractable-menu-for-value-types:
 
-Rollaway menu for value types
-+++++++++++++++++++++++++++++
-.. image:: _static/img/rollaway-menu-for-value-types.png
+Retractable menu for value types
+++++++++++++++++++++++++++++++++
+.. image:: _static/img/retractable-menu-for-value-types.png
     :align: center
 
 A menu that is not visible, if not for a handle, that when clicked shows it.
@@ -171,10 +171,18 @@ City positions charts
 +++++++++++++++++++++
 
 
-.. _rollaway-menu-with-for-indicators:
+.. _retractable-menu-with-for-indicators:
 
-Rollaway menu for indicators selection
-++++++++++++++++++++++++++++++++++++++
+Retractable menu for indicators selection
++++++++++++++++++++++++++++++++++++++++++
+
+
+.. _selected-indicators:
+
+List of selected indicators
++++++++++++++++++++++++++++
+
+The list of indicators selected in the menu and visualized in the chart. Each indicator contains a remove-me icon.
 
 
 .. _timeline:

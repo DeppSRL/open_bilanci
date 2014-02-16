@@ -31,38 +31,49 @@ Bilanci templates
     - [content]:
         - :ref:`city-data`
         - [bilanci_navigation_menu]: :ref:`bilanci-menu` (bilancio selected)
-        - [sidebar_rollaway_menu]: :ref:`rollaway-menu-for-value-types`
+        - [sidebar_retractable_menu]: :ref:`retractable-menu-for-value-types`
         - [timeline]: :ref:`timeline`
         - [bilanci_content]:
             - :ref:`budget-composition-widget` (total)
+            - :ref:`trend-and-analysis-charts` (entrate)
+
 
 **bilanci/entrate.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/entrate``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (entrate selected)
-    - [bilanci_content]:
+    - **[bilanci_content]**:
+
+      + Tab composizione:
+
         - :ref:`budget-composition-widget` (entrate)
         - :ref:`trend-and-analysis-charts` (entrate)
 
-**bilanci/spese.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/spese``]
-    - [bilanci_navigation_menu]: :ref:`bilanci-menu` (spese selected)
-    - [bilanci_content]:
-        - :ref:`budget-composition-widget` (spese)
-        - :ref:`trend-and-analysis-charts` (spese)
+      + Tab dettaglio:
 
-**bilanci/entrate_dettaglio.html** (bilanci/entrate.html) [url: ``/bilanci/<comune-slug>/entrate_dettaglio``]
-    - [bilanci_content]:
         - :ref:`lines-chart-over-the-years` (entrate, average)
         - :ref:`accordion` (entrate)
 
-**bilanci/spese_dettaglio.html** (bilanci/spese.html) [url: ``/bilanci/<comune-slug>/spese_dettaglio``]
-    - [bilanci_content]:
+
+**bilanci/spese.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/spese``]
+    - [bilanci_navigation_menu]: :ref:`bilanci-menu` (spese selected)
+    - **[bilanci_content]**:
+
+      + Tab composizione:
+
+        - :ref:`budget-composition-widget` (spese)
+        - :ref:`trend-and-analysis-charts` (spese)
+
+      + Tab dettaglio:
+
         - :ref:`lines-chart-over-the-years` (spese, average)
         - :ref:`accordion` (spese)
+
 
 **bilanci/indicatori.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/indicatori``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (indicatori selected)
     - [timeline]: -
-    - [sidebar_rollaway_menu]: :ref:`rollaway-menu-with-for-indicators` (multiple)
-    - [bilanci_content]:
+    - [sidebar_retractable_menu]: :ref:`retractable-menu-with-for-indicators` (multiple)
+    - **[bilanci_content]**:
+        - :ref:`selected-indicators`
         - :ref:`lines-chart-over-the-years` (all selected indicators)
         - :ref:`city-positions-charts` (city, all selected indicators)
 
@@ -70,7 +81,7 @@ Confronti templates
 -------------------
 
 **bilanci/confronto.html** (base.html) [url: ``/confronti``]
-    - [sidebar_rollaway_menu]: -
+    - [sidebar_retractable_menu]: -
     - [content]:
         - [cities_selector]: :ref:`cities-selector` (fully visible)
         - [confronto_nav_menu]: -
