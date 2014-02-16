@@ -21,7 +21,6 @@
         </div>
     {% endblock %}
 
-
     <div class="panel-body">
         {% block bilanci_navigation_menu %}
             {% include 'bilanci/_navigation_menu.html' with active_voice='bilancio' %}
@@ -36,6 +35,7 @@
             <div class="panel-body">
 
                 {% block timeline %}
+                    {% include 'bilanci/_timeline.html' %}
                 {% endblock %}
 
                 {% block bilanci_content %}
@@ -47,13 +47,12 @@
                     <!-- Tab panes -->
                     <div class="tab-content">
                         <div class="tab-pane fade in active" id="composizione">
-                            {% include 'bilanci/_composition_widget.html' %}
+                            {% include 'bilanci/_composition_widget.html' with bilancio_type='complessivo' %}
                         </div>
 
                         <div class="tab-pane fade in" id="analisi-e-trend">
-                            <h2>TODO: analisi e trend</h2>
                             <figure class="stripe thumbnail">
-                                <img src="http://cambelt.co/200x600" class="img-responsive" alt="Analisi e trend" title="Analisi e trend">
+                                <img src="http://cambelt.co/200x600/Analisi+e+trend" class="img-responsive" alt="Analisi e trend">
                             </figure>
                         </div>
                     </div>

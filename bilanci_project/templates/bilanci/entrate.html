@@ -9,22 +9,18 @@
     {% include 'bilanci/_navigation_menu.html' with active_voice='entrate' %}
 {% endblock %}
 
-{% block timeline %}
-    {% include 'bilanci/_timeline.html' %}
-{% endblock %}
-
 {% block subtitle %}entrate{% endblock %}
 
 {% block bilanci_content %}
     <!-- Nav Tabs -->
     <ul class="nav nav-tabs nav-justified">
-        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DEL BILANCIO</a></li>
+        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE ENTRATE</a></li>
         <li><a href="#dettaglio" data-toggle="tab">DETTAGLIO DELLE ENTRATE</a></li>
     </ul>
     <!-- Tab panes -->
     <div class="tab-content">
         <div class="tab-pane fade in active" id="composizione">
-            {% include 'bilanci/_composition_widget.html' %}
+            {% include 'bilanci/_composition_widget.html' with bilancio_type='entrate' %}
         </div>
 
         <div class="tab-pane fade in" id="dettaglio">

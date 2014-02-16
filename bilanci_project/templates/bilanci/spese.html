@@ -9,26 +9,28 @@
     {% include 'bilanci/_navigation_menu.html' with active_voice='spese' %}
 {% endblock %}
 
-{% block timeline %}
-    {% include 'bilanci/_timeline.html' %}
-{% endblock %}
-
 {% block subtitle %}spese{% endblock %}
 
 {% block bilanci_content %}
     <!-- Nav Tabs -->
     <ul class="nav nav-tabs nav-justified">
-        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DEL BILANCIO</a></li>
+        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE SPESE</a></li>
         <li><a href="#dettaglio" data-toggle="tab">DETTAGLIO DELLE SPESE</a></li>
     </ul>
     <!-- Tab panes -->
     <div class="tab-content">
         <div class="tab-pane fade in active" id="composizione">
-            {% include 'bilanci/_composition_widget.html' %}
+            {% include 'bilanci/_composition_widget.html' with bilancio_type='spese' %}
         </div>
 
         <div class="tab-pane fade in" id="dettaglio">
-            <h2>TODO: dettaglio delle spese</h2>
+            {% include 'commons/_lines_chart_over_the_years.html' %}
+            <hr class="no-border">
+
+            <!-- Default panel contents -->
+            <h3>Dettaglio delle spese</h3>
+            <p>Una breve descrizione del contenuto ...</p>
+
             {% include 'bilanci/_accordion.html' %}
         </div>
     </div>

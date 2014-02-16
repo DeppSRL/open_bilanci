@@ -10,4 +10,31 @@
 {% endblock %}
 
 {% block subtitle %}indicatori{% endblock %}
-{% block bilanci_content %}{% endblock %}
+
+{% block timeline %}{% endblock %}
+{% block bilanci_content %}
+    <div class="tab-pane fade in" id="dettaglio">
+
+        <div id="indicatori-selezionati">
+            <figure class="stripe thumbnail">
+                <img src="http://cambelt.co/1500x200/Indicatori-selezionati"
+                     class="img-responsive" alt="Classifiche indicatori">
+            </figure>
+        </div>
+
+        <hr class="no-border">
+
+        {% include 'commons/_lines_chart_over_the_years.html' %}
+
+        <hr class="no-border">
+
+        <div id="classifiche-indicatori">
+            <figure class="stripe thumbnail">
+                <img src="http://cambelt.co/1500x600/Posizionamento+comune+in+classifiche+indicatori"
+                     class="img-responsive" alt="Classifiche indicatori">
+            </figure>
+        </div>
+
+    </div>
+
+{% endblock %}
