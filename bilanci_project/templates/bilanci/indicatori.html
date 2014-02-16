@@ -1,0 +1,13 @@
+{%  extends "bilanci/bilancio.html" %}
+{% load humanize %}
+
+{% block page_title %}
+    Indicatori del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
+{% endblock %}
+
+{% block bilanci_navigation_menu %}
+    {% include 'bilanci/_navigation_menu.html' with active_voice='indicatori' %}
+{% endblock %}
+
+{% block subtitle %}indicatori{% endblock %}
+{% block bilanci_content %}{% endblock %}

@@ -1,11 +1,10 @@
 from django.core.cache import cache
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
 
-from bilanci.forms import TerritoriComparisonSearchForm
 from bilanci.utils import couch
+from collections import OrderedDict
 
 from territori.models import Territorio
 
@@ -52,14 +51,34 @@ class BilancioView(DetailView):
         # get the couchdb doc
         couch_data = couch.get(territorio.cod_finloc)
 
-        context['year'] = self.request.GET['year']
+        menu_voices_kwargs = {'slug': territorio.slug}
+
         context['bilanci'] = couch_data
+        context['slug'] = territorio.slug
+        context['query_string'] = self.request.META['QUERY_STRING']
+        context['year'] = self.request.GET['year']
         context['tipo_bilancio'] = self.request.GET['type']
+        context['menu_voices'] = OrderedDict([
+            ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
+            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
+            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
+            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
+        ])
 
         return context
 
-class BilancioDetailView(BilancioView):
-    pass
+
+class BilancioEntrateView(BilancioView):
+    template_name = 'bilanci/entrate.html'
+
+
+class BilancioSpeseView(BilancioView):
+    template_name = 'bilanci/spese.html'
+
+
+class BilancioIndicatoriView(BilancioView):
+    template_name = 'bilanci/indicatori.html'
+
 
 class ConfrontoView(TemplateView):
     template_name = "confronto.html"

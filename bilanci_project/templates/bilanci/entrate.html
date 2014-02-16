@@ -1,0 +1,42 @@
+{%  extends "bilanci/bilancio.html" %}
+{% load humanize %}
+
+{% block page_title %}
+    Entrate del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
+{% endblock %}
+
+{% block bilanci_navigation_menu %}
+    {% include 'bilanci/_navigation_menu.html' with active_voice='entrate' %}
+{% endblock %}
+
+{% block timeline %}
+    {% include 'bilanci/_timeline.html' %}
+{% endblock %}
+
+{% block subtitle %}entrate{% endblock %}
+
+{% block bilanci_content %}
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs nav-justified">
+        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DEL BILANCIO</a></li>
+        <li><a href="#dettaglio" data-toggle="tab">DETTAGLIO DELLE ENTRATE</a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="composizione">
+            {% include 'bilanci/_composition_widget.html' %}
+        </div>
+
+        <div class="tab-pane fade in" id="dettaglio">
+            {% include 'commons/_lines_chart_over_the_years.html' %}
+            <hr class="no-border">
+
+            <!-- Default panel contents -->
+            <h3>Dettaglio delle entrate</h3>
+            <p>Una breve descrizione del contenuto ...</p>
+
+            {% include 'bilanci/_accordion.html' %}
+        </div>
+
+    </div>
+{% endblock %}

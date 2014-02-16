@@ -1,5 +1,4 @@
 {%  extends "base.html" %}
-{% load bilanci_print %}
 {% load humanize %}
 
 {% block page_title %}
@@ -22,8 +21,46 @@
         </div>
     {% endblock %}
 
-    <div class="row">
-        {% bilanci_print bilanci year "preventivo" %}
+
+    <div class="panel-body">
+        {% block bilanci_navigation_menu %}
+            {% include 'bilanci/_navigation_menu.html' with active_voice='bilancio' %}
+        {% endblock %}
+
+        <div class="panel">
+            <div class="panel-heading">
+                <h2 class="panel-title text-alt">
+                    {% block subtitle %}bilancio{% endblock %}
+                </h2>
+            </div>
+            <div class="panel-body">
+
+                {% block timeline %}
+                {% endblock %}
+
+                {% block bilanci_content %}
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-tabs nav-justified">
+                        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE</a></li>
+                        <li><a href="#analisi-e-trend" data-toggle="tab">ANALISI E TREND</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div class="tab-pane fade in active" id="composizione">
+                            {% include 'bilanci/_composition_widget.html' %}
+                        </div>
+
+                        <div class="tab-pane fade in" id="analisi-e-trend">
+                            <h2>TODO: analisi e trend</h2>
+                            <figure class="stripe thumbnail">
+                                <img src="http://cambelt.co/200x600" class="img-responsive" alt="Analisi e trend" title="Analisi e trend">
+                            </figure>
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        </div>
     </div>
 
-{% endblock %}
+
+{% endblock content %}

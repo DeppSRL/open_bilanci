@@ -1,0 +1,14 @@
+<nav class="navbar navbar-subnav" role="navigation">
+    <ul class="nav navbar-nav">
+        {% for voice, url in menu_voices.items %}
+            {% ifequal active_voice voice %}
+                <li class="active"><a>{{ voice }}</a></li>
+            {% else %}
+                <li><a href="{{ url }}?{{query_string}}">{{ voice }}</a></li>
+            {% endifequal %}
+        {% endfor %}
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" class="download">Scarica <span class="glyphicon glyphicon-download"></span></a></li>
+    </ul>
+</nav>
