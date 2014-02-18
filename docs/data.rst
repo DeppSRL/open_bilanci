@@ -46,7 +46,7 @@ what to scrape (years and cities) and where to put the results:
     START_YEAR_SPIDER = 2002
     END_YEAR_SPIDER = 2003
     
-The settings can be overridden and selected cities and years can be fetched::
+The settings can be overridden and selected cities and years can be fetched:
 
 .. code-block:: bash
 
