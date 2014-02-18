@@ -45,6 +45,17 @@ what to scrape (years and cities) and where to put the results:
 
     START_YEAR_SPIDER = 2002
     END_YEAR_SPIDER = 2003
+    
+The settings can be overridden and selected cities and years can be fetched:
+
+.. code-block:: bash
+
+    cd /home/open_bilanci/scraper_project
+    scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
+    scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
+    scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
+ 
+    
 
 Mirror
 ------
@@ -58,11 +69,20 @@ The estimated size of the HTML files is ~100GB (9Gb per year).
 Missing bilanci
 ---------------
 
-From time to time the source updates the html of the bilanci.
-
-...
+To identify the missing bilanci in the Couch database there is a specific management task called missing_bilanci.
 
 .. code-block:: bash
+
+    python manage.py missing_bilanci -cities=CITIES --years=YEARS
+
+
+The management task generates a text file listing all the missing bilanci of all the Comuni for the specified years.
+
+Then to scrape selectively all the missing bilanci with Scrapy we have to execute the following command:
+
+
+..  code-block:: bash
+
     cat missing_bilanci | awk '{print $8, $9}' | \
       sed "s/Comune://" | sed "s/, yr:/ /" | \
       awk -F"--" '{print $2}' | \
@@ -78,7 +98,7 @@ Data are parsed from HTML into the couchdb local server with the html2couch mana
 
     cd /home/open_bilanci/bilanci_project
     python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
-    html2couch --cities=Roma --years=2003,2004 -v2
+    python manage.py html2couch --cities=Roma --years=2003,2004 -v2
     
 The default value for the ``base_url`` parameter is http://finanzalocale.mirror.openpolis.it.
 The couchdb server is always localhost.
