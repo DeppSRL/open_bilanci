@@ -11,6 +11,8 @@ from ..settings import LISTA_COMUNI_PATH, URL_CONSUNTIVI_PRINCIPALE,URL_PREVENTI
     START_YEAR_SPIDER,END_YEAR_SPIDER
 from scraper.items import BilanciPageItem
 
+#from bilanci_project.bilanci.utils.comuni import FLMapper
+
 
 class ListaComuniSpider(BaseSpider):
     name = "listacomuni"
@@ -81,18 +83,43 @@ class BilanciPagesSpider(CrawlSpider):
 
         super(BilanciPagesSpider, self).__init__(self.name, **kwargs)
 
-        # initialize start_urls with all comune codes, years and type of bilancio
-        udr = None
-        try:
-            udr = UnicodeDictReader(f=open(LISTA_COMUNI_PATH,mode='r'), dialect="excel_quote_all",)
-        except IOError:
-            log.msg(message='Cannot open comuni lista file, quitting...',level=log.ERROR)
-            print "File error:"+LISTA_COMUNI_PATH
-            return
+        if 'cities' in kwargs:
+            # trim spaces
+            cities = ",".join(map(lambda c: c.strip(), kwargs.get('cities').split(',')))
 
-        # get comuni name and code from lista comuni
-        for row in udr:
-            self.lista_comuni[row['CODICE_COMUNE']]=row['NOME_COMUNE']
+            import sys, os
+            sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__name__))))
+            from bilanci_project.bilanci.utils.comuni import FLMapper
+
+            mapper = FLMapper(LISTA_COMUNI_PATH)
+            cities = mapper.get_cities(cities)
+            self.lista_comuni = dict([tuple(c.split('--')[::-1]) for c in cities])
+        else:
+            # initialize start_urls with all comune codes, years and type of bilancio
+            udr = None
+            try:
+                udr = UnicodeDictReader(f=open(LISTA_COMUNI_PATH,mode='r'), dialect="excel_quote_all",)
+            except IOError:
+                log.msg(message='Cannot open comuni lista file, quitting...',level=log.ERROR)
+                print "File error:"+LISTA_COMUNI_PATH
+                return
+
+            # get comuni name and code from lista comuni
+            for row in udr:
+                self.lista_comuni[row['CODICE_COMUNE']]=row['NOME_COMUNE']
+
+
+        if 'years' in kwargs:
+            years = kwargs.get('years')
+            if "-" in years:
+                (start_year, end_year) = years.split("-")
+                years = range(int(start_year), int(end_year)+1)
+            else:
+                years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
+            self.anni_considerati = years
+
+        pprint(self.lista_comuni)
+        pprint(self.anni_considerati)
 
         # creates the start urls list
         # per ogni comune, per ogni anno considerato, i quadri considerati di prev. e cons.
