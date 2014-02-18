@@ -108,3 +108,14 @@ Confronti templates
     - [confronto_content]:
         - :ref:`lines-chart-over-the-years` (indicator for city A, indicator for city B)
         - :ref:`city-positions-charts` (cityA, cityB, indicator)
+        
+        
+Static pages templates
+-------------------
+
+**static_page.html** (base.html) [url: ``/pages/``]
+    - [Title]
+    - [subtitle]
+    - [content]
+        
+
