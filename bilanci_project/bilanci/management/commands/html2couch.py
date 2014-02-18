@@ -1,14 +1,12 @@
 import logging
 from optparse import make_option
-import re
 from bs4 import BeautifulSoup
-import couchdb
 from django.core.management import BaseCommand
 from django.conf import settings
 from django.utils.text import slugify
 import requests
 import time
-from bilanci.utils import UnicodeDictReader
+from bilanci.utils import couch
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -33,7 +31,11 @@ class Command(BaseCommand):
         make_option('--base-url',
                     dest='base_url',
                     default='http://finanzalocale.mirror.openpolis.it',
-                    help='Base URL for HTML files (mirror)')
+                    help='Base URL for HTML files (mirror)'),
+        make_option('--couchdb-server',
+                    dest='couchdb_server',
+                    default=settings.COUCHDB_DEFAULT_SERVER,
+                    help='CouchDB server to connect to (defaults to localhost).'),
 
     )
 
@@ -83,8 +85,23 @@ class Command(BaseCommand):
 
         base_url = options['base_url']
 
-        # setup couchdb connection
-        couch_server = couchdb.Server()
+
+        ###
+        # couchdb
+        ###
+
+        couchdb_server_alias = options['couchdb_server']
+        couchdb_dbname = settings.COUCHDB_RAW_NAME
+
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
+
+        couchdb = couch.connect(
+            couchdb_dbname,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
+
+
 
         for city in cities:
             for year in years:
@@ -122,17 +139,12 @@ class Command(BaseCommand):
                 }
 
                 if not dryrun:
-                    # se non trova il db lo crea
-                    if 'bilanci' not in couch_server:
-                        destination_db = couch_server.create('bilanci')
-
-                    bilanci_db = couch_server['bilanci']
 
                     # create or update budget data on couchdb
-                    if bilancio_id in bilanci_db:
-                        bilancio_data['_rev'] = bilanci_db[bilancio_id].rev
+                    if bilancio_id in couchdb:
+                        bilancio_data['_rev'] = couchdb[bilancio_id].rev
 
-                    bilanci_db[bilancio_id] = bilancio_data
+                    couchdb[bilancio_id] = bilancio_data
                     self.logger.info("Data written to couchdb")
                 else:
                     self.logger.info("Couchdb writing skipped because of --dry-run")

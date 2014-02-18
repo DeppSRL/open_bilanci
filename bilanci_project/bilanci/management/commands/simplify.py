@@ -1,13 +1,10 @@
 import logging
 from optparse import make_option
-from urllib2 import URLError
-import couchdb
-import gspread
-from  gspread.exceptions import SpreadsheetNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.models import PreventivoBudgetTreeDict, ConsuntivoEntrateBudgetTreeDict, SubtreeDoesNotExist, \
     SubtreeIsEmpty
+from bilanci.utils import couch
 from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
 
@@ -32,7 +29,7 @@ class Command(BaseCommand):
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
-                    help='CouchDB server to connect to (defaults to localhost).'),
+                    help='CouchDB server to connect to (defaults to staging).'),
         make_option('--source-db-name',
                     dest='source_db_name',
                     default='bilanci_voci',
@@ -107,36 +104,30 @@ class Command(BaseCommand):
         #   Couchdb connections
         ###
 
-        couchdb_server_settings = settings.COUCHDB_SERVERS[couchdb_server_name]
+        ###
+        # couchdb
+        ###
 
-        # builds connection URL
-        server_connection_address = "http://"
-        if 'user' in couchdb_server_settings and 'password' in couchdb_server_settings:
-            server_connection_address += "{0}:{1}@".format(
-                couchdb_server_settings['user'],
-                couchdb_server_settings['password']
-            )
-        server_connection_address += "{0}:{1}".format(
-            couchdb_server_settings['host'],
-            couchdb_server_settings['port']
-        )
-        self.logger.info("Connecting to: {0} ...".format(server_connection_address))
+        couchdb_server_alias = options['couchdb_server']
+        couchdb_dbname = settings.COUCHDB_RAW_NAME
 
-        # open connection to couchdb server and create instance
-        server = couchdb.Server(server_connection_address)
-        self.logger.info("Connected!")
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
 
         # hook to source DB
         source_db_name = options['source_db_name']
-        source_db = server[source_db_name]
+        source_db = couch.connect(
+            source_db_name,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
         self.logger.info("Hooked to source DB: {0}".format(source_db_name))
 
         # hook to dest DB (creating it if non-existing)
         dest_db_name = options['dest_db_name']
-        if dest_db_name not in server:
-            destination_db = server.create(dest_db_name)
-            self.logger.info("Created destination DB: {0}".format(dest_db_name))
-        dest_db = server[dest_db_name]
+        dest_db = couch.connect(
+            dest_db_name,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
         self.logger.info("Hooked to destination DB: {0}".format(dest_db_name))
 
 
@@ -170,16 +161,20 @@ class Command(BaseCommand):
                 preventivo_tree = {}
                 consuntivo_tree = {}
                 try:
-                    preventivo_tree = PreventivoBudgetTreeDict().build_tree(
+                    preventivo_entrate_tree = PreventivoBudgetTreeDict().build_tree(
                         leaves=simplified_subtrees_leaves['preventivo-entrate'],
                         mapping=(voci_map['preventivo'], source_doc),
                         logger=self.logger
                     )
-                    consuntivo_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
+                    preventivo_tree.update(preventivo_entrate_tree)
+
+                    consuntivo_entrate_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
                         leaves=simplified_subtrees_leaves['consuntivo-entrate'],
                         mapping=(voci_map['consuntivo'], source_doc),
                         logger=self.logger
                     )
+                    consuntivo_tree.update(consuntivo_entrate_tree)
+
                 except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                     self.logger.error(e)
 
