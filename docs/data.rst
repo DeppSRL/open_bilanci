@@ -58,11 +58,20 @@ The estimated size of the HTML files is ~100GB (9Gb per year).
 Missing bilanci
 ---------------
 
-From time to time the source updates the html of the bilanci.
-
-...
+To identify the missing bilanci in the Couch database there is a specific management task called missing_bilanci.
 
 .. code-block:: bash
+
+    python manage.py missing_bilanci -cities=CITIES --years=YEARS
+
+
+The management task generates a text file listing all the missing bilanci of all the Comuni for the specified years.
+
+Then to scrape selectively all the missing bilanci with Scrapy we have to execute the following command:
+
+
+..  code-block:: bash
+
     cat missing_bilanci | awk '{print $8, $9}' | \
       sed "s/Comune://" | sed "s/, yr:/ /" | \
       awk -F"--" '{print $2}' | \
