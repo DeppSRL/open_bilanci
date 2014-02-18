@@ -45,6 +45,16 @@ what to scrape (years and cities) and where to put the results:
 
     START_YEAR_SPIDER = 2002
     END_YEAR_SPIDER = 2003
+    
+The settings can be overridden and selected cities and years can be fetched::
+
+.. code-block:: bash
+
+    cd /home/open_bilanci/scraper_project
+    scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
+    scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
+    scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
+    
 
 Mirror
 ------
