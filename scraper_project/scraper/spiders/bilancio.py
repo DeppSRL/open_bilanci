@@ -83,6 +83,11 @@ class BilanciPagesSpider(CrawlSpider):
 
         super(BilanciPagesSpider, self).__init__(self.name, **kwargs)
 
+        # the type of bilancio can be specified in command line
+        bilancio_type = ''
+        if 'type' in kwargs:
+            bilancio_type = kwargs.get('type').upper()
+
         if 'cities' in kwargs:
             # trim spaces
             cities = ",".join(map(lambda c: c.strip(), kwargs.get('cities').split(',')))
@@ -123,12 +128,16 @@ class BilanciPagesSpider(CrawlSpider):
 
         # creates the start urls list
         # per ogni comune, per ogni anno considerato, i quadri considerati di prev. e cons.
+        # se il parametro bilancio_type non e' caratterizzato prende prev e cons
+        # viceversa prende solo consuntivo o preventivo
         for anno in self.anni_considerati:
             for comune in self.lista_comuni.keys():
-                url_prev =URL_PREVENTIVI_PRINCIPALE % (comune,anno)
-                url_cons =URL_CONSUNTIVI_PRINCIPALE % (comune,anno)
-                self.start_urls.append(url_prev)
-                self.start_urls.append(url_cons)
+                if bilancio_type == 'C' or bilancio_type == '':
+                    url_cons =URL_CONSUNTIVI_PRINCIPALE % (comune,anno)
+                    self.start_urls.append(url_cons)
+                if bilancio_type == 'P' or bilancio_type == '':
+                    url_prev =URL_PREVENTIVI_PRINCIPALE % (comune,anno)
+                    self.start_urls.append(url_prev)
 
         return
 
