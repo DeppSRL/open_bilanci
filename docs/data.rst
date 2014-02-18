@@ -55,6 +55,21 @@ The documents path is specified in ``BILANCI_PAGES_FOLDER``.
 The estimated size of the HTML files is ~100GB (9Gb per year).
 
 
+Missing bilanci
+---------------
+
+From time to time the source updates the html of the bilanci.
+
+...
+
+.. code-block:: bash
+    cat missing_bilanci | awk '{print $8, $9}' | \
+      sed "s/Comune://" | sed "s/, yr:/ /" | \
+      awk -F"--" '{print $2}' | \
+      awk '{print "scrapy crawl bilanci_pages -a cities=" $1 "-a years=" $2}' >\
+      fetch_missing_bilanci.sh
+
+
 Parse into couchdb
 ------------------
 Data are parsed from HTML into the couchdb local server with the html2couch management task:
