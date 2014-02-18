@@ -191,6 +191,7 @@ THIRD_PARTY_APPS = (
     # Database migration helpers:
     'south',
     'django_select2',
+    'front',
 )
 
 # Apps specific for this project go here.
