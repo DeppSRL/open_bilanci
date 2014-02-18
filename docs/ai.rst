@@ -161,7 +161,48 @@ The confronti section has a subhome and tree subsections::
 **Indicatori**
     The sub-section showing the comparison between a single indicator.
     A random indicator is chosen at the beginning. The user can select the indicator through
-    a rollaway menu. Only one indicator can be chosen at a time.
+    a slide away menu. Only one indicator can be chosen at a time.
     A lines chart shows how the indicator compares over the years.
     The position in the charts is shown for the selected indicator, with the trend over the last year.
+
+
+Rankings section
+----------------
+
+::
+
+                                +----------------+
+                                |                |
+                                |  (CLASSIFICHE) |
+                                |                |
+                                +--------+-------+
+                                         |
+                                         |
+                                         |
+                +------------------------+------------------------+
+                |                        |                        |
+       +--------+-------+       +--------+-------+       +--------+-------+
+       |                |       |                |       |                |
+       |     ENTRATE    |       |      SPESE     |       |   INDICATORI   |
+       |                |       |                |       |                |
+       +--------+-------+       +----------------+       +----------------+
+
+The classifiche section starts from the Entrate subsection, by default.
+
+Each subsection shows the timeline to select the year and type of budget to visualize charts for.
+
+A slide-away menu allows the selection of a single voice of the budget (or indicator).
+
+The rankings for the given voice or indicator are shown. Since there are more than 8 thousands cities,
+it must be possible to filter them out, and that's done through a facet menu, on the left.
+
+Cities are paged. A city search engine on top of the chart helps locate the page where the city
+can be found in the filtered or unfiltered chart list.
+
+Along with the voice or indicator value, each city shows these context information:
+
+- name,
+- province acronym,
+- region
+- the mayor, or mayors (for the given year).
 

@@ -15,4 +15,6 @@ psycopg2==2.5.1
 gspread==0.1.0
 -e git+git@github.com:joke2k/django-environ.git@156b9344a42597e66bcb1d75d21f6101e4d12359#egg=environ
 Django-Select2==4.2.2
+django-mptt==0.6.0
+django-treeadmin==0.4.1
 django-front==0.3.6
