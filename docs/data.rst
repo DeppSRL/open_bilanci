@@ -54,6 +54,7 @@ The settings can be overridden and selected cities and years can be fetched::
     scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
     scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
     scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
+ 
     
 
 Mirror
