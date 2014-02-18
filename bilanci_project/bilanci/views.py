@@ -30,7 +30,7 @@ class BilancioRedirectView(RedirectView):
                 tipo_bilancio = "preventivo"
             kwargs.update({'slug': territorio.slug})
             try:
-                url = reverse('bilanci-detail', args=args , kwargs=kwargs)
+                url = reverse('bilanci-overall', args=args , kwargs=kwargs)
             except NoReverseMatch:
                 return reverse('404')
 

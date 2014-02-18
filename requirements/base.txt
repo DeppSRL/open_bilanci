@@ -17,3 +17,4 @@ gspread==0.1.0
 Django-Select2==4.2.2
 django-mptt==0.6.0
 django-treeadmin==0.4.1
+django-front==0.3.6

@@ -19,11 +19,14 @@ urlpatterns = patterns('',
     url(r'^bilanci/(?P<slug>[-\w]+)', BilancioView.as_view(), name='bilanci-overall'),
 
     url(r'^confronto/(?P<slugA>[-\w]+)/(?P<slugB>[-\w]+)', ConfrontoView.as_view(), name='confronto'),
+
+    url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
+
     url(r'^page-not-found$', TemplateView.as_view(template_name='404.html'), name='404'),
 
     url(r'^select2/', include('django_select2.urls')),
 
-
+    url(r'^front-edit/', include('front.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

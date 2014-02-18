@@ -193,6 +193,7 @@ THIRD_PARTY_APPS = (
     'django_select2',
     'treeadmin',
     'mptt',
+    'front',
 )
 
 # Apps specific for this project go here.
