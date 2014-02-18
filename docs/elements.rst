@@ -55,6 +55,26 @@ The elements appearing inside the footer are to be changed and will be:
   * faq
 
 
+.. _retractable-menu-for-voice-and-indicators:
+
+Retractable menu for voices and indicators selection
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+A slide-away menu, that, when visible, allows the selection of one or more budget voices or indicators.
+
+.. image:: _static/img/retractable-menu-for-voice-and-indicators.png
+    :align: center
+
+It is customized through 2 arguments:
+
+- items (the list of items, may be expenses, entries or indicators list)
+- mode (whether *single* or *multiple* selection is possible)
+
+When used in multiple mode, must be used together with the :ref:`selected-indicators` element, to show the
+indicators that are selected and allow for them to be removed from the selection.
+
+
+
+
 .. _lines-chart-over-the-years:
 
 Lines chart over the years
@@ -170,11 +190,11 @@ type of values shown when in the consuntivo context (competenza or cassa).
 City positions charts
 +++++++++++++++++++++
 
+Shows the city positions with respect to the selected indicators.
+Selected indicators are grouped by their 2-levels hierarchy.
 
-.. _retractable-menu-with-for-indicators:
+.. image:: _static/img/city-position-charts.png
 
-Retractable menu for indicators selection
-+++++++++++++++++++++++++++++++++++++++++
 
 
 .. _selected-indicators:
@@ -203,14 +223,67 @@ Trend and analysis charts
 +++++++++++++++++++++++++
 
 
+Classifiche elements
+--------------------
+
+.. _classifiche-header:
+
+Classifiche header
+++++++++++++++++++
+
+.. image:: _static/img/classifiche-header.png
+    :width: 80%
+    :align: center
+
+
+.. _classifiche-menu:
+
+Classifiche section navigation menu
+++++++++++++++++++++++++++++++++++++
+
+.. image:: _static/img/classifiche-menu.png
+    :width: 80%
+    :align: center
+
+The navigation menu for the bilanci section. The section visited at the moment is highlighted.
+
+
+.. _rankings:
+
+Rankings
+++++++++
+
+.. image:: _static/img/rankings.png
+    :width: 80%
+    :align: center
+
+The rankings refer to a single voice (entry or expense) or indicator, wich must be passed as argument.
+
+Since there are more than 8 thousands cities, results are paged.
+It must be possible to filter them out, and that's done through a facet menu, on the left.
+
+A city search engine on top of the chart helps locate the page where the city
+can be found in the filtered or unfiltered chart list.
+
+Along with the voice or indicator value, each city shows these context information:
+
+- name,
+- province acronym,
+- region
+- the mayor, or mayors (for the given year).
+
+
+
 
 Confronti elements
 ------------------
+
 
 .. _cities-selector:
 
 Cities selector
 +++++++++++++++
+
 
 .. _confronti-menu:
 

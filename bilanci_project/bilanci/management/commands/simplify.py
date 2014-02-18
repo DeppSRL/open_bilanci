@@ -171,12 +171,12 @@ class Command(BaseCommand):
                 consuntivo_tree = {}
                 try:
                     preventivo_tree = PreventivoBudgetTreeDict().build_tree(
-                        leaves=simplified_subtrees_leaves['preventivo_entrate'],
+                        leaves=simplified_subtrees_leaves['preventivo-entrate'],
                         mapping=(voci_map['preventivo'], source_doc),
                         logger=self.logger
                     )
                     consuntivo_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
-                        leaves=simplified_subtrees_leaves['consuntivo_entrate'],
+                        leaves=simplified_subtrees_leaves['consuntivo-entrate'],
                         mapping=(voci_map['consuntivo'], source_doc),
                         logger=self.logger
                     )

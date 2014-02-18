@@ -2,7 +2,6 @@
 
 from model_utils import Choices
 from django.contrib.gis.db import models
-from django.core.urlresolvers import reverse
 import struct
 
 class TerritoriManager(models.GeoManager):

@@ -1,6 +1,6 @@
 import re
 from django.conf import settings
-from bilanci.utils import UnicodeDictReader
+from ..utils import UnicodeDictReader
 
 
 class FLMapper(object):

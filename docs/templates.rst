@@ -71,11 +71,43 @@ Bilanci templates
 **bilanci/indicatori.html** (bilanci/bilancio.html) [url: ``/bilanci/<comune-slug>/indicatori``]
     - [bilanci_navigation_menu]: :ref:`bilanci-menu` (indicatori selected)
     - [timeline]: -
-    - [sidebar_retractable_menu]: :ref:`retractable-menu-with-for-indicators` (multiple)
+    - [sidebar_retractable_menu]: :ref:`retractable-menu-for-voice-and-indicators` (items=indicators, mode=multiple)
     - **[bilanci_content]**:
         - :ref:`selected-indicators`
         - :ref:`lines-chart-over-the-years` (all selected indicators)
         - :ref:`city-positions-charts` (city, all selected indicators)
+
+
+Classifiche templates
+---------------------
+
+**bilanci/classifiche.html** (base.html) [url: -]
+    - [sidebar_retractable_menu]: -
+    - [content]:
+        - :ref:`classifiche-header`
+        - [classifiche_nav_menu]: -
+        - [timeline]: :ref:`timeline`
+        - [classifiche_content]: -
+
+
+**bilanci/classifiche_entrate.html** (classifiche.html) [url: ``/classifiche/entrate/<slug>``]
+    - [sidebar_retractable_menu]: :ref:`retractable-menu-for-voice-and-indicators` (items=entries, mode=single)
+    - [classifiche_nav_menu]: :ref:`classifiche-menu` (entrate selected)
+    - [classifiche_content]:
+        - :ref:`rankings` (entry identified by <slug>)
+
+**bilanci/classifiche_spese.html** (classifiche.html) [url: ``/classifiche/spese/<slug>``]
+    - [sidebar_retractable_menu]: :ref:`retractable-menu-for-voice-and-indicators` (items=expenses, mode=single)
+    - [classifiche_nav_menu]: :ref:`classifiche-menu` (spese selected)
+    - [classifiche_content]:
+        - :ref:`rankings` (expense identified by <slug>)
+
+**bilanci/classifiche_indicatori.html** (classifiche.html) [url: ``/classifiche/indicatori/<slug>``]
+    - [sidebar_retractable_menu]: :ref:`retractable-menu-for-voice-and-indicators` (items=indicators, mode=single)
+    - [classifiche_nav_menu]: :ref:`classifiche-menu` (indicatori selected)
+    - [classifiche_content]:
+        - :ref:`rankings` (indicator identified by <slug>)
+
 
 Confronti templates
 -------------------
