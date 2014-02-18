@@ -3,9 +3,21 @@
 
 {% block content %}
     {% front_edit_scripts %}
-    {% front_edit "placeholder_name" request.path %}
-    <p>Default when empty</p>
-    {% end_front_edit  %}
+    <h1>
+        {% front_edit "title" request.path %}
+            Default title
+        {% end_front_edit  %}
+    </h1>
+    <h3>
+        {% front_edit "subtitle" request.path %}
+            Default subtitle
+        {% end_front_edit  %}
+    </h3>
+    <p>
+        {% front_edit "content" request.path %}
+            Default content
+        {% end_front_edit  %}
+    </p>
 
 {% endblock %}
 

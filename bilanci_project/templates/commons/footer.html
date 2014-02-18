@@ -19,11 +19,11 @@
             <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> login</a></li>
         </ul>
         <ul class="nav nav-stacked pull-left no-icons">
-            <li><a href="#">il progetto</a></li>
-            <li><a href="#">servizi a pagamento</a></li>
-            <li><a href="#">dati</a></li>
-            <li><a href="#">condizioni d'uso</a></li>
-            <li><a href="#">faq</a></li>
+            <li><a href="{% url "static_page" %}progetto">il progetto</a></li>
+            <li><a href="{% url "static_page" %}servizi">servizi a pagamento</a></li>
+            <li><a href="{% url "static_page" %}dati">dati</a></li>
+            <li><a href="{% url "static_page" %}condizioni">condizioni d'uso</a></li>
+            <li><a href="{% url "static_page" %}faq">faq</a></li>
         </ul>
     </div>
 </footer>
