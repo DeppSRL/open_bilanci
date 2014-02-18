@@ -2,8 +2,7 @@ import logging
 from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
-from bilanci.models import PreventivoBudgetTreeDict, ConsuntivoEntrateBudgetTreeDict, SubtreeDoesNotExist, \
-    SubtreeIsEmpty
+from bilanci.tree_dict_models import *
 from bilanci.utils import couch
 from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
@@ -34,6 +33,10 @@ class Command(BaseCommand):
                     dest='source_db_name',
                     default='bilanci_voci',
                     help='The name of the source couchdb instance (defaults to bilanci_voci'),
+        make_option('--delete',
+                    dest='delete',
+                    default=False,
+                    help='Delete a city document before adding it (use only for full years coverage)'),
         make_option('--dest-db-name',
                     dest='dest_db_name',
                     default='bilanci_simple',
@@ -183,12 +186,21 @@ class Command(BaseCommand):
                     'consuntivo': consuntivo_tree,
                 }
 
-                complete_tree[year] = year_tree
+                complete_tree[str(year)] = year_tree
 
-            # remove the dest db and re-create the empty simplified tree
+            # update the tree, deleting it if required
+            # create the tree, when non-existing
             dest_doc_id = city
             if dest_doc_id in dest_db:
                 dest_doc = dest_db[dest_doc_id]
-                dest_db.delete(dest_doc)
-            dest_db[dest_doc_id] = complete_tree
+                if options['delete']:
+                    dest_db.delete(dest_doc)
+                    dest_db[dest_doc_id] = complete_tree
+                else:
+                    dest_doc.update(complete_tree)
+                    dest_db.save(dest_doc)
+            else:
+                dest_db[dest_doc_id] = complete_tree
+
+
 
