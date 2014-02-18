@@ -87,7 +87,7 @@ Data are parsed from HTML into the couchdb local server with the html2couch mana
 
     cd /home/open_bilanci/bilanci_project
     python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
-    html2couch --cities=Roma --years=2003,2004 -v2
+    python manage.py html2couch --cities=Roma --years=2003,2004 -v2
     
 The default value for the ``base_url`` parameter is http://finanzalocale.mirror.openpolis.it.
 The couchdb server is always localhost.
