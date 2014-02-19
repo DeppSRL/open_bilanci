@@ -19,7 +19,7 @@ def get(key):
     return ret
 
 
-def connect(couchdb_dbname, couchdb_server_settings=None):
+def connect(couchdb_dbname=settings.COUCHDB_SIMPLIFIED_NAME, couchdb_server_settings=None):
     """
     Connect to the couchdb server and hook to the DB.
     Server and dbname are defined in the settings.
