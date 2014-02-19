@@ -28,6 +28,19 @@ HTML documents are parsed with the ``scrapy`` parser:
 
     cd /home/open_bilanci/scraper_project
     scrapy crawl bilanci_pages
+    
+Possible parameters for the scraper are the following
+
+.. code-block:: bash
+
+   scrapy crawl bilanci_pages -a cities=CITY_NAME -a years=YEAR -a type=BILANCIO_TYPE
+   
+   
+Bilancio type parameter can have the following values: 
+
+- c | C for Consuntivo
+- p | P for Preventivo
+
 
 The ``scraper/settings.py`` file contains instruction on the source URIs,
 what to scrape (years and cities) and where to put the results:

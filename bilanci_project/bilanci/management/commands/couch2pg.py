@@ -30,7 +30,7 @@ class Command(BaseCommand):
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
-                    help='CouchDB server to connect to (defaults to localhost).'),
+                    help='CouchDB server alias to connect to (staging | localhost). Defaults to staging.'),
         make_option('--create-tree',
                     dest='create_tree',
                     action='store_true',
@@ -91,16 +91,21 @@ class Command(BaseCommand):
         self.logger.info("Scraping years: {0}".format(years))
         self.years = years
 
+
         ###
         # couchdb
         ###
 
-        couchdb_server_name = options['couchdb_server']
+        couchdb_server_alias = options['couchdb_server']
+        couchdb_dbname = settings.COUCHDB_RAW_NAME
 
-        if couchdb_server_name not in settings.COUCHDB_SERVERS:
-            raise Exception("Unknown couchdb server name.")
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
 
-        couchdb = couch.connect()
+        couchdb = couch.connect(
+            couchdb_dbname,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
 
 
         # create the tree if it does not exist or if forced to do so
