@@ -86,22 +86,21 @@ To identify the missing bilanci in the Couch database there is a specific manage
 
 .. code-block:: bash
 
-    python manage.py missing_bilanci -cities=CITIES --years=YEARS
+    python manage.py missing_bilanci -cities=CITIES --years=YEARS --output-script=FILENAME
 
 
-The management task generates a text file listing all the missing bilanci of all the Comuni for the specified years.
+The management task generates a script file listing all the missing bilanci of all the Comuni for the specified years.
 
-Then to scrape selectively all the missing bilanci with Scrapy we have to execute the following command:
+The output script file contains:
 
+- the scrapy call to get the city bilancio from base_url
+- the management task html2couch call to insert the city data into bilanci db
 
-..  code-block:: bash
+After missin_bilanci script has finished simply execute the script with
 
-    cat missing_bilanci | awk '{print $8, $9}' | \
-      sed "s/Comune://" | sed "s/, yr:/ /" | \
-      awk -F"--" '{print $2}' | \
-      awk '{print "scrapy crawl bilanci_pages -a cities=" $1 "-a years=" $2}' >\
-      fetch_missing_bilanci.sh
+.. code-block:: bash
 
+    ./FILENAME
 
 Parse into couchdb
 ------------------
