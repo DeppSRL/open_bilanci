@@ -19,7 +19,7 @@ def get(key):
     return ret
 
 
-def connect():
+def connect(couchdb_dbname, couchdb_server_settings=None):
     """
     Connect to the couchdb server and hook to the DB.
     Server and dbname are defined in the settings.
@@ -27,8 +27,8 @@ def connect():
     Returns the pointer to the database or raise appropriate exceptions.
     """
 
-    couchdb_server_settings = settings.COUCHDB_SERVERS[settings.COUCHDB_DEFAULT_SERVER]
-    couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
+    if couchdb_server_settings is None:
+        couchdb_server_settings = settings.COUCHDB_SERVERS[settings.COUCHDB_DEFAULT_SERVER]
 
     server_connection_address = "http://"
     if 'user' in couchdb_server_settings and 'password' in couchdb_server_settings:

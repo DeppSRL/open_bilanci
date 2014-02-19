@@ -1,5 +1,6 @@
 import logging
 from optparse import make_option
+import subprocess
 import couchdb
 from django.core.management import BaseCommand
 from django.conf import settings
@@ -26,7 +27,10 @@ class Command(BaseCommand):
                     dest='source_db_name',
                     default='bilanci_voci',
                     help='The name of the source couchdb instance (defaults to bilanci_voci'),
-
+        make_option('--output-script',
+                    dest='output_script',
+                    default='',
+                    help='If given generates a script file to automatize the import of missing bilanci in Couchdb'),
     )
 
     help = 'Given a list of Comuni and a set of years creates a list of all the missing Bilanci'
@@ -45,6 +49,16 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.INFO)
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
+
+        output_file = None
+        missing_bilanci = []
+        output_filename = options['output_script']
+        write_output_script = False
+        if output_filename !='':
+            self.logger.info("Opening output file: {0}".format(output_filename))
+            output_file = open(output_filename,'w')
+            write_output_script = True
+
 
 
         cities_codes = options['cities']
@@ -109,6 +123,9 @@ class Command(BaseCommand):
 
         tipologie_bilancio = ['preventivo', 'consuntivo']
         for city in cities:
+            # city: MILANO--1030491450 -> city_name: MILANO
+            city_name = city.split("--")[0]
+
             for year in years:
                 # need this for logging
                 self.city = city
@@ -124,6 +141,9 @@ class Command(BaseCommand):
                     self.logger.error("Missing preventivo and consuntivo for Comune:{0}, yr:{1}".format(
                         city,year
                     ))
+                    if write_output_script:
+                        missing_bilanci.append({'year':year, 'city_name': city_name, 'type': 'P'})
+                        missing_bilanci.append({'year':year, 'city_name': city_name, 'type': 'C'})
                 else:
                     for tipologia in tipologie_bilancio:
                         # todo: prevedere una lista di esclusioni da shell
@@ -131,13 +151,42 @@ class Command(BaseCommand):
                             self.logger.error("Missing {0} for Comune:{1}, yr:{2}".format(
                                     tipologia,city,year
                                 ))
+                            if write_output_script:
+                                if tipologia.lower() == "preventivo":
+                                    short_tipologia = 'P'
+                                else:
+                                    short_tipologia = 'C'
+
+                                missing_bilanci.append({'year':year, 'city_name': city_name, 'type': short_tipologia})
                         else:
                             if source_document[tipologia] == {}:
                                 self.logger.error("Missing {0} for Comune:{1}, yr:{2}".format(
                                     tipologia,city,year
                                 ))
+                                if write_output_script:
+                                    if tipologia.lower() == "preventivo":
+                                        short_tipologia = 'P'
+                                    else:
+                                        short_tipologia = 'C'
+
+                                    missing_bilanci.append({'year':year, 'city_name': city_name, 'type': short_tipologia})
 
 
 
+        # se e' stato specificato output_script scrivo il file
+        if write_output_script:
+            output_file.write('cd ../scraper_project/\n')
+            for missing_bilancio in missing_bilanci:
+                output_file.write('scrapy crawl bilanci_pages -a cities={0} -a years={1} -a type={2}\n'.\
+                    format(missing_bilancio['city_name'],missing_bilancio['year'],missing_bilancio['type']))
 
+            output_file.write('cd ../bilanci_project/\n')
+            for missing_bilancio in missing_bilanci:
+                output_file.write('python manage.py html2couch --cities={0} --year={1}\n'.\
+                    format(missing_bilancio['city_name'],missing_bilancio['year'],missing_bilancio['type']))
+
+            # make script file executable
+            subprocess.call(["chmod", "a+x",output_filename])
+
+            pass
 
