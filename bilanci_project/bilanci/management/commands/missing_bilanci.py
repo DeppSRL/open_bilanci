@@ -51,7 +51,11 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         output_file = None
+        # lista dei bilanci mancanti con citta,anno,tipo che viene usata per scrapy
+        missing_bilanci_tipo = []
+        # lista bilanci mancanti per citta e anno che viene usata per html2couch
         missing_bilanci = []
+
         output_filename = options['output_script']
         write_output_script = False
         if output_filename !='':
@@ -142,12 +146,20 @@ class Command(BaseCommand):
                         city,year
                     ))
                     if write_output_script:
-                        missing_bilanci.append({'year':year, 'city_name': city_name, 'type': 'P'})
-                        missing_bilanci.append({'year':year, 'city_name': city_name, 'type': 'C'})
+                        missing_bilanci_tipo.append({'year':year, 'city_name': city_name, 'type': 'P'})
+                        missing_bilanci_tipo.append({'year':year, 'city_name': city_name, 'type': 'C'})
+                        missing_bilanci.append({'year':year, 'city_name': city_name})
                 else:
                     for tipologia in tipologie_bilancio:
+                        bilancio_is_missing = False
                         # todo: prevedere una lista di esclusioni da shell
                         if tipologia not in source_document.keys():
+                            bilancio_is_missing=True
+                        else:
+                            if source_document[tipologia] == {}:
+                                bilancio_is_missing=True
+
+                        if bilancio_is_missing:
                             self.logger.error("Missing {0} for Comune:{1}, yr:{2}".format(
                                     tipologia,city,year
                                 ))
@@ -157,33 +169,23 @@ class Command(BaseCommand):
                                 else:
                                     short_tipologia = 'C'
 
-                                missing_bilanci.append({'year':year, 'city_name': city_name, 'type': short_tipologia})
-                        else:
-                            if source_document[tipologia] == {}:
-                                self.logger.error("Missing {0} for Comune:{1}, yr:{2}".format(
-                                    tipologia,city,year
-                                ))
-                                if write_output_script:
-                                    if tipologia.lower() == "preventivo":
-                                        short_tipologia = 'P'
-                                    else:
-                                        short_tipologia = 'C'
+                                missing_bilanci_tipo.append({'year':year, 'city_name': city_name, 'type': short_tipologia})
+                                missing_bilanci.append({'year':year, 'city_name': city_name})
 
-                                    missing_bilanci.append({'year':year, 'city_name': city_name, 'type': short_tipologia})
 
 
 
         # se e' stato specificato output_script scrivo il file
         if write_output_script:
             output_file.write('cd ../scraper_project/\n')
-            for missing_bilancio in missing_bilanci:
+            for missing_bilancio in missing_bilanci_tipo:
                 output_file.write('scrapy crawl bilanci_pages -a cities={0} -a years={1} -a type={2}\n'.\
                     format(missing_bilancio['city_name'],missing_bilancio['year'],missing_bilancio['type']))
 
             output_file.write('cd ../bilanci_project/\n')
             for missing_bilancio in missing_bilanci:
                 output_file.write('python manage.py html2couch --cities={0} --year={1}\n'.\
-                    format(missing_bilancio['city_name'],missing_bilancio['year'],missing_bilancio['type']))
+                    format(missing_bilancio['city_name'],missing_bilancio['year']))
 
             # make script file executable
             subprocess.call(["chmod", "a+x",output_filename])
