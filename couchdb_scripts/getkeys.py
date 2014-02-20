@@ -35,7 +35,7 @@ def main(argv):
 
     parser.add_argument('--database','-db', dest='database', action='store',
                default='voci',
-               help='Db to use: titoli | voci | simple')
+               help='Db to use: raw | titoli | voci | simple')
 
 
 
@@ -70,6 +70,8 @@ def main(argv):
             server = couchdb.Server(server_string)
 
             db_name = ''
+            if database_type == 'titoli':
+                db_name = accepted_servers[server_name]['raw_db_name']
             if database_type == 'titoli':
                 db_name = accepted_servers[server_name]['normalized_titoli_db_name']
             elif database_type == 'voci':
