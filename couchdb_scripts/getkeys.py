@@ -70,7 +70,7 @@ def main(argv):
             server = couchdb.Server(server_string)
 
             db_name = ''
-            if database_type == 'titoli':
+            if database_type == 'raw':
                 db_name = accepted_servers[server_name]['raw_db_name']
             if database_type == 'titoli':
                 db_name = accepted_servers[server_name]['normalized_titoli_db_name']
