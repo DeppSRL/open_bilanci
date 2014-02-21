@@ -100,7 +100,7 @@ def main(argv):
                 trovato = True
 
         if not trovato:
-            logging.warning("Missing from drive: {0}".format(couch_row))
+            logging.warning("Missing from drive: {0}".format(",".join(couch_row.split("_"))))
             c+=1
 
     logging.warning("Missing {0} lines from drive".format(c))
@@ -113,7 +113,7 @@ def main(argv):
                 trovato = True
 
         if not trovato:
-            logging.warning("Missing from couch: {0}".format(drive_row))
+            logging.warning("Missing from couch: {0}".format(",".join(drive_row.split("_"))))
             c +=1
 
     logging.warning("Missing {0} lines from couch".format(c))
