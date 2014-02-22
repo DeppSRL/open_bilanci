@@ -97,7 +97,7 @@ class Command(BaseCommand):
         ###
 
         couchdb_server_alias = options['couchdb_server']
-        couchdb_dbname = settings.COUCHDB_RAW_NAME
+        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
 
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
         for city in cities:
 
-            territorio = Territorio.objects.get(cod_finloc=city.split("--")[1])
+            territorio = Territorio.objects.get(cod_finloc=city)
 
             # get all budgets for the city
             city_budget = couchdb.get(city)
@@ -172,18 +172,21 @@ class Command(BaseCommand):
                         )
 
             # insert into the DB
-            params = {
-                'anno': anno,
-                'territorio': territorio,
-                'valore': node,
-                'voce': self.voci_map[slug]
-            }
-            self.logger.debug(
-                u"Inserting val: {0[valore]}, anno: {0[anno]}, territorio:{0[territorio]}, voce: {0[voce]}".format(
-                    params
+            if slug not in self.voci_map:
+                self.logger.warning("Slug:{0} not present in voci_map, skipping".format(slug))
+            else:
+                params = {
+                    'anno': anno,
+                    'territorio': territorio,
+                    'valore': node,
+                    'voce': self.voci_map[slug]
+                }
+                self.logger.debug(
+                    u"Inserting val: {0[valore]}, anno: {0[anno]}, territorio:{0[territorio]}, voce: {0[voce]}".format(
+                        params
+                    )
                 )
-            )
-            ValoreBilancio.objects.create(**params)
+                ValoreBilancio.objects.create(**params)
 
 
 

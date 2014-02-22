@@ -35,7 +35,7 @@ class Command(BaseCommand):
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
-                    help='CouchDB server to connect to (defaults to localhost).'),
+                    help='CouchDB server to connect to (defaults to staging).'),
 
     )
 
@@ -62,6 +62,7 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing city parameter")
 
+        self.logger.info("Opening Lista Comuni")
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
@@ -96,6 +97,8 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
+
+        self.logger.info("Connecting to db: {0}".format(couchdb_dbname))
         couchdb = couch.connect(
             couchdb_dbname,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]

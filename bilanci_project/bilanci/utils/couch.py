@@ -35,7 +35,6 @@ def get_connection_address(couchdb_server_settings=None):
     )
     return server_connection_address
 
-
 def get_server(couchdb_server_settings=None):
     server_connection_address = get_connection_address(couchdb_server_settings=couchdb_server_settings)
     couch_server = couchdb.Server(server_connection_address)
