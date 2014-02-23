@@ -47,7 +47,8 @@ class EntrateBudgetMixin(object):
         :mapping:        - the mapping parameters, grouped
           :voci_map:       - the mapping between source and destination voices
           :normalized_doc: - the couchdb source document,
-        :col_idx:        - integer, representing the column index to fetch (optional)
+        :col_idx:        - if integer, representing the column index to fetch (optional)
+                           if a string, the sum of the indexes
 
         the method always returns a scalar value
         """
@@ -67,7 +68,13 @@ class EntrateBudgetMixin(object):
         # compute the sum of the matching voices
         for voce_match in voci_matches:
             try:
-                val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
+                if isinstance(col_idx, str):
+                    idxs = col_idx.split('+')
+                    val = 0
+                    for idx in idxs:
+                        val += self._get_value(voce_match, normalized_doc, col_idx=int(idx))
+                else:
+                    val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                 self._emit_warning(e.message)
                 continue
@@ -131,7 +138,13 @@ class SpeseBudgetMixin(object):
                     ))
 
             try:
-                val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
+                if isinstance(col_idx, str):
+                    idxs = col_idx.split('+')
+                    val = 0
+                    for idx in idxs:
+                        val += self._get_value(voce_match, normalized_doc, col_idx=int(idx), interventi_matches=tuple(interventi_matches))
+                else:
+                    val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                 self._emit_warning(e.message)
                 continue
@@ -359,7 +372,7 @@ class ConsuntivoEntrateBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
             'Accertamenti': 0,
             'Riscossioni in conto competenza': 1,
             'Riscossioni in conto residui': 2,
-#            'Cassa': '1+2'
+            'Cassa': '1+2',
         }
 
         for section_name, section_idx in sections.iteritems():
@@ -422,7 +435,7 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
             'Impegni': 0,
             'Pagamenti in conto competenza': 1,
             'Pagamenti in conto residui': 2,
-#            'Cassa': '1+2'
+            'Cassa': '1+2',
         }
 
         for section_name, section_idx in sections.iteritems():
