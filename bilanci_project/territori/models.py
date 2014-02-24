@@ -125,3 +125,22 @@ class Territorio(models.Model):
         verbose_name_plural = u'Località'
         ordering = ['denominazione']
 
+
+class Contesto(models.Model):
+    anno = models.PositiveSmallIntegerField(null=False, default=0)
+    territorio = models.ForeignKey(Territorio, null=False, default=0)
+    nuclei_familiari = models.IntegerField(null=True, default=None, blank=True)
+    superficie_urbana = models.IntegerField(null=True, default=None, blank=True)
+    superficie_totale = models.IntegerField(null=True, default=None, blank=True)
+    popolazione_residente = models.IntegerField(null=True, default=None, blank=True)
+    strade_esterne = models.IntegerField(null=True, default=None, blank=True)
+    strade_interne = models.IntegerField(null=True, default=None, blank=True)
+    strade_montane = models.IntegerField(null=True, default=None, blank=True)
+
+    def __unicode__(self):
+        return "{0} ({1})".format(self.territorio, self.anno)
+
+    class Meta:
+        verbose_name = u'Contesto'
+        verbose_name_plural = u'Contesti'
+        ordering = ['territorio']

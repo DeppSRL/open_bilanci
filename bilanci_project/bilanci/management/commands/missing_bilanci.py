@@ -22,7 +22,7 @@ class Command(BaseCommand):
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
-                    help='CouchDB server to connect to (defaults to localhost).'),
+                    help='CouchDB server to connect to (defaults to staging).'),
         make_option('--source-db-name',
                     dest='source_db_name',
                     default='bilanci_voci',
