@@ -86,7 +86,7 @@ def get_simple_map(connection=None, force_google=False, n_header_lines=0):
 
     Skip header lines when reading from google (csv do not contain header lines).
 
-    Return a dict of the 2 sheets.
+    Return a dict of the sheets.
     """
     ret = None
     if force_google == False:
@@ -108,7 +108,7 @@ def get_simplified_leaves(connection=None, force_google=False, n_header_lines=0)
 
     Skip header lines when reading from google (csv do not contain header lines).
 
-    Return a dict of the 4 sheets
+    Return a dict of the sheets
     """
     ret = None
     if force_google == False:
@@ -156,6 +156,8 @@ def get_simple_map_from_google(connection=None, n_header_lines=0):
         voci_map_preventivo = list_sheet.worksheet("preventivo").get_all_values()[n_header_lines:]
         logger.info("reading consuntivo ...")
         voci_map_consuntivo = list_sheet.worksheet("consuntivo").get_all_values()[n_header_lines:]
+        logger.info("reading interventi ...")
+        voci_map_interventi = list_sheet.worksheet("interventi").get_all_values()[n_header_lines:]
     except URLError:
         raise Exception("Connection error to Gdrive")
 
@@ -164,6 +166,7 @@ def get_simple_map_from_google(connection=None, n_header_lines=0):
     return {
         'preventivo': voci_map_preventivo,
         'consuntivo': voci_map_consuntivo,
+        'interventi': voci_map_interventi,
     }
 
 

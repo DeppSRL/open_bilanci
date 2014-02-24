@@ -35,6 +35,7 @@ class Command(BaseCommand):
                     help='The name of the source couchdb instance (defaults to bilanci_voci'),
         make_option('--delete',
                     dest='delete',
+                    action='store_true',
                     default=False,
                     help='Delete a city document before adding it (use only for full years coverage)'),
         make_option('--dest-db-name',
@@ -112,7 +113,6 @@ class Command(BaseCommand):
         ###
 
         couchdb_server_alias = options['couchdb_server']
-        couchdb_dbname = settings.COUCHDB_RAW_NAME
 
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
@@ -164,19 +164,39 @@ class Command(BaseCommand):
                 preventivo_tree = {}
                 consuntivo_tree = {}
                 try:
-                    preventivo_entrate_tree = PreventivoBudgetTreeDict().build_tree(
-                        leaves=simplified_subtrees_leaves['preventivo-entrate'],
-                        mapping=(voci_map['preventivo'], source_doc),
-                        logger=self.logger
-                    )
-                    preventivo_tree.update(preventivo_entrate_tree)
+                    if 'preventivo' in source_doc and source_doc['preventivo']:
+                        preventivo_entrate_tree = PreventivoEntrateBudgetTreeDict(logger=self.logger).build_tree(
+                            leaves=simplified_subtrees_leaves['preventivo-entrate'],
+                            mapping=(voci_map['preventivo'], source_doc)
+                        )
+                        preventivo_tree.update(preventivo_entrate_tree)
 
-                    consuntivo_entrate_tree = ConsuntivoEntrateBudgetTreeDict().build_tree(
-                        leaves=simplified_subtrees_leaves['consuntivo-entrate'],
-                        mapping=(voci_map['consuntivo'], source_doc),
-                        logger=self.logger
-                    )
-                    consuntivo_tree.update(consuntivo_entrate_tree)
+                        preventivo_spese_tree = PreventivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
+                            leaves=simplified_subtrees_leaves['preventivo-spese'],
+                            mapping=(voci_map['preventivo'], voci_map['interventi'], source_doc)
+                        )
+                        preventivo_tree.update(preventivo_spese_tree)
+                    else:
+                        self.logger.warning(u"Could not find preventivo in source doc [{}]".format(
+                            source_doc.get('_id')
+                        ))
+
+                    if 'consuntivo' in source_doc and source_doc['consuntivo']:
+                        consuntivo_entrate_tree = ConsuntivoEntrateBudgetTreeDict(logger=self.logger).build_tree(
+                            leaves=simplified_subtrees_leaves['consuntivo-entrate'],
+                            mapping=(voci_map['consuntivo'], source_doc)
+                        )
+                        consuntivo_tree.update(consuntivo_entrate_tree)
+
+                        consuntivo_spese_tree = ConsuntivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
+                            leaves=simplified_subtrees_leaves['consuntivo-spese'],
+                            mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
+                        )
+                        consuntivo_tree.update(consuntivo_spese_tree)
+                    else:
+                        self.logger.warning(u"Could not find consuntivo in source doc [{}]".format(
+                            source_doc.get('_id')
+                        ))
 
                 except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                     self.logger.error(e)
