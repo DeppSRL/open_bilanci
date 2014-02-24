@@ -2,6 +2,7 @@ from django.core.cache import cache
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
+from bilanci.models import ValoreBilancio, Voce
 
 from bilanci.utils import couch
 from collections import OrderedDict
@@ -45,19 +46,18 @@ class BilancioView(DetailView):
 
     def get_context_data(self, **kwargs ):
 
-        territorio = self.get_object()
         context = super(BilancioView, self).get_context_data(**kwargs)
+        territorio = self.get_object()
+        query_string = self.request.META['QUERY_STRING']
 
-        # get the couchdb doc
-        couch_data = couch.get(territorio.cod_finloc)
-
+        year = self.request.GET['year']
+        tipo_bilancio = self.request.GET['type']
         menu_voices_kwargs = {'slug': territorio.slug}
 
-        context['bilanci'] = couch_data
         context['slug'] = territorio.slug
-        context['query_string'] = self.request.META['QUERY_STRING']
-        context['year'] = self.request.GET['year']
-        context['tipo_bilancio'] = self.request.GET['type']
+        context['query_string'] = query_string
+        context['year'] = year
+        context['tipo_bilancio'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
@@ -68,12 +68,53 @@ class BilancioView(DetailView):
         return context
 
 
-class BilancioEntrateView(BilancioView):
+class BilancioDetailView(BilancioView):
+
+    def get_context_data(self, **kwargs ):
+
+        context = super(BilancioDetailView, self).get_context_data(**kwargs)
+        territorio = self.get_object()
+        query_string = self.request.META['QUERY_STRING']
+
+        year = self.request.GET['year']
+        tipo_bilancio = self.request.GET['type']
+        slug = self.get_slug()
+        # get the data from pg db
+        bilancio_data = ValoreBilancio.objects.filter(territorio = territorio, anno=year)
+        bilancio_treenode = Voce.objects.get(slug = slug)
+        menu_voices_kwargs = {'slug': territorio.slug}
+
+        context['bilanci'] = bilancio_data
+        context['bilancio_treenode'] =  bilancio_treenode.get_descendants(include_self=True)
+        context['slug'] = territorio.slug
+        context['query_string'] = query_string
+        context['year'] = year
+        context['tipo_bilancio'] = tipo_bilancio
+        context['menu_voices'] = OrderedDict([
+            ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
+            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
+            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
+            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
+        ])
+        return context
+
+
+
+class BilancioEntrateView(BilancioDetailView):
     template_name = 'bilanci/entrate.html'
 
+    def get_slug(self):
+        return "{0}-{1}".format(self.request.GET['type'],"entrate")
 
-class BilancioSpeseView(BilancioView):
+
+
+class BilancioSpeseView(BilancioDetailView):
     template_name = 'bilanci/spese.html'
+
+    def get_slug(self):
+        return "{0}-{1}".format(self.request.GET['type'],"spese")
+
+
 
 
 class BilancioIndicatoriView(BilancioView):

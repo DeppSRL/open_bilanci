@@ -26,9 +26,7 @@ class ValoreBilancio(models.Model):
 
     voce = models.ForeignKey(Voce, null=False, blank=False)
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
-
     anno = models.PositiveSmallIntegerField()
-
     valore = models.BigIntegerField(default=0, null=True, blank=True)
 
 
