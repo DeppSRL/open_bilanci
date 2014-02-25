@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
@@ -7,7 +8,7 @@ from bilanci.models import ValoreBilancio, Voce
 from bilanci.utils import couch
 from collections import OrderedDict
 
-from territori.models import Territorio
+from territori.models import Territorio, Contesto
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -53,6 +54,10 @@ class BilancioView(DetailView):
         year = self.request.GET['year']
         tipo_bilancio = self.request.GET['type']
         menu_voices_kwargs = {'slug': territorio.slug}
+
+        # get Comune context data from db
+        context['comune_context'] = Contesto.get_context(year, territorio)
+
 
         context['slug'] = territorio.slug
         context['query_string'] = query_string

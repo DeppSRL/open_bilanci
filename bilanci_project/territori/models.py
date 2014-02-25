@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from model_utils import Choices
 from django.contrib.gis.db import models
 import struct
@@ -136,6 +137,30 @@ class Contesto(models.Model):
     strade_esterne = models.IntegerField(null=True, default=None, blank=True)
     strade_interne = models.IntegerField(null=True, default=None, blank=True)
     strade_montane = models.IntegerField(null=True, default=None, blank=True)
+
+
+    @staticmethod
+    def get_context(anno_str, territorio):
+        """
+        get territorio context record from Territorio, starting from year
+        if a record for the chosen year is not found, the previous year is taken
+        """
+        anno = int(anno_str)
+        comune_context = None
+
+        while comune_context is None and anno >= settings.START_YEAR:
+            try:
+                comune_context = Contesto.objects.get(
+                    anno = int(anno),
+                    territorio = territorio,
+                )
+            except ObjectDoesNotExist:
+                anno -= 1
+
+        return comune_context
+
+
+
 
     def __unicode__(self):
         return "{0} ({1})".format(self.territorio, self.anno)
