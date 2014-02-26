@@ -307,4 +307,10 @@ Then there are data which need to be computed on the data already present in the
     python manage.py data_completion -f cluster_mean -v 3
 
 -  per-capita values of bilanci
+
+.. code-block:: bash
+
+    python manage.py data_completion -f per_capita --cities=all --year=2001-2012 -v 3
+
+
 -  index (indicatori) on bilanci data
