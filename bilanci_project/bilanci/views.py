@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView
+import requests
 from bilanci.models import ValoreBilancio, Voce
 
 from bilanci.utils import couch
@@ -57,6 +58,13 @@ class BilancioView(DetailView):
 
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(year, territorio)
+        # get politicians data for Territorio
+        sindaci_r = requests.get(
+            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}".\
+                format(territorio.op_id)
+            )
+        sindaci_json = sindaci_r.json()
+        context['sindaci'] = sindaci_json['results']
 
 
         context['slug'] = territorio.slug
@@ -80,13 +88,13 @@ class BilancioDetailView(BilancioView):
         context = super(BilancioDetailView, self).get_context_data(**kwargs)
         territorio = self.get_object()
         query_string = self.request.META['QUERY_STRING']
-
         year = self.request.GET['year']
+
         tipo_bilancio = self.request.GET['type']
-        slug = self.get_slug()
+        voce_slug = self.get_slug()
         # get the data from pg db
         bilancio_data = ValoreBilancio.objects.filter(territorio = territorio, anno=year)
-        bilancio_treenode = Voce.objects.get(slug = slug)
+        bilancio_treenode = Voce.objects.get(slug = voce_slug)
         menu_voices_kwargs = {'slug': territorio.slug}
 
         context['bilanci'] = bilancio_data
