@@ -224,6 +224,9 @@ LOGGING = {
             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
             'datefmt' : "%d/%b/%Y %H:%M:%S"
         },
+        'reduced': {
+            'format': "%(levelname)s %(message)s"
+        }
     },
     'filters': {
         'require_debug_false': {
@@ -240,6 +243,11 @@ LOGGING = {
             'level':'DEBUG',
             'class':'logging.StreamHandler',
             'formatter': 'standard'
+        },
+        'test_console':{
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'reduced'
         },
         'import_logfile': {
             'level': 'DEBUG',
@@ -259,7 +267,12 @@ LOGGING = {
             'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
             'propagate': False,
-            }
+        },
+        'test': {
+            'handlers': ['test_console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
     }
 }
 ########## END LOGGING CONFIGURATION

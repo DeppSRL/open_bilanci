@@ -188,6 +188,7 @@ class Command(BaseCommand):
                         )
                         consuntivo_tree.update(consuntivo_entrate_tree)
 
+
                         consuntivo_spese_tree = ConsuntivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
                             leaves=simplified_subtrees_leaves['consuntivo-spese'],
                             mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)

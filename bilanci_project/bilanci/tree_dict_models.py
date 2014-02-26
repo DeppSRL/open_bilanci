@@ -3,6 +3,50 @@ __author__ = 'guglielmo'
 
 import abc
 
+###
+# functions
+###
+
+def subtree_sum(a, b):
+    """
+    Recursive function to generate a dictionary,
+    that contains the same keys of the addends,
+    where each value is the sum of the corrsponding addeds' values
+
+    Non-matching keys are skipped.
+
+    :retv: dictionary or integer
+    """
+    if isinstance(a, int):
+        return a + b
+    else:
+        c = {}
+        for k, av in a.items():
+            if k in b:
+                bv = b[k]
+                c[k] = subtree_sum(av, bv)
+        return c
+
+
+def deep_sum(node, exclude='totale'):
+    """
+    Recursive function to generate the sum of all descending leaves of a node
+
+    Node with key equal to the *excluded* argument are skipped
+
+    :retv: int
+    """
+    if isinstance(node, int):
+        return node
+    else:
+        s = 0
+        for k, v in node.items():
+            if k.lower() == exclude.lower():
+                continue
+            s += deep_sum(v, exclude=exclude)
+        return s
+
+
 
 ###
 #  TreeDict model, to be used along couchdb to model the budget trees,
@@ -48,7 +92,6 @@ class EntrateBudgetMixin(object):
           :voci_map:       - the mapping between source and destination voices
           :normalized_doc: - the couchdb source document,
         :col_idx:        - if integer, representing the column index to fetch (optional)
-                           if a string, the sum of the indexes
 
         the method always returns a scalar value
         """
@@ -68,13 +111,7 @@ class EntrateBudgetMixin(object):
         # compute the sum of the matching voices
         for voce_match in voci_matches:
             try:
-                if isinstance(col_idx, str):
-                    idxs = col_idx.split('+')
-                    val = 0
-                    for idx in idxs:
-                        val += self._get_value(voce_match, normalized_doc, col_idx=int(idx))
-                else:
-                    val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
+                val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                 self._emit_warning(e.message)
                 continue
@@ -138,13 +175,7 @@ class SpeseBudgetMixin(object):
                     ))
 
             try:
-                if isinstance(col_idx, str):
-                    idxs = col_idx.split('+')
-                    val = 0
-                    for idx in idxs:
-                        val += self._get_value(voce_match, normalized_doc, col_idx=int(idx), interventi_matches=tuple(interventi_matches))
-                else:
-                    val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
+                val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
                 self._emit_warning(e.message)
                 continue
@@ -372,7 +403,6 @@ class ConsuntivoEntrateBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
             'Accertamenti': 0,
             'Riscossioni in conto competenza': 1,
             'Riscossioni in conto residui': 2,
-            'Cassa': '1+2',
         }
 
         for section_name, section_idx in sections.iteritems():
@@ -389,10 +419,29 @@ class ConsuntivoEntrateBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
                 # add the leaf to the tree, with the computed value
                 self.add_leaf(bc, value)
 
-        # allows constructs such as
-        # tree = BudgetDictTree().build_tree(leaves, mapping)
+            # HACK
+            # compute the 'Altri proventi' value as a difference
+            # between the total and the sum of the children
+            # this is due to the label altri proventi being
+            # repeated in the Entrate extratributarie section
+            # TODO: it should be corrected at the parsing level (html2couch)
+            self['ENTRATE'][section_name]['Entrate extratributarie']['Servizi pubblici']['Altri proventi'] = \
+             self['ENTRATE'][section_name]['Entrate extratributarie']['Servizi pubblici']['TOTALE'] - \
+             deep_sum(self['ENTRATE'][section_name]['Entrate extratributarie']['Servizi pubblici'])
 
+        # create the Cassa section of the tree,
+        # by recursively adding two other branches
+        self['ENTRATE']['Cassa'] = subtree_sum(
+            self['ENTRATE']['Riscossioni in conto competenza'],
+            self['ENTRATE']['Riscossioni in conto residui'],
+        )
+
+        # remove logger attribute,
+        # in order to avoid problems when serializing
         self.pop('logger')
+
+        # returns self, allowing constructs such as
+        # tree = BudgetDictTree().build_tree(leaves, mapping)
         return self
 
 
@@ -416,6 +465,7 @@ class PreventivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
         # allows constructs such as
         # tree = BudgetDictTree().build_tree(leaves, mapping)
 
+
         self.pop('logger')
         return self
 
@@ -435,16 +485,14 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
             'Impegni': 0,
             'Pagamenti in conto competenza': 1,
             'Pagamenti in conto residui': 2,
-            'Cassa': '1+2',
         }
 
         for section_name, section_idx in sections.iteritems():
             for source_bc in leaves:
                 value = None
                 if mapping:
-                    # value computation depend on the branch of the simplified tree
-                    if ({'spese correnti', 'spese per investimenti'}.intersection(set([v.lower() for v in source_bc])) and
-                        'TOTALE' not in [v.lower() for v in source_bc]):
+                    # value computation depends on the branch of the simplified tree
+                    if len([i for i in source_bc if i]) > 3:
                         # q1 or q2
                         value = self._compute_sum(source_bc, mapping, section_name=section_name)
                     else:
@@ -459,8 +507,17 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
                 # add the leaf to the tree, with the computed value
                 self.add_leaf(bc, value)
 
-        # allows constructs such as
-        # tree = BudgetDictTree().build_tree(leaves, mapping)
+        # create the Cassa section of the tree,
+        # by recursively adding two other branches
+        self['SPESE']['Cassa'] = subtree_sum(
+            self['SPESE']['Pagamenti in conto competenza'],
+            self['SPESE']['Pagamenti in conto residui'],
+        )
 
+        # remove logger attribute,
+        # in order to avoid problems when serializing
         self.pop('logger')
+
+        # returns self, allowing constructs such as
+        # tree = BudgetDictTree().build_tree(leaves, mapping)
         return self

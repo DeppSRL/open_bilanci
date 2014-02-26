@@ -3,6 +3,7 @@ import logging
 from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.utils.text import slugify
 import requests
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio
@@ -119,8 +120,13 @@ class Command(BaseCommand):
                 try:
                     comune.cod_finloc = mapper.get_city(name)
                 except IndexError:
-                    self.logger.warning("Could not find city: {0}".format(comune.slug))
-                    continue
+                    try:
+                        denominazione = comune.denominazione.replace("'", " ")
+                        name = slugify(denominazione)
+                        comune.cod_finloc = mapper.get_city(name)
+                    except IndexError:
+                        self.logger.warning("Could not find city: {0}".format(comune.slug))
+                        continue
 
             self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
                 c, comune
