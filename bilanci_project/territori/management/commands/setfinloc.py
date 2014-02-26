@@ -121,6 +121,9 @@ class Command(BaseCommand):
                     comune.cod_finloc = mapper.get_city(name)
                 except IndexError:
                     try:
+                        # last try: (Sant'Antonio => sant-antonio)
+                        # to fetch names with apostrophe
+                        # that are not fetched with the preceding tries
                         denominazione = comune.denominazione.replace("'", " ")
                         name = slugify(denominazione)
                         comune.cod_finloc = mapper.get_city(name)
