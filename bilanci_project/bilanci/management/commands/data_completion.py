@@ -162,6 +162,9 @@ class Command(BaseCommand):
     def set_per_capita(self, cities, years, dryrun):
         for year in years:
             for city in cities:
+                self.logger.info("Calculating per-capita value for Comune:{0} yr:{1}".\
+                    format(city, year)
+                )
                 
                 # looks for territorio in db
                 try:
@@ -183,7 +186,7 @@ class Command(BaseCommand):
                     self.logger.error("Context could not be found for Comune:{0} year:{1}".\
                         format(territorio, year,)
                     )
-                    return
+                    continue
 
                 n_abitanti = comune_context.popolazione_residente
 
