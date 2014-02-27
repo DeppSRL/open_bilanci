@@ -37,18 +37,52 @@ The two files can be compared by any **diff** application.
 The diff application provided with pyCharm is particularly handy.
 
 
-The script to generate the files to compare::
+The script to generate the complete set of files::
 
-for Q in quadro-4-a-impegni quadro-4-b-pagamenti-in-conto-competenza quadro-4-c-pagamenti-in-conto-residui
-do
-    echo $Q
-    cat ../gdocs_csv_cache/simple_map/consuntivo.csv | grep "$Q" | gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort > voci-consuntivo-$Q.csv
-    cat voci_consuntivo.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort > voci-consuntivo-$Q.normalized.csv
-done
+    for Q in \
+     quadro-2-bis \
+     quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti \
+     quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti \
+     quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione \
+     quadro-2-entrate-entrate-extratributarie \
+     quadro-2-entrate-entrate-tributarie \
+     quadro-3-spese-spese-correnti \
+     quadro-3-spese-spese-in-conto-capitale \
+     quadro-3-spese-spese-per-rimborso-prestiti \
+     quadro-4-riepilogo-spese-correnti \
+     quadro-4-riepilogo-spese-correnti-totale \
+     quadro-4-riepilogo-spese-correnti-trasferimenti \
+     quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi \
+     quadro-5-riepilogo-spese-in-conto-capitale \
+     quadro-5-riepilogo-spese-in-conto-capitale-totale \
+     quadro-5-riepilogo-spese-in-conto-capitale-trasferimenti-di-capitali \
+     quadro-5-riepilogo-spese-in-conto-capitale \
+     quadro-6-generale-riassuntivo-entrate \
+     quadro-6-generale-riassuntivo
+    do
+        echo $Q
+        cat voci_preventivo_gdoc.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-preventivo-$Q-gdoc.csv
+        cat voci_preventivo.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-preventivo-$Q.csv
+    done
 
-for Q in quadro-5-a-impegni quadro-5-b-pagamenti-in-conto-competenza quadro-5-c-pagamenti-in-conto-residui
-do
-    echo $Q
-    cat ../gdocs_csv_cache/simple_map/consuntivo.csv | grep "$Q" | gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort > voci-consuntivo-$Q.csv
-    cat voci_consuntivo.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort > voci-consuntivo-$Q.normalized.csv
-done
+
+    for Q in \
+     quadro-1-dati-generali \
+     quadro-2-entrate-titolo-i-entrate-tributarie \
+     quadro-2-entrate-titolo-ii-entrate \
+     quadro-2-entrate-titolo-iii-entrate \
+     quadro-2-entrate-titolo-iv-entrate \
+     quadro-2-entrate-titolo-v-entrate \
+     quadro-3 \
+     quadro-4-a- \
+     quadro-4-b- \
+     quadro-4-c- \
+     quadro-5-a- \
+     quadro-5-b- \
+     quadro-5-c- \
+     quadro-6-an-
+    do
+        echo $Q
+        cat voci_consuntivo_gdoc.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-consuntivo-$Q-gdoc.csv
+        cat voci_consuntivo.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-consuntivo-$Q.csv
+    done

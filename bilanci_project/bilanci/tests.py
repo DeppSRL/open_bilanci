@@ -2,7 +2,9 @@
 from collections import OrderedDict
 import logging
 import couchdb
+from django.conf import settings
 from bilanci.tree_dict_models import deep_sum
+from bilanci.utils.comuni import FLMapper
 from django.test import TestCase
 
 __author__ = 'guglielmo'
@@ -199,7 +201,7 @@ class SimplifyBaseTestCaseMixin(object):
             ])
 
         # set level to logging.DEBUG to show debug messages
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
         self.logger.debug(" ")
         for node in nodes:
             simp = self.simp_doc[self.year]
@@ -209,10 +211,11 @@ class SimplifyBaseTestCaseMixin(object):
             somma = deep_sum(simp)
             totale = simp['TOTALE']
 
-            self.logger.debug(u"section: {0}, node: {1}, totale: {2}, somma: {3}".format(
+            msg = u"section: {0}, node: {1}, totale: {2}, somma: {3}".format(
                 node[2], node[-1], totale, somma
-            ))
-            self.assertEqual(totale, somma)
+            )
+            self.logger.debug(msg)
+            self.assertEqual(totale, somma, msg)
 
 
     def test_somme_consuntivo_spese(self):
@@ -246,15 +249,16 @@ class SimplifyBaseTestCaseMixin(object):
             somma = deep_sum(simp)
             totale = simp['TOTALE']
 
-            self.logger.debug(u"section: {0}-{1}, node: {2}, totale: {3}, somma: {4}".format(
+            msg = u"section: {0}-{1}, node: {2}, totale: {3}, somma: {4}".format(
                 node[2], node[3], node[-1], totale, somma
-            ))
-            self.assertEqual(totale, somma)
+            )
+            self.logger.debug(msg)
+            self.assertEqual(totale, somma, msg)
 
         # tests spese correnti and spese per investimenti global totals (for funzioni and interventi)
 
         # set level to logging.DEBUG to show debug messages
-        # self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
         self.logger.debug(" ")
         for section_name in self.spese_sections.keys():
             for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
@@ -286,13 +290,15 @@ class SimplifyBaseTestCaseMixin(object):
 #
 # Invocation:
 #     python manage.py test bilanci --settings=bilanci.settings.testnodb [-v2]
-for year in (2004,):
-    name = "Roma{}TestCase".format(year)
-    city = "ROMA--3120700900"
-    code = "{}_{}".format(year, city)
+mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+for year in (2008, 2009, 2010):
+    for city_name in ('Roma', 'Milano'):
+        name = "{}{}TestCase".format(city_name, year)
+        city = mapper.get_city(city_name)
+        code = "{}_{}".format(year, city)
 
-    Class = type(name, (SimplifyBaseTestCaseMixin, TestCase), dict(city=city, code=code))
-    globals()[name] = Class
+        Class = type(name, (SimplifyBaseTestCaseMixin, TestCase), dict(city=city, code=code))
+        globals()[name] = Class
 
 # The Class variable contains a *TestCase type, at this point
 # so we clear it, in order to avoid repeating an already
