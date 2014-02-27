@@ -2,10 +2,12 @@
 import logging
 from optparse import make_option
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
+from django.db.utils import IntegrityError
 from django.utils.text import slugify
 import requests
-from bilanci.utils.comuni import FLMapper
+from bilanci.utils.comuni import FLMapper, CityNameNotUnique
 from territori.models import Territorio
 __author__ = 'stefano'
 
@@ -119,9 +121,10 @@ class Command(BaseCommand):
                 name = "-".join(comune.slug.split('-')[:-2])
                 try:
                     comune.cod_finloc = mapper.get_city(name)
+
                 except IndexError:
                     try:
-                        # last try: (Sant'Antonio => sant-antonio)
+                        # next try: (Sant'Antonio => sant-antonio)
                         # to fetch names with apostrophe
                         # that are not fetched with the preceding tries
                         denominazione = comune.denominazione.replace("'", " ")
@@ -131,15 +134,27 @@ class Command(BaseCommand):
                         self.logger.warning("Could not find city: {0}".format(comune.slug))
                         continue
 
+                except CityNameNotUnique:
+                    # add the province code to get_city because this city
+                    # name is not unique
+                    name_prov = "{0}({1})".format(name,comune.prov)
+                    comune.cod_finloc = mapper.get_city(name_prov)
+
             self.logger.info(u"{0}, slug: {1.slug}, cod_finloc: {1.cod_finloc}".format(
                 c, comune
             ))
 
 
             if not self.dryrun:
-                comune.save()
-
-
+                try:
+                    comune.save()
+                except IntegrityError:
+                    # given that finloc field is unique if the comune has a duplicated finloc code
+                    # there is an error
+                    self.logger.error("Finloc code:{0} for City: {1} is already present in DB, quitting...".\
+                        format(comune.cod_finloc,comune.slug)
+                        )
+                    return
 
 
         self.logger.info(u" === End ===")
