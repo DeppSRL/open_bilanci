@@ -16,6 +16,7 @@ Contents:
    ai
    elements
    templates
+   territori
    deploy
 
 

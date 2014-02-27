@@ -143,7 +143,7 @@ Confronti templates
         
         
 Static pages templates
--------------------
+----------------------
 
 **static_page.html** (base.html) [url: ``/pages/``]
     - [Title]

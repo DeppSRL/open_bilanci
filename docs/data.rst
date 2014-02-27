@@ -137,9 +137,9 @@ titoli and for voci):
     # start in the right directory
     cd couchdb_scripts
 
-    # load views in couchdb bilanci
-    python getkeys.py -f [titoli_preventivo|vista_preventivo]
-    python getkeys.py -f [titoli_consuntivo|vista_consuntivo]
+    # load one of the view in view in couchdb_scripts/views in a given couchdb instance
+    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
+    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
     # browse to the view and wait for view generation to finisc (status)
 
     # save views to json files (may take time, if launched for the first time)
