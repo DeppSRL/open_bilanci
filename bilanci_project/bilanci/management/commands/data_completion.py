@@ -199,7 +199,7 @@ class Command(BaseCommand):
                     # calculates the per_capita value
 
                     for voce in voci:
-                        voce.valore_procapite = voce.valore / n_abitanti
+                        voce.valore_procapite = voce.valore / float(n_abitanti)
 
                         # writes on db
                         if dryrun is False:
