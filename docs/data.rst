@@ -264,5 +264,53 @@ the unique warnings with the help of awk:
 
 
 
+Conversion to relational database
+---------------------------------
+
+The database should now be converted one last time to fit in a relational database, in this case, Postgres.
+
+The task is performed with the following command
+
+.. code-block:: bash
+
+    python manage.py couch2pg --cities=all --years=2003-2011 -v3
+    
+
+All the data contained in the couch db is then copied to Postgres database.
 
 
+Data completion
+---------------
+
+Once all the data resides in the application Postgres db there is few data which is needed to be imported to make the db
+functional to Bilanci app:
+
+-  Territorio context data taken from Comune bilancio consuntivo
+
+.. code-block:: bash
+
+  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v 3
+
+-  Territorio Openpolis id, necessary to get political data from Openpolis API
+
+.. code-block:: bash
+
+    python manage.py set_opid -v 3
+
+
+Then there are data which need to be computed on the data already present in the db
+
+-  mean values of bilanci for territori clusters
+
+.. code-block:: bash
+
+    python manage.py data_completion -f cluster_mean -v 3
+
+-  per-capita values of bilanci
+
+.. code-block:: bash
+
+    python manage.py data_completion -f per_capita --cities=all --year=2001-2012 -v 3
+
+
+-  index (indicatori) on bilanci data

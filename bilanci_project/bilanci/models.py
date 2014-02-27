@@ -30,6 +30,30 @@ class ValoreBilancio(models.Model):
     valore = models.BigIntegerField(default=0, null=True, blank=True)
 
 
+class Indicatore(models.Model):
+    denominazione = models.CharField(max_length=50)
+    formula = models.TextField(max_length=800, null=False, blank=False, default='')
+
+    class Meta:
+        verbose_name_plural = u'Indicatori'
+
+    def __unicode__(self):
+        return u"%s" % (self.denominazione,)
+
+
+
+class ValoreIndicatore(models.Model):
+    indicatore = models.ForeignKey(Indicatore)
+    anno = models.PositiveIntegerField()
+    territorio = models.ForeignKey(Territorio, null=False, blank=False)
+    valore = models.BigIntegerField(default=0, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = u'Valori indicatori'
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.indicatore, self.valore,)
+
 
 
 

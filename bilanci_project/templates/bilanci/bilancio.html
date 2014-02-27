@@ -14,7 +14,7 @@
             <a href="" class="pull-right share">Condividi <span class="glyphicon glyphicon-share"></span></a>
             <h1 class="panel-title">{{territorio.denominazione}}</h1>
             <p class="details">
-                <span class="location">{{ territorio.prov }}, {{ territorio.regione|lower }} </span>
+                <span class="location">{{ territorio.prov }}, {{ territorio.regione|title }} </span>
                 <span class="category"><span class="glyphicon glyphicon-record"></span>
                     {{ territorio.get_cluster_display }}, {{ comune_context.popolazione_residente|intcomma }} abitanti</span>
             </p>
@@ -33,6 +33,10 @@
                 </h2>
             </div>
             <div class="panel-body">
+
+                {% block sindaci %}
+                    {% include 'bilanci/_sindaci.html' %}
+                {% endblock %}
 
                 {% block timeline %}
                     {% include 'bilanci/_timeline.html' %}
