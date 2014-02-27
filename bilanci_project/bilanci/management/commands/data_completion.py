@@ -35,6 +35,7 @@ class Command(BaseCommand):
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server to connect to (defaults to staging).'),
+
         make_option('--dry-run',
                     dest='dryrun',
                     action='store_true',
@@ -86,7 +87,7 @@ class Command(BaseCommand):
         ###
 
         cities_codes = options['cities']
-        if not cities_codes and function == 'contesto':
+        if not cities_codes and function != 'cluster_mean':
             self.logger.error("Missing city parameter")
             return
 
@@ -142,17 +143,73 @@ class Command(BaseCommand):
         if function == 'contesto':
             # set context in postgres db for Comuni
             self.set_contesto(couchdb, cities, years, dryrun)
+
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
             cities_all = mapper.get_cities('all')
             self.set_cluster_mean(cities_all, years, dryrun)
+
+        elif function == 'per_capita':
+            # computes per-capita values
+            self.set_per_capita(cities, years, dryrun)
+
         else:
             self.logger.error("Function not found, quitting")
             return
-        # computes per-capita values
-        # gets api data for political administration of all Comune
 
 
+
+    def set_per_capita(self, cities, years, dryrun):
+        for year in years:
+            for city in cities:
+                
+                # looks for territorio in db
+                try:
+                    territorio = Territorio.objects.get(
+                        territorio = 'C',
+                        cod_finloc = city,
+                    )
+                except ObjectDoesNotExist:
+                    self.logger.error("Territorio {0} does not exist in Territori db, quitting".format(city))
+                    return
+
+                # get context data for comune, anno
+                try:
+                    comune_context = Contesto.objects.get(
+                        anno = year,
+                        territorio = territorio,
+                    )
+                except ObjectDoesNotExist:
+                    self.logger.error("Context could not be found for Comune:{0} year:{1}".\
+                        format(territorio, year,)
+                    )
+                    return
+
+                n_abitanti = comune_context.popolazione_residente
+
+                if n_abitanti > 0:
+                    voci = ValoreBilancio.objects.filter(
+                        anno = year,
+                        territorio = territorio,
+                    )
+                    # for all the Voce in bilancio
+                    # calculates the per_capita value
+
+                    for voce in voci:
+                        voce.valore_procapite = voce.valore / n_abitanti
+
+                        # writes on db
+                        if dryrun is False:
+                            voce.save()
+
+                else:
+                    self.logger.warning("Inhabitants is ZERO for Comune:{0} year:{1}, can't calculate per-capita values".\
+                        format(territorio, year,)
+                        )
+
+
+
+        return
 
     def set_cluster_mean(self, cities, years, dryrun):
 

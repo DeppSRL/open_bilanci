@@ -28,6 +28,7 @@ class ValoreBilancio(models.Model):
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     anno = models.PositiveSmallIntegerField()
     valore = models.BigIntegerField(default=0, null=True, blank=True)
+    valore_procapite = models.FloatField(default=0., null=True, blank=True)
 
 
 class Indicatore(models.Model):
