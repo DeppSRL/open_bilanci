@@ -1,2 +1,8 @@
-{{ value }}
+{% load humanize %}
+{% if per_capita %}
+    {{ value|floatformat:"2"|intcomma }}
+{% else %}
+    {{ value|floatformat:"0"|intcomma }}
+{% endif %}
 
+Euro

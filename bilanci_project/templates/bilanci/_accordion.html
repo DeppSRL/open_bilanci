@@ -1,6 +1,5 @@
-{% load bilanci_print %}
+{% load voce_bilancio %}
 {% load mptt_tags %}
-
 
 <!-- Main table -->
 <div class="table-responsive">
@@ -20,10 +19,10 @@
                         <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}"><span class="glyphicon glyphicon-plus-sign"></span> {{ node.denominazione }}</a>
                     </td>
                     <td class="text-center">
-                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                        {% bilanci_print bilanci node False%}<small>n. ASSOLUTO</small>
                     </td>
                     <td class="text-center">
-                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                        {% bilanci_print bilanci node True%}<small>n. PROCAPITE</small>
                     </td>
                     <td>
                         <div class="progress">

@@ -4,7 +4,7 @@ from django import template
 
 register = template.Library()
 
-@register.inclusion_tag("bilanci/bilanci_print.html", takes_context=True)
+@register.inclusion_tag("bilanci/voce_bilancio.html", takes_context=True)
 def bilanci_print(context, bilancio, voce, per_capita):
 
     if bilancio is None:
@@ -21,6 +21,7 @@ def bilanci_print(context, bilancio, voce, per_capita):
                     return_value = bilancio_value.valore
 
                 return {
+                    'per_capita': per_capita,
                     'value':return_value,
                 }
 
