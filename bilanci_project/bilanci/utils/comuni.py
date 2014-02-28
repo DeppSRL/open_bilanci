@@ -65,7 +65,7 @@ class FLMapper(object):
             self.comuni_dicts = self.get_comuni_dicts()
 
         if codes.lower() == 'all':
-            return self.comuni_dicts['codes'].values()
+            return sorted(self.comuni_dicts['codes'].values())
 
         codes = [c.strip().upper() for c in codes.split(",")]
 

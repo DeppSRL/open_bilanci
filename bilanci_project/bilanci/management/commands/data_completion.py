@@ -173,8 +173,8 @@ class Command(BaseCommand):
                         cod_finloc = city,
                     )
                 except ObjectDoesNotExist:
-                    self.logger.error("Territorio {0} does not exist in Territori db, quitting".format(city))
-                    return
+                    self.logger.error("Territorio {0} does not exist in Territori db".format(city))
+                    continue
 
                 # get context data for comune, anno
                 try:
@@ -271,6 +271,7 @@ class Command(BaseCommand):
         return
 
     def set_contesto(self, couchdb, cities, years, dryrun):
+        missing_territories = []
 
         for city in cities:
             for year in years:
@@ -293,8 +294,9 @@ class Command(BaseCommand):
                                     cod_finloc = city,
                                 )
                             except ObjectDoesNotExist:
-                                self.logger.error("Territorio {0} does not exist in Territori db, quitting".format(city))
-                                return
+                                self.logger.error("Territorio {0} does not exist in Territori db".format(city))
+                                missing_territories.append(city)
+                                continue
 
                             # if the contesto data is not present, inserts the data in the db
                             # otherwise skips
@@ -341,6 +343,10 @@ class Command(BaseCommand):
                 else:
                     self.logger.warning("Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
 
+        if len(missing_territories)>0:
+            self.logger.error("Following cities could not be found in Territori DB and could not be processed:")
+            for missing_city in missing_territories:
+                self.logger.error("{0}({1})".format(missing_city.denominazione, missing_city.prov))
 
 
 def clean_data(data):
