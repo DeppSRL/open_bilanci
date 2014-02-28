@@ -12,6 +12,16 @@
             $(this).parents('form:first').submit();
         });
 
+        // bilanci entrate/uscite
+        // if the element called "bilancio_rootnode" is present then calls the
+        // toggle function to open the root node by default
+        var bilancio_rootnode_id = "bilancio_rootnode";
+
+        if ($('#'+bilancio_rootnode_id).length){
+            $('#'+bilancio_rootnode_id).click();
+        }
+
+
 
     });
 }(jQuery);
