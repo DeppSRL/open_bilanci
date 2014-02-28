@@ -24,7 +24,7 @@ $(document).ready(function(){
         panel.prev().addClass('shown');
     });
 
-    function collapseElement(e){
+    togglers.on('click', function(e){
         e.preventDefault();
 
         var toggler = $(this),
@@ -51,8 +51,6 @@ $(document).ready(function(){
                 .addClass('glyphicon-plus-sign');
         }
 
-    }
-
-    togglers.on('click', collapseElement);
+    });
 
 });

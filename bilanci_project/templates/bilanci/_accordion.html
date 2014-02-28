@@ -17,23 +17,12 @@
                 <tr >
                     <td>
                         {% if not node.is_leaf_node %}
-                            <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}"
-                                    {% if node == bilancio_rootnode %}
-                                        id="bilancio_rootnode"
-                                    {% endif %}
-                            >
-                                <span
-                                        class="glyphicon glyphicon-plus-sign"
-
-                                >
-
-                                </span>
-
-                                {{ node.denominazione|title }}
-
-                        </a>
+                            <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}">
+                                <span class="glyphicon glyphicon-plus-sign"></span>
+                                {{ node.denominazione|lower|capfirst }}
+                            </a>
                         {% else %}
-                            {{ node.denominazione|title }}
+                            {{ node.denominazione|lower|capfirst }}
                         {% endif %}
 
                     </td>
@@ -59,7 +48,7 @@
                 {% if not node.is_leaf_node %}
                     <tr class="panel-collapse collapse" id="{{ node.denominazione|slugify }}">
                         <td colspan="4">
-                            <p>Testo corrente per la voce {{ node.denominazione|title }}</p>
+                            <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
 
                             <!-- Sub table level 1 -->
                             <table class="table table-condensed">

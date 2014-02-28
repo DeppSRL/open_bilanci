@@ -99,13 +99,13 @@ class BilancioDetailView(BilancioView):
         # gets the part of bilancio data which is referring to Voce nodes which are
         # descendants of bilancio_treenodes to minimize queries and data size
         bilancio_data = ValoreBilancio.objects.filter(territorio = territorio, anno=year).\
-            filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
+            filter(voce__in=bilancio_rootnode.get_descendants(include_self=False).values_list('pk', flat=True))
 
         menu_voices_kwargs = {'slug': territorio.slug}
 
         context['bilanci'] = bilancio_data
         context['bilancio_rootnode'] = bilancio_rootnode
-        context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
+        context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=False)
         context['slug'] = territorio.slug
         context['query_string'] = query_string
         context['year'] = year
