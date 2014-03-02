@@ -12,6 +12,5 @@
             $(this).parents('form:first').submit();
         });
 
-
     });
 }(jQuery);

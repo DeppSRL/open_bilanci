@@ -24,7 +24,7 @@ $(document).ready(function(){
         panel.prev().addClass('shown');
     });
 
-    togglers.on('click', function(e) {
+    togglers.on('click', function(e){
         e.preventDefault();
 
         var toggler = $(this),
@@ -52,4 +52,5 @@ $(document).ready(function(){
         }
 
     });
+
 });

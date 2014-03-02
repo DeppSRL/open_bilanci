@@ -27,20 +27,25 @@ class ListaComuniSpider(BaseSpider):
         uw = UnicodeWriter(f=open(LISTA_COMUNI_PATH,mode='w'), dialect="excel_quote_all")
         hxs = Selector(response)
 
-        comuni = hxs.xpath("//li/@onclick")
-        # gets a set of strings like these
-        # fillEnte('ZUGLIO','2060851360');
+        list_elements = hxs.xpath("//li")
 
         # writes the header
-        header = ["NOME_COMUNE","CODICE_COMUNE"]
+        header = ["NOME_COMUNE", "SIGLA_PROV", "CODICE_COMUNE"]
         uw.writerow(header)
-        for comune in comuni:
+        for list_element in list_elements:
 
-            comune_string = comune.extract()
+            nome_provincia = list_element.xpath("text()").extract()[0]
+            # nome provincia: ABANO TERME (PD)
+            # sigla_provincia takes the provincia_sigla between parentesis
+            sigla_provincia = nome_provincia[nome_provincia.find("(")+1:nome_provincia.find(")")]
+
+            cod_finloc = list_element.xpath("./@onclick")
+            nome_finloc = cod_finloc.extract()[0]
+            # nome_finloc = fillEnte('ZUGLIO','2060851360');
             # transforms to => ZUGLIO','2060851360
-            comune_string = comune_string[10:len(comune_string)-3]
-            (nome_comune, codice_comune) = comune_string.split(u"','")
-            row_comune = [slugify(nome_comune).upper(),codice_comune]
+            nome_finloc = nome_finloc[10:len(nome_finloc)-3]
+            (nome_comune, codice_comune) = nome_finloc.split(u"','")
+            row_comune = [slugify(nome_comune).upper(),sigla_provincia,codice_comune]
             uw.writerow(row_comune)
 
             # ZUGLIO:2060851360

@@ -92,13 +92,20 @@ class BilancioDetailView(BilancioView):
 
         tipo_bilancio = self.request.GET['type']
         voce_slug = self.get_slug()
-        # get the data from pg db
-        bilancio_data = ValoreBilancio.objects.filter(territorio = territorio, anno=year)
-        bilancio_treenode = Voce.objects.get(slug = voce_slug)
+
+        # gets the tree structure from db
+        bilancio_rootnode = Voce.objects.get(slug = voce_slug)
+
+        # gets the part of bilancio data which is referring to Voce nodes which are
+        # descendants of bilancio_treenodes to minimize queries and data size
+        bilancio_data = ValoreBilancio.objects.filter(territorio = territorio, anno=year).\
+            filter(voce__in=bilancio_rootnode.get_descendants(include_self=False).values_list('pk', flat=True))
+
         menu_voices_kwargs = {'slug': territorio.slug}
 
         context['bilanci'] = bilancio_data
-        context['bilancio_treenode'] =  bilancio_treenode.get_descendants(include_self=True)
+        context['bilancio_rootnode'] = bilancio_rootnode
+        context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=False)
         context['slug'] = territorio.slug
         context['query_string'] = query_string
         context['year'] = year

@@ -1,6 +1,5 @@
-{% load bilanci_print %}
+{% load voce_bilancio %}
 {% load mptt_tags %}
-
 
 <!-- Main table -->
 <div class="table-responsive">
@@ -14,16 +13,24 @@
             </tr>
         </thead>
         <tbody>
-            {% recursetree bilancio_treenode %}
-                <tr>
+            {% recursetree bilancio_tree %}
+                <tr >
                     <td>
-                        <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}"><span class="glyphicon glyphicon-plus-sign"></span> {{ node.denominazione }}</a>
+                        {% if not node.is_leaf_node %}
+                            <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}">
+                                <span class="glyphicon glyphicon-plus-sign"></span>
+                                {{ node.denominazione|lower|capfirst }}
+                            </a>
+                        {% else %}
+                            {{ node.denominazione|lower|capfirst }}
+                        {% endif %}
+
                     </td>
                     <td class="text-center">
-                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                        {% bilanci_print bilanci node False%}
                     </td>
                     <td class="text-center">
-                        1.008.878.129,00 <small>n.. PROCAPITE</small>
+                        {% bilanci_print bilanci node True%}
                     </td>
                     <td>
                         <div class="progress">
@@ -41,7 +48,7 @@
                 {% if not node.is_leaf_node %}
                     <tr class="panel-collapse collapse" id="{{ node.denominazione|slugify }}">
                         <td colspan="4">
-                            <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>
+                            <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
 
                             <!-- Sub table level 1 -->
                             <table class="table table-condensed">
@@ -52,294 +59,7 @@
                 {% endif %}
 
             {% endrecursetree %}
+
         </tbody>
     </table>
 </div>
-
-
-
-
-<!-- Main table -->
-{#<div class="table-responsive">#}
-{#    <table class="table" id="results">#}
-{#        <thead>#}
-{#            <tr>#}
-{#                <th class="alt">VOCE</th>#}
-{#                <th>VALORE ASSOLUTO</th>#}
-{#                <th>VALORE PROCAPITE</th>#}
-{#                <th>RAPPORTO INVESTIMENTI/SPESE CORRENTI</th>#}
-{#            </tr>#}
-{#        </thead>#}
-{#        <tbody>#}
-{##}
-{#            <tr>#}
-{#                <td>#}
-{#                    <a class="collapse-toggle" href="#row1"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 1</a>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                            <span class="sr-only">40%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                            <span class="sr-only">60%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </td>#}
-{#            </tr>#}
-{#            <tr class="panel-collapse collapse" id="row1">#}
-{#                <td colspan="4">#}
-{#                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                </td>#}
-{#            </tr>#}
-{##}
-{##}
-{#            <tr>#}
-{#                <td>#}
-{#                    <a class="collapse-toggle" href="#row2"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 2</a>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                            <span class="sr-only">40%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                            <span class="sr-only">60%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </td>#}
-{#            </tr>#}
-{#            <tr class="panel-collapse collapse" id="row2">#}
-{#                <td colspan="4">#}
-{#                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                </td>#}
-{#            </tr>#}
-{##}
-{##}
-{#            <tr>#}
-{#                <td>#}
-{#                    <a class="collapse-toggle" href="#row3"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3 APERTA</a>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td class="text-center">#}
-{#                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                </td>#}
-{#                <td>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                            <span class="sr-only">40%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="progress">#}
-{#                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                            <span class="sr-only">60%</span>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </td>#}
-{#            </tr>#}
-{#            <tr class="panel-collapse collapse" id="row3">#}
-{#                <td colspan="4">#}
-{#                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{##}
-{#                    <!-- Sub table level 1 -->#}
-{#                    <table class="table table-condensed">#}
-{#                        <tbody>#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    <a class="collapse-toggle" href="#row31"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.1</a>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                            <span class="sr-only">40%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                            <span class="sr-only">60%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr class="panel-collapse collapse" id="row31">#}
-{#                                <td colspan="4">#}
-{#                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    <a class="collapse-toggle" href="#row32"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.2</a>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                            <span class="sr-only">40%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                            <span class="sr-only">60%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr class="panel-collapse collapse" id="row32">#}
-{#                                <td colspan="4">#}
-{#                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    <a class="collapse-toggle" href="#row33"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3 APERTA</a>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                            <span class="sr-only">40%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                            <span class="sr-only">60%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr class="panel-collapse collapse" id="row33">#}
-{#                                <td colspan="4">#}
-{#                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{##}
-{#                                    <!-- Subtable level 2 -->#}
-{#                                    <table class="table  table-condensed">#}
-{#                                        <tbody>#}
-{#                                            <tr>#}
-{#                                                <td>#}
-{#                                                    <a class="collapse-toggle" href="#row331"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3.1</a>#}
-{#                                                </td>#}
-{#                                                <td class="text-center">#}
-{#                                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                                </td>#}
-{#                                                <td class="text-center">#}
-{#                                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                                </td>#}
-{#                                                <td>#}
-{#                                                    <div class="progress">#}
-{#                                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                                            <span class="sr-only">40%</span>#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                    <div class="progress">#}
-{#                                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                                            <span class="sr-only">60%</span>#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                </td>#}
-{#                                            </tr>#}
-{#                                            <tr class="panel-collapse collapse" id="row331">#}
-{#                                                <td colspan="4">#}
-{#                                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                                                </td>#}
-{#                                            </tr>#}
-{#                                            <tr>#}
-{#                                                <td>#}
-{#                                                    <a class="collapse-toggle" href="#row332"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.3.2 APERTA</a>#}
-{#                                                </td>#}
-{#                                                <td class="text-center">#}
-{#                                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                                </td>#}
-{#                                                <td class="text-center">#}
-{#                                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                                </td>#}
-{#                                                <td>#}
-{#                                                    <div class="progress">#}
-{#                                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                                            <span class="sr-only">40%</span>#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                    <div class="progress">#}
-{#                                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                                            <span class="sr-only">60%</span>#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                </td>#}
-{#                                            </tr>#}
-{#                                            <tr class="panel-collapse collapse" id="row332">#}
-{#                                                <td colspan="4">#}
-{#                                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                                                </td>#}
-{#                                            </tr>#}
-{#                                        </tbody>#}
-{#                                    </table>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr>#}
-{#                                <td>#}
-{#                                    <a class="collapse-toggle" href="#row34"><span class="glyphicon glyphicon-plus-sign"></span> VOCE 3.4</a>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td class="text-center">#}
-{#                                    1.008.878.129,00 <small>n.. PROCAPITE</small>#}
-{#                                </td>#}
-{#                                <td>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">#}
-{#                                            <span class="sr-only">40%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                    <div class="progress">#}
-{#                                        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">#}
-{#                                            <span class="sr-only">60%</span>#}
-{#                                        </div>#}
-{#                                    </div>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                            <tr class="panel-collapse collapse" id="row34">#}
-{#                                <td colspan="4">#}
-{#                                    <p>Testo corrente ... In publishing and graphic design, lorem ipsum is a placeholder text (filler text) commonly</p>#}
-{#                                </td>#}
-{#                            </tr>#}
-{#                        </tbody>#}
-{#                    </table>#}
-{#                </td>#}
-{#            </tr>#}
-{#        </tbody>#}
-{#    </table>#}
-{#</div> <!-- /table-responsive -->#}

@@ -1,0 +1,10 @@
+{% load humanize %}
+{% if per_capita %}
+    {{ value|floatformat:"2"|intcomma }}
+{% else %}
+    {{ value|floatformat:"0"|intcomma }}
+{% endif %}
+
+{% if value != None%}
+    Euro
+{% endif %}

@@ -68,7 +68,7 @@ class Territorio(models.Model):
         )
 
     # codice sito Finanza Locale
-    cod_finloc = models.CharField(max_length=128, blank=True, null=True, db_index=True)
+    cod_finloc = models.CharField(max_length=128, blank=True, null=True, db_index=True, unique=True)
 
     # codice Openpolis
     op_id = models.CharField(max_length=128, blank=True, null=True, db_index=True)
