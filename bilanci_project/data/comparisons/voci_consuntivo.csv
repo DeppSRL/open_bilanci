@@ -1,0 +1,753 @@
+tipo,quadro,titolo,voce
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente, artigianali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente, commerciali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente, industriali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,artigianali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,commerciali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,industriali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano delle attività commerciali
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano edilizia economica e popolare
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano energetico ambientale comunale
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano per gli insediamenti produttivi:
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano regolatore adottato
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano regolatore approvato
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,piano urbano del traffico
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,programma di fabbricazione
+consuntivo,01,quadro-1-dati-generali-al-31-dicembreassetto-del-territorio-e-problemi-dellambiente,programma pluriennale di attuazione
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(1) aree delimitate dal perimetro del centro edificato ai sensi dell'art. 18 della legge 22.10.1971, n.865"
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(2) aree delimitate dal perimetro del centro edificato ai sensi dell'art. 18 della legge 22.10.1971, n.865"
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(2) aree delimitate dal perimetro del centro edificato ai sensi dell'art. 18 della legge 22.10.1971, n.865."
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(2) strade comunali e vicinali di uso pubblico, compresa l'eventuale quota di strade consortili"
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(3) strade comunali e vicinali di uso pubblico, compresa l'eventuale quota di strade consortili"
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,"(3) strade comunali e vicinali di uso pubblico, compresa l'eventuale quota di strade consortili."
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,(3) territori riconosciuti 'montani' per legge
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,(4) territori riconosciuti 'montani' per legge
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,(4) territori riconosciuti 'montani' per legge.
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,circoscrizioni (n)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,di cui: in territorio montano (km)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,frazioni geografiche
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,lunghezza delle strade esterne (km)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,lunghezza delle strade interne centro abitato (km)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,nuclei familiari (n)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,popolazione residente (ab.)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,superficie totale del comune (ha)
+consuntivo,01,quadro-1-dati-generali-al-31-dicembrenotizie-varie,superficie urbana (ha)
+consuntivo,02,quadro-2-bis-dettaglio-ici,altri fabbricati
+consuntivo,02,quadro-2-bis-dettaglio-ici,aree fabbricabili
+consuntivo,02,quadro-2-bis-dettaglio-ici,di cui : abitazione principale
+consuntivo,02,quadro-2-bis-dettaglio-ici,numero abitazioni principali
+consuntivo,02,quadro-2-bis-dettaglio-ici,terreni agricoli
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,"(5) per i comuni che  ai sensi dell'ordinanza della corte costituzionale n. 300/09 e della sentenza della corte costituzionale n.238/09 hanno  collocato  tale entrata al titolo i nel corso dell'anno 2010, senza poi riuscire a ricollocarla al titolo iii dell'entrata secondo l'orientamento della  circolare n. 3/df  dell'11 novembre 2010 del dipartimento delle finanze conseguente alle disposizioni recate dall'articolo 14, comma 33 del d.l. 31 maggio 2010 n. 78.  pertanto, l'allocazione si riporta anche al titolo iii dell'entrata al codice 2255."
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,"(5) per i comuni che, eventualmente, ai sensi dell'ordinanza della corte costituzionale n.300/09 e della sentenza della corte costituzionale n. 238/09 hanno già collocato l'entrata al titolo i."
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,(5) per i comuni delle regioni a statuto ordinario secondo quanto previsto dal d. lgs. 23/2011 recante disposizioni in materia di federalismo fiscale municipale.
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,"(7) solo per i comuni delle regioni a statuto speciale, in quanto trattasi di entrate a titolo di addizionale sul consumo dell¿energia elettrica dovute fino al 31 marzo 2012."
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,addizionale comunale sul consumo di energia elettrica
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,addizionale comunale sul consumo di energia elettrica regioni a statuto speciale (7)
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,addizionale erariale sulla tassa smaltimento rifiuti
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,addizionale irpef
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,altre imposte
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,altre tasse
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,altri fabbricati
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,aree fabbricabili
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,categoria 1 - imposte
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,categoria 2 - tasse
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,categoria 3 - tributi speciali ed altre entrate tributarie proprie
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,compartecipazione i.v.a.
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,compartecipazione irpef
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,di cui : abitazione principale
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,diritti sulle pubbliche affissioni
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,entrate da fondo sperimentale di riequilibrio
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.c.i.
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.c.i. su abitazione principale per fattispecie non esenti
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.c.i. su fattispecie diversa da abitazione principale
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.c.i.a.p.
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.m.u. sperimentale -  abitazione principale e pertinenze
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,i.m.u. sperimentale -  fattispecie diversa da abitazione principale
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,imposta comunale sulla pubblicità (al netto delle insegne)
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,imposta di scopo
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,imposta di soggiorno comuni località turistiche
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,imposta sulle insegne
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,tariffa igiene ambientale
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,tassa di concessione su atti e provvedimenti comunali
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,tassa per  la raccolta e lo smaltimento dei rifiuti solidi urbani
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,tassa per l'occupazione degli spazi ed aree pubbliche
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,terreni agricoli
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,totale  entrate  tributarie
+consuntivo,02,quadro-2-entrate-titolo-i-entrate-tributarie,tributi speciali ed altre entrate tributarie proprie
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti," effettuata alla categoria 5 alla voce ""da altri enti"". tale collocazione contabile del contributo viene indicata per non introdurre un principio diverso da"
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti," quello seguito ai fini siope (provenienza dell'erogazione), ma il trasferimento rimane statale nella sua natura e nell'effettiva provenienza"
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti, tale previsione riguarda anche i comuni  che ricadono nei territori di trento e bolzano per i quali la collocazione contabile del trasferimento va
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,"(2) ai sensi di tali disposizioni, alle regioni friuli venezia giulia e valle d'aosta, i finanziamenti vengono attribuiti"
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,"(2) ai sensi di tali disposizioni, alle regioni friuli venezia giulia e valle d'aosta, i finanziamenti vengono attribuiti ai comuni tramite i citati enti."
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,(3) voce prevista per le unioni dei comuni.
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,(4) deve trattarsi di contributi attribuiti per finanziare espressamente le spese di personale
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,(6) solo per i comuni della sicilia e della sardegna in quanto per i comuni delle province autonome di trento e bolzano è prevista la voce 2130  e 2125  mentre per le altre regioni a statuto speciale è prevista la voce 2112 e  2 110.
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,ai comuni tramite i citati enti.tale previsione riguarda anche i comuni  che ricadono nei territori di trento e bolzano
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,"ai fini siope (provenienza dell'erogazione), ma il trasferimento rimane statale nella sua natura e nell'effettiva provenienza."
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,altri contributi
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,categoria 1 - contributi e trasferimenti correnti dallo stato
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,categoria 2 - contributi e trasferimenti correnti dalla regione
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,categoria 3 - contributi e trasferimenti correnti dalla regione per funzioni delegate
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,categoria 4 - contributi e trasferimenti da parte di organismi comunitari e internazionali
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,categoria 5 - contributi e trasferimenti correnti da altri enti del settore pubblico
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,contributi regionali sulle rate di ammortamento dei mutui
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,contributo per gli interventi dei comuni (ex fondo sviluppo investimenti)
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,da altri enti
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,da comuni associati in unioni dei comuni
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,dalle province per altri contributi
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,di cui : - dalle province per rimborso statale ici ex art.1 comma 4 ultimo periodo d. l. 93/08
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,di cui : - entrate da contribuzione regionale a specifica destinazione per finanziare spese di personale
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,di cui : dalle province
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,fondo consolidato
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,fondo ordinario
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,fondo per funzioni trasferite
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,fondo per sviluppo investimenti
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,fondo perequativo fiscalità locale
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,"per i quali la collocazione contabile del trasferimento va effettuata alla categoria 5 alla voce ""da altri enti""."
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,per rimborso finanziamento statale ici ex art. 4 co. 5 d.l. 16/2012 convertito dalla l. 44/2012 (2)
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,per rimborso finanziamento statale ici ex art.1 comma 4 ultimo periodo d.l. 93/08
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,tale collocazione contabile del contributo viene indicata per non introdurre un principio diverso da quello seguito
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,totale entrate derivanti da contributi e trasferimenti correnti
+consuntivo,02,quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti,trasferimenti compensativi per ici sull'abitazione principale
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"(*)  la circolare n. 3/df  dell'11 novembre 2010 del dipartimento delle finanze ha fornito orientamenti in materia, alla  luce delle disposizioni recate dall'articolo 14, comma 33 del d.l. 31 maggio 2010 n. 78 e, pertanto, l'allocazione si riporta a tale codice"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,(2) comprende la tipologia di spesa che corrisponde all'ambito di cui al cod. 3512 del siope.
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,(3) comprende la tipologia di spesa che corrisponde all'ambito di cui al cod. 3516 del siope.
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,(4) alla luce dell'orientamento di cui alla circolare n. 3/df  dell'11 novembre 2010 del  ministero dell'economia e finanze - dipartimento delle finanze.
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,(5) tale entrata viene collocata al titolo iii in corrispondenza a quanto previsto nel certificato al bilancio di previsione 2011; va rammentato tuttavia che la sentenza n. 141/09 e l'ordinanza n. 18/10 della corte costituzionale hanno stabilito la natura tributaria di tale canone.
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,altri proventi
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,altri proventi diversi dalla fattispecie precedente
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"assistenza scolastica, trasporto, refezione, altri servizi"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"biblioteche, musei e pinacoteche"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,c.o.s.a.p
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,canone per concessioni cimiteriali
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,canone per l'installazione dei mezzi pubblicitari (cimp) (5)
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,canone pubblicità
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,categoria 1 - proventi dei servizi pubblici
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,categoria 2 - proventi di bene dell'ente
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,categoria 3 - interessi su anticipazioni o crediti
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"categoria 4 - utili netti delle aziende speciali e partecipate, dividendi di societa'"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,categoria 5 - proventi diversi
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,edilizia residenziale pubblica locale e piani di edilizia econ. popol.
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"entrate da sanzioni amministrative, ammende e oblazioni"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,istruzione elementare
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,istruzione media
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,manifestazioni turistiche
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,piscine comunali
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,polizia  municipale - risorse generali
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,polizia municipale - risorse finalizzate codice della strada
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,proventi diversi dal settore pubblico
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,proventi servizi di prevenzione e riabilitazione
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,recuperi vari
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,rimborso spese per personale comandato o in convenzione
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,scuola materna
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"segreteria generale, personale e organizzazione"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,servizi turistici
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,servizio gestione rifiuti
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,servizio idrico integrato
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,servizio necroscopico e cimiteriale
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,servizio smaltimento rifiuti
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"stadio comunale, palazzo dello sport e altri impianti"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,strutture residenziali e di ricovero per anziani
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,tariffa di igiene ambientale
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"teatri, attività culturali e servizi diversi nel settore culturale"
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,totale entrate extratributarie
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,trasporti pubblici locali e servizi connessi
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,uffici giudizari
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,ufficio tecnico
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,urbanistica e gestione del territorio
+consuntivo,02,quadro-2-entrate-titolo-iii-entrate-extratributarie,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione beni immobili e diritti reali su beni immobili
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione beni mobili e diritti reali su beni mobili
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione di beni patrimoniali diversi
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 1 - alienazione di beni patrimoniali
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 2 - trasferimenti di capitali dallo stato
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 3 - trasferimenti di capitali dalla regione
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 4 - trasferimenti di capitali da altri enti del settore pubblico
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 5 - trasferimenti di capitali da altri soggetti :
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 6 - riscossioni di crediti
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,concessione di beni demaniali
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,da famiglie (eredita' e donazioni)
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - aree
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - da imprese
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - dalle province
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,permessi di costruire e relative sanzioni
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,"totale entrate derivanti da  alienazione, trasferimenti di capitali e da riscossioni di crediti"
+consuntivo,02,quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,trasferimenti di capitale straordinari da altri soggetti
+consuntivo,02,quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti,categoria 1 - anticipazioni di cassa
+consuntivo,02,quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti,categoria 2 - finanziamenti a breve termine
+consuntivo,02,quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti,categoria 3 - assunzioni di mutui e prestiti
+consuntivo,02,quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti,categoria 4 - emissioni di prestiti obbligazionari
+consuntivo,02,quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti,totale entrate derivanti da  accensione di prestiti
+consuntivo,02,quadro-2-entrate-titolo-vi-entrate-da-servizi-per-conto-di-terzi,totale entrate  da servizi per conto di terzi
+consuntivo,02,quadro-2-entrate-titolo-vi-entrate-da-servizi-per-conto-di-terzi,totale generale delle entrate
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione beni immobili e diritti reali su beni immobili
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione beni mobili e diritti reali su beni mobili
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,alienazione di beni patrimoniali diversi
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 1° - alienazione di beni patrimoniali
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 2° - trasferimenti di capitali dallo stato
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 3° - trasferimenti di capitali dalla regione
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 4° - trasferimenti di capitali da altri enti del settore pubblico
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 5° - trasferimenti di capitali da altri soggetti :
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,categoria 6° - riscossioni di crediti
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,concessione di beni demaniali
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,da famiglie (eredita' e donazioni)
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - aree
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - da imprese
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,di cui : - dalle province
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,permessi di costruire e relative sanzioni
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,"totale entrate derivanti da alienazione, trasferimenti di capitali e da riscossioni di crediti"
+consuntivo,02,quadro-2-entratetitolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti,trasferimenti di capitale straordinari da altri soggetti
+consuntivo,03,quadro-3-bis-spese-per-il-personale,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,03,quadro-3-bis-spese-per-il-personale,(1) gli importi vanno riportati con due zero dopo la virgola.
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"(2) relativi a mutui, aperture di credito, prestiti obbligazionari e debiti pluriennali"
+consuntivo,03,quadro-3-bis-spese-per-il-personale,(3) indicare in quale intervento risulta collocata la spesa di bilancio
+consuntivo,03,quadro-3-bis-spese-per-il-personale,(3) indicare in quale intervento risulta collocata la spesa in bilancio; in caso di spesa finanziata con più interventi va indicato l'intervento con prevalenza di spesa.
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"(4) ove, in alcune regioni a statuto speciale la disciplina del personale in convenzione sia prevista da autonomo ccnl, il riferimento di spesa si intende a questo ultimo contratto"
+consuntivo,03,quadro-3-bis-spese-per-il-personale,(5) trattasi delle spese per tutti i soggetti a vario titolo utilizzati
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"(5) trattasi di ""spese di personale utilizzato senza estinzione del rapporto di pubblico impiego, in strutture e organismi variamente denominati, partecipati o comunque facenti capo all'ente (compresi consorsi, comunità montane, unione di comuni, ecc.)""."
+consuntivo,03,quadro-3-bis-spese-per-il-personale,(6) la spesa relativa allo stipendio del segretario comunale va indicata: al cod. 3055 anche se è in convezione.
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"(7) ove una voce di spesa sia stata contabilizzata insieme ad altre, va enucleata (e, conseguentemente decurtata) nonché indicata nell'apposita riga della sezione."
+consuntivo,03,quadro-3-bis-spese-per-il-personale,altre spese
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"compensi per gli incarichi conferiti ai sensi dell'art.110, commi 1  e 2 d.lgs. n. 267/2000"
+consuntivo,03,quadro-3-bis-spese-per-il-personale,entrate per rimborsi ricevuti per personale comandato o in convenzione presso altre amministrazioni
+consuntivo,03,quadro-3-bis-spese-per-il-personale,eventuali emolumenti a carico dell'amministrazione corrisposti ai lavoratori socialmente utili
+consuntivo,03,quadro-3-bis-spese-per-il-personale,irap
+consuntivo,03,quadro-3-bis-spese-per-il-personale,l'arrotondamento  è effettuato per difetto qualora la prima cifra decimale sia inferiore a cinque.
+consuntivo,03,quadro-3-bis-spese-per-il-personale,l'arrotondamento dell'ultima unità è effettuato per eccesso qualora la prima cifra decimale sia superiore o uguale a cinque;
+consuntivo,03,quadro-3-bis-spese-per-il-personale,"oneri per il nucleo familiare, buoni pasto e spese per equo indennizzo"
+consuntivo,03,quadro-3-bis-spese-per-il-personale,oneri riflessi a carico del datore di lavoro per contributi obbligatori
+consuntivo,03,quadro-3-bis-spese-per-il-personale,retribuzioni lorde al personale dipendente con contratto a tempo indeterminato e a tempo determinato
+consuntivo,03,quadro-3-bis-spese-per-il-personale,retribuzioni lorde al personale dipendente con contratto a tempo indeterminato e a tempo determinato (6)
+consuntivo,03,quadro-3-bis-spese-per-il-personale,somme rimborsate ad altre amministrazioni per il personale in posizione di comando
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spesa per rimborso ad altre amministrazioni per il personale in posizione di comando presso l'ente
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese di personale di cui all'art. 76 comma 1 del d.l. 112/2008 eccetto quelle per gli incarichi conferiti ex art.110 d.lgs. 267/2000 già considerate nella precedente riga (5)
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese per collaborazione coordinata e continuativa o altre forme di rapporto di lavoro flessibile
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese per collaborazione coordinata e continuativa o altre forme di rapporto di lavoro flessibile o con convenzioni
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese per i rinnovi contrattuali in corso
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese sostenute dall'ente per il  personale in convenzione (ai sensi degli artt. 13 e 14 del ccnl 22 gennaio 2004) (4)
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese sostenute dall'ente per il  personale in convenzione (ai sensi degli artt. 13 e 14 del ccnl 22 gennaio 2004) per la quota parte di costo effettivamente sostenuto (4)
+consuntivo,03,quadro-3-bis-spese-per-il-personale,spese sostenute per il personale previsto dall'art.90 del d.l.vo n. 267/2000
+consuntivo,03,quadro-3-bis-spese-per-il-personale,totale
+consuntivo,03,quadro-3-bis-spese-per-il-personale,totale spese
+consuntivo,03,quadro-3-bis-spese-per-il-personale,totale spese al netto delle entrate per personale comandato
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,(1) gli importi vanno riportati con due zero dopo la virgola.
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,"(2) relativi a mutui, aperture di credito, prestiti obbligazionari e debiti pluriennali"
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,(3) indicare in quale intervento risulta collocata la spesa in bilancio; in caso di spesa finanziata con più interventi va indicato l'intervento con prevalenza di spesa.
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,"(4) ove, in alcune regioni a statuto speciale la disciplina del personale in convenzione sia prevista da autonomo ccnl, il riferimento di spesa si intende a questo ultimo contratto"
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,"(5) trattasi di ""spese di personale utilizzato senza estinzione del rapporto di pubblico impiego, in strutture e organismi variamente denominati, partecipati o comunque facenti capo all'ente (compresi consorsi, comunità montane, unione di comuni, ecc.)""."
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,(6) la spesa relativa allo stipendio del segretario comunale va indicata: al cod. 3055 anche se è in convezione.
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,"(7) ove una voce di spesa sia stata contabilizzata insieme ad altre, va enucleata (e, conseguentemente decurtata) nonché indicata nell'apposita riga della sezione."
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,l'arrotondamento  è effettuato per difetto qualora la prima cifra decimale sia inferiore a cinque.
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,l'arrotondamento dell'ultima unità è effettuato per eccesso qualora la prima cifra decimale sia superiore o uguale a cinque;
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di anticipazioni di cassa
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di finanziamenti a breve termine
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di prestiti obbligazionari
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di quota capitale di debiti pluriennali
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di quota capitale di mutui e prestiti
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,rimborso di quota capitale per estinzione anticipata di prestiti
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,titolo i - spese correnti
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,titolo ii - spese in c/capitale
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,titolo iii - spese per rimborso di prestiti
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,titolo iv - spese per servirzi per conto di terzi
+consuntivo,03,quadro-3-riepilogo-generale-delle-spese,totale generale delle spese
+consuntivo,04,quadro-4-a-impegni,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,04,quadro-4-a-impegni,"(2) per i comuni che hanno collocato la spesa in tale servizio.  si ribadisce che, si ritiene idonea per tale voce contabile,  la collocazione nel servizio assistenza, beneficenza pubblica e servizi diversi alla persona."
+consuntivo,04,quadro-4-a-impegni,affissioni e pubblicità
+consuntivo,04,quadro-4-a-impegni,altri servizi generali
+consuntivo,04,quadro-4-a-impegni,altri servizi produttivi
+consuntivo,04,quadro-4-a-impegni,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,04,quadro-4-a-impegni,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,04,quadro-4-a-impegni,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,04,quadro-4-a-impegni,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,04,quadro-4-a-impegni,"biblioteche, musei e pinacoteche"
+consuntivo,04,quadro-4-a-impegni,casa circondariale e altri servizi
+consuntivo,04,quadro-4-a-impegni,centrale del latte
+consuntivo,04,quadro-4-a-impegni,di cui : rette corrisposte agli istituti che ospitano i minori a seguito di affidamento giudiziale
+consuntivo,04,quadro-4-a-impegni,di cui : rette corrisposte agli istituti che ospitano i minori a seguito di affidamento giudiziale (2)
+consuntivo,04,quadro-4-a-impegni,distribuzione energia elettrica
+consuntivo,04,quadro-4-a-impegni,distribuzione gas
+consuntivo,04,quadro-4-a-impegni,edilizia residenziale pubblica e locale e piani di edilizia economica-popolare
+consuntivo,04,quadro-4-a-impegni,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,04,quadro-4-a-impegni,farmacie
+consuntivo,04,quadro-4-a-impegni,"fiere, mercati e servizi connessi"
+consuntivo,04,quadro-4-a-impegni,funzioni di istruzione pubblica. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni di polizia locale. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni nel campo della viabilità e dei trasporti. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni nel campo dello sviluppo economico
+consuntivo,04,quadro-4-a-impegni,funzioni nel campo turistico
+consuntivo,04,quadro-4-a-impegni,funzioni nel settore sociale. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni relative a servizi produttivi
+consuntivo,04,quadro-4-a-impegni,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,04,quadro-4-a-impegni,funzioni relative alla giustizia
+consuntivo,04,quadro-4-a-impegni,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,04,quadro-4-a-impegni,gestione dei beni demaniali e patrimoniali
+consuntivo,04,quadro-4-a-impegni,gestione delle entrate tributarie e servizi fiscali
+consuntivo,04,quadro-4-a-impegni,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,04,quadro-4-a-impegni,illuminazione pubblica e servizi connessi
+consuntivo,04,quadro-4-a-impegni,indennità per gli organi istituzionali degli enti
+consuntivo,04,quadro-4-a-impegni,istruzione elementare
+consuntivo,04,quadro-4-a-impegni,istruzione media
+consuntivo,04,quadro-4-a-impegni,istruzione secondaria superiore
+consuntivo,04,quadro-4-a-impegni,manifestazione turistiche
+consuntivo,04,quadro-4-a-impegni,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,04,quadro-4-a-impegni,mattatoio e servizi connessi
+consuntivo,04,quadro-4-a-impegni,"organi istituzionali, partecipazione e decentramento di cui :"
+consuntivo,04,quadro-4-a-impegni,parchi e servizi per la tutela ambientale del verde
+consuntivo,04,quadro-4-a-impegni,piscine comunali
+consuntivo,04,quadro-4-a-impegni,polizia amministrativa
+consuntivo,04,quadro-4-a-impegni,polizia commerciale
+consuntivo,04,quadro-4-a-impegni,polizia municipale
+consuntivo,04,quadro-4-a-impegni,scuola materna
+consuntivo,04,quadro-4-a-impegni,"segreteria generale, personale e organizzazione"
+consuntivo,04,quadro-4-a-impegni,servizi di prevenzione e riabilitazione
+consuntivo,04,quadro-4-a-impegni,servizi relativi al commercio
+consuntivo,04,quadro-4-a-impegni,servizi relativi all'agricoltura
+consuntivo,04,quadro-4-a-impegni,servizi relativi all'artigianato
+consuntivo,04,quadro-4-a-impegni,servizi relativi all'industria
+consuntivo,04,quadro-4-a-impegni,servizi turistici
+consuntivo,04,quadro-4-a-impegni,servizio di protezione civile
+consuntivo,04,quadro-4-a-impegni,servizio idrico integrato
+consuntivo,04,quadro-4-a-impegni,servizio necroscopico e cimiteriale
+consuntivo,04,quadro-4-a-impegni,servizio smaltimento rifiuti
+consuntivo,04,quadro-4-a-impegni,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,04,quadro-4-a-impegni,strutture residenziali e di ricovero per anziani
+consuntivo,04,quadro-4-a-impegni,"teatri, attività culturali e servizi diversi nel settore culturale"
+consuntivo,04,quadro-4-a-impegni,teleriscaldamento
+consuntivo,04,quadro-4-a-impegni,totale
+consuntivo,04,quadro-4-a-impegni,trasporti pubblici locali e servizi connessi
+consuntivo,04,quadro-4-a-impegni,uffici giudiziari
+consuntivo,04,quadro-4-a-impegni,ufficio tecnico
+consuntivo,04,quadro-4-a-impegni,urbanistica e gestione del territorio
+consuntivo,04,quadro-4-a-impegni,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"(2) per i comuni che hanno collocato la spesa in tale servizio.  si ribadisce che, si ritiene idonea per tale voce contabile,  la collocazione nel servizio assistenza, beneficenza pubblica e servizi diversi alla persona."
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,affissioni e pubblicità
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,altri servizi generali
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,altri servizi produttivi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"biblioteche, musei e pinacoteche"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,casa circondariale e altri servizi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,centrale del latte
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,di cui : rette corrisposte agli istituti che ospitano i minori a seguito di affidamento giudiziale
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,distribuzione energia elettrica
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,distribuzione gas
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,farmacie
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"fiere, mercati e servizi connessi"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni di istruzione pubblica. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni di polizia locale. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni nel campo della viabilità e dei trasporti. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni nel campo dello sviluppo economico
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni nel campo turistico
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni nel settore sociale. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni relative a servizi produttivi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni relative alla giustizia
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,gestione dei beni demaniali e patrimoniali
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,gestione delle entrate tributarie e servizi fiscali
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,illuminazione pubblica e servizi connessi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,indennità per gli organi istituzionali degli enti
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,istruzione elementare
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,istruzione media
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,istruzione secondaria superiore
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,manifestazioni turistiche
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,mattatoio e servizi connessi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"organi istituzionali, partecipazione e decentramento di cui :"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,parchi e servizi per la tutela ambientale del verde
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,piscine comunali
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,polizia amministrativa
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,polizia commerciale
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,polizia municipale
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,scuola materna
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"segreteria generale, personale e organizzazione"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi di prevenzione e riabilitazione
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi relativi al commercio
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi relativi all'agricoltura
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi relativi all'artigianato
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi relativi all'industria
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizi turistici
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizio di protezione civile
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizio idrico integrato
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizio necroscopico e cimiteriale
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,servizio smaltimento rifiuti
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,strutture residenziali e di ricovero per anziani
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"teatri, attività culturali e servizi diversi nel settore culturale"
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,teleriscaldamento
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,totali
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,trasporti pubblici locali e servizi connessi
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,uffici giudiziari
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,ufficio tecnico
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,urbanistica e gestione del territorio
+consuntivo,04,quadro-4-b-pagamenti-in-conto-competenza,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"(2) per i comuni che hanno collocato la spesa in tale servizio.  si ribadisce che, si ritiene idonea per tale voce contabile,  la collocazione nel servizio assistenza, beneficenza pubblica e servizi diversi alla persona."
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,affissioni e pubblicità
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,altri servizi generali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,altri servizi produttivi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"biblioteche, musei e pinacoteche"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,casa circondariale e altri servizi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,centrale del latte
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,culturale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,di cui : rette corrisposte agli istituti che ospitano i minori a seguito di affidamento giudiziale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,di cui: rette corrisposte agli istituti che ospitano i minori a seguito di affidamento giudiziale (2)
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,distribuzione energia elettrica
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,distribuzione gas
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,farmacie
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"fiere, mercati e servizi connessi"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni di istruzione pubblica
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni di istruzione pubblica. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni di polizia locale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni di polizia locale. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni generali di amministrazione di gestione e di controllo
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel campo della viabilità e dei trasporti
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel campo dello sviluppo economico
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel campo turistico
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel settore sociale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel settore sociale. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel settore sportivo e ricreativo
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni relative a servizi produttivi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni relative alla cultura ed ai beni culturali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni relative alla giustizia
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni riguardanti la gestione del territorio e dell'ambiente
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,gestione dei beni demaniali e patrimoniali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,gestione delle entrate tributarie e servizi fiscali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,illuminazione pubblica e servizi connessi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,indennità per gli organi istituzionali degli enti
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,istruzione elementare
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,istruzione media
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,istruzione secondaria superiore
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,manifestazioni turistiche
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,mattatoio e servizi connessi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"organi istituzionali, partecipazione e decentramento"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"organi istituzionali, partecipazione e decentramento di cui :"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,parchi e servizi per la tutela ambientale del verde
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"parchi e servizi per la tutela ambientale del verde, altri servizi relativi al territorio ed all'ambiente"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,piscine comunali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,polizia amministrativa
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,polizia commerciale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,polizia municipale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,scuola materna
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"segreteria generale, personale e organizzazione"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi di prevenzione e riabilitazione
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi relativi al commercio
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi relativi all'agricoltura
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi relativi all'artigianato
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi relativi all'industria
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizi turistici
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizio di protezione civile
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizio idrico integrato
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizio necroscopico e cimiteriale
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,servizio smaltimento rifiuti
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,strutture residenziali e di ricovero per anziani
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,teleriscaldamento
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,totali
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,trasporti pubblici locali e servizi connessi
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,uffici giudiziari
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,ufficio tecnico
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,urbanistica e gestione del territorio
+consuntivo,04,quadro-4-c-pagamenti-in-conto-residui,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,05,quadro-5-a-impegni,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,05,quadro-5-a-impegni,(1) gli importi vanno riportati con due zero dopo la virgola.
+consuntivo,05,quadro-5-a-impegni,affissioni e pubblicità
+consuntivo,05,quadro-5-a-impegni,altri servizi generali
+consuntivo,05,quadro-5-a-impegni,altri servizi produttivi
+consuntivo,05,quadro-5-a-impegni,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,05,quadro-5-a-impegni,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,05,quadro-5-a-impegni,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,05,quadro-5-a-impegni,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,05,quadro-5-a-impegni,"biblioteche, musei e pinacoteche"
+consuntivo,05,quadro-5-a-impegni,casa circondariale e altri servizi
+consuntivo,05,quadro-5-a-impegni,centrale del latte
+consuntivo,05,quadro-5-a-impegni,distribuzione energia elettrica
+consuntivo,05,quadro-5-a-impegni,distribuzione gas
+consuntivo,05,quadro-5-a-impegni,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,05,quadro-5-a-impegni,farmacie
+consuntivo,05,quadro-5-a-impegni,"fiere, mercati e servizi connessi"
+consuntivo,05,quadro-5-a-impegni,funzioni di istruzione pubblica. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni di polizia locale. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni nel campo della viabilità e dei trasporti. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni nel campo dello sviluppo economico
+consuntivo,05,quadro-5-a-impegni,funzioni nel campo turistico
+consuntivo,05,quadro-5-a-impegni,funzioni nel settore sociale. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni relative a servizi produttivi
+consuntivo,05,quadro-5-a-impegni,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,05,quadro-5-a-impegni,funzioni relative alla giustizia
+consuntivo,05,quadro-5-a-impegni,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,05,quadro-5-a-impegni,gestione dei beni demaniali e patrimoniali
+consuntivo,05,quadro-5-a-impegni,gestione delle entrate tributarie e servizi fiscali
+consuntivo,05,quadro-5-a-impegni,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,05,quadro-5-a-impegni,illuminazione pubblica e servizi connessi
+consuntivo,05,quadro-5-a-impegni,indennità per gli organi istituzionali degli enti
+consuntivo,05,quadro-5-a-impegni,istruzione elementare
+consuntivo,05,quadro-5-a-impegni,istruzione media
+consuntivo,05,quadro-5-a-impegni,istruzione secondaria superiore
+consuntivo,05,quadro-5-a-impegni,l'arrotondamento  è effettuato per difetto qualora la prima cifra decimale sia inferiore a cinque.
+consuntivo,05,quadro-5-a-impegni,l'arrotondamento dell'ultima unità è effettuato per eccesso qualora la prima cifra decimale sia superiore o uguale a cinque;
+consuntivo,05,quadro-5-a-impegni,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,05,quadro-5-a-impegni,manifestazioni turistiche
+consuntivo,05,quadro-5-a-impegni,mattatoio e servizi connessi
+consuntivo,05,quadro-5-a-impegni,"organi istituzionali, partecipazione e decentramento"
+consuntivo,05,quadro-5-a-impegni,parchi e servizi per la tutela ambientale del verde
+consuntivo,05,quadro-5-a-impegni,piscine comunali
+consuntivo,05,quadro-5-a-impegni,polizia amministrativa
+consuntivo,05,quadro-5-a-impegni,polizia commerciale
+consuntivo,05,quadro-5-a-impegni,polizia municipale
+consuntivo,05,quadro-5-a-impegni,scuola materna
+consuntivo,05,quadro-5-a-impegni,"segreteria generale, personale e organizzazione"
+consuntivo,05,quadro-5-a-impegni,servizi di prevenzione e riabilitazione
+consuntivo,05,quadro-5-a-impegni,servizi relativi al commercio
+consuntivo,05,quadro-5-a-impegni,servizi relativi all'agricoltura
+consuntivo,05,quadro-5-a-impegni,servizi relativi all'artigianato
+consuntivo,05,quadro-5-a-impegni,servizi relativi all'industria
+consuntivo,05,quadro-5-a-impegni,servizi turistici
+consuntivo,05,quadro-5-a-impegni,servizio di protezione civile
+consuntivo,05,quadro-5-a-impegni,servizio idrico integrato
+consuntivo,05,quadro-5-a-impegni,servizio necroscopico e cimiteriale
+consuntivo,05,quadro-5-a-impegni,servizio smaltimento rifiuti
+consuntivo,05,quadro-5-a-impegni,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,05,quadro-5-a-impegni,strutture residenziali e di ricovero per anziani
+consuntivo,05,quadro-5-a-impegni,"teatri, attività culturali e servizi diversi nel settore culturale"
+consuntivo,05,quadro-5-a-impegni,teleriscaldamento
+consuntivo,05,quadro-5-a-impegni,totali
+consuntivo,05,quadro-5-a-impegni,trasporti pubblici locali e servizi connessi
+consuntivo,05,quadro-5-a-impegni,uffici giudiziari
+consuntivo,05,quadro-5-a-impegni,ufficio tecnico
+consuntivo,05,quadro-5-a-impegni,urbanistica e gestione del territorio
+consuntivo,05,quadro-5-a-impegni,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,(1) gli importi vanno riportati con due zero dopo la virgola.
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,affissioni e pubblicità
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,altri servizi generali
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,altri servizi produttivi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"biblioteche, musei e pinacoteche"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,casa circondariale e altri servizi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,centrale del latte
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,distribuzione energia elettrica
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,distribuzione gas
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,farmacie
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"fiere, mercati e servizi connessi"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni di istruzione pubblica. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni di polizia locale. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni nel campo della viabilità e dei trasporti. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni nel campo dello sviluppo economico
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni nel campo turistico
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni nel settore sociale. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni relative a servizi produttivi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni relative alla giustizia
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,gestione dei beni demaniali e patrimoniali
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,gestione delle entrate tributarie e servizi fiscali
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,illuminazione pubblica e servizi connessi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,indennità per gli organi istituzionali degli enti
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,istruzione elementare
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,istruzione media
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,istruzione secondaria superiore
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,l'arrotondamento  è effettuato per difetto qualora la prima cifra decimale sia inferiore a cinque.
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,l'arrotondamento dell'ultima unità è effettuato per eccesso qualora la prima cifra decimale sia superiore o uguale a cinque;
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,manifestazioni diverse nel settore sportivo e ricreativo
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,manifestazioni turistiche
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,mattatoio e servizi connessi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"organi istituzionali, partecipazione e decentramento"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,parchi e servizi per la tutela ambientale del verde
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,piscine comunali
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,polizia amministrativa
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,polizia commerciale
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,polizia municipale
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,scuola materna
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"segreteria generale, personale e organizzazione"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizi relativi al commercio
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizi relativi all'agricoltura
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizi relativi all'artigianato
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizi relativi all'industria
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizi turistici
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizio di prevenzione e riabilitazione
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizio di protezione civile
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizio idrico integrato
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizio necroscopico e cimiteriale
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,servizio smaltimento rifiuti
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,strutture residenziali e di ricovero per anziani
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"teatri, attività culturali e servizi diversi nel settore culturale"
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,teleriscaldamento
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,totali
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,trasporti pubblici locali e servizi connessi
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,uffici giudiziari
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,ufficio tecnico
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,urbanistica e gestione del territorio
+consuntivo,05,quadro-5-b-pagamenti-in-conto-competenza,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,(1) gli importi vanno riportati con due zero dopo la virgola.
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,affissioni e pubblicità
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,altri servizi generali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,altri servizi produttivi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"anagrafe, stato civile, elettorale, leva e servizio statistico"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"asili nido, servizi per l'infanzia e per i minori"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"assistenza scolastica, trasporto, refezione e altri servizi"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"assistenza, beneficenza pubblica e servizi diversi alla persona"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"biblioteche, musei e pinacoteche"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,casa circiondariale e altri servizi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,centrale del latte
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,culturale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,distribuzione energia elettrica
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,distribuzione gas
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,edilizia residenziale pubblica e locale e piani di edilizia economico-popolare
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,farmacie
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"fiere, mercati e servizi connessi"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni di istruzione pubblica
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni di istruzione pubblica. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni di polizia locale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni di polizia locale. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni generali di amministrazione di gestione e di controllo
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni generali di amministrazione di gestione e di controllo. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel campo della viabilità e dei trasporti
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel campo della viabilità e dei trasporti. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel campo dello sviluppo economico
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel campo turistico
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel settore sociale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel settore sociale. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel settore sportivo e ricreativo
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni nel settore sportivo e ricreativo. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni relative a servizi produttivi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni relative alla cultura ed ai beni culturali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni relative alla cultura ed ai beni culturali. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni relative alla giustizia
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni riguardanti la gestione del territorio e dell'ambiente
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,funzioni riguardanti la gestione del territorio e dell'ambiente. di cui:
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,gestione dei beni demaniali e patrimoniali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,gestione delle entrate tributarie e servizi fiscali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"gestione economica, finanziaria, programmazione, provveditorato e controllo di gestione"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,illuminazione pubblica e servizi connessi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,indennità per gli organi istituzionali degli enti
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,istruzione elementare
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,istruzione media
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,istruzione secondaria superiore
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,l'arrotondamento  è effettuato per difetto qualora la prima cifra decimale sia inferiore a cinque.
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,l'arrotondamento dell'ultima unità è effettuato per eccesso qualora la prima cifra decimale sia superiore o uguale a cinque;
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,manifestazioni sportive nel settore sportivo e ricreativo
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,manifestazioni turistiche
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,mattatoio e servizi connessi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"organi istituzionali, partecipazione e decentramento"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"parchi e servizi per la tutela ambientale del verde,altri servizi relativi al territorio ed all'ambiente"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,piscine comunali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,polizia amministrativa
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,polizia commerciale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,polizia municipale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,scuola materna
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"segreteria generale, personale e organizzazione"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi di prevenzione e riabilitazione
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi relativi al commercio
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi relativi all'agricoltura
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi relativi all'artigianato
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi relativi all'industria
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizi turistici
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizio di protezione civile
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizio idrico integrato
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizio necroscopico e cimiteriale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,servizio smaltimento rifiuti
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"stadio comunale, palazzo dello sport ed altri impianti"
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,strutture residenziali e di ricovero per anziani
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,teleriscaldamento
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,totale
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,totali
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,trasporti pubblici locali e servizi connessi
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,uffici giudiziari
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,ufficio tecnico
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,urbanistica e gestione del territorio
+consuntivo,05,quadro-5-c-pagamenti-in-conto-residui,"viabilità, circolazione stradale e servizi connessi"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario," con i ricavi della vendita di servizi. sono escluse le ipab ed altre organizzazioni simili che svolgono la loro attività in rapporto di convenzione,"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario, i consorzi fra enti pubblici e privati. sono comprese inoltre le ipab ed altre organizzazioni simili che svolgono la loro attività in rapporto di convenzione
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario," l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5a impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario, le quali rientrano tra le imprese.
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario," opere pie e le società di mutuo soccorso, le altre istituzioni private con o senza personalità giuridica a condizione che non si finanzino in prevalenza"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,( n.c.) il campo deve contenere un valore e pertanto risulta non compilato dall'ente
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(*) col.(i)  - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(*) l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(2) sono considerate in questa categoria le imprese private, le imprese controllate dal comune (municipalizzate, speciali,"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(2) sono considerate in questa categoria le imprese private, le imprese controllate dal comune (municipalizzate, speciali, consortili, società per azioni),"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(3) sono considerate istituzioni senza scopo di lucro le associazioni riconosciute e non, le fondazioni, le casse mutue,"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(3) sono considerate istituzioni senza scopo di lucro le associazioni riconosciute e non, le fondazioni, le casse mutue, gli enti di beneficenza, le"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(i)  - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(i) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(ii) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4b - pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(iii) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4c - pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(iv) -  l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(v) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5b - pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"(vi) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5c - pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"a - trasferimenti a imprese, aziende di pubbl. servizi e consorzi"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"altre organizzazioni simili che svolgono la loro attività in rapporto di convenzione, le quali rientrano tra le imprese."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,amministrazione
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,b - trasferimenti ad altri soggetti (famiglie e istituzioni senza scopo di lucro)
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,c - trasferimenti ad enti a.p.
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,c - trasferimenti ad enti amministrazioni pubbliche
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,che  svolgono la loro attività in rapporto di convenzione.
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"col.(ii) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4b - pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"col.(iii) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4c - pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"col.(iv) -  l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5a - impegni."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"col.(v) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5b - pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"col.(vi) - l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5c - pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"consortili, società per azioni), i consorzi fra enti pubblici e privati.sono comprese inoltre le ipab ed altre organizzazioni simili"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,cultura e beni culturali
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,d - totale generale trasferimenti (a + b + c)
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,giuridica a condizione che non si finanzino in prevalenza con i ricavi della vendita di servizi.sono escluse le ipab ed
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,giustizia
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"gli enti di beneficenza, le opere pie e le società di mutuo soccorso, le altre istituzioni private con o senza personalità"
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,istruzione
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4b pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 4c pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5b pagamenti in c/c competenza."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,"l'importo deve coincidere con il totale della colonna ""trasferimenti"" della sezione 5c pagamenti in c/ residui."
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,polizia locale
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,servizi produttivi
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,settore economico
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,settore sociale
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,sport e ricreazione
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,territorio e ambiente
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,turismo
+consuntivo,06,quadro-6-analisi-della-spesa-per-trasferimenti-per-funzione-e-destinatario,viabilità e trasporti
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,altri enti del settore pubblico
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,aziende sanitarie e ospedaliere
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,comuni e unione di comuni
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,comunità montane
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,province e aree metropolitane
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,regioni
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,stato
+consuntivo,06,quadro-6-bis-analisi-delle-spese-per-trasferimenti-agli-enti-pubblici-per-destinatario,totale trasferimenti
