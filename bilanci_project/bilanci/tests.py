@@ -121,7 +121,7 @@ class SimplifyBaseTestCaseMixin(object):
                         tot_norm = tot_norm['totali']
                 else:
                     tot_norm = tot_norm[t]
-            tot_norm = int(tot_norm.replace(',00', '').replace('.',''))
+            tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
 
             self.assertEqual(tot_simp, tot_norm, "Totals are different.\n norm: {0}={1}, \n simp: {2}={3}".format(
                 tot['norm'], tot_norm, tot['simp'], tot_simp
@@ -173,7 +173,7 @@ class SimplifyBaseTestCaseMixin(object):
                     tot_simp = tot_simp[t]
                 for t in tot['norm']:
                     tot_norm = tot_norm[t]
-                tot_norm = int(tot_norm.replace(',00', '').replace('.',''))
+                tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
 
                 self.assertEqual(tot_simp, tot_norm, "Totals are different. norm: {0}, simp: {1}".format(
                     tot['norm'], tot['simp']
