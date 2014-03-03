@@ -1,5 +1,7 @@
-{% load voce_bilancio %}
 {% load mptt_tags %}
+{% load voce_valore %}
+{% load voce_totale %}
+
 
 <!-- Main table -->
 <div class="table-responsive">
@@ -15,23 +17,23 @@
         <tbody>
             {% recursetree bilancio_tree %}
                 <tr >
-                    <td>
-                        {% if not node.is_leaf_node %}
+
+                    {% if not node.is_leaf_node %}
+                        <td>
                             <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}">
                                 <span class="glyphicon glyphicon-plus-sign"></span>
                                 {{ node.denominazione|lower|capfirst }}
                             </a>
-                        {% else %}
+                        </td>
+                        {% voce_totale bilancio_valori node comune_context.popolazione_residente %}
+                    {% else %}
+                        <td>
                             {{ node.denominazione|lower|capfirst }}
-                        {% endif %}
+                        </td>
+                        {% voce_valore bilancio_valori node  %}
+                    {% endif %}
 
-                    </td>
-                    <td class="text-center">
-                        {% bilanci_print bilanci node False%}
-                    </td>
-                    <td class="text-center">
-                        {% bilanci_print bilanci node True%}
-                    </td>
+
                     <td>
                         <div class="progress">
                             <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
