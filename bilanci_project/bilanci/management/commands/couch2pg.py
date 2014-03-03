@@ -69,7 +69,7 @@ class Command(BaseCommand):
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
-            self.logger.info("Scraping cities: {0}".format(cities))
+            self.logger.info("Processing cities: {0}".format(cities))
 
 
         ###
@@ -88,7 +88,7 @@ class Command(BaseCommand):
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
 
-        self.logger.info("Scraping years: {0}".format(years))
+        self.logger.info("Processing years: {0}".format(years))
         self.years = years
 
 
@@ -156,20 +156,7 @@ class Command(BaseCommand):
             if len(local_path) == 1:
                 slug = u"{}".format(slugify(local_path[0]))
             else:
-                if local_path[0] == 'preventivo':
-                    slug = u"{0}-{1}".format(slugify(local_path[0]), slugify(local_path[-1]))
-                else:
-                    if local_path[2] == local_path[-1]:
-                        slug = u"{0}-{1}".format(
-                            slugify(local_path[0]),
-                            slugify(local_path[2])
-                        )
-                    else:
-                        slug = u"{0}-{1}-{2}".format(
-                            slugify(local_path[0]),
-                            slugify(local_path[2]),
-                            slugify(local_path[-1])
-                        )
+                slug = u"{0}-{1}".format(local_path[0], "-".join(slugify(i) for i in local_path[1:]))
 
             # insert into the DB
             if slug not in self.voci_map:
@@ -235,11 +222,11 @@ class Command(BaseCommand):
         subtrees = OrderedDict([
             ('consuntivo-entrate', {
                 'denominazione': u'Consuntivo entrate',
-                'sections': [u'Accertamenti', u'Riscossioni in conto competenza', u'Riscossioni in conto residui']
+                'sections': [u'Accertamenti', u'Riscossioni in conto competenza', u'Riscossioni in conto residui', u'Cassa']
             }),
             ('consuntivo-spese', {
                 'denominazione': u'Consuntivo spese',
-                'sections': [u'Impegni', u'Spese in conto competenza', u'Spese in conto residui']
+                'sections': [u'Impegni', u'Pagamenti in conto competenza', u'Pagamenti in conto residui', u'Cassa']
             }),
         ])
 
@@ -265,16 +252,11 @@ class Command(BaseCommand):
             bc.pop()
 
         prefix_slug = subtree_node.slug
-        if section_slug:
-            prefix_slug = u"{0}-{1}".format(prefix_slug, section_slug)
 
         current_node = subtree_node
         for item in bc:
             if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
-                if section_slug == slugify(item):
-                    slug = prefix_slug
-                else:
-                    slug = u"{0}-{1}".format(prefix_slug, slugify(item))
+                slug = u"{0}-{1}".format(prefix_slug, "-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
                 node = Voce(denominazione=item, slug=slug)
                 node.insert_at(current_node, save=True, position='last-child')
                 if bc[-1] == item:

@@ -66,7 +66,7 @@ class Command(BaseCommand):
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
-            self.logger.info("Scraping cities: {0}".format(cities))
+            self.logger.info("Processing cities: {0}".format(cities))
 
 
         years = options['years']
@@ -82,7 +82,7 @@ class Command(BaseCommand):
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
 
-        self.logger.info("Scraping years: {0}".format(years))
+        self.logger.info("Processing years: {0}".format(years))
 
         base_url = options['base_url']
 
