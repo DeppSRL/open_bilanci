@@ -8,7 +8,7 @@ from territori.models import Territorio
 class Voce(MPTTModel):
     denominazione = models.CharField(max_length=200)
     descrizione = models.TextField(blank=True, null=True)
-    slug = models.SlugField(max_length=128, blank=True, null=True, unique=True)
+    slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 
