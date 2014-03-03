@@ -17,7 +17,7 @@ def subtree_sum(a, b):
 
     :retv: dictionary or integer
     """
-    if isinstance(a, int):
+    if isinstance(a, int) or isinstance(a, long):
         return a + b
     else:
         c = {}
@@ -36,7 +36,7 @@ def deep_sum(node, exclude='totale'):
 
     :retv: int
     """
-    if isinstance(node, int):
+    if isinstance(node, int) or isinstance(node, long):
         return node
     else:
         s = 0
