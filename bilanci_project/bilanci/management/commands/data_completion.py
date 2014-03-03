@@ -295,7 +295,8 @@ class Command(BaseCommand):
                                 )
                             except ObjectDoesNotExist:
                                 self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                                missing_territories.append(city)
+                                if city not in missing_territories:
+                                    missing_territories.append(city)
                                 continue
 
                             # if the contesto data is not present, inserts the data in the db
@@ -346,7 +347,7 @@ class Command(BaseCommand):
         if len(missing_territories)>0:
             self.logger.error("Following cities could not be found in Territori DB and could not be processed:")
             for missing_city in missing_territories:
-                self.logger.error("{0}({1})".format(missing_city.denominazione, missing_city.prov))
+                self.logger.error("{0}".format(missing_city))
 
 
 def clean_data(data):
