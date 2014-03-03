@@ -17,7 +17,7 @@ def subtree_sum(a, b):
 
     :retv: dictionary or integer
     """
-    if isinstance(a, int):
+    if isinstance(a, int) or isinstance(a, long):
         return a + b
     else:
         c = {}
@@ -36,7 +36,7 @@ def deep_sum(node, exclude='totale'):
 
     :retv: int
     """
-    if isinstance(node, int):
+    if isinstance(node, int) or isinstance(node, long):
         return node
     else:
         s = 0
@@ -310,7 +310,7 @@ class BudgetTreeDict(dict):
                 # shift 1 position to the left, to handle the header mismatch
                 try:
                     col_idx = normalized_voce_columns.index(interventi_match) - 1
-                    ret += int(normalized_voce[col_idx].replace(',00', '').replace('.',''))
+                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',',''))))
                 except ValueError:
                     continue
         else:
@@ -319,7 +319,7 @@ class BudgetTreeDict(dict):
             # - when there is only one value, that's the last one, too
             if col_idx is None:
                 col_idx = -1
-            ret = int(normalized_voce[col_idx].replace(',00', '').replace('.',''))
+            ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
 
         return ret
 

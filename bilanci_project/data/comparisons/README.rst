@@ -86,3 +86,37 @@ The script to generate the complete set of files::
         cat voci_consuntivo_gdoc.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-consuntivo-$Q-gdoc.csv
         cat voci_consuntivo.csv | grep "$Q" | gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | uniq > voci-consuntivo-$Q.csv
     done
+
+
+Google documents importd as cache, by the bilanci.utils.gdoc module, have a semi-colon separator, and
+thr instructions to generate the file-trunks may differ slightly.
+
+for Q in \
+    quadro-4-riepilogo-spese-correnti-trasferimenti quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi   \
+    quadro-5-riepilogo-spese-in-conto-capitale quadro-5-riepilogo-spese-in-conto-capitale-totale \
+    quadro-5-riepilogo-spese-in-conto-capitale-trasferimenti-di-capitali \
+    quadro-5-riepilogo-spese-in-conto-capitale \
+    quadro-6-generale-riassuntivo-entrate quadro-6-generale-riassuntivo; \
+   do \
+     cat ../gdocs_csv_cache/simple_map/preventivo.csv | grep $Q | \
+       gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+       uniq > voci-preventivo-$Q-gdoc.csv; \
+     cat voci_preventivo.csv | grep $Q | \
+       gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+       uniq > voci-preventivo-$Q.csv; \
+   done
+
+for Q in \
+     quadro-1-dati-generali quadro-2-bis- \
+     quadro-2-entrate-titolo-i-entrate-tributarie quadro-2-entrate-titolo-ii-entrate \
+     quadro-2-entrate-titolo-iii-entrate quadro-2-entrate-titolo-iv-entrate \
+     quadro-2-entrate-titolo-v-entrate quadro-3 quadro-4-a- quadro-4-b- quadro-4-c- \
+     quadro-5-a- quadro-5-b- quadro-5-c- quadro-6-an-; \
+    do
+      cat ../gdocs_csv_cache/simple_map/consuntivo.csv | grep $Q | \
+        gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+        uniq > voci-consuntivo-$Q-gdoc.csv; \
+      cat voci_consuntivo.csv | grep $Q | \
+        gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+        uniq > voci-consuntivo-$Q.csv; \
+    done
