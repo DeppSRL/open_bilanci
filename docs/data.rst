@@ -313,4 +313,11 @@ Then there are data which need to be computed on the data already present in the
     python manage.py data_completion -f per_capita --cities=all --year=2001-2012 -v 3
 
 
--  index (indicatori) on bilanci data
+-  indicators on bilanci data
+
+
+.. code-block:: bash
+
+    python manage.py indicators -i all --cities=all --year=2001-2012 -v 3
+
+
