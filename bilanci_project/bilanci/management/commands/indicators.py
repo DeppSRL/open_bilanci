@@ -1,4 +1,3 @@
-from ast import literal_eval
 from pprint import pprint
 import re
 from django.core.exceptions import ObjectDoesNotExist
@@ -146,24 +145,47 @@ class Command(BaseCommand):
 
     def compute_indicator(self, indicator, cities, years, dryrun):
 
-
+        per_capita_affix = "-PC"
         # check that all the slugs mentioned in the meta-formula are present in the simplified tree
-        voices_list = re.findall(r'"(.*?)"',indicator.formula)
-        for voice in voices_list:
+        # if some voice slug contains the substring "-PC" then that should be considered as a per-capita value
+        # so the "-PC" substring must be removed from slug to check the existance of the voice in the simple tree
+        voices_raw_list = re.findall(r'"(.*?)"',indicator.formula)
+
+        # voices list is a list of dicts that
+        # keeps track of every slug present in the original formula, the real slug to look for in the db
+        # and a boolean flag that tells if the absolute value or the per-capita value should be used
+        # voices_list = [{'raw_slug': 'voice-slug-PC', 'real_slug': 'voice-slug", 'is_per_capita':True},]
+
+        voices_list = []
+
+        for voice in voices_raw_list:
+            real_slug = voice
+            is_per_capita = False
+
+            # if "-PC" is found at the end of the voice then it's removed
+            if voice.find(per_capita_affix) == len(voice)-len(per_capita_affix):
+                real_slug = voice[:-len(per_capita_affix)]
+                is_per_capita = True
+
+            voices_list.append(
+                {
+                    'raw_slug':voice,
+                    'real_slug': real_slug,
+                    'is_per_capita': is_per_capita
+                }
+            )
+
             try:
                 Voce.objects.get(
-                    slug = voice
+                    slug = real_slug
                 )
             except ObjectDoesNotExist:
-                self.logger.error("Voce with slug:{0} not present in simplified tree".\
-                    format(voice))
+                self.logger.error("Voce with slug:{0} not present in simplified tree. Skipping indicator {1}".\
+                    format(real_slug, indicator.denominazione))
                 return
 
-
-
-
-        for year in years:
-            for city in cities:
+        for city in cities:
+            for year in years:
 
                 territorio = None
                 # looks for territorio in db
@@ -176,20 +198,33 @@ class Command(BaseCommand):
                     self.logger.error("Territorio {0} does not exist in Territori db".format(city))
                     return
 
-                # create a dictionary which has the Voce slug as key which is associated with the value the Voce had for that
+                # create a dictionary which has the Voce slug as key which is associated
+                # with the value the Voce had for that
                 # year in that city
                 voci = {}
-                for voice in voices_list:
+                all_values_found = True
+                for voice_dict in voices_list:
                     try:
-                        voci[voice] = ValoreBilancio.objects.get(
-                            voce__slug = voice,
+                        valore_bilancio = ValoreBilancio.objects.get(
+                            voce__slug = voice_dict['real_slug'],
                             anno = year,
                             territorio = territorio,
                         )
                     except ObjectDoesNotExist:
-                        self.logger.error("Voce with slug:{0} does not exist for Comune:{1}, year:{2}".\
-                            format(voice, territorio.denominazione, year))
-                        return
+                        self.logger.error("Voce with slug:{0} does not exist for Comune:{1}, year:{2}, skipping this year".\
+                            format( voice_dict['real_slug'], territorio.denominazione, year))
+                        all_values_found = False
+                        break
+
+                    if voice_dict['is_per_capita']:
+                        voci[voice_dict['raw_slug']] = valore_bilancio.valore_procapite
+                    else:
+                        voci[voice_dict['raw_slug']] = valore_bilancio.valore
+
+                if all_values_found is False:
+                    self.logger.warning("Formula cannot be calculed for Comune:{0}, year:{1}, indicator {2}, skipping this year".\
+                        format(city, year, indicator.denominazione))
+                    continue
 
                 ##
                 # convert indicator formula from redational meta-language to operational string
@@ -202,13 +237,17 @@ class Command(BaseCommand):
 
                 meta_formula = indicator.formula
                 indicator_formula = re.sub(r'"(.*?)"', r"voci['\1']", meta_formula )
+
                 # compute the result applying the formula
                 try:
-                    indicator_result = literal_eval(indicator_formula)
+                    indicator_result = eval(indicator_formula)
                 except ValueError:
                     self.logger.error("Indicator formula: {0} is malformed".format(indicator_formula))
                     return
-                pprint(indicator_result)
+
+                self.logger.debug("Comune:{0}, year:{1}, Indicator {2}: {3}".\
+                    format(city, year, indicator.denominazione, indicator_result)
+                    )
 
 
                 ##
