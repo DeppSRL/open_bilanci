@@ -38,6 +38,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Delete a city document before adding it (use only for full years coverage)'),
+        make_option('--skip-existing',
+                    dest='skip_existing',
+                    action='store_true',
+                    default=False,
+                    help='Skip existing documents. Use to speed up long import of many cities, when errors occur'),
         make_option('--dest-db-name',
                     dest='dest_db_name',
                     default='bilanci_simple',
@@ -71,6 +76,7 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
 
         force_google = options['force_google']
+        skip_existing = options['skip_existing']
 
         cities_codes = options['cities']
         if not cities_codes:
@@ -79,7 +85,7 @@ class Command(BaseCommand):
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
-            self.logger.info("Scraping cities: {0}".format(cities))
+            self.logger.info("Processing cities: {0}".format(cities))
 
 
         years = options['years']
@@ -95,7 +101,7 @@ class Command(BaseCommand):
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
 
-        self.logger.info("Scraping years: {0}".format(years))
+        self.logger.info("Processing years: {0}".format(years))
 
         couchdb_server_name = options['couchdb_server']
 
@@ -142,6 +148,12 @@ class Command(BaseCommand):
         simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
         for city in cities:
+
+            dest_doc_id = city
+            if dest_doc_id in dest_db and skip_existing:
+                self.logger.info("Skipping city of {}, as already existing".format(city))
+                continue
+
 
             complete_tree = {}
 
@@ -211,7 +223,6 @@ class Command(BaseCommand):
 
             # update the tree, deleting it if required
             # create the tree, when non-existing
-            dest_doc_id = city
             if dest_doc_id in dest_db:
                 dest_doc = dest_db[dest_doc_id]
                 if options['delete']:
