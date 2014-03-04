@@ -319,7 +319,10 @@ class BudgetTreeDict(dict):
             # - when there is only one value, that's the last one, too
             if col_idx is None:
                 col_idx = -1
-            ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+            try:
+                ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+            except ValueError:
+                ret = 0
 
         return ret
 

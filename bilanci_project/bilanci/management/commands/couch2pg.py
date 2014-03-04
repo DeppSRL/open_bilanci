@@ -31,6 +31,11 @@ class Command(BaseCommand):
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server alias to connect to (staging | localhost). Defaults to staging.'),
+        make_option('--skip-existing',
+                    dest='skip_existing',
+                    action='store_true',
+                    default=False,
+                    help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
         make_option('--create-tree',
                     dest='create_tree',
                     action='store_true',
@@ -57,7 +62,7 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
         create_tree = options['create_tree']
-
+        skip_existing = options['skip_existing']
 
         ###
         # cities
@@ -126,6 +131,16 @@ class Command(BaseCommand):
             if city_budget is None:
                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
                continue
+
+            # check values for the city inside ValoreBilancio,
+            # skip if values are there and the skip-existing option was required
+            try:
+                _ = ValoreBilancio.objects.filter(territorio=territorio)[0]
+                if skip_existing:
+                    self.logger.info(u"Skipping city of {}, as already processed".format(city))
+                    continue
+            except IndexError:
+                pass
 
             self.logger.info(u"Processing city of {0}".format(city))
 
