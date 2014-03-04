@@ -168,8 +168,10 @@ class Command(BaseCommand):
 
                 # get the source doc
                 doc_id = "{0}_{1}".format(year, city)
+                if doc_id not in source_db:
+                    self.logger.warning(u"Could not find {} in bilanci_voci couchdb instance. Skipping.".format(doc_id))
+                    continue
                 source_doc = source_db.get(doc_id)
-
 
                 # build the sub-trees, using the mapping and the source doc
                 # catch exceptions for non-existing sections in source doc
