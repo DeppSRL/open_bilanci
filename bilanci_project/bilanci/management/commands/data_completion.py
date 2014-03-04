@@ -141,7 +141,7 @@ class Command(BaseCommand):
                 couchdb_dbname,
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
-            
+
             self.set_contesto(couchdb, cities, years, dryrun)
 
         elif function == 'cluster_mean':
