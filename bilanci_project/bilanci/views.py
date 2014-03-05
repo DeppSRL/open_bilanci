@@ -142,7 +142,7 @@ class BilancioIndicatoriView(BilancioView):
 
 
 class ConfrontoView(TemplateView):
-    template_name = "confronto.html"
+    template_name = "bilanci/confronto.html"
 
     def get_context_data(self, **kwargs):
 

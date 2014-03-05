@@ -5,7 +5,7 @@ from .models import Voce, ValoreBilancio, Indicatore
 class VoceAdmin(TreeAdmin):
     model = Voce
     list_display = ['denominazione', 'slug']
-    list_per_page = 400
+    list_per_page = 1000
 
 class IndicatoreAdmin(admin.ModelAdmin):
     pass
