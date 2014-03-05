@@ -121,27 +121,27 @@ class Command(BaseCommand):
         self.years = years
 
 
-        ###
-        # couchdb
-        ###
-
-        couchdb_server_alias = options['couchdb_server']
-        couchdb_dbname = settings.COUCHDB_NORMALIZED_VOCI_NAME
-
-        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
-            self.logger.error("Unknown couchdb server alias.")
-            return
-
-
-        self.logger.info("Connecting to db: {0}".format(couchdb_dbname))
-        couchdb = couch.connect(
-            couchdb_dbname,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
-
-
         if function == 'contesto':
             # set context in postgres db for Comuni
+
+            ###
+            # couchdb
+            ###
+
+            couchdb_server_alias = options['couchdb_server']
+            couchdb_dbname = settings.COUCHDB_NORMALIZED_VOCI_NAME
+
+            if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+                self.logger.error("Unknown couchdb server alias.")
+                return
+
+
+            self.logger.info("Connecting to db: {0}".format(couchdb_dbname))
+            couchdb = couch.connect(
+                couchdb_dbname,
+                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+            )
+
             self.set_contesto(couchdb, cities, years, dryrun)
 
         elif function == 'cluster_mean':

@@ -8,9 +8,12 @@ HTML files are then parsed into couchdb documents. All tables are transformed in
 Budget titles and labels are normalized, by finding the MCD, defining a mapping and replicating the
 raw couchdb. This is a 2 steps process.
 
-The final product is a normalized set of budget documents, available on couchdb (through a RESTFUL API),
-that can be used both as source to build HTML page and to compute indicators and averages (through map-reduce).
+The final product of the normalization process is a normalized database on couchdb that 
+can be now reduced to a simplified form using a dedicated script (simplify.py).
 
+Due to application needs and operational functionalities the non-relational database is transferred to a 
+relational Postgres db using the couch2pg.py script. The Postgres instance is the application db on which
+the application relies to build HTML pages, compute indicators and cluster averages.
 
 Data source
 -----------
@@ -313,4 +316,3 @@ Then there are data which need to be computed on the data already present in the
     python manage.py data_completion -f per_capita --cities=all --year=2001-2012 -v 3
 
 
--  index (indicatori) on bilanci data
