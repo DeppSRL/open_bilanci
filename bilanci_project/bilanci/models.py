@@ -12,11 +12,13 @@ class Voce(MPTTModel):
 
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 
+
     class MPTTMeta:
         order_insertion_by = ['denominazione']
 
     class Meta:
         verbose_name_plural = u'Voci'
+
 
     def __unicode__(self):
         return u"%s" % (self.denominazione,)

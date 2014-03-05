@@ -1,13 +1,10 @@
 import logging
 from optparse import make_option
-from bs4 import BeautifulSoup
 from django.core.management import BaseCommand
 from django.conf import settings
-from django.utils.text import slugify
-import requests
-import time
 from bilanci.utils import couch
 from bilanci.utils.comuni import FLMapper
+from bilanci.utils.converters import FLScraper, FLCouchEmitter
 
 __author__ = 'guglielmo'
 
@@ -86,7 +83,6 @@ class Command(BaseCommand):
 
         base_url = options['base_url']
 
-
         ###
         # couchdb
         ###
@@ -105,6 +101,10 @@ class Command(BaseCommand):
         )
 
 
+        # instantiate the scraper to parse finanzalocale
+        scraper = FLScraper(self.logger)
+        emitter = FLCouchEmitter(logger=self.logger, couchdb=couchdb)
+
 
         for city in cities:
             for year in years:
@@ -115,7 +115,7 @@ class Command(BaseCommand):
                         base_url, year, city
                 )
                 self.logger.info("Scraping Preventivo: {0}".format(url))
-                preventivo = self.scrape(
+                preventivo = scraper.scrape(
                     url,
                     pages=q_list
                 )
@@ -127,7 +127,7 @@ class Command(BaseCommand):
                     base_url, year, city
                 )
                 self.logger.info("Scraping Consuntivo: {0}".format(url))
-                consuntivo = self.scrape(
+                consuntivo = scraper.scrape(
                     url,
                     pages=q_list
                 )
@@ -142,125 +142,9 @@ class Command(BaseCommand):
                 }
 
                 if not dryrun:
-
-                    # create or update budget data on couchdb
-                    if bilancio_id in couchdb:
-                        bilancio_data['_rev'] = couchdb[bilancio_id].rev
-
-                    couchdb[bilancio_id] = bilancio_data
+                    emitter.emit(id=bilancio_id, data=bilancio_data)
                     self.logger.info("Data written to couchdb")
                 else:
                     self.logger.info("Couchdb writing skipped because of --dry-run")
 
 
-    def scrape(self, path, pages=None):
-        """
-        Create and return data out of HTML code, for each page in pages list
-        """
-        data = {}
-        for quadro in pages:
-            data[quadro]={}
-            self.logger.debug("Scraping quadro:{0}.html".format(quadro))
-
-            soup = BeautifulSoup(
-                requests.get(
-                    "{0}/{1}.html".format(path, quadro)
-                ).content
-            )
-            # non considera la prima tabella (con i dati riassuntivi del comune)
-            # e le ultima: l'indice delle pagine
-            considered_tables = soup.findAll("table")[1:-1]
-            for table in considered_tables:
-                ret = self.scrape_table(table=table)
-                # ret == none se la tabella non conteneva dati
-                if ret is not None:
-                    data[quadro][ret['slug']] = ret['data']
-
-            # se il quadro considerato non esiste per il bilancio in questione
-            # elimina la chiave relativa al quadro dalla struttura dati
-            # in questo modo evitiamo di avere dizionari vuoti nella struttura quando
-            # il quadro non esiste
-            if any(data[quadro]) is False:
-                data.pop(quadro, None)
-
-
-        return data
-
-
-    def scrape_table(self,*args,**options):
-        if options['table'] is not None:
-            #scraped table
-            table_html = options['table']
-            # data struct to return
-            table_data={'meta':{'titolo':None,'sottotitolo':None,'columns':[]},'data':{}}
-
-            # cerca il titolo negli elementi precedenti la tabella
-
-            table_counter = 0
-            for previous_element in table_html.previous_elements:
-                if previous_element.name == "div" and previous_element.get('class'):
-                    if previous_element.get('class')[0]=='acentro':
-                        contents=previous_element.contents
-                        if len(contents)==2:
-                            table_data['meta']['titolo'] = previous_element.contents[1].text.\
-                                replace("(gli importi sono espressi in euro)",'').strip(' \t\n\r')
-                            break
-                elif previous_element.name == "table":
-                    table_counter+=1
-
-
-            if table_data['meta']['titolo'] is None:
-                # creates dummy title with timestamp to avoid overwriting other tables
-                dummy_title = u"Tabella-senza-titolo-"
-                timestamp = unicode(time.time()).replace('.','')
-                table_data['meta']['titolo'] = dummy_title+timestamp
-
-
-            # cerca il sottotitolo
-            caption = table_html.find("caption")
-            if caption:
-                table_data['meta']['sottotitolo'] = caption.text.strip(' \t\n\r')
-
-            # prende la prima riga della tabella, che descrive le colonne
-            for th in table_html.findAll("th"):
-                if th.text.lower() != "voci":
-                    table_data['meta']['columns'].append(th.text.strip(' \t\n\r'))
-
-            # prende i dati dalla tabella
-            # table_is_empy e' un controllo che ci permette di non salvare tabelle che non hanno nemmeno
-            # un valore, solitamente si tratta di tabelle di note
-            table_is_empty = True
-            for tr in table_html.findAll("tr"):
-                row_key=None
-                for (col_counter,td) in enumerate(tr.findAll("td")):
-
-                    if col_counter == 0 :
-                        row_key = td.text.strip(' \t\n\r')
-                        table_data['data'][row_key]=[]
-
-                    else:
-                        table_data['data'][row_key].append(td.text.strip(' \t\n\r'))
-                        table_is_empty=False
-
-
-            # crea lo slug della tabella che servira' come chiave nel dizionario dei dati
-            # in questo caso lo slug e' il titolo di bilancio e viene costruito usando
-            # titolo e sottotitolo della tabella. nel caso il sottotitolo non sia presente
-            # si aggiunge il table_counter, che conta il n. di tabelle che hanno un unico titolo
-
-            slug = ''
-            if table_data['meta']['titolo']:
-                slug = slug + table_data['meta']['titolo']
-            if table_data['meta']['sottotitolo']:
-                slug += table_data['meta']['sottotitolo']
-            elif table_counter > 0:
-                slug += "-count-" +str(table_counter)
-
-            slug = slugify(unicode(slug))
-
-            if table_is_empty:
-                return None
-            else:
-                if len(table_data['meta']['columns']) == 0:
-                    self.logger.warning(u"No columns found in table: {0}".format(slug))
-                return {'slug': slug, 'data': table_data}
