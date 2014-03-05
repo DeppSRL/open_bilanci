@@ -1,8 +1,8 @@
 {% load humanize %}
 
-<td class="text-center">
-    {{ valore|floatformat:"0"|intcomma }}{% if valore != None%}&nbsp;Euro{% endif %}
-</td>
-<td class="text-center">
-    {{ valore_procapite|floatformat:"2"|intcomma }}{% if valore_procapite != None%}&nbsp;Euro{% endif %}
-</td>
+                        <td class="text-center">
+                            {{ valore|floatformat:"0"|intcomma }}{% if valore != None%}&nbsp;Euro{% endif %}
+                        </td>
+                        <td class="text-center">
+                            {{ valore_procapite|floatformat:"2"|intcomma }}{% if valore_procapite != None%}&nbsp;Euro{% endif %}
+                        </td>

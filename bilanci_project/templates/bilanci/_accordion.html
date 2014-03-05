@@ -15,17 +15,22 @@
             </tr>
         </thead>
         <tbody>
+
             {% recursetree bilancio_tree %}
                 {% if node == bilancio_rootnode %}
+
                     {{ children }}
 
                 {% else %}
 
+                    {# avoids to visualize nodes with name containing "totale" -> those values are displayed #}
+                    {# on the  parent row#}
+
                     {% if "totale" not in node.denominazione.lower %}
-                        <tr >
+                        <tr>
                             {% if not node.is_leaf_node %}
                                 <td>
-                                    <a class="collapse-toggle" href="#{{ node.denominazione|slugify }}">
+                                    <a class="collapse-toggle" href="#{{ node.slug|slugify }}">
                                         <span class="glyphicon glyphicon-plus-sign"></span>
                                         {{ node.denominazione|lower|capfirst }}
                                     </a>
@@ -53,13 +58,15 @@
                             </td>
                         </tr>
                         {% if not node.is_leaf_node %}
-                            <tr class="panel-collapse collapse" id="{{ node.denominazione|slugify }}">
+                            <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
                                 <td colspan="4">
                                     <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
 
                                     <!-- Sub table level 1 -->
                                     <table class="table table-condensed">
-                                        {{ children }}
+                                        <tbody>
+                                            {{ children }}
+                                        </tbody>
                                     </table>
                                 </td>
                             </tr>
