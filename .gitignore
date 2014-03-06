@@ -38,3 +38,6 @@ dati/
 
 bilanci_project/data/csv
 bilanci_project/data/zip
+
+bilanci_project/static/data
+bilanci_project/templates/visup_test.html
