@@ -31,20 +31,23 @@
 
     <body>
         <div class="container">
-
-            <!-- Main menu -->
-            {% include 'commons/navbar.html' %}
-
-
-            <!-- content -->
-            <div class="panel" id="main-content">
-            {% block content %}
-                <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
-            {% endblock content %}
+            <div class="row">
+                <!-- Main menu -->
+                {% include 'commons/navbar.html' %}
             </div>
 
-            <!-- Footer -->
-            {% include 'commons/footer.html' %}
+            <div class="row">
+                <!-- content -->
+                <div class="panel" id="main-content">
+                {% block content %}
+                    <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
+                {% endblock content %}
+                </div>
+            </div>
+            <div class="row">
+                <!-- Footer -->
+                {% include 'commons/footer.html' %}
+            </div>
 
         </div> <!-- /container -->
 
