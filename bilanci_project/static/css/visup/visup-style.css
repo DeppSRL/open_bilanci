@@ -1,0 +1,289 @@
+
+.visup-hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/*SPANS*/
+
+.visup-span-container {
+	position: relative;
+	width: 100%;
+}
+
+.visup-span-row {
+	height: 70px;
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.visup-span-descriptions {
+	position: relative;
+	height: 80%;
+	width: 100%;
+}
+
+.visup-span-bars {
+	position: relative;
+	height: 16px;
+	width: 100%;
+}
+
+.visup-span-descr {
+	position: absolute;
+	height: 100%;
+	padding-top: 5px;
+}
+
+.visup-span-descr-labels {
+	vertical-align: top;
+	display: inline-block;
+	padding: 3px 8px;
+}
+
+.visup-span-bar {
+	position: absolute;
+	height: 100%;
+	border-radius: 3px;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.visup-span-icon {
+	vertical-align: top;
+	display: inline-block;
+	height: 40px;
+	width: 40px;
+	background-color: #2a3037;
+	border-radius: 20px;
+	border: 3px solid;
+}
+
+.visup-span-label {
+	height: 40%;
+	line-height: 18px;
+	text-decoration: underline;
+	font-size: 12px;
+	/*max-width: 100px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;*/
+}
+
+.visup-span-sublabel {
+	height: 40%;
+	font-size: 12px;
+}
+
+.visup-span-axisX {
+	position: relative;
+	height: 35px;
+}
+
+.visup-span-tick {
+	position: absolute;
+	text-align: center;
+}
+
+.visup-span-tick-text {
+	cursor: pointer;
+	background-color: #2a3037;
+	border-radius: 5px;
+	padding: 2px;
+	width: 50px;
+	margin-left: -25px 
+}
+
+.visup-span-tick-line {
+	background: #2a3037;
+	height: 8px;
+	width: 3px;
+	margin-left: -1px;
+}
+
+.visup-span-buttons {
+	text-align: center;
+	position: absolute;
+	right: 0px;
+	top: 0px;
+}
+
+.visup-span-button {
+	padding: 3px 10px;
+	background-color: #2a3037;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	cursor: pointer; 
+}
+
+/*TIMELINE*/
+
+.visup-timeline-container {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	margin-bottom: 26px;
+}
+
+.visup-timeline-back {
+	shape-rendering: crispEdges;
+	cursor: pointer;
+	fill: rgba(0,0,0,0);
+}
+
+.visup-timeline-back-highlighted {
+	fill:white;
+}
+
+.visup-timeline-back-line {
+	stroke: black;
+	stroke-width: 1px;
+	shape-rendering: crispEdges;
+}
+
+.visup-timeline-line {
+	fill:none;
+	stroke-width:7px;
+	stroke:white;
+	opacity:0;
+	pointer-events: none;
+}
+
+.visup-timeline-circle {
+	fill:white;
+	opacity: 0;
+	pointer-events: none;
+}
+
+path.domain {
+	fill:none;
+}
+
+.visup-timeline-axisY-container g.tick line {
+	stroke:black;
+	stroke-width:1px;
+	shape-rendering:crispEdges;
+}
+
+g.tick text {
+	font-size: 16px;
+	pointer-events: none;
+}
+
+.visup-yAxis-unit {
+	position: absolute;
+	bottom: 3px;
+	right: 0px;
+	text-align: left;
+}
+
+.visup-timeline-tooltip-container {
+	top:-20px;
+	position: absolute;
+}
+
+.visup-timeline-tooltip {
+	border: 3px solid;
+	background-color: white;
+	width: 150px;
+	height: 35px;
+	padding: 8px;
+	text-align: center;
+	margin-bottom: 10px;
+	border-radius: 5px;
+}
+
+.visup-timeline-tooltip h4 {
+	font-weight: 600;
+	display: inline-block;
+	margin: 0px;
+}
+
+.visup-timeline-tooltip p {
+	padding-left: 5px;
+	display: inline-block;
+	margin: 0px;
+}
+
+.visup-backline {
+	stroke: black;
+	stroke-width: 1px;
+	stroke-dasharray: 5, 5;
+	shape-rendering: crispEdges;
+}
+
+.visup-clipPath-rect.visup-above{
+	/*shape-rendering: geometricPrecision;*/
+	fill:none;
+	stroke-width: none;
+	/*stroke-width:1px;*/
+	/*stroke: #2a3037;*/
+}
+
+.visup-clippath {
+	position: absolute;
+	border: 1px solid #2a3037;
+	border-radius: 5px;
+	pointer-events: none;
+}
+
+/*LEGEND*/
+
+.visup-legend-container {
+	width: 100%;
+	padding-left: 5px;
+}
+
+.visup-legend-row {
+	border-bottom: 1px dashed #2a3037 
+}
+
+.visup-legend-row:first-child {
+	border-top: 1px solid #2a3037 
+}
+
+.visup-legend-row:last-child {
+	border-bottom: 1px solid #2a3037 
+}
+
+.visup-legend-item {
+	padding: 17px 5px;
+	display: inline-block;
+}
+
+.visup-legend-item-description {
+	display: inline-block;
+}
+
+.visup-legend-item-icon {
+	font-size: 13px;
+}
+
+.visup-legend-item-text {
+	color:black;
+	display: inline;
+	margin-left: 5px;
+}
+
+.visup-legend-item-tooltip {
+	display: inline-block;
+}
+
+.visup-legend-item-caret {
+	padding: 0px 8px ;
+	vertical-align: middle;
+	font-size: 18px;
+	line-height: 1px;
+	display: inline-block;
+}
+
+.visup-legend-item-value {
+	padding-right: 5px;
+	display: inline-block;
+}
+
+.visup-legend-item-unit {
+	font-size: 8px;
+	display: inline-block;
+}
+

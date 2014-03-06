@@ -1,0 +1,113 @@
+{
+    "timeSpans": [
+        [{
+            "icon": "/static/img/alemanno.jpg",
+            "start": "2003-01-01",
+            "end": "2007-12-31",
+            "label": "ALEMANNO",
+            "sublabel": "string",
+            "color": "#c6d1cf",
+            "highlightColor": "#BA0019"
+        }, {
+            "icon": "/static/img/veltroni.jpg",
+            "start": "2008-01-01",
+            "end": "2010-03-16",
+            "label": "VELTRONI",
+            "sublabel": "i'm the longest string",
+            "color": "#c6d1cf",
+            "highlightColor": "#BA0019"
+        }, {
+            "icon": "/static/img/veltroni.jpg",
+            "start": "2010-03-17",
+            "end": "2010-10-29",
+            "label": "COMMISSARIO",
+            "sublabel": "string",
+            "color": "#c6d1cf",
+            "highlightColor": "#ffcc00"
+        }, {
+            "icon": "/static/img/veltroni.jpg",
+            "start": "2010-10-30",
+            "end": "2012-12-31",
+            "label": "VELTRONI",
+            "sublabel": "string",
+            "color": "#c6d1cf",
+            "highlightColor": "#BA0019"
+        }],
+        [{
+            "icon": "/static/img/moratti.jpg",
+            "start": "2003-01-01",
+            "end": "2010-12-31",
+            "label": "MORATTI",
+            "sublabel": "string",
+            "color": "#c6d1cf",
+            "highlightColor": "#EB5600"
+            },
+            {
+            "icon": "/static/img/tohir.jpg",
+            "start": "2010-12-31",
+            "end": "2012-12-31",
+            "label": "THOHIR",
+            "sublabel": "string",
+            "color": "#c6d1cf",
+            "highlightColor": "#EB5600"
+            }
+
+        ]
+    ],
+    "data": [{
+        "color": "#BA0019",
+        "id": 1,
+        "series": [
+            [2003, 71],
+            [2004, 88],
+            [2005, 39],
+            [2006, 42],
+            [2007, 69],
+            [2008, 12],
+            [2009, 15],
+            [2010, 40],
+            [2011, 82]
+        ]
+    }, {
+        "color": "#EB5600",
+        "id": 2,
+        "series": [
+            [2003, 63],
+            [2004, "null"],
+            [2005, 79],
+            [2006, "nfs"],
+            [2007, 29],
+            [2008, 72],
+            [2009, 65],
+            [2010, 80]
+        ]
+    }, {
+        "color": "#ffcc00",
+        "id": 3,
+        "series": [
+            [2003, null],
+            [2004, 72],
+            [2005, 90],
+            [2006, "null"],
+            [2007, 85],
+            [2008, 46],
+            [2009, 97],
+            [2010, 25],
+            [2011, "null"],
+            [2012, 95]
+        ]
+    }],
+    "legend": [{
+        "color": "#BA0019",
+        "id": 1,
+        "label": "PINO SULLA SPONDA DEL LAGO MAGGIORE"
+    }, {
+        "color": "#EB5600",
+        "id": 2,
+        "label": "CASTIGLIONE DEL LAGO"
+    }, {
+        "color": "#ffcc00",
+        "id": 3,
+        "label": "PERUGIA"
+    }]
+}
