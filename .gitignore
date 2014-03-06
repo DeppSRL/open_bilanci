@@ -35,3 +35,6 @@ scraper_project/scraper/settings.py
 
 /docs/_build/
 dati/
+
+bilanci_project/data/csv
+bilanci_project/data/zip

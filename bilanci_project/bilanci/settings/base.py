@@ -317,7 +317,7 @@ COUCHDB_SIMPLIFIED_NAME = 'bilanci_simple'
 
 COUCHDB_SERVERS = {
     'localhost': {
-        'host': 'localhost',
+        'host': '127.0.0.1',
         'port': '5984',
         'user': env('COUCHDB_STAGING_USER'),
         'password':env('COUCHDB_STAGING_PASSWORD'),
