@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import ConfrontoView, BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, InstitutionalChargesJSONView
 
 admin.autodiscover()
 
@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
     url(r'^bilanci/(?P<slug>[-\w]+)', BilancioView.as_view(), name='bilanci-overall'),
+
+    url(r'^inst_charges/(?P<territorioOpId>[-\d]+)$', InstitutionalChargesJSONView.as_view(), name='institutional_charges'),
 
     url(r'^confronto/(?P<slugA>[-\w]+)/(?P<slugB>[-\w]+)', ConfrontoView.as_view(), name='confronto'),
 

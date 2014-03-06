@@ -2,10 +2,11 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import TemplateView, DetailView, RedirectView
+from django.views.generic import TemplateView, DetailView, RedirectView, View
 import requests
+import json
 from bilanci.models import ValoreBilancio, Voce
-
+from django.http.response import HttpResponse
 from bilanci.utils import couch
 from collections import OrderedDict
 
@@ -13,6 +14,24 @@ from territori.models import Territorio, Contesto
 
 class HomeView(TemplateView):
     template_name = "home.html"
+
+
+class InstitutionalChargesJSONView(View):
+
+    def get(self, request, **kwargs):
+        response = None
+
+        territorio = get_object_or_404(Territorio, op_id =int(kwargs['territorioOpId']))
+        # get politicians data for Territorio
+        sindaci_r = requests.get(
+            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}".\
+                format(territorio.op_id)
+            )
+        sindaci = json.dumps(sindaci_r.json()['results'])
+        
+
+        return HttpResponse(content=sindaci, content_type="application/json")
+
 
 
 class BilancioRedirectView(RedirectView):
@@ -58,15 +77,6 @@ class BilancioView(DetailView):
 
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(year, territorio)
-        # get politicians data for Territorio
-        sindaci_r = requests.get(
-            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}".\
-                format(territorio.op_id)
-            )
-        sindaci_json = sindaci_r.json()
-        context['sindaci'] = sindaci_json['results']
-
-
         context['slug'] = territorio.slug
         context['query_string'] = query_string
         context['year'] = year
