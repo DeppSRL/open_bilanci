@@ -1,3 +1,4 @@
+import time
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -23,14 +24,52 @@ class InstitutionalChargesJSONView(View):
 
         territorio = get_object_or_404(Territorio, op_id =int(kwargs['territorioOpId']))
         # get politicians data for Territorio
-        sindaci_r = requests.get(
-            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}".\
+        sindaci_results = requests.get(
+            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}&order_by=date".\
                 format(territorio.op_id)
-            )
-        sindaci = json.dumps(sindaci_r.json()['results'])
-        
+            ).json()['results']
 
-        return HttpResponse(content=sindaci, content_type="application/json")
+
+        time_spans = []
+        date_fmt = '%Y-%m-%d'
+        timeline_start = time.strptime("2003-01-01", date_fmt)
+        timeline_end = time.strptime("2012-12-31", date_fmt)
+
+
+        for sindaco in sindaci_results:
+
+            incarico_start = time.strptime(sindaco['date_start'], date_fmt)
+            incarico_end = None
+            if sindaco['date_end']:
+                incarico_end = time.strptime(sindaco['date_end'],date_fmt)
+
+            # considers only charges which are contained between timeline_start / end
+            if (incarico_end is None or incarico_end > timeline_start) and incarico_start < timeline_end:
+
+                if incarico_end is None or incarico_end > timeline_end:
+                    incarico_end = timeline_end
+
+                if incarico_start < timeline_start:
+                    incarico_start = timeline_start
+
+
+
+                dict_visup = {
+                    'start':  time.strftime(date_fmt, incarico_start),
+                    'end': time.strftime(date_fmt,incarico_end),
+                    'icon': sindaco['politician']['image_uri'],
+                    'label': "{0}.{1}".format(sindaco['politician']['first_name'][0],sindaco['politician']['last_name'],),
+                    'sublabel': sindaco['party']['acronym'],
+                    'color': "#ff0000",
+                    'highlightColor': "#00ff00"
+                }
+                time_spans.append(dict_visup)
+
+
+
+
+        # return HttpResponse(content=json.dumps(sindaci_results), content_type="application/json")
+        return HttpResponse(content=json.dumps({"timeSpans":[time_spans], 'data':[], 'legend':[] } ), content_type="application/json")
 
 
 
@@ -117,6 +156,7 @@ class BilancioDetailView(BilancioView):
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
+        context['territorio_opid'] = territorio.op_id
         context['query_string'] = query_string
         context['year'] = year
         context['tipo_bilancio'] = tipo_bilancio

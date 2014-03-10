@@ -89,9 +89,10 @@
             legend: {
                 rowItems: 2
             }
-        }), d3.json("{% static 'data/visup_sample_data.json' %}", function (i) {
-            chart.data(i)
-        });
+        }),
+            d3.json("{% url 'institutional_charges' territorio_opid %}", function (i) {
+                chart.data(i)
+            });
 
     </script>
 
