@@ -21,7 +21,7 @@ class Voce(MPTTModel):
 
 
     def __unicode__(self):
-        return u"%s" % (self.denominazione,)
+        return u"%s" % (self.slug,)
 
 
 class ValoreBilancio(models.Model):
