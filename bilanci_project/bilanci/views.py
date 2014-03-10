@@ -15,33 +15,28 @@ from territori.models import Territorio, Contesto
 
 class HomeView(TemplateView):
     template_name = "home.html"
+    
 
 
 class InstitutionalChargesJSONView(View):
 
-    def get(self, request, **kwargs):
-        response = None
+    def prepare_data(self, incarichi_set, is_commissari=False):
 
-        territorio = get_object_or_404(Territorio, op_id =int(kwargs['territorioOpId']))
-        # get politicians data for Territorio
-        sindaci_results = requests.get(
-            "http://api3.staging.deppsviluppo.org/politici/instcharges?charge_type_id=14&location_id={0}&order_by=date".\
-                format(territorio.op_id)
-            ).json()['results']
+        # prepare data for the Visup widget
+        # is_commissari bool changes the data presentation
 
-
-        time_spans = []
+        results = []
         date_fmt = '%Y-%m-%d'
         timeline_start = time.strptime("2003-01-01", date_fmt)
         timeline_end = time.strptime("2012-12-31", date_fmt)
 
 
-        for sindaco in sindaci_results:
+        for incarico in incarichi_set:
 
-            incarico_start = time.strptime(sindaco['date_start'], date_fmt)
+            incarico_start = time.strptime(incarico['date_start'], date_fmt)
             incarico_end = None
-            if sindaco['date_end']:
-                incarico_end = time.strptime(sindaco['date_end'],date_fmt)
+            if incarico['date_end']:
+                incarico_end = time.strptime(incarico['date_end'],date_fmt)
 
             # considers only charges which are contained between timeline_start / end
             if (incarico_end is None or incarico_end > timeline_start) and incarico_start < timeline_end:
@@ -52,24 +47,52 @@ class InstitutionalChargesJSONView(View):
                 if incarico_start < timeline_start:
                     incarico_start = timeline_start
 
-
-
                 dict_visup = {
                     'start':  time.strftime(date_fmt, incarico_start),
                     'end': time.strftime(date_fmt,incarico_end),
-                    'icon': sindaco['politician']['image_uri'],
-                    'label': "{0}.{1}".format(sindaco['politician']['first_name'][0],sindaco['politician']['last_name'],),
-                    'sublabel': sindaco['party']['acronym'],
-                    'color': "#ff0000",
-                    'highlightColor': "#00ff00"
+                    'label': "{0}.{1}".format(incarico['politician']['first_name'][0].upper(),incarico['politician']['last_name'].title(),),
+                    'color': "#5e6a77",
+                    'highlightColor': "#cc6633",
                 }
-                time_spans.append(dict_visup)
+
+                if is_commissari:
+                    # todo: add dummy image for commissario
+                    dict_visup['icon'] = ''
+                    dict_visup['sublabel'] = 'Commissario'
+                else:
+                    dict_visup['icon'] = incarico['politician']['image_uri']
+                    dict_visup['sublabel'] = incarico['party']['acronym']
+
+                results.append(dict_visup)
+
+        return results
+
+    def get(self, request, **kwargs):
+        response = None
+        incarichi_results = []
+
+        territorio = get_object_or_404(Territorio, op_id =int(kwargs['territorioOpId']))
+        # get sindaco data for Territorio
+        sindaci_api_results = requests.get(
+            "http://api3.openpolis.it/politici/instcharges?charge_type_id=14&location_id={0}&order_by=date".\
+                format(territorio.op_id)
+            ).json()['results']
+
+        incarichi_results = self.prepare_data(sindaci_api_results, is_commissari=False)
+
+        # add data for commissari, if any
+        commissari_api_results = requests.get(
+            "http://api3.openpolis.it/politici/instcharges?charge_type_id=16&location_id={0}&order_by=date".\
+                format(territorio.op_id)
+            ).json()['results']
+
+        if len(commissari_api_results):
+            incarichi_results.extend(
+                self.prepare_data(commissari_api_results, is_commissari=True)
+            )
 
 
-
-
-        # return HttpResponse(content=json.dumps(sindaci_results), content_type="application/json")
-        return HttpResponse(content=json.dumps({"timeSpans":[time_spans], 'data':[], 'legend':[] } ), content_type="application/json")
+        return HttpResponse(content=json.dumps({"timeSpans":[incarichi_results], 'data':[], 'legend':[] } ), content_type="application/json")
 
 
 
@@ -116,6 +139,7 @@ class BilancioView(DetailView):
 
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(year, territorio)
+        context['territorio_opid'] = territorio.op_id
         context['slug'] = territorio.slug
         context['query_string'] = query_string
         context['year'] = year
@@ -156,7 +180,6 @@ class BilancioDetailView(BilancioView):
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
-        context['territorio_opid'] = territorio.op_id
         context['query_string'] = query_string
         context['year'] = year
         context['tipo_bilancio'] = tipo_bilancio
