@@ -90,7 +90,8 @@
                 rowItems: 2
             }
         }),
-            d3.json("{% url 'institutional_charges' territorio_opid %}", function (i) {
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-spese' %}",
+                    function (i) {
                 chart.data(i)
             });
 

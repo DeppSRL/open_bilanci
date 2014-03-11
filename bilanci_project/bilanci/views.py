@@ -15,28 +15,21 @@ from territori.models import Territorio, Contesto
 
 class HomeView(TemplateView):
     template_name = "home.html"
+
+
+class IncarichiGetterMixin(object):
     
+    date_fmt = '%Y-%m-%d'
+    
+    def transform_for_widget(self, incarichi, timeline_start, timeline_end, is_commissari):
 
+        incarichi_transformed = []
+        for incarico in incarichi:
 
-class InstitutionalChargesJSONView(View):
-
-    def prepare_data(self, incarichi_set, is_commissari=False):
-
-        # prepare data for the Visup widget
-        # is_commissari bool changes the data presentation
-
-        results = []
-        date_fmt = '%Y-%m-%d'
-        timeline_start = time.strptime("2003-01-01", date_fmt)
-        timeline_end = time.strptime("2012-12-31", date_fmt)
-
-
-        for incarico in incarichi_set:
-
-            incarico_start = time.strptime(incarico['date_start'], date_fmt)
+            incarico_start = time.strptime(incarico['date_start'], self.date_fmt)
             incarico_end = None
             if incarico['date_end']:
-                incarico_end = time.strptime(incarico['date_end'],date_fmt)
+                incarico_end = time.strptime(incarico['date_end'],self.date_fmt)
 
             # considers only charges which are contained between timeline_start / end
             if (incarico_end is None or incarico_end > timeline_start) and incarico_start < timeline_end:
@@ -47,53 +40,93 @@ class InstitutionalChargesJSONView(View):
                 if incarico_start < timeline_start:
                     incarico_start = timeline_start
 
-                dict_visup = {
-                    'start':  time.strftime(date_fmt, incarico_start),
-                    'end': time.strftime(date_fmt,incarico_end),
-                    'label': "{0}.{1}".format(incarico['politician']['first_name'][0].upper(),incarico['politician']['last_name'].title(),),
+                dict_widget = {
+                    'start':  time.strftime(self.date_fmt, incarico_start),
+                    'end': time.strftime(self.date_fmt,incarico_end),
+                    'label': "{0}.{1}".\
+                        format(
+                            incarico['politician']['first_name'][0].upper(),
+                            incarico['politician']['last_name'].title().encode('utf-8'),
+                        ),
+
+                    # todo: move colors in settings
                     'color': "#5e6a77",
                     'highlightColor': "#cc6633",
                 }
 
                 if is_commissari:
                     # todo: add dummy image for commissario
-                    dict_visup['icon'] = ''
-                    dict_visup['sublabel'] = 'Commissario'
+                    # todo: aggiungere motivo commissariamento
+                    dict_widget['icon'] = ''
+                    dict_widget['sublabel'] = 'Commissario'
                 else:
-                    dict_visup['icon'] = incarico['politician']['image_uri']
-                    dict_visup['sublabel'] = incarico['party']['acronym']
+                    # todo: add dummy image if sindaco doesn't have a pic
+                    dict_widget['icon'] = incarico['politician']['image_uri']
+                    dict_widget['sublabel'] = incarico['party']['acronym']
 
-                results.append(dict_visup)
+                incarichi_transformed.append(dict_widget)
 
-        return results
+        return incarichi_transformed
 
+    def get_incarichi_api(self, territorio_opid, incarico_type):
+        api_results_json = requests.get(
+            "http://api3.openpolis.it/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
+                format(incarico_type, territorio_opid)
+            ).json()
+
+        if 'results' in api_results_json:
+            return api_results_json['results']
+        else:
+            return None
+
+
+    def get_incarichi(self, territorio_opid, timeline_start, timeline_end):
+
+        # get sindaci
+        sindaci_api = self.get_incarichi_api(territorio_opid, incarico_type='14')
+        # transform data format to fit Visup widget specifications
+        sindaci_transformed = self.transform_for_widget(sindaci_api, timeline_start, timeline_end, is_commissari=False)
+
+        # get commissari
+        commissari_api = self.get_incarichi_api(territorio_opid, incarico_type='16')
+        # transform data format to fit Visup widget specifications
+        commissari_transformed = self.transform_for_widget(commissari_api, timeline_start, timeline_end, is_commissari=True)
+
+        # adds up sindaci and commissari
+        incarichi = sindaci_transformed
+        incarichi.extend(commissari_transformed)
+
+        return incarichi
+
+
+class IncarichiVoceJSONView(View, IncarichiGetterMixin):
     def get(self, request, **kwargs):
-        response = None
-        incarichi_results = []
 
-        territorio = get_object_or_404(Territorio, op_id =int(kwargs['territorioOpId']))
-        # get sindaco data for Territorio
-        sindaci_api_results = requests.get(
-            "http://api3.openpolis.it/politici/instcharges?charge_type_id=14&location_id={0}&order_by=date".\
-                format(territorio.op_id)
-            ).json()['results']
+        # get territorio_opid from GET parameter
+        territorio_opid = int(kwargs['territorio_opid'])
 
-        incarichi_results = self.prepare_data(sindaci_api_results, is_commissari=False)
+        # get voce bilancio from GET parameter
+        voce_slug = kwargs['voce_slug']
+        if voce_slug:
+            voce_bilancio = get_object_or_404(Voce, slug = voce_slug)
+        else:
+            return
 
-        # add data for commissari, if any
-        commissari_api_results = requests.get(
-            "http://api3.openpolis.it/politici/instcharges?charge_type_id=16&location_id={0}&order_by=date".\
-                format(territorio.op_id)
-            ).json()['results']
+        #     sets the start / end of sindaci timeline
+        # todo: make timeline start / end dynamic
+        timeline_start = time.strptime("2003-01-01", self.date_fmt)
+        timeline_end = time.strptime("2012-12-31", self.date_fmt)
 
-        if len(commissari_api_results):
-            incarichi_results.extend(
-                self.prepare_data(commissari_api_results, is_commissari=True)
-            )
+        incarichi_set = self.get_incarichi(territorio_opid, timeline_start=timeline_start, timeline_end= timeline_end)
+
+        # todo: gets voce value for the territorio over the period set
 
 
-        return HttpResponse(content=json.dumps({"timeSpans":[incarichi_results], 'data':[], 'legend':[] } ), content_type="application/json")
-
+        return HttpResponse(
+            content=json.dumps(
+                {"timeSpans":[incarichi_set], 'data':[], 'legend':[] } ),
+            content_type="application/json"
+        )
 
 
 class BilancioRedirectView(RedirectView):
