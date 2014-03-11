@@ -21,7 +21,7 @@ class IncarichiGetterMixin(object):
     
     date_fmt = '%Y-%m-%d'
     
-    def transform_for_widget(self, incarichi, timeline_start, timeline_end, is_commissari):
+    def transform_incarichi(self, incarichi, timeline_start, timeline_end, is_commissari):
 
         incarichi_transformed = []
         for incarico in incarichi:
@@ -85,12 +85,12 @@ class IncarichiGetterMixin(object):
         # get sindaci
         sindaci_api = self.get_incarichi_api(territorio_opid, incarico_type='14')
         # transform data format to fit Visup widget specifications
-        sindaci_transformed = self.transform_for_widget(sindaci_api, timeline_start, timeline_end, is_commissari=False)
+        sindaci_transformed = self.transform_incarichi(sindaci_api, timeline_start, timeline_end, is_commissari=False)
 
         # get commissari
         commissari_api = self.get_incarichi_api(territorio_opid, incarico_type='16')
         # transform data format to fit Visup widget specifications
-        commissari_transformed = self.transform_for_widget(commissari_api, timeline_start, timeline_end, is_commissari=True)
+        commissari_transformed = self.transform_incarichi(commissari_api, timeline_start, timeline_end, is_commissari=True)
 
         # adds up sindaci and commissari
         incarichi = sindaci_transformed
@@ -99,12 +99,46 @@ class IncarichiGetterMixin(object):
         return incarichi
 
 
+    ##
+    # transform bilancio values to be feeded to Visup widget
+    ##
+    def transform_voce(self, voce_values):
+
+        series_dict = {
+            'id':1,
+            'color': "#ff0000",
+            'series':[]
+        }
+
+        for voce_value in voce_values:
+            series_dict['series'].append(
+                [voce_value.anno, voce_value.valore]
+            )
+
+        return series_dict
+
+    ##
+    # get bilancio values of specified voce for Territorio in the time span
+    ##
+
+    def get_voce(self, territorio, voce_bilancio, timeline_start_year, timeline_end_year):
+
+        voce_values = ValoreBilancio.objects.filter(
+            territorio = territorio,
+            voce = voce_bilancio,
+            anno__gte = timeline_start_year,
+            anno__lte = timeline_end_year
+        ).order_by('anno')
+
+        return self.transform_voce(voce_values)
+
+
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
     def get(self, request, **kwargs):
 
         # get territorio_opid from GET parameter
-        territorio_opid = int(kwargs['territorio_opid'])
-
+        territorio_opid = kwargs['territorio_opid']
+        territorio = get_object_or_404(Territorio, op_id = territorio_opid)
         # get voce bilancio from GET parameter
         voce_slug = kwargs['voce_slug']
         if voce_slug:
@@ -119,12 +153,18 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
 
         incarichi_set = self.get_incarichi(territorio_opid, timeline_start=timeline_start, timeline_end= timeline_end)
 
-        # todo: gets voce value for the territorio over the period set
+        # gets voce value for the territorio over the period set
+        voce_set = self.get_voce(territorio, voce_bilancio , timeline_start.tm_year, timeline_end.tm_year)
 
 
         return HttpResponse(
             content=json.dumps(
-                {"timeSpans":[incarichi_set], 'data':[], 'legend':[] } ),
+                {
+                    "timeSpans":[incarichi_set],
+                    'data':[voce_set],
+                    'legend':[]
+                }
+            ),
             content_type="application/json"
         )
 

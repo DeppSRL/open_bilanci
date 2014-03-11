@@ -90,7 +90,7 @@
                 rowItems: 2
             }
         }),
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-spese' %}",
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
                     function (i) {
                 chart.data(i)
             });
