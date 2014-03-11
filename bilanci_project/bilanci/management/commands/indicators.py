@@ -113,7 +113,6 @@ class Command(BaseCommand):
         if cities_codes.lower() != 'all':
             self.logger.info("Considering cities: {0}".format(cities))
 
-
         ###
         # years
         ###
@@ -158,6 +157,27 @@ class Command(BaseCommand):
 
         voices_list = []
 
+
+        # transform a list of city codes, "cities" in a list of Territori obj
+        territori = []
+        for city in cities:
+            territorio = None
+            # looks for territorio in db
+            try:
+                territorio = Territorio.objects.get(
+                    territorio = 'C',
+                    cod_finloc = city,
+                )
+            except ObjectDoesNotExist:
+                self.logger.error("Territorio {0} does not exist in Territori db".format(city))
+                continue
+
+            territori.append(territorio)
+
+        # adds the bogus Territori Cluster so the indicator is calculed for clusters too
+        territori.extend(Territorio.objects.filter(territorio=Territorio.TERRITORIO.L))
+
+
         for voice in voices_raw_list:
             real_slug = voice
             is_per_capita = False
@@ -184,19 +204,8 @@ class Command(BaseCommand):
                     format(real_slug, indicator.denominazione))
                 return
 
-        for city in cities:
+        for territorio in territori:
             for year in years:
-
-                territorio = None
-                # looks for territorio in db
-                try:
-                    territorio = Territorio.objects.get(
-                        territorio = 'C',
-                        cod_finloc = city,
-                    )
-                except ObjectDoesNotExist:
-                    self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                    return
 
                 # create a dictionary which has the Voce slug as key which is associated
                 # with the value the Voce had for that

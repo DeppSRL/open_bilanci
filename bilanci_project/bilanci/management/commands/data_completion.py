@@ -147,6 +147,7 @@ class Command(BaseCommand):
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
             cities_all = mapper.get_cities('all')
+            # self.set_cluster_mean(cities_all, years, dryrun)
             self.set_cluster_mean(cities_all, years, dryrun)
 
         elif function == 'per_capita':
@@ -221,49 +222,52 @@ class Command(BaseCommand):
         for cluster in Territorio.CLUSTER:
             self.logger.info("Considering cluster: {0}".format(cluster[1]))
             # creates a fake territorio for each cluster if it doens't exist already
-            territorio_cluster = Territorio.objects.\
+            territorio_cluster, is_created = Territorio.objects.\
                 get_or_create(
                     denominazione = cluster[1],
                     territorio = Territorio.TERRITORIO.L,
                     cluster = cluster[0]
                 )
 
-
-            for year in years:
-                self.logger.info("Considering year: {0}".format(year))
-                for voce in Voce.objects.all():
+            for voce in Voce.objects.all():
+                if voce.is_leaf_node():
                     self.logger.debug("Considering voce: {0}".format(voce))
-                    totale = 0
-                    n_cities = 0
-                    for city in cities:
-                        try:
-                            territorio = Territorio.objects.get(
-                                cod_finloc = city,
-                            )
-                        except ObjectDoesNotExist:
-                            self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
-                            return
 
-                        try:
-                            totale += ValoreBilancio.objects.get(
-                                territorio = territorio,
-                                anno = year,
-                                voce = voce,
-                            )
-                            n_cities += 1
-                        except ObjectDoesNotExist:
-                            self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
-                                voce, territorio, year
-                            ))
+                    for year in years:
+                        self.logger.info("Considering year: {0}".format(year))
 
-                    if n_cities > 0:
-                        media = totale / n_cities
-                        valore_media = ValoreBilancio()
-                        valore_media.voce = voce
-                        valore_media.territorio = territorio_cluster
-                        valore_media.anno = year
-                        valore_media.valore = media
-                        valore_media.save()
+                        totale = 0
+                        n_cities = 0
+                        for city in cities:
+                            try:
+                                territorio = Territorio.objects.get(
+                                    cod_finloc = city,
+                                )
+                            except ObjectDoesNotExist:
+                                self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
+                                continue
+
+                            try:
+                                totale += ValoreBilancio.objects.get(
+                                    territorio = territorio,
+                                    anno = year,
+                                    voce = voce,
+                                ).valore
+
+                                n_cities += 1
+                            except ObjectDoesNotExist:
+                                self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
+                                    voce, territorio, year
+                                ))
+
+                        if n_cities > 0:
+                            media = totale / n_cities
+                            valore_media = ValoreBilancio()
+                            valore_media.voce = voce
+                            valore_media.territorio = territorio_cluster
+                            valore_media.anno = year
+                            valore_media.valore = media
+                            valore_media.save()
 
 
 
