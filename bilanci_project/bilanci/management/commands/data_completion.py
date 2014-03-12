@@ -90,15 +90,15 @@ class Command(BaseCommand):
         self.logger.info("Opening Lista Comuni")
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
-        if function == 'cluster_mean':
-            cities = mapper.get_cities('all')
+        # function cluster_mean doesn't need territori param
+        cities = None
+        if function != 'cluster_mean':
+            if cities_codes:
+                cities = mapper.get_cities(cities_codes)
 
-        elif cities_codes:
-            cities = mapper.get_cities(cities_codes)
-
-        else:
-            self.logger.error("Missing city parameter")
-            return
+            else:
+                self.logger.error("Missing city parameter")
+                return
 
 
         if cities_codes.lower() != 'all':
@@ -167,7 +167,7 @@ class Command(BaseCommand):
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
 
-            self.set_cluster_mean(territori, years, dryrun)
+            self.set_cluster_mean(years, dryrun)
 
         elif function == 'per_capita':
             # computes per-capita values
@@ -224,7 +224,7 @@ class Command(BaseCommand):
 
         return
 
-    def set_cluster_mean(self, territori, years, dryrun):
+    def set_cluster_mean(self, years, dryrun):
 
         self.logger.info("Cluster mean start")
 
@@ -238,6 +238,12 @@ class Command(BaseCommand):
                     cluster = cluster[0]
                 )
 
+            # gets all the territori belonging to the considered cluster
+            territori_cluster_set = Territorio.objects.filter(
+                territorio = Territorio.TERRITORIO.C,
+                cluster = cluster[0]
+            )
+
             for voce in Voce.objects.all():
                 if voce.is_leaf_node():
                     self.logger.debug("Considering voce: {0}".format(voce))
@@ -246,21 +252,27 @@ class Command(BaseCommand):
                         self.logger.info("Considering year: {0}".format(year))
 
                         totale = 0
+                        totale_pc = 0
                         n_cities = 0
-                        for territorio in territori:
-
+                        for territorio_cluster in territori_cluster_set:
+                            
                             try:
-                                totale += ValoreBilancio.objects.get(
-                                    territorio = territorio,
-                                    anno = year,
-                                    voce = voce,
-                                ).valore
+                                valore_bilancio =\
+                                    ValoreBilancio.objects.get(
+                                        territorio = territorio_cluster,
+                                        anno = year,
+                                        voce = voce,
+                                    )
 
-                                n_cities += 1
                             except ObjectDoesNotExist:
                                 self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
-                                    voce, territorio, year
+                                    voce, territorio_cluster, year
                                 ))
+
+                            else:
+                                totale += valore_bilancio.valore
+                                totale_pc += valore_bilancio.valore_procapite
+                                n_cities += 1
 
                         if n_cities > 0:
                             media = totale / n_cities
