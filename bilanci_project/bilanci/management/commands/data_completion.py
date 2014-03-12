@@ -87,17 +87,37 @@ class Command(BaseCommand):
         ###
 
         cities_codes = options['cities']
-        if not cities_codes and function != 'cluster_mean':
+        self.logger.info("Opening Lista Comuni")
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+
+        if function == 'cluster_mean':
+            cities = mapper.get_cities('all')
+
+        elif cities_codes:
+            cities = mapper.get_cities(cities_codes)
+
+        else:
             self.logger.error("Missing city parameter")
             return
 
-        self.logger.info("Opening Lista Comuni")
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        cities = mapper.get_cities(cities_codes)
+
         if cities_codes.lower() != 'all':
             self.logger.info("Considering cities: {0}".format(cities))
 
+        # transforms the list of codfinloc in territori list
+        territori = []
+        for city in cities:
+            try:
+                territorio = Territorio.objects.get(
+                    territorio = 'C',
+                    cod_finloc = city,
+                )
+            except ObjectDoesNotExist:
+                self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
+                continue
 
+            else:
+                territori.append(territorio)
 
         ###
         # years
@@ -142,17 +162,16 @@ class Command(BaseCommand):
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
 
-            self.set_contesto(couchdb, cities, years, dryrun)
+            self.set_contesto(couchdb, territori, years, dryrun)
 
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
-            cities_all = mapper.get_cities('all')
-            # self.set_cluster_mean(cities_all, years, dryrun)
-            self.set_cluster_mean(cities_all, years, dryrun)
+
+            self.set_cluster_mean(territori, years, dryrun)
 
         elif function == 'per_capita':
             # computes per-capita values
-            self.set_per_capita(cities, years, dryrun)
+            self.set_per_capita(territori, years, dryrun)
 
         else:
             self.logger.error("Function not found, quitting")
@@ -160,22 +179,12 @@ class Command(BaseCommand):
 
 
 
-    def set_per_capita(self, cities, years, dryrun):
+    def set_per_capita(self, territori, years, dryrun):
         for year in years:
-            for city in cities:
+            for territorio in territori:
                 self.logger.info("Calculating per-capita value for Comune:{0} yr:{1}".\
-                    format(city, year)
+                    format(territorio, year)
                 )
-                
-                # looks for territorio in db
-                try:
-                    territorio = Territorio.objects.get(
-                        territorio = 'C',
-                        cod_finloc = city,
-                    )
-                except ObjectDoesNotExist:
-                    self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                    continue
 
                 # get context data for comune, anno
                 try:
@@ -215,7 +224,7 @@ class Command(BaseCommand):
 
         return
 
-    def set_cluster_mean(self, cities, years, dryrun):
+    def set_cluster_mean(self, territori, years, dryrun):
 
         self.logger.info("Cluster mean start")
 
@@ -238,14 +247,7 @@ class Command(BaseCommand):
 
                         totale = 0
                         n_cities = 0
-                        for city in cities:
-                            try:
-                                territorio = Territorio.objects.get(
-                                    cod_finloc = city,
-                                )
-                            except ObjectDoesNotExist:
-                                self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
-                                continue
+                        for territorio in territori:
 
                             try:
                                 totale += ValoreBilancio.objects.get(
@@ -274,14 +276,14 @@ class Command(BaseCommand):
 
         return
 
-    def set_contesto(self, couchdb, cities, years, dryrun):
+    def set_contesto(self, couchdb, territori, years, dryrun):
         missing_territories = []
 
-        for city in cities:
+        for territorio in territori:
             for year in years:
-                self.logger.info(u"Setting Comune: {0}, year:{1}".format(city,year))
+                self.logger.info(u"Setting Comune: {0}, year:{1}".format(territorio,year))
 
-                bilancio_id = "{0}_{1}".format(year, city)
+                bilancio_id = "{0}_{1}".format(year, territorio)
                 # read data from couch
                 if bilancio_id in couchdb:
                     bilancio_data = couchdb[bilancio_id]
@@ -289,19 +291,6 @@ class Command(BaseCommand):
                         if "quadro-1-dati-generali-al-31-dicembrenotizie-varie" in bilancio_data["consuntivo"]["01"]:
                             contesto_couch = bilancio_data["consuntivo"]["01"]\
                                 ["quadro-1-dati-generali-al-31-dicembrenotizie-varie"]["data"]
-
-
-                            # looks for territorio in db
-                            try:
-                                territorio = Territorio.objects.get(
-                                    territorio = 'C',
-                                    cod_finloc = city,
-                                )
-                            except ObjectDoesNotExist:
-                                self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                                if city not in missing_territories:
-                                    missing_territories.append(city)
-                                continue
 
                             # if the contesto data is not present, inserts the data in the db
                             # otherwise skips
