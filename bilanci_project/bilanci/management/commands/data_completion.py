@@ -1,4 +1,6 @@
-from django.core.exceptions import ObjectDoesNotExist
+# coding=utf-8
+from pprint import pprint
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import logging
 from optparse import make_option
 from django.conf import settings
@@ -96,6 +98,21 @@ class Command(BaseCommand):
             if cities_codes:
                 cities = mapper.get_cities(cities_codes)
 
+                # transforms the list of codfinloc in territori list
+                territori = []
+                for city in cities:
+                    try:
+                        territorio = Territorio.objects.get(
+                            territorio = 'C',
+                            cod_finloc = city,
+                        )
+                    except ObjectDoesNotExist:
+                        self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
+                        continue
+
+                    else:
+                        territori.append(territorio)
+
             else:
                 self.logger.error("Missing city parameter")
                 return
@@ -103,21 +120,6 @@ class Command(BaseCommand):
 
         if cities_codes.lower() != 'all':
             self.logger.info("Considering cities: {0}".format(cities))
-
-        # transforms the list of codfinloc in territori list
-        territori = []
-        for city in cities:
-            try:
-                territorio = Territorio.objects.get(
-                    territorio = 'C',
-                    cod_finloc = city,
-                )
-            except ObjectDoesNotExist:
-                self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
-                continue
-
-            else:
-                territori.append(territorio)
 
         ###
         # years
@@ -228,20 +230,21 @@ class Command(BaseCommand):
 
         self.logger.info("Cluster mean start")
 
-        for cluster in Territorio.CLUSTER:
-            self.logger.info("Considering cluster: {0}".format(cluster[1]))
+        for cluster_data in Territorio.CLUSTER:
+
+            self.logger.info("Considering cluster: {0}".format(cluster_data[1]))
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects.\
                 get_or_create(
-                    denominazione = cluster[1],
+                    denominazione = cluster_data[1],
                     territorio = Territorio.TERRITORIO.L,
-                    cluster = cluster[0]
+                    cluster = cluster_data[0]
                 )
 
             # gets all the territori belonging to the considered cluster
             territori_cluster_set = Territorio.objects.filter(
                 territorio = Territorio.TERRITORIO.C,
-                cluster = cluster[0]
+                cluster = cluster_data[0]
             )
 
             for voce in Voce.objects.all():
@@ -254,20 +257,31 @@ class Command(BaseCommand):
                         totale = 0
                         totale_pc = 0
                         n_cities = 0
-                        for territorio_cluster in territori_cluster_set:
-                            
+                        for territorio_in_cluster in territori_cluster_set:
+
                             try:
                                 valore_bilancio =\
                                     ValoreBilancio.objects.get(
-                                        territorio = territorio_cluster,
+                                        territorio = territorio_in_cluster,
                                         anno = year,
                                         voce = voce,
                                     )
 
                             except ObjectDoesNotExist:
                                 self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
-                                    voce, territorio_cluster, year
+                                    voce, territorio_in_cluster, year
                                 ))
+                            except MultipleObjectsReturned:
+                                self.logger.error("Query on Valore bilancio on territorio:{0}, anno:{1}, voce:{2} returned multiple obj".\
+                                    format(territorio_in_cluster, year, voce))
+                                valore_bilancio_set = ValoreBilancio.objects.filter(
+                                        territorio = territorio_in_cluster,
+                                        anno = year,
+                                        voce = voce,
+                                    )
+
+                                pprint(valore_bilancio_set)
+                                return
 
                             else:
                                 totale += valore_bilancio.valore
@@ -282,9 +296,6 @@ class Command(BaseCommand):
                             valore_media.anno = year
                             valore_media.valore = media
                             valore_media.save()
-
-
-
 
         return
 

@@ -32,6 +32,9 @@ class ValoreBilancio(models.Model):
     valore = models.BigIntegerField(default=0, null=True, blank=True)
     valore_procapite = models.FloatField(default=0., null=True, blank=True)
 
+    def __unicode__(self):
+        return u"%s %s %s" % (self.voce.denominazione, self.anno, self.valore)
+
 
 class Indicatore(models.Model):
     denominazione = models.CharField(max_length=50)
