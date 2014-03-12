@@ -1,6 +1,7 @@
 """Common settings and globals."""
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
+import time
 import environ
 
 root = environ.Path(__file__) - 4  # (/open_bilanci/bilanci_project/bilanci/settings/ - 4 = /)
@@ -345,3 +346,23 @@ CACHES = {
 CACHE_PAGE_DURATION_SECS = 3600
 
 SOUTH_TESTS_MIGRATE = False
+
+##
+# BILANCIO GRAPHS VARIABLES:
+# set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
+##
+
+GRAPH_DATE_FMT = '%Y-%m-%d'
+GRAPH_START_DATE_STR = "2003-01-01"
+GRAPH_END_DATE_STR = "2013-12-31"
+GRAPH_START_DATE = time.strptime(GRAPH_START_DATE_STR, GRAPH_DATE_FMT)
+GRAPH_END_DATE = time.strptime(GRAPH_END_DATE_STR, GRAPH_DATE_FMT)
+
+# define lines color of the SINDACO marker on the timeline
+SINDACO_MARKER_COLOR = '#5e6a77'
+SINDACO_MARKER_HIGHLIGHT = '#cc6633'
+
+# defines the color of the line graph
+MAIN_LINE_COLOR = '#cc6633'
+SECOND_LINE_COLOR = '#a51206'
+CLUSTER_LINE_COLOR = '#f7b5a1'

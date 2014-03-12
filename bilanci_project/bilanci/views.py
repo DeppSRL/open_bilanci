@@ -10,6 +10,7 @@ from bilanci.models import ValoreBilancio, Voce
 from django.http.response import HttpResponse
 from bilanci.utils import couch
 from collections import OrderedDict
+from django.conf import settings
 
 from territori.models import Territorio, Contesto
 
@@ -20,8 +21,12 @@ class HomeView(TemplateView):
 class IncarichiGetterMixin(object):
     
     date_fmt = '%Y-%m-%d'
+            
+    #     sets the start / end of graphs 
+    timeline_start = settings.GRAPH_START_DATE
+    timeline_end = settings.GRAPH_END_DATE
     
-    def transform_incarichi(self, incarichi, timeline_start, timeline_end, is_commissari):
+    def transform_incarichi(self, incarichi, is_commissari):
 
         incarichi_transformed = []
         for incarico in incarichi:
@@ -31,14 +36,14 @@ class IncarichiGetterMixin(object):
             if incarico['date_end']:
                 incarico_end = time.strptime(incarico['date_end'],self.date_fmt)
 
-            # considers only charges which are contained between timeline_start / end
-            if (incarico_end is None or incarico_end > timeline_start) and incarico_start < timeline_end:
+            # considers only charges which are contained between self.timeline_start / end
+            if (incarico_end is None or incarico_end > self.timeline_start) and incarico_start < self.timeline_end:
 
-                if incarico_end is None or incarico_end > timeline_end:
-                    incarico_end = timeline_end
+                if incarico_end is None or incarico_end > self.timeline_end:
+                    incarico_end = self.timeline_end
 
-                if incarico_start < timeline_start:
-                    incarico_start = timeline_start
+                if incarico_start < self.timeline_start:
+                    incarico_start = self.timeline_start
 
                 dict_widget = {
                     'start':  time.strftime(self.date_fmt, incarico_start),
@@ -49,9 +54,9 @@ class IncarichiGetterMixin(object):
                             incarico['politician']['last_name'].title().encode('utf-8'),
                         ),
 
-                    # todo: move colors in settings
-                    'color': "#5e6a77",
-                    'highlightColor': "#cc6633",
+                    # sets sindaco marker color and highlight
+                    'color': settings.SINDACO_MARKER_COLOR,
+                    'highlightColor': settings.SINDACO_MARKER_HIGHLIGHT,
                 }
 
                 if is_commissari:
@@ -80,17 +85,17 @@ class IncarichiGetterMixin(object):
             return None
 
 
-    def get_incarichi(self, territorio_opid, timeline_start, timeline_end):
+    def get_incarichi(self, territorio_opid):
 
         # get sindaci
         sindaci_api = self.get_incarichi_api(territorio_opid, incarico_type='14')
         # transform data format to fit Visup widget specifications
-        sindaci_transformed = self.transform_incarichi(sindaci_api, timeline_start, timeline_end, is_commissari=False)
+        sindaci_transformed = self.transform_incarichi(sindaci_api, is_commissari=False)
 
         # get commissari
         commissari_api = self.get_incarichi_api(territorio_opid, incarico_type='16')
         # transform data format to fit Visup widget specifications
-        commissari_transformed = self.transform_incarichi(commissari_api, timeline_start, timeline_end, is_commissari=True)
+        commissari_transformed = self.transform_incarichi(commissari_api, is_commissari=True)
 
         # adds up sindaci and commissari
         incarichi = sindaci_transformed
@@ -106,7 +111,7 @@ class IncarichiGetterMixin(object):
 
         series_dict = {
             'id':1,
-            'color': "#ff0000",
+            'color':  settings.MAIN_LINE_COLOR ,
             'series':[]
         }
 
@@ -121,13 +126,13 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified voce for Territorio in the time span
     ##
 
-    def get_voce(self, territorio, voce_bilancio, timeline_start_year, timeline_end_year):
+    def get_voce(self, territorio, voce_bilancio):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
             voce = voce_bilancio,
-            anno__gte = timeline_start_year,
-            anno__lte = timeline_end_year
+            anno__gte = self.timeline_start.tm_year,
+            anno__lte = self.timeline_end.tm_year
         ).order_by('anno')
 
         return self.transform_voce(voce_values)
@@ -146,15 +151,12 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         else:
             return
 
-        #     sets the start / end of sindaci timeline
-        # todo: make timeline start / end dynamic
-        timeline_start = time.strptime("2003-01-01", self.date_fmt)
-        timeline_end = time.strptime("2012-12-31", self.date_fmt)
 
-        incarichi_set = self.get_incarichi(territorio_opid, timeline_start=timeline_start, timeline_end= timeline_end)
+
+        incarichi_set = self.get_incarichi(territorio_opid)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce(territorio, voce_bilancio , timeline_start.tm_year, timeline_end.tm_year)
+        voce_set = self.get_voce(territorio, voce_bilancio)
 
 
         return HttpResponse(
