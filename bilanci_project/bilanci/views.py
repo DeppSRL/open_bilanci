@@ -48,11 +48,6 @@ class IncarichiGetterMixin(object):
                 dict_widget = {
                     'start':  time.strftime(self.date_fmt, incarico_start),
                     'end': time.strftime(self.date_fmt,incarico_end),
-                    'label': "{0}.{1}".\
-                        format(
-                            incarico['politician']['first_name'][0].upper(),
-                            incarico['politician']['last_name'].title().encode('utf-8'),
-                        ),
 
                     # sets sindaco marker color and highlight
                     'color': settings.SINDACO_MARKER_COLOR,
@@ -62,10 +57,18 @@ class IncarichiGetterMixin(object):
                 if is_commissari:
                     # todo: add dummy image for commissario
                     # todo: aggiungere motivo commissariamento
+                    dict_widget['label'] = "Commissariamento"
                     dict_widget['icon'] = ''
-                    dict_widget['sublabel'] = 'Commissario'
+                    dict_widget['sublabel'] = incarico['description']
                 else:
                     # todo: add dummy image if sindaco doesn't have a pic
+
+                    # sets sindaco name, surname
+                    dict_widget['label'] = "{0}.{1}".\
+                        format(
+                            incarico['politician']['first_name'][0].upper(),
+                            incarico['politician']['last_name'].title().encode('utf-8'),
+                        )
                     dict_widget['icon'] = incarico['politician']['image_uri']
                     dict_widget['sublabel'] = incarico['party']['acronym']
 
@@ -107,11 +110,11 @@ class IncarichiGetterMixin(object):
     ##
     # transform bilancio values to be feeded to Visup widget
     ##
-    def transform_voce(self, voce_values):
+    def transform_voce(self, voce_values, line_color):
 
         series_dict = {
             'id':1,
-            'color':  settings.MAIN_LINE_COLOR ,
+            'color':  line_color ,
             'series':[]
         }
 
@@ -123,10 +126,10 @@ class IncarichiGetterMixin(object):
         return series_dict
 
     ##
-    # get bilancio values of specified voce for Territorio in the time span
+    # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce(self, territorio, voce_bilancio):
+    def get_voce(self, territorio, voce_bilancio, line_color):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
@@ -135,7 +138,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.tm_year
         ).order_by('anno')
 
-        return self.transform_voce(voce_values)
+        return self.transform_voce(voce_values, line_color)
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
@@ -144,6 +147,13 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         # get territorio_opid from GET parameter
         territorio_opid = kwargs['territorio_opid']
         territorio = get_object_or_404(Territorio, op_id = territorio_opid)
+
+        # gets the Territorio that is the cluster to which the considered territorio belongs
+        cluster = Territorio.objects.get(
+            territorio = Territorio.TERRITORIO.L,
+            cluster = territorio.cluster,
+        )
+
         # get voce bilancio from GET parameter
         voce_slug = kwargs['voce_slug']
         if voce_slug:
@@ -156,14 +166,16 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         incarichi_set = self.get_incarichi(territorio_opid)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce(territorio, voce_bilancio)
+        voce_set = self.get_voce(territorio, voce_bilancio, line_color=settings.MAIN_LINE_COLOR)
+
+        cluster_mean_set = self.get_voce(cluster, voce_bilancio, line_color=settings.CLUSTER_LINE_COLOR)
 
 
         return HttpResponse(
             content=json.dumps(
                 {
                     "timeSpans":[incarichi_set],
-                    'data':[voce_set],
+                    'data':[cluster_mean_set, voce_set],
                     'legend':[]
                 }
             ),
