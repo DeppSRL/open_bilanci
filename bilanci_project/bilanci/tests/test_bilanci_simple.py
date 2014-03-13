@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Tests the consistence of the bilanci_simple tree in the couchdb instance.
+"""
 from collections import OrderedDict
 import logging
 import couchdb
@@ -9,7 +12,7 @@ from django.test import TestCase
 
 __author__ = 'guglielmo'
 
-class SimplifyBaseTestCaseMixin(object):
+class BilanciSimpleBaseTestCaseMixin(object):
     code = ''
 
     def setUp(self):
@@ -291,13 +294,13 @@ class SimplifyBaseTestCaseMixin(object):
 # Invocation:
 #     python manage.py test bilanci --settings=bilanci.settings.testnodb [-v2]
 mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-for year in (2008, 2009, 2010):
+for year in (2004, 2008, 2010, 2012):
     for city_name in ('Roma', 'Milano'):
         name = "{}{}TestCase".format(city_name, year)
         city = mapper.get_city(city_name)
         code = "{}_{}".format(year, city)
 
-        Class = type(name, (SimplifyBaseTestCaseMixin, TestCase), dict(city=city, code=code))
+        Class = type(name, (BilanciSimpleBaseTestCaseMixin, TestCase), dict(city=city, code=code))
         globals()[name] = Class
 
 # The Class variable contains a *TestCase type, at this point

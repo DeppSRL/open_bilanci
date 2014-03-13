@@ -4,6 +4,7 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.utils.text import slugify
+from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
@@ -119,7 +120,7 @@ class Command(BaseCommand):
 
 
         # build the map of slug to pk for the Voce tree
-        self.voci_map = dict([(v.slug, v) for v in Voce.objects.all()])
+        self.voci_dict = Voce.objects.get_dict_by_slug()
 
         for city in cities:
 
@@ -150,46 +151,31 @@ class Command(BaseCommand):
                     continue
 
                 self.logger.info(u"- Processing year: {}".format(year))
-                self.get_values_from_couch(territorio, year, city_budget[str(year)])
 
-
-    def get_values_from_couch(self, territorio, anno, node, path=None):
-        """
-        The values from the couch db (in self.city_budget) are copied into the ValoreBilancio model
-        """
-        if path is None:
-            path = []
-        if isinstance(node, dict):
-            for key, child_node in node.items():
-                local_path = path[:]
-                local_path.append(key)
-                self.get_values_from_couch(territorio, anno, child_node, local_path)
-        else:
-            local_path = path[:]
-
-            # build slug out of the local_path
-            if len(local_path) == 1:
-                slug = u"{}".format(slugify(local_path[0]))
-            else:
-                slug = u"{0}-{1}".format(local_path[0], "-".join(slugify(i) for i in local_path[1:]))
-
-            # insert into the DB
-            if slug not in self.voci_map:
-                self.logger.warning("Slug:{0} not present in voci_map, skipping".format(slug))
-            else:
-                params = {
-                    'anno': anno,
-                    'territorio': territorio,
-                    'valore': node,
-                    'voce': self.voci_map[slug]
-                }
-                self.logger.debug(
-                    u"Inserting val: {0[valore]}, anno: {0[anno]}, territorio:{0[territorio]}, voce: {0[voce]}".format(
-                        params
-                    )
+                # build a BilancioItem tree, out of the couch-extracted dict
+                # for the given city and year
+                # add the totals by extracting them from the dict, or by computing
+                city_year_budget_dict = city_budget[str(year)]
+                city_year_preventivo_tree = tree_models.make_tree_from_dict(
+                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo']
                 )
-                ValoreBilancio.objects.create(**params)
+                city_year_consuntivo_tree = tree_models.make_tree_from_dict(
+                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo']
+                )
 
+
+                ### persist the BilancioItem values
+
+                # previously remove all values for a city and a year
+                # used to speed up records insertion
+                ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+
+                # add values fastly, without checking their existance
+                # do that for the whole tree (preventivo, consuntivo, ...)
+                tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
+                tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+
+                print "All done!"
 
 
     def create_voci_tree(self):
@@ -226,7 +212,6 @@ class Command(BaseCommand):
             for leaf_bc in self.simplified_subtrees_leaves[subtree_slug]:
                 # add this leaf to the subtree, adding all needed intermediate nodes
                 self.add_leaf(leaf_bc, subtree_node)
-                self.logger.debug(u"adding leaf {}".format(",".join(leaf_bc)))
 
 
     def create_voci_consuntivo_tree(self):
@@ -252,7 +237,6 @@ class Command(BaseCommand):
                     bc = leaf_bc[:]
                     bc.insert(1, section_name)
                     self.add_leaf(bc, subtree_node, section_slug=slugify(section_name))
-                    self.logger.debug(u"adding leaf {}".format(",".join(leaf_bc)))
 
 
     def add_leaf(self, breadcrumbs, subtree_node, section_slug=''):
@@ -260,6 +244,12 @@ class Command(BaseCommand):
         Add a leaf to the subtree, given the breadcrumbs list.
         Creates the needed nodes in the process.
         """
+        self.logger.info(u"adding leaf {}".format(",".join(breadcrumbs)))
+
+        # skip 'totale' leaves (as totals values are attached to non-leaf nodes)
+        if 'totale' in [bc.lower() for bc in breadcrumbs]:
+            self.logger.info(u"skipped leaf {}".format(",".join(breadcrumbs)))
+            return
 
         # copy breadcrumbs and remove last elements if empty
         bc = breadcrumbs[:]
@@ -280,4 +270,5 @@ class Command(BaseCommand):
                 node = current_node.get_children().get(denominazione__iexact=item)
 
             current_node = node
+
 

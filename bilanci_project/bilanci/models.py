@@ -5,7 +5,21 @@ from mptt.models import MPTTModel
 from territori.models import Territorio
 
 
+
+
+class VoceManager(models.Manager):
+    def get_dict_by_slug(self):
+        """
+        Return a dict containing all the elements in the Voce model,
+        having the slug as the key.
+
+        :return: the dictionary
+        """
+        return dict([(v.slug, v) for v in self.all()])
+
 class Voce(MPTTModel):
+    objects = VoceManager()
+
     denominazione = models.CharField(max_length=200)
     descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
@@ -19,6 +33,10 @@ class Voce(MPTTModel):
     class Meta:
         verbose_name_plural = u'Voci'
 
+    # model needed by TreeAdmin, to correctly show the denominazione
+    # in the admin interface
+    def short_title(self):
+        return self.denominazione
 
     def __unicode__(self):
         return u"%s" % (self.slug,)

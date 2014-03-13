@@ -27,7 +27,7 @@ SITE_NAME = basename(SITE_ROOT)
 
 
 ########## DEBUG CONFIGURATION
-DEBUG = env('DEBUG') # False if not in os.environ
+DEBUG = env('DEBUG')
 TEMPLATE_DEBUG = DEBUG
 ########## END DEBUG CONFIGURATION
 
@@ -319,14 +319,14 @@ COUCHDB_SERVERS = {
     'localhost': {
         'host': '127.0.0.1',
         'port': '5984',
-        'user': env('COUCHDB_STAGING_USER'),
-        'password':env('COUCHDB_STAGING_PASSWORD'),
+        'user': env('COUCHDB_LOCALHOST_USER'),
+        'password':env('COUCHDB_LOCALHOST_PASSWORD'),
     },
     'staging': {
         'host': 'staging.depp.it',
         'port': '5984',
-        'user': env('COUCHDB_LOCALHOST_USER'),
-        'password':env('COUCHDB_LOCALHOST_PASSWORD'),
+        'user': env('COUCHDB_STAGING_USER'),
+        'password':env('COUCHDB_STAGING_PASSWORD'),
     },
 }
 COUCHDB_DEFAULT_SERVER = 'staging'
@@ -345,3 +345,20 @@ CACHES = {
 CACHE_PAGE_DURATION_SECS = 3600
 
 SOUTH_TESTS_MIGRATE = False
+
+GDP_DEFLATORS = {
+    2000: 0.777728432,
+    2001: 0.800109527,
+    2002: 0.825777358,
+    2003: 0.851531437,
+    2004: 0.871901728,
+    2005: 0.887745029,
+    2006: 0.902904158,
+    2007: 0.924337811,
+    2008: 0.947752751,
+    2009: 0.967550814,
+    2010: 0.971307248,
+    2011: 0.984445032,
+    2012: 1,
+    2013: 1.014412693,
+}
