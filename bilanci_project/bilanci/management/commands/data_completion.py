@@ -1,4 +1,6 @@
-from django.core.exceptions import ObjectDoesNotExist
+# coding=utf-8
+from pprint import pprint
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import logging
 from optparse import make_option
 from django.conf import settings
@@ -87,17 +89,37 @@ class Command(BaseCommand):
         ###
 
         cities_codes = options['cities']
-        if not cities_codes and function != 'cluster_mean':
-            self.logger.error("Missing city parameter")
-            return
-
         self.logger.info("Opening Lista Comuni")
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        cities = mapper.get_cities(cities_codes)
+
+        # function cluster_mean doesn't need territori param
+        cities = None
+        if function != 'cluster_mean':
+            if cities_codes:
+                cities = mapper.get_cities(cities_codes)
+
+                # transforms the list of codfinloc in territori list
+                territori = []
+                for city in cities:
+                    try:
+                        territorio = Territorio.objects.get(
+                            territorio = 'C',
+                            cod_finloc = city,
+                        )
+                    except ObjectDoesNotExist:
+                        self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
+                        continue
+
+                    else:
+                        territori.append(territorio)
+
+            else:
+                self.logger.error("Missing city parameter")
+                return
+
+
         if cities_codes.lower() != 'all':
             self.logger.info("Considering cities: {0}".format(cities))
-
-
 
         ###
         # years
@@ -142,17 +164,16 @@ class Command(BaseCommand):
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
 
-            self.set_contesto(couchdb, cities, years, dryrun)
+            self.set_contesto(couchdb, territori, years, dryrun)
 
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
-            cities_all = mapper.get_cities('all')
-            # self.set_cluster_mean(cities_all, years, dryrun)
-            self.set_cluster_mean(cities_all, years, dryrun)
+
+            self.set_cluster_mean(years, dryrun)
 
         elif function == 'per_capita':
             # computes per-capita values
-            self.set_per_capita(cities, years, dryrun)
+            self.set_per_capita(territori, years, dryrun)
 
         else:
             self.logger.error("Function not found, quitting")
@@ -160,22 +181,12 @@ class Command(BaseCommand):
 
 
 
-    def set_per_capita(self, cities, years, dryrun):
+    def set_per_capita(self, territori, years, dryrun):
         for year in years:
-            for city in cities:
+            for territorio in territori:
                 self.logger.info("Calculating per-capita value for Comune:{0} yr:{1}".\
-                    format(city, year)
+                    format(territorio, year)
                 )
-                
-                # looks for territorio in db
-                try:
-                    territorio = Territorio.objects.get(
-                        territorio = 'C',
-                        cod_finloc = city,
-                    )
-                except ObjectDoesNotExist:
-                    self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                    continue
 
                 # get context data for comune, anno
                 try:
@@ -215,19 +226,26 @@ class Command(BaseCommand):
 
         return
 
-    def set_cluster_mean(self, cities, years, dryrun):
+    def set_cluster_mean(self, years, dryrun):
 
         self.logger.info("Cluster mean start")
 
-        for cluster in Territorio.CLUSTER:
-            self.logger.info("Considering cluster: {0}".format(cluster[1]))
+        for cluster_data in Territorio.CLUSTER:
+
+            self.logger.info("Considering cluster: {0}".format(cluster_data[1]))
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects.\
                 get_or_create(
-                    denominazione = cluster[1],
+                    denominazione = cluster_data[1],
                     territorio = Territorio.TERRITORIO.L,
-                    cluster = cluster[0]
+                    cluster = cluster_data[0]
                 )
+
+            # gets all the territori belonging to the considered cluster
+            territori_cluster_set = Territorio.objects.filter(
+                territorio = Territorio.TERRITORIO.C,
+                cluster = cluster_data[0]
+            )
 
             for voce in Voce.objects.all():
                 if voce.is_leaf_node():
@@ -237,28 +255,38 @@ class Command(BaseCommand):
                         self.logger.info("Considering year: {0}".format(year))
 
                         totale = 0
+                        totale_pc = 0
                         n_cities = 0
-                        for city in cities:
-                            try:
-                                territorio = Territorio.objects.get(
-                                    cod_finloc = city,
-                                )
-                            except ObjectDoesNotExist:
-                                self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
-                                continue
+                        for territorio_in_cluster in territori_cluster_set:
 
                             try:
-                                totale += ValoreBilancio.objects.get(
-                                    territorio = territorio,
-                                    anno = year,
-                                    voce = voce,
-                                ).valore
+                                valore_bilancio =\
+                                    ValoreBilancio.objects.get(
+                                        territorio = territorio_in_cluster,
+                                        anno = year,
+                                        voce = voce,
+                                    )
 
-                                n_cities += 1
                             except ObjectDoesNotExist:
                                 self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
-                                    voce, territorio, year
+                                    voce, territorio_in_cluster, year
                                 ))
+                            except MultipleObjectsReturned:
+                                self.logger.error("Query on Valore bilancio on territorio:{0}, anno:{1}, voce:{2} returned multiple obj".\
+                                    format(territorio_in_cluster, year, voce))
+                                valore_bilancio_set = ValoreBilancio.objects.filter(
+                                        territorio = territorio_in_cluster,
+                                        anno = year,
+                                        voce = voce,
+                                    )
+
+                                pprint(valore_bilancio_set)
+                                return
+
+                            else:
+                                totale += valore_bilancio.valore
+                                totale_pc += valore_bilancio.valore_procapite
+                                n_cities += 1
 
                         if n_cities > 0:
                             media = totale / n_cities
@@ -269,19 +297,16 @@ class Command(BaseCommand):
                             valore_media.valore = media
                             valore_media.save()
 
-
-
-
         return
 
-    def set_contesto(self, couchdb, cities, years, dryrun):
+    def set_contesto(self, couchdb, territori, years, dryrun):
         missing_territories = []
 
-        for city in cities:
+        for territorio in territori:
             for year in years:
-                self.logger.info(u"Setting Comune: {0}, year:{1}".format(city,year))
+                self.logger.info(u"Setting Comune: {0}, year:{1}".format(territorio,year))
 
-                bilancio_id = "{0}_{1}".format(year, city)
+                bilancio_id = "{0}_{1}".format(year, territorio)
                 # read data from couch
                 if bilancio_id in couchdb:
                     bilancio_data = couchdb[bilancio_id]
@@ -289,19 +314,6 @@ class Command(BaseCommand):
                         if "quadro-1-dati-generali-al-31-dicembrenotizie-varie" in bilancio_data["consuntivo"]["01"]:
                             contesto_couch = bilancio_data["consuntivo"]["01"]\
                                 ["quadro-1-dati-generali-al-31-dicembrenotizie-varie"]["data"]
-
-
-                            # looks for territorio in db
-                            try:
-                                territorio = Territorio.objects.get(
-                                    territorio = 'C',
-                                    cod_finloc = city,
-                                )
-                            except ObjectDoesNotExist:
-                                self.logger.error("Territorio {0} does not exist in Territori db".format(city))
-                                if city not in missing_territories:
-                                    missing_territories.append(city)
-                                continue
 
                             # if the contesto data is not present, inserts the data in the db
                             # otherwise skips
