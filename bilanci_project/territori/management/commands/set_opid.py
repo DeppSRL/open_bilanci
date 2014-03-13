@@ -24,6 +24,18 @@ class Command(BaseCommand):
                     dest='apidomain',
                     default='api3.staging.deppsviluppo.org',
                     help='The domain of the API. Defaults to api3.staging.deppsviluppo.org'),
+        make_option('--auth',
+                    dest='auth',
+                    default='',
+                    help='Auth, as user,pass. Separated by a comma, no space.'),
+        make_option('--limit',
+                    dest='limit',
+                    default=0,
+                    help='Limit of records to import'),
+        make_option('--offset',
+                    dest='offset',
+                    default=0,
+                    help='Offset of records to start from'),
     )
 
     help = 'Assign openpolis codes to each municipality'
@@ -49,6 +61,15 @@ class Command(BaseCommand):
         self.dryrun = options['dryrun']
         self.apidomain = options['apidomain']
 
+        offset = int(options['offset'])
+        limit = int(options['limit'])
+
+        if options['auth']:
+            (user, pwd) = options['auth'].split(",")
+            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
+        else:
+            self.baseurl = "http://{0}".format(self.apidomain)
+
         self.logger.info(u"=== Starting ===")
 
         # all cities in the DB
@@ -58,10 +79,17 @@ class Command(BaseCommand):
 
         c = 0
         for comune in comuni:
-            self.logger.info("Setting op_id for {0}".format(comune))
+            c += 1
+            if c < offset:
+                continue
+            if limit and c >= limit + offset:
+                break
+            self.logger.info("{} - Setting op_id for {}".format(c, comune))
+
             # prende lo slug del comune
             # fa una richiesta alle api di openpolis
-            api_request = requests.get("http://{0}/maps/places/{1}".format(self.apidomain, comune.slug))
+            city_url = "{0}/maps/places/{1}".format(self.baseurl, comune.slug)
+            api_request = requests.get(city_url)
             json_data = api_request.json()
             op_id = json_data['placeidentifiers'][0]['value']
             # salva openpolis_id nel db
