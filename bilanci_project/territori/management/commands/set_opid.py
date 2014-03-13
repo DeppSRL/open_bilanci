@@ -9,7 +9,9 @@ from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio
 __author__ = 'stefano'
 
-
+##
+# This script calls Openpolis API and writes in Territorio table the Openpolis id and istat id for each Territorio
+##
 
 class Command(BaseCommand):
 
@@ -22,11 +24,11 @@ class Command(BaseCommand):
                     help='Set the dry-run command mode: nothing is written on db'),
         make_option('--api-domain',
                     dest='apidomain',
-                    default='api3.staging.deppsviluppo.org',
-                    help='The domain of the API. Defaults to api3.staging.deppsviluppo.org'),
+                    default='api3.openpolis.it',
+                    help='The domain of the API. Defaults to api3.openpolis.it'),
     )
 
-    help = 'Assign openpolis codes to each municipality'
+    help = 'Assign Openpolis id and Istat id to each Territorio'
 
     logger = logging.getLogger('management')
     baseurl = None
@@ -53,23 +55,27 @@ class Command(BaseCommand):
 
         # all cities in the DB
         comuni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
-
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
-        c = 0
+        op_location_identifier = u'http:/{0}/maps/identifiers/op-location-id'.format(self.apidomain)
+        istat_location_identifier = u'http://{0}/maps/identifiers/istat-city-id'.format(self.apidomain)
+
         for comune in comuni:
             self.logger.info("Setting op_id for {0}".format(comune))
             # prende lo slug del comune
             # fa una richiesta alle api di openpolis
             api_request = requests.get("http://{0}/maps/places/{1}".format(self.apidomain, comune.slug))
-            json_data = api_request.json()
-            op_id = json_data['placeidentifiers'][0]['value']
+            place_identifiers = api_request.json()['placeidentifiers']
+
+            for place_identifier in place_identifiers:
+                if place_identifier['identifier'] == op_location_identifier:
+                    comune.op_id = place_identifier['value']
+                elif place_identifier['identifier'] == istat_location_identifier:
+                    comune.istat_id = place_identifier['value']
+
             # salva openpolis_id nel db
-            comune.op_id = op_id
             if not self.dryrun:
                 comune.save()
-
-
 
 
         self.logger.info(u" === End ===")
