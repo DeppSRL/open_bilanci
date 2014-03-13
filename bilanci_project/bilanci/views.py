@@ -69,16 +69,14 @@ class IncarichiGetterMixin(object):
 
                 dict_widget['icon'] = incarico['politician']['image_uri']
 
-                party_acronym = incarico['party']['acronym']
-                party_name = incarico['party']['name']
-
-                # removes text between parenthesis from party name
-                party_name = re.sub(r'\([^)]*\)', '', party_name)
-
-                if party_acronym:
-                    dict_widget['sublabel'] = party_acronym
+                # as a sublabel sets the party acronym, if it's not available then the party name is used
+                if incarico['party']['acronym']:
+                    dict_widget['sublabel'] = incarico['party']['acronym'].upper()
+                elif incarico['party']['name']:
+                    # removes text between parenthesis from party name
+                    dict_widget['sublabel'] = re.sub(r'\([^)]*\)', '', incarico['party']['name']).upper()
                 else:
-                    dict_widget['sublabel'] = party_name
+                    dict_widget['sublabel']=''
 
 
             else:
