@@ -1,3 +1,4 @@
+import re
 import time
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,7 +27,7 @@ class IncarichiGetterMixin(object):
     timeline_start = settings.GRAPH_START_DATE
     timeline_end = settings.GRAPH_END_DATE
     
-    def transform_incarichi(self, incarichi, is_commissari):
+    def transform_incarichi(self, incarichi, incarico_type):
 
         incarichi_transformed = []
         for incarico in incarichi:
@@ -54,13 +55,17 @@ class IncarichiGetterMixin(object):
                     'highlightColor': settings.SINDACO_MARKER_HIGHLIGHT,
                 }
 
-                if is_commissari:
+                if incarico_type == '16':
+                    # commissari
                     # todo: add dummy image for commissario
                     # todo: aggiungere motivo commissariamento
                     dict_widget['label'] = "Commissariamento"
                     dict_widget['icon'] = ''
                     dict_widget['sublabel'] = incarico['description']
-                else:
+
+                elif incarico_type == '14':
+                    # sindaci
+
                     # todo: add dummy image if sindaco doesn't have a pic
 
                     # sets sindaco name, surname
@@ -69,40 +74,56 @@ class IncarichiGetterMixin(object):
                             incarico['politician']['first_name'][0].upper(),
                             incarico['politician']['last_name'].title().encode('utf-8'),
                         )
+
                     dict_widget['icon'] = incarico['politician']['image_uri']
-                    dict_widget['sublabel'] = incarico['party']['acronym']
+
+                    party_acronym = incarico['party']['acronym']
+                    party_name = incarico['party']['name']
+
+                    # removes text between parenthesis from party name
+                    party_name = re.sub(r'\([^)]*\)', '', party_name)
+
+                    if party_acronym:
+                        dict_widget['sublabel'] = party_acronym
+                    else:
+                        dict_widget['sublabel'] = party_name
+
+
+                else:
+                    # incarico type not accepted
+                    return None
 
                 incarichi_transformed.append(dict_widget)
 
         return incarichi_transformed
 
     def get_incarichi_api(self, territorio_opid, incarico_type):
+
         api_results_json = requests.get(
             "http://api3.openpolis.it/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
                 format(incarico_type, territorio_opid)
             ).json()
 
         if 'results' in api_results_json:
-            return api_results_json['results']
+            incarichi_results = api_results_json['results']
+            return self.transform_incarichi(incarichi_results, incarico_type)
         else:
             return None
 
 
     def get_incarichi(self, territorio_opid):
 
-        # get sindaci
-        sindaci_api = self.get_incarichi_api(territorio_opid, incarico_type='14')
+        # get sindaci and
         # transform data format to fit Visup widget specifications
-        sindaci_transformed = self.transform_incarichi(sindaci_api, is_commissari=False)
+        sindaci = self.get_incarichi_api(territorio_opid, incarico_type='14')
 
-        # get commissari
-        commissari_api = self.get_incarichi_api(territorio_opid, incarico_type='16')
+        # get commissari and
         # transform data format to fit Visup widget specifications
-        commissari_transformed = self.transform_incarichi(commissari_api, is_commissari=True)
+        commissari = self.get_incarichi_api(territorio_opid, incarico_type='16')
 
         # adds up sindaci and commissari
-        incarichi = sindaci_transformed
-        incarichi.extend(commissari_transformed)
+        incarichi = sindaci
+        incarichi.extend(commissari)
 
         return incarichi
 
@@ -110,10 +131,11 @@ class IncarichiGetterMixin(object):
     ##
     # transform bilancio values to be feeded to Visup widget
     ##
-    def transform_voce(self, voce_values, line_color):
+
+    def transform_voce(self, voce_values, line_id, line_color):
 
         series_dict = {
-            'id':1,
+            'id':line_id,
             'color':  line_color ,
             'series':[]
         }
@@ -129,7 +151,7 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce(self, territorio, voce_bilancio, line_color):
+    def get_voce(self, territorio, voce_bilancio, line_id, line_color):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
@@ -138,7 +160,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.tm_year
         ).order_by('anno')
 
-        return self.transform_voce(voce_values, line_color)
+        return self.transform_voce(voce_values, line_id, line_color)
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
@@ -166,9 +188,23 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         incarichi_set = self.get_incarichi(territorio_opid)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce(territorio, voce_bilancio, line_color=settings.MAIN_LINE_COLOR)
+        voce_set = self.get_voce(territorio, voce_bilancio, line_id=1, line_color=settings.MAIN_LINE_COLOR)
 
-        cluster_mean_set = self.get_voce(cluster, voce_bilancio, line_color=settings.CLUSTER_LINE_COLOR)
+        cluster_mean_set = self.get_voce(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
+
+        legend = [
+            {
+              "color": settings.MAIN_LINE_COLOR,
+              "id": 1,
+              "label": voce_bilancio.denominazione.upper()
+            },
+            {
+              "color": settings.CLUSTER_LINE_COLOR,
+              "id": 2,
+              "label": 'MEDIA CLUSTER "' + cluster.denominazione.upper()+'"'
+            },
+
+        ]
 
 
         return HttpResponse(
@@ -176,7 +212,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
                 {
                     "timeSpans":[incarichi_set],
                     'data':[cluster_mean_set, voce_set],
-                    'legend':[]
+                    'legend':legend
                 }
             ),
             content_type="application/json"
