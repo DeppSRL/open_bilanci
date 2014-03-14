@@ -18,11 +18,59 @@ To initialize the db value use the following command
 Set Finanza Locale code
 -----------------------
 
-Second step is to add to basic location data the Finanza Locale code for each Comune.
+The following step is to add to basic location data the Finanza Locale code for each Comune.
 The said code is a unique string used to identify a single Comune on Finanza Locale website.
 
 
 .. code-block:: bash
 
    python manage.py setfinloc
+   
 
+Set Openpolis Id
+----------------
+
+Open Bilanci needs to use Openpolis API3 to get data about Politicians in charge along the years in the Comune. 
+To do that every Territorio needs to have an Openpolis id, which is set as follows.
+
+.. code-block:: bash
+
+    python manage.py set_opid [--auth=USER:PASS]
+
+
+
+Context
+=======
+
+Each Territorio for each year has context data read from Bilanci and from Istat.
+
+Istat data
+----------
+
+Istat data are: inhabitants, male inhabitants and female inhabitants for each year, and are set as follows:
+
+
+
+.. code-block:: bash
+
+    python manage.py set_istat --years=YEARS_START-YEAR_END
+    
+    
+Bilanci data
+------------
+
+Bilanci data are 
+
+- number of families (nuclei familiari)
+- urban area (superficie urbana)
+- total area (superficie totale)
+- external streets length (strade esterne)
+- internal streets length (strade interne)
+- mountain streets length (strade montane)
+
+These fields are set as follows:
+
+.. code-block:: bash
+
+    python manage.py data_completion -f contesto --years=YEARS_START-YEAR_END --cities=CITIES_LIST
+    
