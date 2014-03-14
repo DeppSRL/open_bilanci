@@ -127,7 +127,9 @@ class Territorio(models.Model):
             return self.nome
 
     def __unicode__(self):
-        return self.denominazione
+        return unicode(self.denominazione)
+
+
 
     class Meta:
         verbose_name = u'Località'
@@ -143,7 +145,7 @@ class Contesto(models.Model):
     bil_superficie_totale = models.IntegerField(null=True, default=None, blank=True)
 
     ##
-    # NOTE: bil_popolazione_residente is deprecated, actual field is istat_abitanti
+    # NOTE: bil_popolazione_residente is deprecated, actual field for inhabitants is istat_abitanti
     ##
 
     bil_popolazione_residente = models.IntegerField(null=True, default=None, blank=True)
@@ -151,7 +153,10 @@ class Contesto(models.Model):
     bil_strade_interne = models.IntegerField(null=True, default=None, blank=True)
     bil_strade_montane = models.IntegerField(null=True, default=None, blank=True)
 
+    # Istat context data
     istat_abitanti = models.IntegerField(null=True, default=None, blank=True)
+    istat_maschi = models.IntegerField(null=True, default=None, blank=True)
+    istat_femmine = models.IntegerField(null=True, default=None, blank=True)
 
     @staticmethod
     def get_context(anno_str, territorio):
@@ -177,7 +182,7 @@ class Contesto(models.Model):
 
 
     def __unicode__(self):
-        return "{0} ({1})".format(self.territorio, self.anno)
+        return u"{0} ({1})".format(self.territorio, self.anno)
 
     class Meta:
         verbose_name = u'Contesto'

@@ -7,7 +7,8 @@ class TerritorioAdmin(admin.OSMGeoAdmin):
     prepopulated_fields = {"slug": ("denominazione",)}
 
 class ContestoAdmin(admin.ModelAdmin):
-    pass
+    list_filter = ('anno',)
+    ordering = ('territorio__denominazione',)
 
 admin.site.register(Territorio, TerritorioAdmin)
 admin.site.register(Contesto, ContestoAdmin)
