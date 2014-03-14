@@ -81,7 +81,6 @@ class Territorio(models.Model):
     denominazione = models.CharField(max_length=128, db_index=True)
     slug = models.SlugField(max_length=256, null=True, blank=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
-    abitanti = models.IntegerField(default=0)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
     cluster = models.CharField(max_length=1, choices=CLUSTER, db_index=True)
     objects = TerritoriManager()
@@ -139,14 +138,20 @@ class Territorio(models.Model):
 class Contesto(models.Model):
     anno = models.PositiveSmallIntegerField(null=False, default=0)
     territorio = models.ForeignKey(Territorio, null=False, default=0)
-    nuclei_familiari = models.IntegerField(null=True, default=None, blank=True)
-    superficie_urbana = models.IntegerField(null=True, default=None, blank=True)
-    superficie_totale = models.IntegerField(null=True, default=None, blank=True)
-    popolazione_residente = models.IntegerField(null=True, default=None, blank=True)
-    strade_esterne = models.IntegerField(null=True, default=None, blank=True)
-    strade_interne = models.IntegerField(null=True, default=None, blank=True)
-    strade_montane = models.IntegerField(null=True, default=None, blank=True)
+    bil_nuclei_familiari = models.IntegerField(null=True, default=None, blank=True)
+    bil_superficie_urbana = models.IntegerField(null=True, default=None, blank=True)
+    bil_superficie_totale = models.IntegerField(null=True, default=None, blank=True)
 
+    ##
+    # NOTE: bil_popolazione_residente is deprecated, actual field is istat_abitanti
+    ##
+
+    bil_popolazione_residente = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_esterne = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_interne = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_montane = models.IntegerField(null=True, default=None, blank=True)
+
+    istat_abitanti = models.IntegerField(null=True, default=None, blank=True)
 
     @staticmethod
     def get_context(anno_str, territorio):
