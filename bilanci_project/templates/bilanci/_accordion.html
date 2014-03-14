@@ -22,61 +22,50 @@
 
                 {% else %}
 
-                    {# avoids to visualize nodes with name containing "totale" -> those values are displayed #}
-                    {# on the  parent row#}
-
-                    {% if "totale" not in node.denominazione.lower %}
-                        <tr>
-                            {% if not node.is_leaf_node %}
-                                <td>
-                                    <a class="collapse-toggle" href="#{{ node.slug|slugify }}">
-                                        <span class="glyphicon glyphicon-plus-sign"></span>
-                                        {{ node.denominazione|lower|capfirst }}
-                                    </a>
-                                </td>
-                            <td class="text-center">
-                                valore totale
-                            </td>
-                            <td class="text-center">
-                                valore totale pc
-                            </td>
-
-                            {% else %}
-                                <td>
-                                    {{ node.denominazione|lower|capfirst }}
-                                </td>
-                                {% voce_valore bilancio_valori node  %}
-                            {% endif %}
-
-
+                    <tr>
+                        {% if not node.is_leaf_node %}
                             <td>
-                                <div class="progress">
-                                    <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-                                        <span class="sr-only">40%</span>
-                                    </div>
+                                <a class="collapse-toggle" href="#{{ node.slug|slugify }}">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                    {{ node.denominazione|lower|capfirst }}
+                                </a>
+                            </td>
+                        {% else %}
+                            <td>
+                                {{ node.denominazione|lower|capfirst }}
+                            </td>
+                        {% endif %}
+
+                        {% voce_valore bilancio_valori node %}
+
+
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                                    <span class="sr-only">40%</span>
                                 </div>
-                                <div class="progress">
-                                    <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                        <span class="sr-only">60%</span>
-                                    </div>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                    <span class="sr-only">60%</span>
                                 </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% if not node.is_leaf_node %}
+                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                            <td colspan="4">
+                                <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
+
+                                <!-- Sub table level 1 -->
+                                <table class="table table-condensed">
+                                    <tbody>
+                                        {{ children }}
+                                    </tbody>
+                                </table>
                             </td>
                         </tr>
-                        {% if not node.is_leaf_node %}
-                            <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                                <td colspan="4">
-                                    <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
 
-                                    <!-- Sub table level 1 -->
-                                    <table class="table table-condensed">
-                                        <tbody>
-                                            {{ children }}
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-
-                        {% endif %}
                     {% endif %}
                 {% endif %}
 

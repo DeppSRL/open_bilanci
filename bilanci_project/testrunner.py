@@ -1,6 +1,6 @@
-from django.test.simple import DjangoTestSuiteRunner
+from django.test.runner import DiscoverRunner
 
-class NoDbTestRunner(DjangoTestSuiteRunner):
+class NoDbTestRunner(DiscoverRunner):
   """ A test runner to test without database creation """
 
   def setup_databases(self, **kwargs):

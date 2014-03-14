@@ -26,6 +26,18 @@ class Command(BaseCommand):
                     dest='apidomain',
                     default='api3.openpolis.it',
                     help='The domain of the API. Defaults to api3.openpolis.it'),
+        make_option('--auth',
+                    dest='auth',
+                    default='',
+                    help='Auth, as user,pass. Separated by a comma, no space.'),
+        make_option('--limit',
+                    dest='limit',
+                    default=0,
+                    help='Limit of records to import'),
+        make_option('--offset',
+                    dest='offset',
+                    default=0,
+                    help='Offset of records to start from'),
     )
 
     help = 'Assign Openpolis id and Istat id to each Territorio'
@@ -51,6 +63,15 @@ class Command(BaseCommand):
         self.dryrun = options['dryrun']
         self.apidomain = options['apidomain']
 
+        offset = int(options['offset'])
+        limit = int(options['limit'])
+
+        if options['auth']:
+            (user, pwd) = options['auth'].split(",")
+            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
+        else:
+            self.baseurl = "http://{0}".format(self.apidomain)
+
         self.logger.info(u"=== Starting ===")
 
         # all cities in the DB
@@ -60,8 +81,15 @@ class Command(BaseCommand):
         op_location_identifier = u'http:/{0}/maps/identifiers/op-location-id'.format(self.apidomain)
         istat_location_identifier = u'http://{0}/maps/identifiers/istat-city-id'.format(self.apidomain)
 
+        c = 0
         for comune in comuni:
-            self.logger.info("Setting op_id for {0}".format(comune))
+            c += 1
+            if c < offset:
+                continue
+            if limit and c >= limit + offset:
+                break
+            self.logger.info("{} - Setting op_id for {}".format(c, comune))
+
             # prende lo slug del comune
             # fa una richiesta alle api di openpolis
             api_request = requests.get("http://{0}/maps/places/{1}".format(self.apidomain, comune.slug))

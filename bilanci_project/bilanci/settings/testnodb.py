@@ -13,14 +13,10 @@ CACHES = {
     }
 }
 
-########## IN-MEMORY TEST DATABASE
+########## LIVE TEST DATABASE ACCESS !!! (Warning)
+### this may only be used with a NoDbTestRunner TEST_RUNNER,
+### to allow deletion of the complete database
+### invoke with python manage.py test --settings=bilanci.settings.testnodb
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
-        "USER": "",
-        "PASSWORD": "",
-        "HOST": "",
-        "PORT": "",
-    },
+    'default': env.db('DB_DEFAULT_URL'),
 }
