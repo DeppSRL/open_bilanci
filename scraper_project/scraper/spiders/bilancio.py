@@ -125,7 +125,7 @@ class BilanciPagesSpider(CrawlSpider):
                 (start_year, end_year) = years.split("-")
                 years = range(int(start_year), int(end_year)+1)
             else:
-                years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
+                years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
             self.anni_considerati = years
 
         pprint(self.lista_comuni)
