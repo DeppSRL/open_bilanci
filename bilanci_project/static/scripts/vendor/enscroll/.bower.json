@@ -1,0 +1,31 @@
+{
+  "name": "enscroll",
+  "version": "0.6.0",
+  "main": "js/mylibs/enscroll.js",
+  "ignore": [
+    "**/*.md",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.gif",
+    "releases/*",
+    "README",
+    "**/*.html",
+    "**/*.ico",
+    "**/*.txt",
+    "**/*.handlebars"
+  ],
+  "dependencies": {
+    "jquery": ">1.7.1"
+  },
+  "homepage": "https://github.com/jstoudt/enscroll",
+  "_release": "0.6.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.6.0",
+    "commit": "d5098ac8c813f79bfcc11656ce95ec49e82a2e92"
+  },
+  "_source": "git://github.com/jstoudt/enscroll.git",
+  "_target": "~0.6.0",
+  "_originalSource": "enscroll",
+  "_direct": true
+}

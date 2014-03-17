@@ -377,29 +377,41 @@ class BilancioSpeseView(BilancioDetailView):
         return "{0}-{1}".format(self.request.GET['type'],"spese")
 
 
-
-
 class BilancioIndicatoriView(BilancioView):
     template_name = 'bilanci/indicatori.html'
 
 
-class ConfrontoView(TemplateView):
-    template_name = "bilanci/confronto.html"
+class ConfrontiHomeView(TemplateView):
+
+    ##
+    # ConfrontiHomeView shows the search form to compare two Territori
+    ##
+
+    template_name = "bilanci/confronti.html"
+
+
+class ConfrontiDataView(ConfrontiHomeView):
+
+    ##
+    # ConfrontiDataView shows the complete comparison of two Territori
+    ##
+
 
     def get(self, request, *args, **kwargs):
 
-        territorio_1_slug = kwargs['territorio_1_slug']
-        territorio_2_slug = kwargs['territorio_2_slug']
-
-        # avoids showing a comparison with a Territorio with itself
-        # redirects to home page
-        if territorio_2_slug == territorio_1_slug:
+        if 'territorio_1_slug' not in kwargs.keys() or 'territorio_2_slug' not in kwargs.keys():
             return redirect('home')
 
-        kwargs['territorio_1_slug'] = territorio_1_slug
-        kwargs['territorio_2_slug'] = territorio_2_slug
+        else:
+            territorio_1_slug = kwargs['territorio_1_slug']
+            territorio_2_slug = kwargs['territorio_2_slug']
 
-        return super(ConfrontoView, self).get(request, *args, **kwargs)
+            # avoids showing a comparison with a Territorio with itself
+            # redirects to home page
+            if territorio_2_slug == territorio_1_slug:
+                return redirect('home')
+
+        return super(ConfrontiDataView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 
@@ -410,5 +422,6 @@ class ConfrontoView(TemplateView):
 
         context['territorio_1'] = territorio_1
         context['territorio_2'] = territorio_2
+
 
         return context

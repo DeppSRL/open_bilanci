@@ -1,26 +1,31 @@
-<!-- Static navbar -->
-<div class="navbar navbar-default navbar-main" role="navigation">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Mostra/nascondi nvigazione</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{% url "home" %}">Open<strong>Bilanci</strong><small>tagline</small></a>
-        <form role="search" class="pull-left autosubmit" action="/bilanci/search" method="get">
-            <div class="form-group">
-                 {{ territori_search_form }}
-            </div>
-        </form>
-    </div>
+<!-- Main header -->
+<header id="header">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="navbar navbar-default navbar-main" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Mostra/nascondi nvigazione</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{% url 'home' %}">Open<strong>Bilanci</strong><small>tagline</small></a>
+                    <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
+                        <div class="form-group">
+                             {{ territori_search_form }}
+                        </div>
+                    </form>
+                </div>
 
-    <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right">
-            <li class="active"><a href="#"><span class="glyphicon glyphicon-map-marker"></span> mappa</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-tasks"></span> classifiche</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> community</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> login</a></li>
-        </ul>
-    </div><!-- /nav-collapse -->
-</div><!-- /Static navbar -->
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="{% url 'confronti-home' %}"><span class="icon sprite-confronti"></span> confronti</a></li>
+                        <li class="active"><a href="#"><span class="icon sprite-classifiche"></span> classifiche</a></li>
+                        <li><a href="#"><span class="icon sprite-blog"></span> blog</a></li>
+                    </ul>
+                </div><!-- /.nav-collapse -->
+            </div><!-- /.navbar -->
+        </div>
+    </div>
+</header>

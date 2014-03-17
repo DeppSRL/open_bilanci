@@ -1,6 +1,6 @@
 {%  extends "base.html" %}
 {% load humanize %}
-{% load staticfiles %}
+
 
 {% block page_title %}
     Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
@@ -59,53 +59,3 @@
 
 
 {% endblock content %}
-
-
-{% block extra_js %}
-    <!-- visup js -->
-    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
-
-    <script type="text/javascript">
-        "use strict";
-        var chart = visup.linechart(".timeline-multiline");
-        chart.options({
-            timeline: {
-                start: 2003,
-                end: 2013,
-                barPadding: 3,
-                format: "%Y-%m-%d",
-                visible: true
-            },
-            linechart: {
-                height: 270,
-                start: 2003,
-                end: 2013,
-                circleRadius: 9,
-                axisUnit: "MILLION",
-                tooltipUnit: "MLN",
-                format: "%Y",
-                visible: true
-            },
-            legend: {
-                rowItems: 2
-            }
-        }),
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
-                    function (i) {
-                chart.data(i)
-            });
-
-    </script>
-
-    <!-- / visup js -->
-{% endblock %}
-
-{% block extra_css %}
-{#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
-
-
-{#    <!-- / visup css-->#}
-{% endblock %}

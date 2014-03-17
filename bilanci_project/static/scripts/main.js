@@ -1,13 +1,16 @@
 /**
  * Main scripts
  * @author mleone
- * @version 1.1
+ * @version 1.3.0
  **/
 
 $(document).ready(function(){
-    var results  = $('#results'),
-        togglers = results.find('.collapse-toggle'),
-        panels   = results.find('.collapse');
+    var $window = $(window),
+        $sidebar = $( '#sidebar' ),
+        $content = $( '#content' ),
+        results  = $( '#results' ),
+        togglers = results.find( '.collapse-toggle' ),
+        panels   = results.find( '.collapse' );
 
     panels.collapse({
         toggle: false
@@ -24,7 +27,7 @@ $(document).ready(function(){
         panel.prev().addClass('shown');
     });
 
-    togglers.on('click', function(e){
+    togglers.on('click', function(e) {
         e.preventDefault();
 
         var toggler = $(this),
@@ -49,6 +52,65 @@ $(document).ready(function(){
             toggler.find('span.glyphicon')
                 .removeClass('glyphicon-minus-sign')
                 .addClass('glyphicon-plus-sign');
+        }
+
+    });
+
+    // resize sidebar
+    function resizeSidebar() {
+        $sidebar.find('.scrollbox').enscroll({
+            showOnHover: true,
+            pollChanges: true,
+            verticalTrackClass: 'track',
+            verticalHandleClass: 'handle'
+        });
+    }
+
+    /*$window.load(function() {
+        resizeSidebar();
+    });
+
+    $window.resize(function() {
+        resizeSidebar();
+    });*/
+
+    resizeSidebar();
+
+
+    $( '#toggle-menu' ).on( 'click', function( e ){
+        e.preventDefault();
+
+        var $this =  $( this ),
+            clss = {
+                btn: {
+                    on: 'active'
+                },
+                content: {
+                    on: 'col-sm-12',
+                    off: 'col-sm-8 col-sm-push-4'
+                },
+                sidebar: {
+                    on: 'col-sm-4 col-sm-pull-8',
+                    off: 'hidden'
+                }
+            };
+
+        if ( !$this.hasClass( clss.btn.on ) ) {
+            $sidebar
+                .removeClass( clss.sidebar.off )
+                .addClass( clss.sidebar.on );
+            $content
+                .removeClass( clss.content.on )
+                .addClass( clss.content.off );
+            $this.addClass( clss.btn.on );
+        } else {
+            $sidebar
+                .removeClass( clss.sidebar.on )
+                .addClass( clss.sidebar.off );
+            $content
+                .removeClass( clss.content.off )
+                .addClass( clss.content.on );
+            $this.removeClass( clss.btn.on );
         }
 
     });
