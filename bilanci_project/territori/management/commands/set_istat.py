@@ -1,16 +1,16 @@
 import StringIO
 from pprint import pprint
-from django.core.exceptions import ObjectDoesNotExist
-
-__author__ = 'stefano'
-
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management.base import BaseCommand
+from unidecode import unidecode
 from optparse import make_option
 import requests
 import zipfile
 import csv
 import logging
 from territori.models import Territorio, Contesto
+
+__author__ = 'stefano'
 
 
 class Command(BaseCommand):
@@ -93,7 +93,8 @@ class Command(BaseCommand):
 
         file_url_format = "http://demo.istat.it/bil{0}/dati/comuni.zip"
 
-        territori_not_found = {}
+        missing_istat_id = []
+        missing_territori = []
 
         for year in years:
             self.logger.error("Considering yr:{0}".format(year))
@@ -116,22 +117,39 @@ class Command(BaseCommand):
 
                     # removes zero-padding from istat_code
                     istat_id = line[0].lstrip("0")
+                    istat_denominazione = line[1].strip()
                     istat_abitanti = int(line[-2])
                     istat_femmine = int(line[-3])
                     istat_maschi = int(line[-4])
+                    territorio = None
 
-                    # get territorio
+                    # get territorio with istat_id
                     try:
                         territorio = Territorio.objects.get(istat_id=istat_id)
                     except ObjectDoesNotExist:
-                        if year not in territori_not_found.keys():
-                            territori_not_found[year]=[]
-                        if istat_id not in territori_not_found[year]:
-                            territori_not_found[year].append(istat_id)
-                    else:
+                        if istat_id not in missing_istat_id:
+                            missing_istat_id.append(istat_id)
+
+                        # try to get the territorio using the Territorio name
+                        try:
+                            territorio = Territorio.objects.get(denominazione__iexact = istat_denominazione)
+                        except ObjectDoesNotExist:
+                            self.logger.error(u"Territorio with istat name {0} not found".format(istat_denominazione))
+                            if istat_denominazione not in missing_territori:
+                                missing_territori.append(istat_denominazione)
+                            continue
+                        except MultipleObjectsReturned:
+                            self.logger.error(u"Multiple territorio returned for istat name {0}".format(istat_denominazione))
+                            if istat_denominazione not in missing_territori:
+                                missing_territori.append(istat_denominazione)
+                            continue
+
+
+
+                    if territorio:
                         contesto, create_obj = Contesto.objects.get_or_create(territorio=territorio, anno = year)
                         if create_obj:
-                            self.logger.debug('Contesto for territorio: {0}, yr:{1} not found, creating it.'.format(territorio,year))
+                            self.logger.debug(u'Contesto for territorio: {0}, yr:{1} not found, creating it.'.format(territorio,year))
 
 
                         if not dryrun:
@@ -141,11 +159,14 @@ class Command(BaseCommand):
                             contesto.save()
 
 
-        # logs the list of missing_territori
         self.logger.info("== END ==")
-        if territori_not_found != {}:
-            for anno, territori_id_list in territori_not_found.iteritems():
 
-                self.logger.error("Missing Territori for years:{0}".format(anno))
+        # logs the list of missing_istat_id
+        if len(missing_istat_id):
+            self.logger.error("Missing territori with following istat id:")
+            self.logger.error(",".join(missing_istat_id))
 
-                self.logger.error(",".join(territori_id_list))
+        # logs the list of missing_istat_id
+        if len(missing_territori):
+            self.logger.error("Missing territori with following name could not get istat context:")
+            self.logger.error(",".join(missing_territori))
