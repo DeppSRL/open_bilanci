@@ -4,12 +4,12 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import ConfrontoView, BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, HomeView
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
 
     url(r'^bilanci/search', BilancioRedirectView.as_view()),
     url(r'^bilanci/(?P<slug>[-\w]+)/entrate', BilancioEntrateView.as_view(), name='bilanci-entrate'),
@@ -20,7 +20,7 @@ urlpatterns = patterns('',
 
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
 
-    url(r'^confronto/(?P<slugA>[-\w]+)/(?P<slugB>[-\w]+)', ConfrontoView.as_view(), name='confronto'),
+    url(r'^confronto/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)', ConfrontoView.as_view(), name='confronto'),
 
     url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
 

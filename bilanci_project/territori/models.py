@@ -143,15 +143,15 @@ class Contesto(models.Model):
     bil_nuclei_familiari = models.IntegerField(null=True, default=None, blank=True)
     bil_superficie_urbana = models.IntegerField(null=True, default=None, blank=True)
     bil_superficie_totale = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_esterne = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_interne = models.IntegerField(null=True, default=None, blank=True)
+    bil_strade_montane = models.IntegerField(null=True, default=None, blank=True)
 
     ##
     # NOTE: bil_popolazione_residente is deprecated, actual field for inhabitants is istat_abitanti
     ##
 
     bil_popolazione_residente = models.IntegerField(null=True, default=None, blank=True)
-    bil_strade_esterne = models.IntegerField(null=True, default=None, blank=True)
-    bil_strade_interne = models.IntegerField(null=True, default=None, blank=True)
-    bil_strade_montane = models.IntegerField(null=True, default=None, blank=True)
 
     # Istat context data
     istat_abitanti = models.IntegerField(null=True, default=None, blank=True)

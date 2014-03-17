@@ -9,7 +9,7 @@ import requests
 from settings_local import *
 
 
-def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
+def translate_titoli(source_db, destination_db, id_list_response, list_sheet, overwrite_flag=False):
 
     translation_map = {}
     #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
@@ -42,6 +42,11 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
         id_list=id_list_response['rows']
 
         for id_object in id_list:
+
+            # skip existing documents, if overwrite_flag is set to false
+            if id_object['id'] in destination_db and not overwrite_flag:
+                continue
+
             source_document = source_db.get(id_object['id'])
 
 
@@ -107,7 +112,7 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet):
 
 
 
-def translate_voci(source_db, destination_db, id_list_response, list_sheet):
+def translate_voci(source_db, destination_db, id_list_response, list_sheet, overwrite_flag=False):
 
     translation_map = {}
     #prende entrambi i fogli di calcolo e li inserisce nella stessa lista, saltando le prime due righe di instestazione
@@ -143,11 +148,15 @@ def translate_voci(source_db, destination_db, id_list_response, list_sheet):
 
 
     if 'rows' in id_list_response.keys():
-        id_list=id_list_response['rows']
+        id_list = id_list_response['rows']
 
         for id_object in id_list:
-            source_document = source_db.get(id_object['id'])
 
+            # skip existing documents, if overwrite_flag is set to false
+            if id_object['id'] in destination_db and not overwrite_flag:
+                continue
+
+            source_document = source_db.get(id_object['id'])
 
             if source_document is not None:
                 destination_document = {'_id': id_object['id']}
@@ -240,11 +249,23 @@ def main(argv):
            default='titoli',
            help='Type to translate: titoli | voci')
 
+    parser.add_argument('--delete','-d', dest='delete', action='store_true',
+           default=False,
+           help='Delete DB before translation. Use only while developing. Defaults to false.')
+
+    parser.add_argument('--overwrite','-o', dest='overwrite', action='store_true',
+           default=False,
+           help='Overwrite all values. Defaults to false.')
+
+
+
 
     args = parser.parse_args()
     
     server_name= args.server_name
     translation_type = args.type
+    delete_db_flag = args.delete
+    overwrite_flag = args.overwrite
 
     if translation_type in accepted_types.keys():
 
@@ -286,15 +307,18 @@ def main(argv):
             source_db = server[source_db_name]
             print "Source DB connection ok: db name: "+source_db_name+"!"
 
-            # se esiste il db lo cancella
-
-            if destination_db_name in server:
-                del server[destination_db_name]
-                print  "Destination db: "+  destination_db_name +" deleted"
-            # crea il db
-            destination_db = server.create(destination_db_name)
-            print  "Destination db: "+  destination_db_name +" created"
-
+            if destination_db_name not in server:
+                # create db afresh, if not found
+                destination_db = server.create(destination_db_name)
+                print  "Destination db: "+  destination_db_name +" newly created"
+            else:
+                # remove existing db if asked to do so
+                if delete_db_flag:
+                    del server[destination_db_name]
+                    destination_db = server.create(destination_db_name)
+                    print  "Destination db: "+  destination_db_name +" deleted and re-created"
+                else:
+                    destination_db = server[destination_db_name]
 
             # legge la lista di id per recuperare tutti gli oggetti del db
             get_all_docs_url = server_connection_address+'/'+source_db_name+'/_all_docs?include_docs=false'
@@ -302,9 +326,9 @@ def main(argv):
             id_list_response = requests.get(get_all_docs_url ).json()
 
             if translation_type == 'voci':
-                translate_voci(source_db, destination_db, id_list_response, list_sheet)
+                translate_voci(source_db, destination_db, id_list_response, list_sheet, overwrite_flag=overwrite_flag)
             elif translation_type == 'titoli':
-                translate_titoli(source_db, destination_db, id_list_response, list_sheet)
+                translate_titoli(source_db, destination_db, id_list_response, list_sheet, overwrite_flag=overwrite_flag)
 
 
         else:
