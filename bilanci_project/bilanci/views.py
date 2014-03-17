@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View
 import requests
 import json
 from bilanci.models import ValoreBilancio, Voce
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 from bilanci.utils import couch
 from collections import OrderedDict
 from django.conf import settings
@@ -386,20 +386,29 @@ class BilancioIndicatoriView(BilancioView):
 class ConfrontoView(TemplateView):
     template_name = "bilanci/confronto.html"
 
+    def get(self, request, *args, **kwargs):
+
+        territorio_1_slug = kwargs['territorio_1_slug']
+        territorio_2_slug = kwargs['territorio_2_slug']
+
+        # avoids showing a comparison with a Territorio with itself
+        # redirects to home page
+        if territorio_2_slug == territorio_1_slug:
+            return redirect('home')
+
+        kwargs['territorio_1_slug'] = territorio_1_slug
+        kwargs['territorio_2_slug'] = territorio_2_slug
+
+        return super(ConfrontoView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
 
         context = {}
-        territorio_1_pk = int(self.request.GET.get('territorio_1',0))
-        territorio_2_pk = int(self.request.GET.get('territorio_2',0))
 
-        if territorio_1_pk == territorio_2_pk:
-            return redirect('home')
-
-
-        territorio_1 = get_object_or_404(Territorio, pk=territorio_1_pk)
-        territorio_2 = get_object_or_404(Territorio, pk=territorio_2_pk)
-
+        territorio_1 = get_object_or_404(Territorio, slug = kwargs['territorio_1_slug'])
+        territorio_2 = get_object_or_404(Territorio, slug = kwargs['territorio_2_slug'])
 
         context['territorio_1'] = territorio_1
         context['territorio_2'] = territorio_2
+
         return context
