@@ -1,3 +1,4 @@
+# coding=utf-8
 import StringIO
 from pprint import pprint
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -17,9 +18,6 @@ class Command(BaseCommand):
     """
     Import Istat inhabitants data from Istat files into Contesto model
     """
-
-    # sets csv fixed header line number
-    header_lines = 3
 
     help = "Import Istat inhabitants data from Istat files into Contesto model"
 
@@ -109,54 +107,81 @@ class Command(BaseCommand):
             csv_file = zip_file.open('dati/comuni.csv')
             csv_reader = csv.reader(csv_file, delimiter=',', quoting=csv.QUOTE_NONE)
 
+            istat_denominazione_col = None
+            istat_abitanti_col = None
+            istat_femmine_col = None
+            istat_maschi_col = None
 
-
+            # identifies the header line
             for line in csv_reader:
-                # skips the csv header lines
-                if csv_reader.line_num > self.header_lines:
-
-                    # removes zero-padding from istat_code
-                    istat_id = line[0].lstrip("0")
-                    istat_denominazione = line[1].strip()
-                    istat_abitanti = int(line[-2])
-                    istat_femmine = int(line[-3])
-                    istat_maschi = int(line[-4])
-                    territorio = None
-
-                    # get territorio with istat_id
-                    try:
-                        territorio = Territorio.objects.get(istat_id=istat_id)
-                    except ObjectDoesNotExist:
-                        if istat_id not in missing_istat_id:
-                            missing_istat_id.append(istat_id)
-
-                        # try to get the territorio using the Territorio name
+                if len(line):
+                    if line[0] == 'Codice Comune':
+                        
+                        # creates lower case list of string
+                        line_lowercase = [x.lower() for x in line]
+                        # identifies the interesting cols in the header based on column header text
                         try:
-                            territorio = Territorio.objects.get(denominazione__iexact = istat_denominazione)
-                        except ObjectDoesNotExist:
-                            self.logger.error(u"Territorio with istat name {0} not found".format(istat_denominazione))
-                            if istat_denominazione not in missing_territori:
-                                missing_territori.append(istat_denominazione)
-                            continue
-                        except MultipleObjectsReturned:
-                            self.logger.error(u"Multiple territorio returned for istat name {0}".format(istat_denominazione))
-                            if istat_denominazione not in missing_territori:
-                                missing_territori.append(istat_denominazione)
-                            continue
+                            istat_denominazione_col = line_lowercase.index('Descrizione Comune'.lower())
+                            istat_abitanti_col = line_lowercase.index('Popolazione al 31 Dicembre - Totale'.lower())
+                            istat_femmine_col = line_lowercase.index('Popolazione al 31 Dicembre - Femmine'.lower())
+                            istat_maschi_col = line_lowercase.index('Popolazione al 31 Dicembre - Maschi'.lower())
+                            break
+                        except ValueError:
+                            self.logger.error("Data columns not found in table heading:{0}. Quitting".format(line))
+
+                            return
+
+
+            # reads the table data skipping the header
+            for line in csv_reader:
+
+                # removes zero-padding from istat_code
+                istat_id = line[0].lstrip("0")
+
+                # removes trailing spaces from comune name
+                # replaces vowels followed by apostrophe with accented vowel
+                istat_denominazione = line[istat_denominazione_col].strip().\
+                    replace("a'","à").replace("e'","è").\
+                    replace("i'","ì").replace("o'","ò").replace("u'","ù")
+
+                istat_abitanti = int(line[istat_abitanti_col])
+                istat_femmine = int(line[istat_femmine_col])
+                istat_maschi = int(line[istat_maschi_col])
+                territorio = None
+
+                # get territorio with istat_id
+                try:
+                    territorio = Territorio.objects.get(istat_id=istat_id)
+                except ObjectDoesNotExist:
+                    if istat_id not in missing_istat_id:
+                        missing_istat_id.append(istat_id)
+
+                    # try to get the territorio using the Territorio name
+                    try:
+                        territorio = Territorio.objects.get(denominazione__iexact = istat_denominazione)
+                    except ObjectDoesNotExist:
+                        self.logger.error(u"Territorio with istat name {0} not found".format(istat_denominazione))
+                        if istat_denominazione not in missing_territori:
+                            missing_territori.append(istat_denominazione)
+                        continue
+                    except MultipleObjectsReturned:
+                        self.logger.error(u"Multiple territorio returned for istat name {0}".format(istat_denominazione))
+                        if istat_denominazione not in missing_territori:
+                            missing_territori.append(istat_denominazione)
+                        continue
 
 
 
-                    if territorio:
-                        contesto, create_obj = Contesto.objects.get_or_create(territorio=territorio, anno = year)
-                        if create_obj:
-                            self.logger.debug(u'Contesto for territorio: {0}, yr:{1} not found, creating it.'.format(territorio,year))
+                if territorio:
+                    contesto, create_obj = Contesto.objects.get_or_create(territorio=territorio, anno = year)
+                    if create_obj:
+                        self.logger.debug(u'Contesto for territorio: {0}, yr:{1} not found, creating it.'.format(territorio,year))
 
-
-                        if not dryrun:
-                            contesto.istat_abitanti = istat_abitanti
-                            contesto.istat_femmine = istat_femmine
-                            contesto.istat_maschi = istat_maschi
-                            contesto.save()
+                    if not dryrun:
+                        contesto.istat_abitanti = istat_abitanti
+                        contesto.istat_femmine = istat_femmine
+                        contesto.istat_maschi = istat_maschi
+                        contesto.save()
 
 
         self.logger.info("== END ==")

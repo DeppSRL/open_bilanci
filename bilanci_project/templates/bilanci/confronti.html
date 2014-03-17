@@ -1,0 +1,227 @@
+{%  extends "base.html" %}
+
+{% block page_title %}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
+{% endblock %}
+
+
+{% block content_title %}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
+{% endblock %}
+
+
+{% block content %}
+
+   <div class="panel-heading">
+                    <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
+                    <h1 class="panel-title">CONFRONTI</h1>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <a href="#" id="toggle-menu" role="button"><span class="icon sprite-toggle-menu"></span></a>
+                        </div>
+                    </div>
+                    <hr class="no-border">
+
+                    <div class="row">
+
+                        <div id="content" class="col-sm-12">
+                            <div id="comparison" class="panel panel-default">
+                                <div class="panel-body">
+                                    <form role="form">
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <div class="form-group">
+                                                    <label for="">CONFRONTA</label>
+                                                    <input type="text" class="form-control" id="" placeholder="UN COMUNE" value="CASTIGLIONE SUL LAGO">
+                                                    <span class="icon sprite-search-alt"></span>
+                                                    <p class="help-block"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <div class="form-group">
+                                                    <label for="">CON</label>
+                                                    <input type="text" class="form-control" id="" placeholder="UN ALTRO COMUNE">
+                                                    <span class="icon sprite-search-alt"></span>
+                                                    <p class="help-block"></p>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <div class="form-group">
+                                                    <label for="">&nbsp;</label><br>
+                                                    <button type="submit" class="btn btn-link">
+                                                        <span class="icon sprite-submit"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div id="results" class="row"></div> <!-- /#results -->
+
+                            <div id="comments" class="row"></div> <!-- /comments -->
+
+                        </div>
+                        <aside id="sidebar" class="hidden">
+
+                            <ul class="nav nav-stacked menu">
+                                <li class="active">
+                                    <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> AUTONOMIA FINANZIARIA</a>
+                                    <div class="scrollbox">
+
+                                        <ul class="nav nav-stacked">
+                                            <li>
+                                                <a href="#"><span class="icon sprite-info pull-right"></span> Velocità di riscossione delle entrate proprie</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Pressione tributaria per abitante</a>
+                                                <ul class="nav nav-stacked">
+                                                    <li>
+                                                        <a href="#">Pressione tributaria per...</a>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Risultato d’amministrazione valutato al fair value</a>
+                                            </li>
+                                            <li>
+                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Consistenza ...</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#"><span class="icon sprite-capacita-programmatoria"></span> CAPACITA PROGRAMMATORIA</a>
+                                    <div class="scrollbox hidden">
+
+                                        <ul class="nav nav-stacked">
+                                            <li class="active">
+                                                <a href="#">voce 1</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 3</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 4</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 5</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 6</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#"><span class="icon sprite-peso-amministrazione"></span> PESO DELL’AMMINISTRAZIONE</a>
+                                    <div class="scrollbox hidden">
+
+                                        <ul class="nav nav-stacked">
+                                            <li class="active">
+                                                <a href="#">voce 1</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 3</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 4</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 5</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 6</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#"><span class="icon sprite-propensione-sviluppo"></span> PROPENSIONE ALLO SVILUPPO</a>
+                                    <div class="scrollbox hidden">
+
+                                        <ul class="nav nav-stacked">
+                                            <li class="active">
+                                                <a href="#">voce 1</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 3</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 4</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 5</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 6</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#"><span class="icon sprite-sostenibilita"></span> SOSTENIBILITA</a>
+                                    <div class="scrollbox hidden">
+
+                                        <ul class="nav nav-stacked">
+                                            <li class="active">
+                                                <a href="#">voce 1</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 3</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 4</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 5</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 6</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#"><span class="icon sprite-indicatori"></span> INDICATORI DI CONTESTO</a>
+                                    <div class="scrollbox hidden">
+
+                                        <ul class="nav nav-stacked">
+                                            <li class="active">
+                                                <a href="#">voce 1</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 3</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 4</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 5</a>
+                                            </li>
+                                            <li>
+                                                <a href="#">voce 6</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </li>
+                            </ul>
+
+
+
+                        </aside>
+
+                    </div>
+
+                </div><!-- /.panel-body -->
+{% endblock %}
