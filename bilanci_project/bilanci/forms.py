@@ -2,7 +2,7 @@ from django import forms
 from territori.fields import TerritoriChoices, TerritoriClusterChoices
 
 from django.utils.translation import ugettext_lazy as _
-from territori.models import Territorio, Contesto
+from territori.models import Territorio
 
 
 class TerritoriSearchForm(forms.Form):
@@ -39,14 +39,13 @@ class TerritoriComparisonSearchForm(forms.Form):
         # creates select box queryset excluding the Territorio which was selected as first parameter
         # ie. if Roma is selected, Roma won't appear in the select box
         # Territori are ordered based on name and on n. of inhabitants in 2012
-        # self.base_fields['territorio_2'].queryset = \
-        #     Territorio.objects.filter(territorio='C').exclude(pk=kwargs['initial']['territorio_1']).\
-        #         order_by('-abitanti')
 
         self.base_fields['territorio_2'].queryset = \
-            Contesto.objects.filter(anno=2012).filter(territorio__territorio='C').\
-                exclude(territorio__pk=kwargs['initial']['territorio_1']).\
-                order_by('territorio__denominazione','-istat_abitanti')
+            Territorio.objects.\
+                exclude(pk=kwargs['initial']['territorio_1']).\
+                filter(contesto__anno = 2012).\
+                filter(territorio=Territorio.TERRITORIO.C).\
+                order_by('-contesto__istat_abitanti', 'denominazione')
 
         super(TerritoriComparisonSearchForm, self).__init__(initial=kwargs['initial'])
 
