@@ -200,7 +200,7 @@ class Command(BaseCommand):
                     )
                     continue
 
-                n_abitanti = comune_context.popolazione_residente
+                n_abitanti = comune_context.istat_abitanti
 
                 if n_abitanti > 0:
                     voci = ValoreBilancio.objects.filter(
@@ -332,13 +332,13 @@ class Command(BaseCommand):
                                     # the field in the model
 
                                     contesto_keys = {
-                                        "nuclei familiari (n)":"nuclei_familiari",
-                                        "superficie urbana (ha)":"superficie_urbana",
-                                        "superficie totale del comune (ha)":"superficie_totale",
-                                        "popolazione residente (ab.)":"popolazione_residente",
-                                        "lunghezza delle strade esterne (km)":"strade_esterne",
-                                        "lunghezza delle strade interne centro abitato (km)":"strade_interne",
-                                        "di cui: in territorio montano (km)":"strade_montane",
+                                        "nuclei familiari (n)":"bil_nuclei_familiari",
+                                        "superficie urbana (ha)":"bil_superficie_urbana",
+                                        "superficie totale del comune (ha)":"bil_superficie_totale",
+                                        "popolazione residente (ab.)":"bil_popolazione_residente",
+                                        "lunghezza delle strade esterne (km)":"bil_strade_esterne",
+                                        "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
+                                        "di cui: in territorio montano (km)":"bil_strade_montane",
                                         }
 
                                     for contesto_key, contesto_value in contesto_keys.iteritems():
