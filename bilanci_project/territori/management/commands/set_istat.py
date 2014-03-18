@@ -158,7 +158,10 @@ class Command(BaseCommand):
 
                     # try to get the territorio using the Territorio name
                     try:
-                        territorio = Territorio.objects.get(denominazione__iexact = istat_denominazione)
+                        territorio = Territorio.objects.get(
+                            territorio = Territorio.TERRITORIO.C,
+                            denominazione__iexact = istat_denominazione
+                        )
                     except ObjectDoesNotExist:
                         self.logger.error(u"Territorio with istat name {0} not found".format(istat_denominazione))
                         if istat_denominazione not in missing_territori:
