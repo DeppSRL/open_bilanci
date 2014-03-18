@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 __author__ = 'guglielmo'
 
 import abc
@@ -192,7 +194,7 @@ class SpeseBudgetMixin(object):
 
 
 # trees
-class BudgetTreeDict(dict):
+class BudgetTreeDict(OrderedDict):
 
     """
     An Abstract Base Class, representing the simplified BudgetTree.
@@ -243,7 +245,7 @@ class BudgetTreeDict(dict):
                     current_node[item] = default_val
                     return
                 else:
-                    current_node[item] = {}
+                    current_node[item] = OrderedDict()
             current_node = current_node[item]
 
 
