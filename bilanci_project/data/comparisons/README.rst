@@ -98,8 +98,8 @@ for Q in \
     quadro-5-riepilogo-spese-in-conto-capitale \
     quadro-6-generale-riassuntivo-entrate quadro-6-generale-riassuntivo; \
    do \
-     cat ../gdocs_csv_cache/simple_map/preventivo.csv | grep $Q | \
-       gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+     cat voci_preventivo_gdoc.csv | grep $Q | \
+       gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
        uniq > voci-preventivo-$Q-gdoc.csv; \
      cat voci_preventivo.csv | grep $Q | \
        gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
@@ -113,8 +113,8 @@ for Q in \
      quadro-2-entrate-titolo-v-entrate quadro-3 quadro-4-a- quadro-4-b- quadro-4-c- \
      quadro-5-a- quadro-5-b- quadro-5-c- quadro-6-an-; \
     do
-      cat ../gdocs_csv_cache/simple_map/consuntivo.csv | grep $Q | \
-        gawk -vFPAT='[^;]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
+      cat voci_consuntivo_gdoc.csv | grep $Q | \
+        gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
         uniq > voci-consuntivo-$Q-gdoc.csv; \
       cat voci_consuntivo.csv | grep $Q | \
         gawk -vFPAT='[^,]*|"[^"]*"' '{print $4}' | sed -e 's/"//g' | sort | \
