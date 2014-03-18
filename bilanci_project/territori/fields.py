@@ -1,8 +1,14 @@
-from territori.models import Territorio
+from territori.models import Territorio, Contesto
 from django_select2.fields import AutoModelSelect2Field
 
 class TerritoriChoices(AutoModelSelect2Field):
-    queryset = Territorio.objects.filter(territorio='C').order_by('-abitanti')
+
+
+    queryset = Territorio.objects.\
+                filter(contesto__anno = 2012).\
+                filter(territorio=Territorio.TERRITORIO.C).\
+                order_by('-contesto__istat_abitanti', 'denominazione')
+
     search_fields = ['denominazione__icontains', ]
 
     def label_from_instance(self, obj):

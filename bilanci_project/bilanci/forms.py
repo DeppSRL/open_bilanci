@@ -36,10 +36,16 @@ class TerritoriComparisonSearchForm(forms.Form):
 
     def __init__(self,*args, **kwargs):
 
-        # crea il queryset della select box escludendo il Comune che e' il primo argomento del confronto
-        # ad es. se sono sulla pagina di Roma nella select box non dovra' comparire Roma
+        # creates select box queryset excluding the Territorio which was selected as first parameter
+        # ie. if Roma is selected, Roma won't appear in the select box
+        # Territori are ordered based on name and on n. of inhabitants in 2012
+
         self.base_fields['territorio_2'].queryset = \
-            Territorio.objects.filter(territorio='C').exclude(pk=kwargs['initial']['territorio_1']).\
-                order_by('-abitanti')
+            Territorio.objects.\
+                exclude(pk=kwargs['initial']['territorio_1']).\
+                filter(contesto__anno = 2012).\
+                filter(territorio=Territorio.TERRITORIO.C).\
+                order_by('-contesto__istat_abitanti', 'denominazione')
+
         super(TerritoriComparisonSearchForm, self).__init__(initial=kwargs['initial'])
 

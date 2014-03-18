@@ -1,30 +1,56 @@
-<footer id="footer">
-    <!-- Static navbar -->
-    <div class="navbar navbar-default navbar-main" role="navigation">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">Open<strong>Bilanci</strong><small>tagline</small></a>
-            <form role="search" class="pull-left">
-                <div class="form-group">
-                    <label class="sr-only" for="city">Cerca un comune</label>
-                    <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE">
-                    <span class="glyphicon glyphicon-search"></span>
-                </div>
-                <!--button type="submit" class="btn btn-default">Submit</button-->
-            </form>
+<!-- Main footer -->
+    <footer id="footer">
+        <div class="row">
+            <div class="col-xs-6 col-sm-3">
+                <h4>il progetto</h4>
+                <ul class="nav nav-stacked">
+                    <li><a href="#">confronti</a></li>
+                    <li class="active"><a href="#">classifiche</a></li>
+                    <li><a href="#">blog</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <h4>cosa puoi fare</h4>
+                <ul class="nav nav-stacked">
+                    <li><a href="#">confronti</a></li>
+                    <li><a href="#">classifiche</a></li>
+                    <li><a href="#">blog</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <h4>servizi premium</h4>
+                <ul class="nav nav-stacked">
+                    <li><a href="#">confronti</a></li>
+                    <li><a href="#">classifiche</a></li>
+                    <li><a href="#">blog</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-6 col-sm-3">
+                <h4>contatti</h4>
+                <ul class="nav nav-stacked">
+                    <li><a href="#">confronti</a></li>
+                    <li><a href="#">classifiche</a></li>
+                    <li><a href="#">blog</a></li>
+                </ul>
+            </div>
         </div>
-        <ul class="nav nav-stacked pull-left">
-            <li class="active"><a href="#"><span class="glyphicon glyphicon-map-marker"></span> mappa</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-tasks"></span> classifiche</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> community</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> login</a></li>
+
+        <hr class="no-border">
+
+        <h5>con il contributo di</h5>
+
+        <ul class="list-unstyled row partners">
+            <li class="col-xs-6 col-sm-3">
+                <img class="img-circle" src="http://cambelt.co/60x60/1?color=ffffff" alt="">
+            </li>
+            <li class="col-xs-6 col-sm-3">
+                <img class="img-circle" src="http://cambelt.co/60x60/2?color=ffffff" alt="">
+            </li>
+            <li class="col-xs-6 col-sm-3">
+                <img class="img-circle" src="http://cambelt.co/60x60/3?color=ffffff" alt="">
+            </li>
+            <li class="col-xs-6 col-sm-3">
+                <img class="img-circle" src="http://cambelt.co/60x60/4?color=ffffff" alt="">
+            </li>
         </ul>
-        <ul class="nav nav-stacked pull-left no-icons">
-            <li><a href="{% url "static_page" %}progetto">il progetto</a></li>
-            <li><a href="{% url "static_page" %}servizi">servizi a pagamento</a></li>
-            <li><a href="{% url "static_page" %}dati">dati</a></li>
-            <li><a href="{% url "static_page" %}condizioni">condizioni d'uso</a></li>
-            <li><a href="{% url "static_page" %}faq">faq</a></li>
-        </ul>
-    </div>
-</footer>
-</div> <!-- /container -->
+    </footer>
