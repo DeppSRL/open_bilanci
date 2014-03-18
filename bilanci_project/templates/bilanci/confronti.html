@@ -30,22 +30,22 @@
                         <div id="content" class="col-sm-12">
                             <div id="comparison" class="panel panel-default">
                                 <div class="panel-body">
-                                    <form role="form">
+                                    <form role="form" action="{% url 'confronti-search' %}">
                                         <div class="row">
                                             <div class="col-sm-5">
                                                 <div class="form-group">
+
                                                     <label for="">CONFRONTA</label>
-                                                    <input type="text" class="form-control" id="" placeholder="UN COMUNE" value="{{ territorio_1.denominazione }}">
-                                                    <span class="icon sprite-search-alt"></span>
-                                                    <p class="help-block"></p>
-                                                </div>
+                                                    {{ territori_comparison_search_form.territorio_1 }}
+
+                                                 </div>
                                             </div>
                                             <div class="col-sm-5">
                                                 <div class="form-group">
+
                                                     <label for="">CON</label>
-                                                    <input type="text" class="form-control" id="" placeholder="UN ALTRO COMUNE" value="{{ territorio_2.denominazione }}">
-                                                    <span class="icon sprite-search-alt"></span>
-                                                    <p class="help-block"></p>
+                                                    {{ territori_comparison_search_form.territorio_2 }}
+
                                                 </div>
                                             </div>
                                             <div class="col-sm-2">
@@ -61,167 +61,7 @@
                                 </div>
                             </div>
 
-                            <div id="results" class="row"></div> <!-- /#results -->
-
-                            <div id="comments" class="row"></div> <!-- /comments -->
-
                         </div>
-                        <aside id="sidebar" class="hidden">
-
-                            <ul class="nav nav-stacked menu">
-                                <li class="active">
-                                    <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> AUTONOMIA FINANZIARIA</a>
-                                    <div class="scrollbox">
-
-                                        <ul class="nav nav-stacked">
-                                            <li>
-                                                <a href="#"><span class="icon sprite-info pull-right"></span> Velocità di riscossione delle entrate proprie</a>
-                                            </li>
-                                            <li>
-                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Pressione tributaria per abitante</a>
-                                                <ul class="nav nav-stacked">
-                                                    <li>
-                                                        <a href="#">Pressione tributaria per...</a>
-                                                    </li>
-                                                </ul>
-                                            </li>
-                                            <li>
-                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Risultato d’amministrazione valutato al fair value</a>
-                                            </li>
-                                            <li>
-                                                <a href="#"><span class="icon sprite-info pull-right"></span>  Consistenza ...</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#"><span class="icon sprite-capacita-programmatoria"></span> CAPACITA PROGRAMMATORIA</a>
-                                    <div class="scrollbox hidden">
-
-                                        <ul class="nav nav-stacked">
-                                            <li class="active">
-                                                <a href="#">voce 1</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 3</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 4</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 5</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 6</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#"><span class="icon sprite-peso-amministrazione"></span> PESO DELL’AMMINISTRAZIONE</a>
-                                    <div class="scrollbox hidden">
-
-                                        <ul class="nav nav-stacked">
-                                            <li class="active">
-                                                <a href="#">voce 1</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 3</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 4</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 5</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 6</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#"><span class="icon sprite-propensione-sviluppo"></span> PROPENSIONE ALLO SVILUPPO</a>
-                                    <div class="scrollbox hidden">
-
-                                        <ul class="nav nav-stacked">
-                                            <li class="active">
-                                                <a href="#">voce 1</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 3</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 4</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 5</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 6</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#"><span class="icon sprite-sostenibilita"></span> SOSTENIBILITA</a>
-                                    <div class="scrollbox hidden">
-
-                                        <ul class="nav nav-stacked">
-                                            <li class="active">
-                                                <a href="#">voce 1</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 3</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 4</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 5</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 6</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                                <li>
-                                    <a href="#"><span class="icon sprite-indicatori"></span> INDICATORI DI CONTESTO</a>
-                                    <div class="scrollbox hidden">
-
-                                        <ul class="nav nav-stacked">
-                                            <li class="active">
-                                                <a href="#">voce 1</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 3</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 4</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 5</a>
-                                            </li>
-                                            <li>
-                                                <a href="#">voce 6</a>
-                                            </li>
-                                        </ul>
-
-                                    </div>
-                                </li>
-                            </ul>
-
-
-
-                        </aside>
-
-                    </div>
 
                 </div><!-- /.panel-body -->
 {% endblock %}

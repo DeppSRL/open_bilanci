@@ -8,7 +8,8 @@ from territori.models import Territorio
 class TerritoriSearchForm(forms.Form):
 
     territori = TerritoriChoices(
-        required=False, label='',
+        required=False,
+        label='',
         widget=TerritoriChoices.widget(
             select2_options={
                 'width': '20em',
@@ -21,31 +22,27 @@ class TerritoriSearchForm(forms.Form):
 
 class TerritoriComparisonSearchForm(forms.Form):
 
-    territorio_1 = forms.CharField(widget=forms.HiddenInput())
-
-    territorio_2 = TerritoriClusterChoices(
-        required=False,
+    territorio_1 = TerritoriClusterChoices(
+        required=True,
+        label='',
         widget=TerritoriClusterChoices.widget(
             select2_options={
-                'width': '20em',
-                'placeholder': _(u"CERCA UN COMUNE"),
+                'containerCssClass': 'form-control',
+                'width': '100%',
+                'placeholder': _(u"UN COMUNE"),
             }
         )
     )
 
+    territorio_2 = TerritoriClusterChoices(
+        required=True,
+        label='',
+        widget=TerritoriClusterChoices.widget(
+            select2_options={
+                'containerCssClass': 'form-control',
+                'width': '100%',
+                'placeholder': _(u"UN ALTRO COMUNE"),
 
-    def __init__(self,*args, **kwargs):
-
-        # creates select box queryset excluding the Territorio which was selected as first parameter
-        # ie. if Roma is selected, Roma won't appear in the select box
-        # Territori are ordered based on name and on n. of inhabitants in 2012
-
-        self.base_fields['territorio_2'].queryset = \
-            Territorio.objects.\
-                exclude(pk=kwargs['initial']['territorio_1']).\
-                filter(contesto__anno = 2012).\
-                filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-contesto__istat_abitanti', 'denominazione')
-
-        super(TerritoriComparisonSearchForm, self).__init__(initial=kwargs['initial'])
-
+            }
+        )
+    )

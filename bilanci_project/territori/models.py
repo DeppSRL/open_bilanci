@@ -124,7 +124,7 @@ class Territorio(models.Model):
         if self.territorio == self.TERRITORIO.P:
             return u"{0} (Provincia)".format(self.nome)
         else:
-            return self.nome
+            return u"{0} ({1})".format(self.nome,self.prov)
 
     def __unicode__(self):
         return unicode(self.denominazione)
