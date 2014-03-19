@@ -1,4 +1,5 @@
 {%  extends "base.html" %}
+{% load confronti_helpbox %}
 
 {% block page_title %}
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
@@ -26,7 +27,6 @@
                     <hr class="no-border">
 
                     <div class="row">
-
                         <div id="content" class="col-sm-12">
                             <div id="comparison" class="panel panel-default">
                                 <div class="panel-body">
@@ -37,7 +37,9 @@
 
                                                     <label for="">CONFRONTA</label>
                                                     {{ territori_comparison_search_form.territorio_1 }}
-
+                                                    {% if territorio_1 %}
+                                                        {% confronti_helpbox territorio_1 %}
+                                                    {% endif %}
                                                  </div>
                                             </div>
                                             <div class="col-sm-5">
@@ -45,7 +47,9 @@
 
                                                     <label for="">CON</label>
                                                     {{ territori_comparison_search_form.territorio_2 }}
-
+                                                    {% if territorio_2 %}
+                                                        {% confronti_helpbox territorio_2 %}
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                             <div class="col-sm-2">
@@ -59,9 +63,51 @@
                                         </div>
                                     </form>
                                 </div>
-                            </div>
+                            </div> <!-- /panel panel-default -->
 
+                            {% if territorio_1 and territorio_2 %}
+                                <div id="results" class="row">
+                                    <div class="col-md-12">
+                                        <div class="panel panel-default panel-nobg">
+                                            <div class="panel-heading clearfix">
+                                                <h3 class="panel-title">VELOCITA DI RISCOSSIONE DELLE ENTRATE PROPRIE</h3>
+                                                <p>in INDICATORI: TITOLO <span class="sep">›</span> VOCE DI III LIVELLO</p>
+                                            </div>
+                                            <div class="panel-body">
+                                                <div class="comparison-graph">
+                                                    {% include 'commons/_lines_chart_over_the_years.html' %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- /#results -->
+                            {% endif %}
                         </div>
+                        {# comparison list menu  #}
+                        <aside id="sidebar" class="hidden">
+                            <ul class="nav nav-stacked menu">
+                                <li class="active">
+                                    <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> NOME CATEGORIA</a>
+                                    <div class="scrollbox">
+
+                                        <ul class="nav nav-stacked">
+                                            {% for indicator in indicator_list %}
+                                                <li>
+                                                    <a href="#"><span class="icon sprite-info pull-right"></span> {{ indicator.denominazione }}</a>
+                                                </li>
+
+                                            {% endfor %}
+
+                                        </ul>
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </aside>
+                        {# /comparison list menu  #}
+
+
+
 
                 </div><!-- /.panel-body -->
 {% endblock %}

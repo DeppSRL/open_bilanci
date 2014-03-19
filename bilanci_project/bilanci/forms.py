@@ -22,7 +22,9 @@ class TerritoriSearchForm(forms.Form):
 
 class TerritoriComparisonSearchForm(forms.Form):
 
+
     territorio_1 = TerritoriClusterChoices(
+        to_field_name = 'slug',
         required=True,
         label='',
         widget=TerritoriClusterChoices.widget(
@@ -35,6 +37,7 @@ class TerritoriComparisonSearchForm(forms.Form):
     )
 
     territorio_2 = TerritoriClusterChoices(
+        to_field_name = 'slug',
         required=True,
         label='',
         widget=TerritoriClusterChoices.widget(
