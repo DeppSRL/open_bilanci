@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View
 import requests
 import json
 from bilanci.forms import TerritoriComparisonSearchForm
-from bilanci.models import ValoreBilancio, Voce
+from bilanci.models import ValoreBilancio, Voce, Indicatore
 from django.http.response import HttpResponse, HttpResponseRedirect
 from bilanci.utils import couch
 from collections import OrderedDict
@@ -414,9 +414,16 @@ class ConfrontiHomeView(TemplateView):
 
     template_name = "bilanci/confronti.html"
 
-    def get_context_data(self, request, **kwargs):
+    def get_context_data(self, **kwargs):
 
-        context = {'territori_comparison_search_form': TerritoriComparisonSearchForm()}
+        # generates the list of bilancio Voce and Indicators
+        # for the selection menu displayed on page
+
+        context = {'territori_comparison_search_form': TerritoriComparisonSearchForm(),
+                   'indicator_list': Indicatore.objects.all().order_by('denominazione'),
+                   'voci_bilancio_list': Voce.objects.all().order_by('denominazione')}
+
+
         return context
 
 
@@ -445,16 +452,17 @@ class ConfrontiDataView(ConfrontiHomeView):
 
     def get_context_data(self, **kwargs):
 
-        context = {}
+        context = super(ConfrontiDataView, self).get_context_data(**kwargs)
 
         territorio_1 = get_object_or_404(Territorio, slug = kwargs['territorio_1_slug'])
         territorio_2 = get_object_or_404(Territorio, slug = kwargs['territorio_2_slug'])
 
         context['territorio_1'] = territorio_1
         context['territorio_2'] = territorio_2
-        context['territori_comparison_search_form'] = TerritoriComparisonSearchForm(
-            initial={'territorio_1': territorio_1, 'territorio_2': territorio_2}
-        )
+        context['territori_comparison_search_form'] = \
+            TerritoriComparisonSearchForm(
+                initial={'territorio_1': territorio_1, 'territorio_2': territorio_2}
+            )
 
 
         return context
