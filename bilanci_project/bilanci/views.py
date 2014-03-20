@@ -417,10 +417,31 @@ class ConfrontiRedirectView(RedirectView):
             return url
 
 
-class CheckTerritoriMixin(object):
+class ConfrontiView(TemplateView):
+
+    template_name = "bilanci/confronti_data.html"
+
+    territorio_1 = None
+    territorio_2 = None
 
     def get(self, request, *args, **kwargs):
-        context = super(CheckTerritoriMixin, self).get(self, request, *args, **kwargs)
+
+
+        territorio_1_slug = kwargs['territorio_1_slug']
+        territorio_2_slug = kwargs['territorio_2_slug']
+
+        # avoids showing a comparison with a Territorio with itself
+        # redirects to home page
+        if territorio_2_slug == territorio_1_slug:
+            return redirect('confronti-home')
+
+        self.territorio_1 = get_object_or_404(Territorio, slug = territorio_1_slug)
+        self.territorio_2 = get_object_or_404(Territorio, slug = territorio_2_slug)
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
+
+
 
 
 
@@ -430,8 +451,33 @@ class ConfrontiEntrateView(TemplateView):
 class ConfrontiSpeseView(TemplateView):
     pass
 
-class ConfrontiIndicatoriView(TemplateView):
-    pass
+class ConfrontiIndicatoriView(ConfrontiView):
+
+    template_name = "bilanci/confronti_data.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
+
+        context['territorio_1'] = self.territorio_1
+        context['territorio_2'] = self.territorio_2
+
+        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['voci_bilancio_list'] = Voce.objects.all().order_by('slug')
+
+        context['territori_comparison_search_form'] = \
+            TerritoriComparisonSearchForm(
+                initial={
+                    'territorio_1': self.territorio_1,
+                    'territorio_2': self.territorio_2
+                }
+            )
+
+
+        return context
+
+
+
+
 
 
 class ConfrontiDataView(ConfrontiHomeView):
@@ -472,9 +518,6 @@ class ConfrontiDataView(ConfrontiHomeView):
             TerritoriComparisonSearchForm(
                 initial={'territorio_1': territorio_1, 'territorio_2': territorio_2}
             )
-
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['voci_bilancio_list'] = Voce.objects.all().order_by('slug')
 
 
         return context

@@ -103,7 +103,7 @@
                                     {% for indicator in indicator_list %}
 
                                         <li>
-                                            <a href="{% url 'confronti-data' territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug parameter_slug=indicator.slug %}">
+                                            <a href="#">
                                                 <span class="icon sprite-info pull-right"></span> {{ indicator.denominazione }}
                                             </a>
                                         </li>
@@ -123,7 +123,7 @@
                                         {% for voce in voci_bilancio_list %}
 
                                             <li>
-                                                <a href="{% url 'confronti-data' territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug parameter_slug=voce.slug %}">
+                                                <a href="#">
                                                     <span class="icon sprite-info pull-right"></span> {{ voce.denominazione }}
                                                 </a>
                                             </li>
