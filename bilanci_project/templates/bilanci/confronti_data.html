@@ -1,5 +1,6 @@
 {%  extends "base.html" %}
 {% load confronti_helpbox %}
+{% load confronti_parameter_list %}
 
 {% block page_title %}
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
@@ -19,7 +20,7 @@
     </div>
 
     <div class="panel-body">
-        {% block comparison_list %}
+        {% block confronti_parameter_menu_toggle %}
             <div class="row">
                 <div class="col-sm-4">
                     <a href="#" id="toggle-menu" role="button">
@@ -92,56 +93,56 @@
                 {% endif %}
             </div>
             {# comparison list menu  #}
-            {% if territorio_1 and territorio_2 %}
+            {% block confronti_parameter_menu %}
                 <aside id="sidebar" class="hidden">
-                    <ul class="nav nav-stacked menu">
-                        <li class="active">
-                            <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> INDICATORI</a>
-                            <div class="scrollbox">
+                    {% confronti_parameter_list 'indicatori' indicator_list  %}
+                    {% confronti_parameter_list 'entrate' entrate_list %}
+                    {% confronti_parameter_list 'spese' spese_list  %}
 
-                                <ul class="nav nav-stacked">
-                                    {% for indicator in indicator_list %}
-
-                                        <li>
-                                            <a href="#">
-                                                <span class="icon sprite-info pull-right"></span> {{ indicator.denominazione }}
-                                            </a>
-                                        </li>
-
-                                    {% endfor %}
-
-                                </ul>
-                            </div>
-                        </li>
-                    </ul>
-                    <ul class="nav nav-stacked menu">
-                            <li class="active">
-                                <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> VOCI BILANCIO</a>
-                                <div class="scrollbox">
-
-                                    <ul class="nav nav-stacked">
-                                        {% for voce in voci_bilancio_list %}
-
-                                            <li>
-                                                <a href="#">
-                                                    <span class="icon sprite-info pull-right"></span> {{ voce.denominazione }}
-                                                </a>
-                                            </li>
-
-                                        {% endfor %}
-
-                                    </ul>
-                                </div>
-                            </li>
-                        </ul>
                 </aside>
-            {% endif %}
+            {% endblock %}
         </div> <!-- ./row -->
 
 
-
-
-
-
     </div><!-- /.panel-body -->
+{% endblock %}
+
+{% block extra_js %}
+
+    <script type="text/javascript">
+
+
+        $(document).ready(function(){
+
+            {# opens by default the indicator menu on page load #}
+            var $sidebar = $( '#sidebar' ),
+                $content = $( '#content' );
+
+
+            var clss = {
+                btn: {
+                    on: 'active'
+                },
+                content: {
+                    on: 'col-sm-12',
+                    off: 'col-sm-8 col-sm-push-4'
+                },
+                sidebar: {
+                    on: 'col-sm-4 col-sm-pull-8',
+                    off: 'hidden'
+                }
+            };
+
+            $sidebar
+                .removeClass( clss.sidebar.off )
+                .addClass( clss.sidebar.on );
+            $content
+                .removeClass( clss.content.on )
+                .addClass( clss.content.off );
+            $( '#toggle-menu' ).addClass( clss.btn.on );
+        });
+
+
+    </script>
+
 {% endblock %}

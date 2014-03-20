@@ -456,7 +456,8 @@ class ConfrontiView(TemplateView):
         context['contesto_2'] = self.territorio_2.latest_contesto
 
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['voci_bilancio_list'] = Voce.objects.all().order_by('slug')
+        context['entrate_list'] = Voce.objects.all().order_by('slug')
+        context['spese_list'] = Voce.objects.all().order_by('slug')
 
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
