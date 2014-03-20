@@ -8,6 +8,7 @@ from territori.models import Territorio
 class TerritoriSearchForm(forms.Form):
 
     territori = TerritoriChoices(
+        to_field_name = 'slug',
         required=False,
         label='',
         widget=TerritoriChoices.widget(

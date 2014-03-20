@@ -270,7 +270,7 @@ class BilancioRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
-        territorio = get_object_or_404(Territorio, pk=int(self.request.GET.get('territori',0)))
+        territorio = get_object_or_404(Territorio, slug=self.request.GET.get('territori',0))
 
         couch_data = couch.get(territorio.cod_finloc)
 
@@ -382,49 +382,56 @@ class BilancioIndicatoriView(BilancioView):
     template_name = 'bilanci/indicatori.html'
 
 
-class ConfrontiRedirectView(RedirectView):
-
-    def get_redirect_url(self, *args, **kwargs):
-
-        # transforms the territorio_pk to territorio_slug to create a readable URL for Comuni confronti
-
-        territorio_1 = get_object_or_404(Territorio, pk=int(self.request.GET.get('territorio_1',0)))
-        territorio_2 = get_object_or_404(Territorio, pk=int(self.request.GET.get('territorio_2',0)))
-
-        if territorio_1 == territorio_2:
-            return reverse('home')
-
-        kwargs['territorio_1_slug'] = territorio_1.slug
-        kwargs['territorio_2_slug'] = territorio_2.slug
-
-        try:
-            url = reverse('confronti-data', args=args , kwargs=kwargs)
-        except NoReverseMatch:
-            return reverse('404')
-        else:
-            return url
-
-
-
 class ConfrontiHomeView(TemplateView):
 
     ##
     # ConfrontiHomeView shows the search form to compare two Territori
     ##
 
-    template_name = "bilanci/confronti.html"
+    template_name = "bilanci/confronti_home.html"
 
     def get_context_data(self, **kwargs):
 
         # generates the list of bilancio Voce and Indicators
         # for the selection menu displayed on page
 
-        context = {'territori_comparison_search_form': TerritoriComparisonSearchForm(),
-                   'indicator_list': Indicatore.objects.all().order_by('denominazione'),
-                   'voci_bilancio_list': Voce.objects.all().order_by('denominazione')}
+        context = {'territori_comparison_search_form': TerritoriComparisonSearchForm(),}
 
 
         return context
+
+
+class ConfrontiRedirectView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+
+        # redirects to appropriate confronti view based on default parameter for Territori
+        # todo: define in settings default indicatore
+        kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+
+        try:
+            url = reverse('confronti-indicatori', args=args , kwargs=kwargs)
+        except NoReverseMatch:
+            return reverse('404')
+        else:
+            return url
+
+
+class CheckTerritoriMixin(object):
+
+    def get(self, request, *args, **kwargs):
+        context = super(CheckTerritoriMixin, self).get(self, request, *args, **kwargs)
+
+
+
+class ConfrontiEntrateView(TemplateView):
+    pass
+
+class ConfrontiSpeseView(TemplateView):
+    pass
+
+class ConfrontiIndicatoriView(TemplateView):
+    pass
 
 
 class ConfrontiDataView(ConfrontiHomeView):
@@ -432,6 +439,8 @@ class ConfrontiDataView(ConfrontiHomeView):
     ##
     # ConfrontiDataView shows the complete comparison of two Territori
     ##
+
+    template_name = "bilanci/confronti_data.html"
 
 
     def get(self, request, *args, **kwargs):
@@ -463,6 +472,9 @@ class ConfrontiDataView(ConfrontiHomeView):
             TerritoriComparisonSearchForm(
                 initial={'territorio_1': territorio_1, 'territorio_2': territorio_2}
             )
+
+        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['voci_bilancio_list'] = Voce.objects.all().order_by('slug')
 
 
         return context

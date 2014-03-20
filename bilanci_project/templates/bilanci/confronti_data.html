@@ -13,101 +13,135 @@
 
 {% block content %}
 
-   <div class="panel-heading">
-                    <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
-                    <h1 class="panel-title">CONFRONTI</h1>
-                </div>
+    <div class="panel-heading">
+        <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
+        <h1 class="panel-title">CONFRONTI</h1>
+    </div>
 
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <a href="#" id="toggle-menu" role="button"><span class="icon sprite-toggle-menu"></span></a>
+    <div class="panel-body">
+        {% block comparison_list %}
+            <div class="row">
+                <div class="col-sm-4">
+                    <a href="#" id="toggle-menu" role="button">
+                        <span class="icon sprite-toggle-menu"></span>
+                    </a>
+                </div>
+            </div>
+        {% endblock %}
+        <hr class="no-border">
+
+        <div class="row">
+            <div id="content" class="col-sm-12">
+                <div id="comparison" class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <div class="form-group">
+
+                                    <label for="">CONFRONTA</label>
+                                    {{ territori_comparison_search_form.territorio_1 }}
+                                    {% if territorio_1 %}
+                                        {% confronti_helpbox territorio_1 %}
+                                    {% endif %}
+                                 </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="form-group">
+
+                                    <label for="">CON</label>
+                                    {{ territori_comparison_search_form.territorio_2 }}
+                                    {% if territorio_2 %}
+                                        {% confronti_helpbox territorio_2 %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="">&nbsp;</label><br>
+                                    <a href="" class="btn btn-link" id="confronti_submit_btn">
+                                        <span class="icon sprite-submit"></span>
+                                    </a>
+                                </div>
+                            </div>
+                            {#       error message box #}
+                            <div class="col-sm-12 hidden" id="error_msg_box">
+                                <p id="log" class="error">
+                                    <span class="icon sprite-status"></span><span id="error_msg_box_txt"></span>
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <hr class="no-border">
+                </div> <!-- /panel panel-default -->
 
-                    <div class="row">
-                        <div id="content" class="col-sm-12">
-                            <div id="comparison" class="panel panel-default">
-                                <div class="panel-body">
-                                    <form role="form" action="{% url 'confronti-search' %}">
-                                        <div class="row">
-                                            <div class="col-sm-5">
-                                                <div class="form-group">
-
-                                                    <label for="">CONFRONTA</label>
-                                                    {{ territori_comparison_search_form.territorio_1 }}
-                                                    {% if territorio_1 %}
-                                                        {% confronti_helpbox territorio_1 %}
-                                                    {% endif %}
-                                                 </div>
-                                            </div>
-                                            <div class="col-sm-5">
-                                                <div class="form-group">
-
-                                                    <label for="">CON</label>
-                                                    {{ territori_comparison_search_form.territorio_2 }}
-                                                    {% if territorio_2 %}
-                                                        {% confronti_helpbox territorio_2 %}
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <div class="form-group">
-                                                    <label for="">&nbsp;</label><br>
-                                                    <button type="submit" class="btn btn-link">
-                                                        <span class="icon sprite-submit"></span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </form>
+                {% if territorio_1 and territorio_2 %}
+                    <div id="results" class="row">
+                        <div class="col-md-12">
+                            <div class="panel panel-default panel-nobg">
+                                <div class="panel-heading clearfix">
+                                    <h3 class="panel-title">VELOCITA DI RISCOSSIONE DELLE ENTRATE PROPRIE</h3>
+                                    <p>in INDICATORI: TITOLO <span class="sep">›</span> VOCE DI III LIVELLO</p>
                                 </div>
-                            </div> <!-- /panel panel-default -->
-
-                            {% if territorio_1 and territorio_2 %}
-                                <div id="results" class="row">
-                                    <div class="col-md-12">
-                                        <div class="panel panel-default panel-nobg">
-                                            <div class="panel-heading clearfix">
-                                                <h3 class="panel-title">VELOCITA DI RISCOSSIONE DELLE ENTRATE PROPRIE</h3>
-                                                <p>in INDICATORI: TITOLO <span class="sep">›</span> VOCE DI III LIVELLO</p>
-                                            </div>
-                                            <div class="panel-body">
-                                                <div class="comparison-graph">
-                                                    {% include 'commons/_lines_chart_over_the_years.html' %}
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="panel-body">
+                                    <div class="comparison-graph">
+                                        {% include 'commons/_lines_chart_over_the_years.html' %}
                                     </div>
-                                </div><!-- /#results -->
-                            {% endif %}
+                                </div>
+                            </div>
                         </div>
-                        {# comparison list menu  #}
-                        <aside id="sidebar" class="hidden">
-                            <ul class="nav nav-stacked menu">
-                                <li class="active">
-                                    <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> NOME CATEGORIA</a>
-                                    <div class="scrollbox">
+                    </div><!-- /#results -->
+                {% endif %}
+            </div>
+            {# comparison list menu  #}
+            {% if territorio_1 and territorio_2 %}
+                <aside id="sidebar" class="hidden">
+                    <ul class="nav nav-stacked menu">
+                        <li class="active">
+                            <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> INDICATORI</a>
+                            <div class="scrollbox">
 
-                                        <ul class="nav nav-stacked">
-                                            {% for indicator in indicator_list %}
-                                                <li>
-                                                    <a href="#"><span class="icon sprite-info pull-right"></span> {{ indicator.denominazione }}</a>
-                                                </li>
+                                <ul class="nav nav-stacked">
+                                    {% for indicator in indicator_list %}
 
-                                            {% endfor %}
+                                        <li>
+                                            <a href="{% url 'confronti-data' territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug parameter_slug=indicator.slug %}">
+                                                <span class="icon sprite-info pull-right"></span> {{ indicator.denominazione }}
+                                            </a>
+                                        </li>
 
-                                        </ul>
+                                    {% endfor %}
 
-                                    </div>
-                                </li>
-                            </ul>
-                        </aside>
-                        {# /comparison list menu  #}
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-stacked menu">
+                            <li class="active">
+                                <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> VOCI BILANCIO</a>
+                                <div class="scrollbox">
+
+                                    <ul class="nav nav-stacked">
+                                        {% for voce in voci_bilancio_list %}
+
+                                            <li>
+                                                <a href="{% url 'confronti-data' territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug parameter_slug=voce.slug %}">
+                                                    <span class="icon sprite-info pull-right"></span> {{ voce.denominazione }}
+                                                </a>
+                                            </li>
+
+                                        {% endfor %}
+
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                </aside>
+            {% endif %}
+        </div> <!-- ./row -->
 
 
 
 
-                </div><!-- /.panel-body -->
+
+
+    </div><!-- /.panel-body -->
 {% endblock %}

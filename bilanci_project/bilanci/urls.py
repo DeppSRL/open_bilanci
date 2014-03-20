@@ -4,7 +4,8 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import ConfrontiDataView, BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, HomeView, ConfrontiHomeView, ConfrontiRedirectView
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, HomeView, \
+    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView
 
 admin.autodiscover()
 
@@ -20,9 +21,25 @@ urlpatterns = patterns('',
 
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
 
+    # confronti
     url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),
-    url(r'^confronti/search', ConfrontiRedirectView.as_view(), name='confronti-search'),
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)', ConfrontiDataView.as_view(), name='confronti-data'),
+
+
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)$',
+        ConfrontiRedirectView.as_view(), name='confronti-redirect'
+        ),
+
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)',
+        ConfrontiEntrateView.as_view(), name='confronti-entrate'
+        ),
+
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)',
+        ConfrontiSpeseView.as_view(), name='confronti-spese'
+        ),
+
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)',
+        ConfrontiIndicatoriView.as_view(), name='confronti-indicatori'
+        ),
 
     url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
 
