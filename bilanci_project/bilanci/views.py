@@ -441,22 +441,10 @@ class ConfrontiView(TemplateView):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
-
-
-
-
-class ConfrontiEntrateView(TemplateView):
-    pass
-
-class ConfrontiSpeseView(TemplateView):
-    pass
-
-class ConfrontiIndicatoriView(ConfrontiView):
-
-    template_name = "bilanci/confronti_data.html"
-
     def get_context_data(self, **kwargs):
-        context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
+
+        # construct common context data for Confronti View
+        context = super(ConfrontiView, self).get_context_data( **kwargs)
 
         context['territorio_1'] = self.territorio_1
         context['territorio_2'] = self.territorio_2
@@ -471,53 +459,37 @@ class ConfrontiIndicatoriView(ConfrontiView):
                     'territorio_2': self.territorio_2
                 }
             )
-
-
         return context
 
 
 
 
 
-
-class ConfrontiDataView(ConfrontiHomeView):
-
-    ##
-    # ConfrontiDataView shows the complete comparison of two Territori
-    ##
-
-    template_name = "bilanci/confronti_data.html"
-
-
-    def get(self, request, *args, **kwargs):
-
-        if 'territorio_1_slug' not in kwargs.keys() or 'territorio_2_slug' not in kwargs.keys():
-            return redirect('home')
-
-        else:
-            territorio_1_slug = kwargs['territorio_1_slug']
-            territorio_2_slug = kwargs['territorio_2_slug']
-
-            # avoids showing a comparison with a Territorio with itself
-            # redirects to home page
-            if territorio_2_slug == territorio_1_slug:
-                return redirect('home')
-
-        return super(ConfrontiDataView, self).get(request, *args, **kwargs)
+class ConfrontiEntrateView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
+        context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
 
-        context = super(ConfrontiDataView, self).get_context_data(**kwargs)
-
-        territorio_1 = get_object_or_404(Territorio, slug = kwargs['territorio_1_slug'])
-        territorio_2 = get_object_or_404(Territorio, slug = kwargs['territorio_2_slug'])
-
-        context['territorio_1'] = territorio_1
-        context['territorio_2'] = territorio_2
-        context['territori_comparison_search_form'] = \
-            TerritoriComparisonSearchForm(
-                initial={'territorio_1': territorio_1, 'territorio_2': territorio_2}
-            )
-
+        context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
 
         return context
+
+class ConfrontiSpeseView(ConfrontiView):
+    def get_context_data(self, **kwargs):
+        context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
+
+        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+
+        return context
+
+class ConfrontiIndicatoriView(ConfrontiView):
+
+
+    def get_context_data(self, **kwargs):
+        context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
+
+        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+
+        return context
+
+
