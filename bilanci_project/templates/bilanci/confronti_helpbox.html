@@ -1,4 +1,9 @@
+{% load humanize %}
 <p class="help-block">
     {{ territorio.prov }}, {{ territorio.regione }}<br>
-    <span class="icon sprite-small-town"></span> {{ territorio.get_cluster_display }}, 15.070 abitanti
+    <span class="icon sprite-small-town"></span> {{ territorio.get_cluster_display }},
+
+    {% if contesto %}
+        {{ contesto.bil_popolazione_residente|intcomma }} abitanti, dato {{ contesto.anno }}
+    {% endif %}
 </p>

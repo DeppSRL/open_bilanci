@@ -47,24 +47,24 @@ class TerritoriManager(models.GeoManager):
 
 class Territorio(models.Model):
     TERRITORIO = Choices(
-        ('C', 'Comune'),
-        ('P', 'Provincia'),
-        ('R', 'Regione'),
-        ('N', 'Nazionale'),
-        ('E', 'Estero'),
-        ('L', 'Cluster'),
+        (u'C', u'Comune'),
+        (u'P', u'Provincia'),
+        (u'R', u'Regione'),
+        (u'N', u'Nazionale'),
+        (u'E', u'Estero'),
+        (u'L', u'Cluster'),
         )
 
     CLUSTER = Choices(
-        ('1',"i_piu_piccoli", 'I più piccoli'),
-        ('2', "molto_piccoli", 'Molto piccoli'),
-        ('3', "piccoli_1", 'Piccoli 1'),
-        ('4', "piccoli_2", 'Piccoli 2'),
-        ('5', "medio_piccoli", 'Medio piccoli'),
-        ('6', "medi", 'Medi'),
-        ('7', "grandi", 'Grandi'),
-        ('8', "molto_grandi", 'Molto grandi'),
-        ('9', "i_piu_grandi", 'I più grandi'),
+        (u'1',u"i_piu_piccoli", u'I più piccoli'),
+        (u'2', u"molto_piccoli", u'Molto piccoli'),
+        (u'3', u"piccoli_1", u'Piccoli 1'),
+        (u'4', u"piccoli_2", u'Piccoli 2'),
+        (u'5', u"medio_piccoli", u'Medio piccoli'),
+        (u'6', u"medi", u'Medi'),
+        (u'7', u"grandi", u'Grandi'),
+        (u'8', u"molto_grandi", u'Molto grandi'),
+        (u'9', u"i_piu_grandi", u'I più grandi'),
         )
 
     # codice sito Finanza Locale
@@ -88,9 +88,9 @@ class Territorio(models.Model):
 
     @property
     def codice(self):
-        if self.territorio == 'C':
+        if self.territorio == u'C':
             return self.cod_com
-        elif self.territorio == 'P':
+        elif self.territorio == u'P':
             return self.cod_prov
         else:
             return self.cod_reg
@@ -126,6 +126,18 @@ class Territorio(models.Model):
         else:
             return u"{0} ({1})".format(self.nome,self.prov)
 
+    @property
+    def latest_contesto(self):
+        if self.territorio == Territorio.TERRITORIO.C:
+            try:
+                contesto = self.contesto_set.all().order_by('-anno')[0]
+            except AttributeError:
+                return None
+
+            return contesto
+        else:
+            return None
+
     def __unicode__(self):
         return unicode(self.denominazione)
 
@@ -148,7 +160,7 @@ class Contesto(models.Model):
     bil_strade_montane = models.IntegerField(null=True, default=None, blank=True)
 
     ##
-    # NOTE: bil_popolazione_residente is deprecated, actual field for inhabitants is istat_abitanti
+    # NOTE: bil_popolazione_residente is the actual field, the data in istat_abitanti is unused
     ##
 
     bil_popolazione_residente = models.IntegerField(null=True, default=None, blank=True)

@@ -424,6 +424,7 @@ class ConfrontiView(TemplateView):
     territorio_1 = None
     territorio_2 = None
 
+
     def get(self, request, *args, **kwargs):
 
 
@@ -441,6 +442,8 @@ class ConfrontiView(TemplateView):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
+
+
     def get_context_data(self, **kwargs):
 
         # construct common context data for Confronti View
@@ -448,6 +451,9 @@ class ConfrontiView(TemplateView):
 
         context['territorio_1'] = self.territorio_1
         context['territorio_2'] = self.territorio_2
+
+        context['contesto_1'] = self.territorio_1.latest_contesto
+        context['contesto_2'] = self.territorio_2.latest_contesto
 
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['voci_bilancio_list'] = Voce.objects.all().order_by('slug')
@@ -471,7 +477,7 @@ class ConfrontiEntrateView(ConfrontiView):
         context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
 
         context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
-
+        context['indicator_type'] = "Entrate"
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
@@ -479,6 +485,7 @@ class ConfrontiSpeseView(ConfrontiView):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
 
         context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['indicator_type'] = "Spese"
 
         return context
 
@@ -489,6 +496,7 @@ class ConfrontiIndicatoriView(ConfrontiView):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
 
         context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['indicator_type'] = "Indicatori"
 
         return context
 

@@ -306,7 +306,7 @@ class Command(BaseCommand):
             for year in years:
                 self.logger.info(u"Setting Comune: {0}, year:{1}".format(territorio,year))
 
-                bilancio_id = "{0}_{1}".format(year, territorio)
+                bilancio_id = "{0}_{1}".format(year, territorio.cod_finloc)
                 # read data from couch
                 if bilancio_id in couchdb:
                     bilancio_data = couchdb[bilancio_id]
@@ -317,38 +317,43 @@ class Command(BaseCommand):
 
                             # if the contesto data is not present, inserts the data in the db
                             # otherwise skips
+                            contesto_pg = None
                             try:
                                 contesto_pg = Contesto.objects.get(
                                     anno = year,
                                     territorio = territorio,
                                 )
                             except ObjectDoesNotExist:
+                                contesto_pg = Contesto()
+                                pass
 
-                                # write data on postgres
-                                if dryrun is False:
-                                    contesto_dict = {}
+                            # write data on postgres
+                            if dryrun is False:
 
-                                    # contesto_keys maps the key in the couch doc and the name of
-                                    # the field in the model
 
-                                    contesto_keys = {
-                                        "nuclei familiari (n)":"bil_nuclei_familiari",
-                                        "superficie urbana (ha)":"bil_superficie_urbana",
-                                        "superficie totale del comune (ha)":"bil_superficie_totale",
-                                        "popolazione residente (ab.)":"bil_popolazione_residente",
-                                        "lunghezza delle strade esterne (km)":"bil_strade_esterne",
-                                        "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
-                                        "di cui: in territorio montano (km)":"bil_strade_montane",
-                                        }
+                                # contesto_keys maps the key in the couch doc and the name of
+                                # the field in the model
 
-                                    for contesto_key, contesto_value in contesto_keys.iteritems():
-                                        if contesto_key in contesto_couch:
-                                            contesto_dict[contesto_value] = clean_data(contesto_couch[contesto_key])
+                                contesto_keys = {
+                                    "nuclei familiari (n)":"bil_nuclei_familiari",
+                                    "superficie urbana (ha)":"bil_superficie_urbana",
+                                    "superficie totale del comune (ha)":"bil_superficie_totale",
+                                    "popolazione residente (ab.)":"bil_popolazione_residente",
+                                    "lunghezza delle strade esterne (km)":"bil_strade_esterne",
+                                    "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
+                                    "di cui: in territorio montano (km)":"bil_strade_montane",
+                                    }
 
-                                    contesto_dict['territorio'] = territorio
-                                    contesto_dict['anno'] = year
-                                    contesto_pg = Contesto(**contesto_dict)
-                                    contesto_pg.save()
+                                for contesto_key, contesto_value in contesto_keys.iteritems():
+                                    if contesto_key in contesto_couch:
+
+                                        setattr(contesto_pg,contesto_value,clean_data(contesto_couch[contesto_key]))
+
+
+                                contesto_pg.territorio = territorio
+                                contesto_pg.anno = year
+
+                                contesto_pg.save()
 
 
 

@@ -41,7 +41,7 @@
                                     <label for="">CONFRONTA</label>
                                     {{ territori_comparison_search_form.territorio_1 }}
                                     {% if territorio_1 %}
-                                        {% confronti_helpbox territorio_1 %}
+                                        {% confronti_helpbox territorio_1 contesto_1 %}
                                     {% endif %}
                                  </div>
                             </div>
@@ -51,7 +51,7 @@
                                     <label for="">CON</label>
                                     {{ territori_comparison_search_form.territorio_2 }}
                                     {% if territorio_2 %}
-                                        {% confronti_helpbox territorio_2 %}
+                                        {% confronti_helpbox territorio_2  contesto_2 %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -78,8 +78,8 @@
                         <div class="col-md-12">
                             <div class="panel panel-default panel-nobg">
                                 <div class="panel-heading clearfix">
-                                    <h3 class="panel-title">{{ indicator.denominazione|upper }}</h3>
-                                    <p>in INDICATORI: TITOLO <span class="sep">›</span> VOCE DI III LIVELLO</p>
+                                    <h3 class="panel-title">{{ indicator_type }}</h3>
+                                    <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
                                 </div>
                                 <div class="panel-body">
                                     <div class="comparison-graph">
