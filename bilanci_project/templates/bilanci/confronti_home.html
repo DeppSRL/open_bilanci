@@ -1,34 +1,78 @@
-{% extends "bilanci/confronti_data.html" %}
+{% extends "base.html" %}
+{% load staticfiles %}
 
-{% block confronti_parameter_menu_toggle %}{% endblock %}
-{% block confronti_parameter_menu %}{% endblock %}
+
+{% block content %}
+
+    <div class="panel-heading">
+        <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
+        <h1 class="panel-title">CONFRONTI</h1>
+    </div>
+
+    <div class="panel-body">
+        {% block confronti_parameter_menu_toggle %}
+        {% endblock %}
+
+        <hr class="no-border">
+
+        <div class="row">
+            <div id="content" class="col-sm-12">
+                <div id="comparison" class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-5">
+                                <div class="form-group">
+
+                                    <label for="">CONFRONTA</label>
+                                    {{ territori_comparison_search_form.territorio_1 }}
+                                    {% block helpbox_1 %}{% endblock %}
+                                 </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="form-group">
+
+                                    <label for="">CON</label>
+                                    {{ territori_comparison_search_form.territorio_2 }}
+                                    {% block helpbox_2 %}{% endblock %}
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="">&nbsp;</label><br>
+                                    <a class="btn btn-link" id="confronti_submit_btn">
+                                        <span class="icon sprite-submit"></span>
+                                    </a>
+                                </div>
+                            </div>
+                            {#       error message box #}
+                            <div class="col-sm-12 hidden" id="error_msg_box">
+                                <p id="log" class="error">
+                                    <span class="icon sprite-status"></span><span id="error_msg_box_txt"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- /panel panel-default -->
+                {% block results %}
+
+                {% endblock %}
+            </div>
+
+            {% block confronti_parameter_menu %}{% endblock %}
+
+        </div> <!-- ./row -->
+
+
+    </div><!-- /.panel-body -->
+{% endblock %}
 
 {% block extra_js %}
 
-{#  binds the  territorio_1, territorio_2 autocomplete fields with #}
-{#  the url of the fake submit button  #}
-
+    {#  binds the  territorio_1, territorio_2 autocomplete fields with #}
+    {#  the url of the fake submit button  #}
+    <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
 
     <script type="text/javascript">
-
-        var url_is_correct = false;
-
-        function changeConfrontiHomeUrl(){
-            var territorio_1_slug = $("#id_territorio_1").select2("val");
-            var territorio_2_slug = $("#id_territorio_2").select2("val");
-
-            if(territorio_1_slug && territorio_2_slug){
-
-                //sets url for the fake submit button
-                var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug+"";
-                $("#confronti_submit_btn").attr("href", url);
-                url_is_correct = true;
-            }
-            else{
-
-                url_is_correct = false;
-            }
-        }
 
 
         $(document).ready(function(){
@@ -37,22 +81,7 @@
             $("#id_territorio_2").on("click", function(){ changeConfrontiHomeUrl();});
 
             $("#confronti_submit_btn").on('click', function(e) {
-                e.preventDefault();
-
-                //if url is correct, navigates to confronti page, else display error msg
-
-                if(url_is_correct)
-                {
-                    window.location = $("#confronti_submit_btn").attr('href');
-                }
-                else{
-                    //insert error text
-                    $( "#error_msg_box_txt" ).html('ATTENZIONE, DEVI SELEZIONARE DUE COMUNI PER PROCEDERE NEL CONFRONTO')
-                    //show error_msg_box
-                    $("#error_msg_box").removeClass('hidden');
-
-                }
-
+                submitButtonConfronti(e);
             });
         });
 

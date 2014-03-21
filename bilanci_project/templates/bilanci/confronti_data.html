@@ -1,4 +1,4 @@
-{%  extends "base.html" %}
+{%  extends "bilanci/confronti_home.html" %}
 {% load staticfiles %}
 {% load confronti_helpbox %}
 {% load confronti_parameter_list %}
@@ -7,197 +7,65 @@
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ indicator.denominazione }}
 {% endblock %}
 
+{% block helpbox_1 %}
+    {% confronti_helpbox territorio_1 contesto_1 %}
+{% endblock %}
 
+{% block helpbox_2 %}
+    {% confronti_helpbox territorio_2  contesto_2 %}
+{% endblock %}
 
-{% block content %}
-
-    <div class="panel-heading">
-        <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
-        <h1 class="panel-title">CONFRONTI</h1>
+{% block confronti_parameter_menu_toggle %}
+    <div class="row">
+        <div class="col-sm-4">
+            <a href="" id="toggle-menu" role="button">
+                <span class="icon sprite-toggle-menu"></span>
+            </a>
+        </div>
     </div>
+{% endblock %}
 
-    <div class="panel-body">
-        {% block confronti_parameter_menu_toggle %}
-            <div class="row">
-                <div class="col-sm-4">
-                    <a href="" id="toggle-menu" role="button">
-                        <span class="icon sprite-toggle-menu"></span>
-                    </a>
+{# comparison list menu  #}
+{% block confronti_parameter_menu %}
+    <aside id="sidebar" class="confronti_parameter_container" class="hidden">
+        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug  %}
+        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug %}
+        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug %}
+
+    </aside>
+{% endblock %}
+
+{% block results %}
+    <div id="results" class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default panel-nobg">
+                <div class="panel-heading clearfix">
+                    <h3 class="panel-title">{{ indicator_type }}</h3>
+                    <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
+                </div>
+                <div class="panel-body">
+                    <div class='col-md-12'>
+                        {% include 'commons/_lines_chart_over_the_years.html' %}
+                    </div>
                 </div>
             </div>
-        {% endblock %}
-        <hr class="no-border">
-
-        <div class="row">
-            <div id="content" class="col-sm-12">
-                <div id="comparison" class="panel panel-default">
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-5">
-                                <div class="form-group">
-
-                                    <label for="">CONFRONTA</label>
-                                    {{ territori_comparison_search_form.territorio_1 }}
-                                    {% if territorio_1 %}
-                                        {% confronti_helpbox territorio_1 contesto_1 %}
-                                    {% endif %}
-                                 </div>
-                            </div>
-                            <div class="col-sm-5">
-                                <div class="form-group">
-
-                                    <label for="">CON</label>
-                                    {{ territori_comparison_search_form.territorio_2 }}
-                                    {% if territorio_2 %}
-                                        {% confronti_helpbox territorio_2  contesto_2 %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-sm-2">
-                                <div class="form-group">
-                                    <label for="">&nbsp;</label><br>
-                                    <a class="btn btn-link" id="confronti_submit_btn">
-                                        <span class="icon sprite-submit"></span>
-                                    </a>
-                                </div>
-                            </div>
-                            {#       error message box #}
-                            <div class="col-sm-12 hidden" id="error_msg_box">
-                                <p id="log" class="error">
-                                    <span class="icon sprite-status"></span><span id="error_msg_box_txt"></span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div> <!-- /panel panel-default -->
-
-
-                <div id="results" class="row">
-                    <div class="col-md-12">
-                        <div class="panel panel-default panel-nobg">
-                            <div class="panel-heading clearfix">
-                                <h3 class="panel-title">{{ indicator_type }}</h3>
-                                <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
-                            </div>
-                            <div class="panel-body">
-                                <div class='col-md-12'>
-                                    {% include 'commons/_lines_chart_over_the_years.html' %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- /#results -->
-
-            </div>
-            {# comparison list menu  #}
-            {% block confronti_parameter_menu %}
-                <aside id="sidebar" class="confronti_parameter_container" class="hidden">
-                    {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug  %}
-                    {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug %}
-                    {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug %}
-
-                </aside>
-            {% endblock %}
-        </div> <!-- ./row -->
-
-
-    </div><!-- /.panel-body -->
+        </div>
+    </div><!-- /#results -->
 {% endblock %}
+
 
 {% block extra_js %}
 
-    <script type="text/javascript">
-
-        var url_is_correct = false;
-
-        function setIndicatorLinksUrl(){
-            var territorio_1_slug = $("#id_territorio_1").select2("val");
-            var territorio_2_slug = $("#id_territorio_2").select2("val");
-
-            var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
-            //gets all the link in the parameter side menu
-            var parameters = $('.confronti_parameter_container li a');
-
-            //sets the link for indicators in the menu as
-            // confronti/territorio1/territorio2/typeofindicator/indicator-slug
-
-            $.each(parameters, function(index, value) {
-                var indicator_id = this.id;
-
-                var newLink = url + "/" + indicator_id;
-                $(value).attr('href', newLink);
-            });
-
-        }
-
-        function setSubmitButtonUrl(){
-
-            var territorio_1_slug = $("#id_territorio_1").select2("val");
-            var territorio_2_slug = $("#id_territorio_2").select2("val");
-
-            var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
-
-            $("#confronti_submit_btn").attr("href", url);
-        }
-
-        function changeConfrontiDataUrl(){
-
-            var territorio_1_slug = $("#id_territorio_1").select2("val");
-            var territorio_2_slug = $("#id_territorio_2").select2("val");
-
-            if(territorio_1_slug && territorio_2_slug){
-
-                //sets url for the fake submit button
-                setSubmitButtonUrl();
-
-                // sets url for indicatori link in the side menu
-                setIndicatorLinksUrl();
-
-                url_is_correct = true;
-            }
-            else{
-
-                url_is_correct = false;
-            }
-        }
-
-
-        $(document).ready(function(){
-
-            $("#id_territorio_1").on("click", function(){ changeConfrontiDataUrl();});
-            $("#id_territorio_2").on("click", function(){ changeConfrontiDataUrl();});
-
-            //initialize fake submit button url and side menu
-            changeConfrontiDataUrl();
-
-            $("#confronti_submit_btn").on('click', function(e) {
-                e.preventDefault();
-
-                //if url is correct, navigates to confronti page, else display error msg
-
-                if(url_is_correct)
-                {
-                    window.location = $("#confronti_submit_btn").attr('href');
-                }
-                else{
-                    //insert error text
-                    $( "#error_msg_box_txt" ).html('ATTENZIONE, DEVI SELEZIONARE DUE COMUNI PER PROCEDERE NEL CONFRONTO')
-                    //show error_msg_box
-                    $("#error_msg_box").removeClass('hidden');
-
-                }
-
-            });
-        });
-
-
-    </script>
+    <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
 
     <script type="text/javascript">
 
         $(document).ready(function(){
 
-            //opens by default the indicator menu on page load
+            /*
+            opens by default the indicator menu on page load
+            */
+
             var $sidebar = $( '#sidebar' ),
                 $content = $( '#content' );
 
@@ -223,7 +91,23 @@
                 .addClass( clss.content.off );
             $( '#toggle-menu' ).addClass( clss.btn.on );
 
+
+            /*
+            initialize fake submit button url and side menu url
+             */
+
+
+            $("#id_territorio_1").on("click", function(){ changeConfrontiDataUrl();});
+            $("#id_territorio_2").on("click", function(){ changeConfrontiDataUrl();});
+
+
+            changeConfrontiDataUrl();
+
+            $("#confronti_submit_btn").on('click', function(e) {
+                submitButtonConfronti(e);
+            });
         });
+
     </script>
 
     <!-- visup js -->
