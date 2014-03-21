@@ -406,7 +406,7 @@ class ConfrontiRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
         # redirects to appropriate confronti view based on default parameter for Territori
-        # todo: define in settings default indicatore
+        # todo: define in settings default indicator
         kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
 
         try:
@@ -455,9 +455,11 @@ class ConfrontiView(TemplateView):
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto
 
+
+        # defines the lists of possible confrontation parameters
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['entrate_list'] = Voce.objects.all().order_by('slug')
-        context['spese_list'] = Voce.objects.all().order_by('slug')
+        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
+        context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
 
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
@@ -466,9 +468,8 @@ class ConfrontiView(TemplateView):
                     'territorio_2': self.territorio_2
                 }
             )
+
         return context
-
-
 
 
 
@@ -482,22 +483,22 @@ class ConfrontiEntrateView(ConfrontiView):
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
+
     def get_context_data(self, **kwargs):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
-
-        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
         context['indicator_type'] = "Spese"
+        context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+
 
         return context
 
 class ConfrontiIndicatoriView(ConfrontiView):
 
-
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
-
-        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
         context['indicator_type'] = "Indicatori"
+        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+
 
         return context
 

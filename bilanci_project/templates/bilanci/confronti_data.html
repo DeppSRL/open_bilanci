@@ -1,15 +1,12 @@
 {%  extends "base.html" %}
+{% load staticfiles %}
 {% load confronti_helpbox %}
 {% load confronti_parameter_list %}
 
 {% block page_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ indicator.denominazione }}
 {% endblock %}
 
-
-{% block content_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }}
-{% endblock %}
 
 
 {% block content %}
@@ -23,7 +20,7 @@
         {% block confronti_parameter_menu_toggle %}
             <div class="row">
                 <div class="col-sm-4">
-                    <a href="#" id="toggle-menu" role="button">
+                    <a href="" id="toggle-menu" role="button">
                         <span class="icon sprite-toggle-menu"></span>
                     </a>
                 </div>
@@ -59,7 +56,7 @@
                             <div class="col-sm-2">
                                 <div class="form-group">
                                     <label for="">&nbsp;</label><br>
-                                    <a href="" class="btn btn-link" id="confronti_submit_btn">
+                                    <a class="btn btn-link" id="confronti_submit_btn">
                                         <span class="icon sprite-submit"></span>
                                     </a>
                                 </div>
@@ -74,30 +71,30 @@
                     </div>
                 </div> <!-- /panel panel-default -->
 
-                {% if territorio_1 and territorio_2 %}
-                    <div id="results" class="row">
-                        <div class="col-md-12">
-                            <div class="panel panel-default panel-nobg">
-                                <div class="panel-heading clearfix">
-                                    <h3 class="panel-title">{{ indicator_type }}</h3>
-                                    <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="comparison-graph">
-                                        {% include 'commons/_lines_chart_over_the_years.html' %}
-                                    </div>
+
+                <div id="results" class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default panel-nobg">
+                            <div class="panel-heading clearfix">
+                                <h3 class="panel-title">{{ indicator_type }}</h3>
+                                <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
+                            </div>
+                            <div class="panel-body">
+                                <div class='col-md-12'>
+                                    {% include 'commons/_lines_chart_over_the_years.html' %}
                                 </div>
                             </div>
                         </div>
-                    </div><!-- /#results -->
-                {% endif %}
+                    </div>
+                </div><!-- /#results -->
+
             </div>
             {# comparison list menu  #}
             {% block confronti_parameter_menu %}
-                <aside id="sidebar" class="hidden">
-                    {% confronti_parameter_list 'indicatori' indicator_list  %}
-                    {% confronti_parameter_list 'entrate' entrate_list %}
-                    {% confronti_parameter_list 'spese' spese_list  %}
+                <aside id="sidebar" class="confronti_parameter_container" class="hidden">
+                    {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug  %}
+                    {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug %}
+                    {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug %}
 
                 </aside>
             {% endblock %}
@@ -111,13 +108,99 @@
 
     <script type="text/javascript">
 
+        var url_is_correct = false;
+
+        function setIndicatorLinksUrl(){
+            var territorio_1_slug = $("#id_territorio_1").select2("val");
+            var territorio_2_slug = $("#id_territorio_2").select2("val");
+
+            var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
+            //gets all the link in the parameter side menu
+            var parameters = $('.confronti_parameter_container li a');
+
+            //sets the link for indicators in the menu as
+            // confronti/territorio1/territorio2/typeofindicator/indicator-slug
+
+            $.each(parameters, function(index, value) {
+                var indicator_id = this.id;
+
+                var newLink = url + "/" + indicator_id;
+                $(value).attr('href', newLink);
+            });
+
+        }
+
+        function setSubmitButtonUrl(){
+
+            var territorio_1_slug = $("#id_territorio_1").select2("val");
+            var territorio_2_slug = $("#id_territorio_2").select2("val");
+
+            var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
+
+            $("#confronti_submit_btn").attr("href", url);
+        }
+
+        function changeConfrontiDataUrl(){
+
+            var territorio_1_slug = $("#id_territorio_1").select2("val");
+            var territorio_2_slug = $("#id_territorio_2").select2("val");
+
+            if(territorio_1_slug && territorio_2_slug){
+
+                //sets url for the fake submit button
+                setSubmitButtonUrl();
+
+                // sets url for indicatori link in the side menu
+                setIndicatorLinksUrl();
+
+                url_is_correct = true;
+            }
+            else{
+
+                url_is_correct = false;
+            }
+        }
+
 
         $(document).ready(function(){
 
-            {# opens by default the indicator menu on page load #}
+            $("#id_territorio_1").on("click", function(){ changeConfrontiDataUrl();});
+            $("#id_territorio_2").on("click", function(){ changeConfrontiDataUrl();});
+
+            //initialize fake submit button url and side menu
+            setSubmitButtonUrl();
+            setIndicatorLinksUrl();
+
+            $("#confronti_submit_btn").on('click', function(e) {
+                e.preventDefault();
+
+                //if url is correct, navigates to confronti page, else display error msg
+
+                if(url_is_correct)
+                {
+                    window.location = $("#confronti_submit_btn").attr('href');
+                }
+                else{
+                    //insert error text
+                    $( "#error_msg_box_txt" ).html('ATTENZIONE, DEVI SELEZIONARE DUE COMUNI PER PROCEDERE NEL CONFRONTO')
+                    //show error_msg_box
+                    $("#error_msg_box").removeClass('hidden');
+
+                }
+
+            });
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            //opens by default the indicator menu on page load
             var $sidebar = $( '#sidebar' ),
                 $content = $( '#content' );
-
 
             var clss = {
                 btn: {
@@ -140,9 +223,33 @@
                 .removeClass( clss.content.on )
                 .addClass( clss.content.off );
             $( '#toggle-menu' ).addClass( clss.btn.on );
-        });
 
+        });
+    </script>
+
+    <!-- visup js -->
+    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/linegraph_utils.js' %}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        //    initialize the line graph with data
+        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_1.op_id voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
+                function (i) {
+            chart.data(i)
+        });
 
     </script>
 
+    <!-- / visup js -->
+
+{% endblock %}
+
+{% block extra_css %}
+{#    <!-- visup css-->#}
+    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+
+{#    <!-- / visup css-->#}
 {% endblock %}

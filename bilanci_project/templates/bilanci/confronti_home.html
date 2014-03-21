@@ -13,14 +13,14 @@
 
         var url_is_correct = false;
 
-        function changeUrl(){
+        function changeConfrontiHomeUrl(){
             var territorio_1_slug = $("#id_territorio_1").select2("val");
             var territorio_2_slug = $("#id_territorio_2").select2("val");
 
             if(territorio_1_slug && territorio_2_slug){
 
                 //sets url for the fake submit button
-                var url = 'confronti/'+territorio_1_slug+"/"+territorio_2_slug+"";
+                var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug+"";
                 $("#confronti_submit_btn").attr("href", url);
                 url_is_correct = true;
             }
@@ -33,8 +33,8 @@
 
         $(document).ready(function(){
 
-            $("#id_territorio_1").on("click", function(){ changeUrl();});
-            $("#id_territorio_2").on("click", function(){ changeUrl();});
+            $("#id_territorio_1").on("click", function(){ changeConfrontiHomeUrl();});
+            $("#id_territorio_2").on("click", function(){ changeConfrontiHomeUrl();});
 
             $("#confronti_submit_btn").on('click', function(e) {
                 e.preventDefault();

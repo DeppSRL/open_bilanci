@@ -5,8 +5,6 @@ from mptt.models import MPTTModel
 from territori.models import Territorio
 
 
-
-
 class VoceManager(models.Manager):
     def get_dict_by_slug(self):
         """

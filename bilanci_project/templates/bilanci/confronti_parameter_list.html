@@ -2,10 +2,25 @@
     <li class="active">
         <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> {{ parameter_list_type|upper }}</a>
         <div class="scrollbox">
-            <ul class="nav nav-stacked">
+            <ul class="nav nav-stacked" id="parameter_list_{{ parameter_list_type }}">
                 {% for parameter in parameter_list %}
                     <li>
-                        <a href="#">
+                        <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
+
+                        {# initialize the url for parameter list menu   #}
+                        {% if parameter_list_type == 'indicatori' %}
+                            href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                            {% else %}
+                            {% if parameter_list_type == 'entrate' %}
+                                href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                {% else %}
+                                {% if parameter_list_type == 'spese' %}
+                                    href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+
+                            >
                             <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
                         </a>
                     </li>
