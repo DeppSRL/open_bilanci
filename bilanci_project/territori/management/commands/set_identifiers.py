@@ -40,7 +40,7 @@ class Command(BaseCommand):
                     help='Offset of records to start from'),
     )
 
-    help = 'Assign Openpolis id and Istat id to each Territorio'
+    help = 'Assign Openpolis and Istat id to each Territorio'
 
     logger = logging.getLogger('management')
     baseurl = None
@@ -88,7 +88,7 @@ class Command(BaseCommand):
                 continue
             if limit and c >= limit + offset:
                 break
-            self.logger.info("{} - Setting op_id for {}".format(c, comune))
+            self.logger.info("{} - Setting identifiers for {}".format(c, comune))
 
             # prende lo slug del comune
             # fa una richiesta alle api di openpolis
@@ -97,9 +97,11 @@ class Command(BaseCommand):
 
             for place_identifier in place_identifiers:
                 if place_identifier['identifier'] == op_location_identifier:
+                    self.logger.debug("  - op_id")
                     comune.op_id = place_identifier['value']
                 elif place_identifier['identifier'] == istat_location_identifier:
                     comune.istat_id = place_identifier['value']
+                    self.logger.debug("  - istat_id")
 
             # salva openpolis_id nel db
             if not self.dryrun:
