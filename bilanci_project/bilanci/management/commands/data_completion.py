@@ -107,7 +107,7 @@ class Command(BaseCommand):
                             cod_finloc = city,
                         )
                     except ObjectDoesNotExist:
-                        self.logger.error("Territorio:{0} doesnt exist, quitting".format(city))
+                        self.logger.warning("Territorio:{0} doesnt exist, quitting".format(city))
                         continue
 
                     else:
@@ -200,7 +200,7 @@ class Command(BaseCommand):
                     )
                     continue
 
-                n_abitanti = comune_context.istat_abitanti
+                n_abitanti = comune_context.bil_popolazione_residente
 
                 if n_abitanti > 0:
                     voci = ValoreBilancio.objects.filter(
@@ -335,10 +335,10 @@ class Command(BaseCommand):
                                 # the field in the model
 
                                 contesto_keys = {
+                                    "popolazione residente (ab.)":"bil_popolazione_residente",
                                     "nuclei familiari (n)":"bil_nuclei_familiari",
                                     "superficie urbana (ha)":"bil_superficie_urbana",
                                     "superficie totale del comune (ha)":"bil_superficie_totale",
-                                    "popolazione residente (ab.)":"bil_popolazione_residente",
                                     "lunghezza delle strade esterne (km)":"bil_strade_esterne",
                                     "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
                                     "di cui: in territorio montano (km)":"bil_strade_montane",
@@ -346,9 +346,7 @@ class Command(BaseCommand):
 
                                 for contesto_key, contesto_value in contesto_keys.iteritems():
                                     if contesto_key in contesto_couch:
-
                                         setattr(contesto_pg,contesto_value,clean_data(contesto_couch[contesto_key]))
-
 
                                 contesto_pg.territorio = territorio
                                 contesto_pg.anno = year
