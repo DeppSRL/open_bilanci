@@ -96,7 +96,7 @@ class Command(BaseCommand):
 
             for place_identifier in place_identifiers:
                 if place_identifier['identifier'] == op_location_identifier:
-                    self.logger.debug("  - op_id: {}".format(place_identifier['value']))
+                    self.logger.debug("   - op_id: {}".format(place_identifier['value']))
                     comune.op_id = place_identifier['value']
                 elif place_identifier['identifier'] == istat_location_identifier:
                     comune.istat_id = place_identifier['value']
