@@ -76,9 +76,8 @@ class Command(BaseCommand):
 
         # all cities in the DB
         comuni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
-        op_location_identifier = u'http:/{0}/maps/identifiers/op-location-id'.format(self.apidomain)
+        op_location_identifier = u'http://{0}/maps/identifiers/op-location-id'.format(self.apidomain)
         istat_location_identifier = u'http://{0}/maps/identifiers/istat-city-id'.format(self.apidomain)
 
         c = 0
@@ -97,11 +96,11 @@ class Command(BaseCommand):
 
             for place_identifier in place_identifiers:
                 if place_identifier['identifier'] == op_location_identifier:
-                    self.logger.debug("  - op_id")
+                    self.logger.debug("  - op_id: {}".format(place_identifier['value']))
                     comune.op_id = place_identifier['value']
                 elif place_identifier['identifier'] == istat_location_identifier:
                     comune.istat_id = place_identifier['value']
-                    self.logger.debug("  - istat_id")
+                    self.logger.debug("  - istat_id: {}".format(place_identifier['value']))
 
             # salva openpolis_id nel db
             if not self.dryrun:
