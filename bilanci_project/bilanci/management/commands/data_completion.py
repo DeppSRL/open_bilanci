@@ -346,7 +346,7 @@ class Command(BaseCommand):
 
                                 for contesto_key, contesto_value in contesto_keys.iteritems():
                                     if contesto_key in contesto_couch:
-                                        setattr(contesto_pg,contesto_value,clean_data(contesto_couch[contesto_key]))
+                                        setattr(contesto_pg, contesto_value, clean_data(contesto_couch[contesto_key]))
 
                                 contesto_pg.territorio = territorio
                                 contesto_pg.anno = year
@@ -380,6 +380,12 @@ def clean_data(data):
                 c_data = c_data[:c_data.find(",")]
 
             # removes the thousand-delimiter point and converts to int
-            return int(c_data.replace(".",""))
+            ret =  int(c_data.replace(".",""))
+
+            if ret > 10 * 1000 * 1000:
+                return None
+            else:
+                return ret
+
 
 
