@@ -101,17 +101,17 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, populati
         if 'TOTALE' in budget_node.keys():
             ret.valore = budget_node['TOTALE']
             if population:
-                ret.valore_procapite = ret.valore / population
+                ret.valore_procapite = ret.valore / float(population)
         else:
             ret.valore = ret.somma_valori()
             if population:
-                ret.valore_procapite = ret.valore / population
+                ret.valore_procapite = ret.valore / float(population)
         return ret
 
     else:
         voce_node_params['valore'] = budget_node
         if population:
-            voce_node_params['valore_procapite'] = budget_node / population
+            voce_node_params['valore_procapite'] = budget_node / float(population)
         return make_item(**voce_node_params)
 
 def make_tree_from_db(voce_node, valori_bilancio):
