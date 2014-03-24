@@ -8,7 +8,7 @@ from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
-from territori.models import Territorio
+from territori.models import Territorio, ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -124,7 +124,10 @@ class Command(BaseCommand):
 
         for city in cities:
 
-            territorio = Territorio.objects.get(cod_finloc=city)
+            try:
+                territorio = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
 
             # get all budgets for the city
             city_budget = couchdb.get(city)
