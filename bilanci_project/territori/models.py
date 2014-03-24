@@ -126,17 +126,24 @@ class Territorio(models.Model):
         else:
             return u"{0} ({1})".format(self.nome,self.prov)
 
-    @property
-    def latest_contesto(self):
-        if self.territorio == Territorio.TERRITORIO.C:
-            try:
-                contesto = self.contesto_set.all().order_by('-anno')[0]
-            except AttributeError:
-                return None
 
-            return contesto
-        else:
-            return None
+    def latest_contesto(self, anno = None):
+        contesto = None
+        if self.territorio == Territorio.TERRITORIO.C:
+            if anno:
+                try:
+                    contesto = self.contesto_set.filter(anno__lte=anno).order_by('-anno')[0]
+                except (AttributeError, IndexError):
+                    return None
+
+            else:
+                try:
+                    contesto = self.contesto_set.all().order_by('-anno')[0]
+                except (AttributeError, IndexError):
+                    return None
+
+        return contesto
+
 
     def nearest_valid_population(self, year):
         """
