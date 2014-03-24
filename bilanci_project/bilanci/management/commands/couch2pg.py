@@ -152,15 +152,25 @@ class Command(BaseCommand):
 
                 self.logger.info(u"- Processing year: {}".format(year))
 
+
+                # fetch valid population, starting from this year
+                # if no population found, set it to None, as not to break things
+                try:
+                    (pop_year, population) = territorio.nearest_valid_population(year)
+                except TypeError:
+                    population = None
+
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
                 city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo']
+                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
+                    population=population
                 )
                 city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo']
+                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
+                    population=population
                 )
 
 

@@ -138,8 +138,39 @@ class Territorio(models.Model):
         else:
             return None
 
+    def nearest_valid_population(self, year):
+        """
+        Fetch resident population data from context.
+        If the current year's context has no valid population,
+        the previous year is considered, then the next,
+        then 2/3 years before, then 2/3 after.
+        If no valid result is found, None is returned
+
+        :param year: year of start for the search
+
+        :return: a tuple of 2 elements (year, population)
+        """
+        if self.territorio == Territorio.TERRITORIO.C:
+            valid_pops = dict(
+                self.contesto_set.filter(bil_popolazione_residente__isnull=False).\
+                    values_list('anno', 'bil_popolazione_residente')
+            )
+            if year in valid_pops:
+                return (year, valid_pops[year])
+            else:
+                for i in range(1, 4):
+                    if (year - i) in valid_pops:
+                        return (year-1, valid_pops[year - i])
+                    elif (year + i) in valid_pops:
+                        return (year+1, valid_pops[year + i])
+
+                return None
+        else:
+            return None
+
     def __unicode__(self):
         return unicode(self.denominazione)
+
 
 
 
