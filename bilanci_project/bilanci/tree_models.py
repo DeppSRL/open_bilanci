@@ -89,7 +89,7 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, populati
                 continue
             local_path = path[:]
             local_path.append(key)
-            child_tree = make_tree_from_dict(child_node, voci_dict, local_path, logger)
+            child_tree = make_tree_from_dict(child_node, voci_dict, local_path, logger, population)
             if child_tree is not None:
                 treeitem_children.append(child_tree)
 
