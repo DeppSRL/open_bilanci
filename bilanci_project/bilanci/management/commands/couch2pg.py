@@ -163,6 +163,8 @@ class Command(BaseCommand):
                 except TypeError:
                     population = None
 
+                self.logger.debug("::Population: {0}".format(population))
+
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
                 # add the totals by extracting them from the dict, or by computing
