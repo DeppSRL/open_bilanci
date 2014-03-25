@@ -39,7 +39,7 @@ def make_composite(*items, **kwargs):
     return BilancioItem(*items, **kwargs)
 
 
-def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None):
+def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, population=None):
     """
     Generate a composite BilancioItem tree, starting from a budget_node python dict
 
@@ -89,7 +89,7 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None):
                 continue
             local_path = path[:]
             local_path.append(key)
-            child_tree = make_tree_from_dict(child_node, voci_dict, local_path, logger)
+            child_tree = make_tree_from_dict(child_node, voci_dict, local_path, logger, population)
             if child_tree is not None:
                 treeitem_children.append(child_tree)
 
@@ -100,12 +100,18 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None):
         # or computing the sum
         if 'TOTALE' in budget_node.keys():
             ret.valore = budget_node['TOTALE']
+            if population:
+                ret.valore_procapite = ret.valore / float(population)
         else:
             ret.valore = ret.somma_valori()
+            if population:
+                ret.valore_procapite = ret.valore / float(population)
         return ret
 
     else:
         voce_node_params['valore'] = budget_node
+        if population:
+            voce_node_params['valore_procapite'] = budget_node / float(population)
         return make_item(**voce_node_params)
 
 def make_tree_from_db(voce_node, valori_bilancio):

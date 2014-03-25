@@ -8,7 +8,7 @@ from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
-from territori.models import Territorio
+from territori.models import Territorio, ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -124,7 +124,10 @@ class Command(BaseCommand):
 
         for city in cities:
 
-            territorio = Territorio.objects.get(cod_finloc=city)
+            try:
+                territorio = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
 
             # get all budgets for the city
             city_budget = couchdb.get(city)
@@ -152,15 +155,27 @@ class Command(BaseCommand):
 
                 self.logger.info(u"- Processing year: {}".format(year))
 
+
+                # fetch valid population, starting from this year
+                # if no population found, set it to None, as not to break things
+                try:
+                    (pop_year, population) = territorio.nearest_valid_population(year)
+                except TypeError:
+                    population = None
+
+                self.logger.debug("::Population: {0}".format(population))
+
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
                 city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo']
+                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
+                    population=population
                 )
                 city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo']
+                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
+                    population=population
                 )
 
 
