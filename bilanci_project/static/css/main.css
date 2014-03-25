@@ -619,6 +619,11 @@ a:focus {
 #sidebar .menu > li {
   border-bottom: 1px solid #2a3036;
 }
+
+/*ADDED BY STEFANO FOR PARAMETER LIST MENU*/
+#sidebar .menu > li .active > a{
+    background-color: #ccc;
+}
 #sidebar .menu > li .icon {
   margin-right: 6px;
 }

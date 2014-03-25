@@ -574,9 +574,8 @@ class ConfrontiEntrateView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
-
-        context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
         context['parameter_type'] = "entrate"
+        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
@@ -584,7 +583,7 @@ class ConfrontiSpeseView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
         context['parameter_type'] = "spese"
-        context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
 
 
         return context
@@ -594,7 +593,7 @@ class ConfrontiIndicatoriView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
         context['parameter_type'] = "indicatori"
-        context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['parameter'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
 
 
         return context

@@ -4,7 +4,7 @@
 {% load confronti_parameter_list %}
 
 {% block page_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ indicator.denominazione }}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter.denominazione }}
 {% endblock %}
 
 {% block helpbox_1 %}
@@ -28,9 +28,9 @@
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
     <aside id="sidebar" class="confronti_parameter_container" class="hidden">
-        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug  %}
-        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug %}
-        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug %}
+        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
+        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
 
     </aside>
 {% endblock %}
@@ -41,7 +41,7 @@
             <div class="panel panel-default panel-nobg">
                 <div class="panel-heading clearfix">
                     <h3 class="panel-title">{{ parameter_type }}</h3>
-                    <p> {{ parameter_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
+                    <p> {{ parameter_type }}<span class="sep">›</span> {{ parameter.denominazione|upper }}</p>
                 </div>
                 <div class="panel-body">
                     <div class='col-md-12'>
@@ -63,7 +63,7 @@
         $(document).ready(function(){
 
             /*
-            opens by default the indicator menu on page load
+            opens by default the parameter menu on page load
             */
 
             var $sidebar = $( '#sidebar' ),
@@ -118,7 +118,7 @@
 
         //    initialize the line graph with data
 
-        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=indicator.slug %}",
+        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=parameter.slug %}",
             function (i) {
             chart.data(i)
         });
