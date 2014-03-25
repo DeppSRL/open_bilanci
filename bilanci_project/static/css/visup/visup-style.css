@@ -313,3 +313,43 @@ g.tick text {
 	display: inline-block;
 }
 
+
+
+/*COMPOSIZIONE*/
+
+.visup-dot-circle {
+  stroke-width: 8px;
+}
+
+.visup-dot-text {
+  fill: "blue";
+  text-anchor: middle;
+}
+
+.visup-chart-yAxis-line {
+  shape-rendering: crispEdges;
+  stroke:#2a3037;
+  stroke-width: 1px;
+  stroke-dasharray: 3,3;
+}
+
+.visup-chart-yAxis path {
+  fill: none;
+}
+
+.visup-composizione-legend-item {
+  width: 50px;
+  padding: 3px;
+  display: inline-block;
+  float: left;
+}
+
+.visup-composizione-legend-item-text {
+  text-align: center;
+}
+
+.visup-composizione-legend-item-icon {
+  border-radius: 4px;
+  height: 14px;
+}
+

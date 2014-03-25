@@ -497,10 +497,54 @@ class ClassificheRedirectView(RedirectView):
             return url
 
 class ClassificheListView(ListView):
-    model = ValoreBilancio
-    template_name = 'bilanci/classifiche.html'
 
-    pass
+    template_name = 'bilanci/classifiche.html'
+    parameter_type = None
+    parameter = None
+    anno = None
+
+    def get(self, request, *args, **kwargs):
+
+        # checks that parameter type is correct
+        # checks that parameter slug exists
+
+        self.parameter_type = kwargs['parameter_type']
+        self.anno = kwargs['anno']
+        parameter_slug = kwargs['parameter_slug']
+
+        if self.parameter_type == 'indicatori':
+            self.parameter = get_object_or_404(Indicatore, slug = parameter_slug)
+        elif self.parameter_type == 'entrate' or self.parameter_type == 'spese':
+            self.parameter = get_object_or_404(Voce, slug = parameter_slug)
+        else:
+            return reverse('404')
+
+        return super(ClassificheListView, self).get(self, request, *args, **kwargs)
+
+    def get_queryset(self):
+
+        if self.parameter_type == 'indicatori':
+            return ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore')
+        else:
+            return ValoreBilancio.objects.filter(voce = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore')
+
+    def get_context_data(self, **kwargs):
+
+        context = super(ClassificheListView, self).get_context_data( **kwargs)
+
+        # defines the lists of possible confrontation parameters
+        context['selected_par_type'] = self.parameter_type
+        context['selected_parameter'] = self.parameter
+        context['selected_year'] = self.anno
+        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
+        context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
+
+        context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
+        context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('denominazione')
+
+        return context
+
 
 class ConfrontiHomeView(TemplateView):
 
