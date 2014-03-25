@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
     BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVociJSONView, HomeView, \
-    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView
+    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView
 
 admin.autodiscover()
 
@@ -21,6 +21,9 @@ urlpatterns = patterns('',
 
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVociJSONView.as_view(), name = "incarichi-voci-json"),
 
+    # classifiche
+    url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
+    url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)$', ClassificheListView.as_view(), name='classifiche-list'),
 
     # confronti
     url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),
@@ -30,19 +33,19 @@ urlpatterns = patterns('',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)$',
         ConfrontiEntrateView.as_view(), name='confronti-entrate'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)$',
         ConfrontiSpeseView.as_view(), name='confronti-spese'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)$',
         ConfrontiIndicatoriView.as_view(), name='confronti-indicatori'
         ),
 
-    url(r'^confronti_data/(?P<territorio_1_opid>[-\w]+)/(?P<territorio_2_opid>[-\w]+)/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti_data/(?P<territorio_1_opid>[-\w]+)/(?P<territorio_2_opid>[-\w]+)/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)$',
         ConfrontiDataJSONView.as_view(), name = "confronti-data-json"
         ),
 

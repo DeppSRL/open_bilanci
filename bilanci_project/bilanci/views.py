@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import TemplateView, DetailView, RedirectView, View
+from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 import requests
 import json
 from bilanci.forms import TerritoriComparisonSearchForm
@@ -478,6 +478,29 @@ class BilancioSpeseView(BilancioDetailView):
 class BilancioIndicatoriView(BilancioView):
     template_name = 'bilanci/indicatori.html'
 
+
+
+class ClassificheRedirectView(RedirectView):
+
+    def get_redirect_url(self, *args, **kwargs):
+
+        # redirects to appropriate confronti view based on default parameter for Territori
+        # todo: define in settings default parameter
+        kwargs['parameter_type'] = 'indicatori'
+        kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+
+        try:
+            url = reverse('classifiche-list', args=args , kwargs=kwargs)
+        except NoReverseMatch:
+            return reverse('404')
+        else:
+            return url
+
+class ClassificheListView(ListView):
+    model = ValoreBilancio
+    template_name = 'bilanci/classifiche.html'
+
+    pass
 
 class ConfrontiHomeView(TemplateView):
 
