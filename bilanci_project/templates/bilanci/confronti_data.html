@@ -40,8 +40,8 @@
         <div class="col-md-12">
             <div class="panel panel-default panel-nobg">
                 <div class="panel-heading clearfix">
-                    <h3 class="panel-title">{{ indicator_type }}</h3>
-                    <p> {{ indicator_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
+                    <h3 class="panel-title">{{ parameter_type }}</h3>
+                    <p> {{ parameter_type }}<span class="sep">›</span> {{ indicator.denominazione|upper }}</p>
                 </div>
                 <div class="panel-body">
                     <div class='col-md-12'>
@@ -117,10 +117,14 @@
     <script type="text/javascript">
 
         //    initialize the line graph with data
-        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_1.op_id voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
-                function (i) {
+
+        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=indicator.slug %}",
+            function (i) {
             chart.data(i)
         });
+
+
+
 
     </script>
 

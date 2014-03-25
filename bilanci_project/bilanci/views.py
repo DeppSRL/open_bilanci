@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View
 import requests
 import json
 from bilanci.forms import TerritoriComparisonSearchForm
-from bilanci.models import ValoreBilancio, Voce, Indicatore
+from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from django.http.response import HttpResponse, HttpResponseRedirect
 from bilanci.utils import couch
 from collections import OrderedDict
@@ -28,7 +28,7 @@ class IncarichiGetterMixin(object):
     timeline_start = settings.GRAPH_START_DATE
     timeline_end = settings.GRAPH_END_DATE
     
-    def transform_incarichi(self, incarichi):
+    def transform_incarichi(self, incarichi, highlight_color):
 
         incarichi_transformed = []
         for incarico in incarichi:
@@ -44,22 +44,19 @@ class IncarichiGetterMixin(object):
                 'end': time.strftime(self.date_fmt,incarico_end),
 
                 # sets incarico marker color and highlight
-                'color': settings.SINDACO_MARKER_COLOR,
-                'highlightColor': settings.SINDACO_MARKER_HIGHLIGHT,
+                'color': settings.INCARICO_MARKER_INACTIVE,
+                'highlightColor': highlight_color,
             }
 
             if incarico['charge_type'] == "http://api3.openpolis.it/politici/chargetypes/16":
                 # commissari
-                # todo: add dummy image for commissario
-                # todo: aggiungere motivo commissariamento
+
                 dict_widget['label'] = "Commissariamento".upper()
-                dict_widget['icon'] = ''
+                dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
                 dict_widget['sublabel'] = incarico['description']
 
             elif incarico['charge_type'] == "http://api3.openpolis.it/politici/chargetypes/14":
                 # sindaci
-
-                # todo: add dummy image if sindaco doesn't have a pic
 
                 # sets sindaco name, surname
                 dict_widget['label'] = "{0}.{1}".\
@@ -68,7 +65,13 @@ class IncarichiGetterMixin(object):
                         incarico['politician']['last_name'].upper().encode('utf-8'),
                     )
 
-                dict_widget['icon'] = incarico['politician']['image_uri']
+                dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
+                if incarico['politician']['image_uri']:
+                    # controls that the sindaco picture actually exists at the url specified
+                    sindaco_pic = requests.get(incarico['politician']['image_uri'])
+                    if sindaco_pic.content != '':
+                        dict_widget['icon'] = incarico['politician']['image_uri']
+
 
                 # as a sublabel sets the party acronym, if it's not available then the party name is used
                 if incarico['party']['acronym']:
@@ -152,7 +155,7 @@ class IncarichiGetterMixin(object):
         return True, incarichi_clean_set
 
 
-    def get_incarichi(self, territorio_opid):
+    def get_incarichi(self, territorio_opid, highlight_color):
 
         # get sindaci
         sindaci_api_results = self.get_incarichi_api(territorio_opid, incarico_type='14')
@@ -168,7 +171,7 @@ class IncarichiGetterMixin(object):
         date_check, incarichi_set = self.incarichi_date_check(api_results)
         if date_check:
 
-            return self.transform_incarichi(incarichi_set)
+            return self.transform_incarichi(incarichi_set, highlight_color)
 
         else:
             # if data is not correct then turns off the sindaci timeline
@@ -209,8 +212,23 @@ class IncarichiGetterMixin(object):
 
         return self.transform_voce(voce_values, line_id, line_color)
 
+    ##
+    # get indicatori values of specified Indicatore for Territorio in the time span
+    ##
 
-class IncarichiVoceJSONView(View, IncarichiGetterMixin):
+    def get_indicatore(self, territorio, indicatore, line_id, line_color):
+
+        indicatore_values = ValoreIndicatore.objects.filter(
+            territorio = territorio,
+            indicatore = indicatore,
+            anno__gte = self.timeline_start.tm_year,
+            anno__lte = self.timeline_end.tm_year
+        ).order_by('anno')
+
+        return self.transform_voce(indicatore_values, line_id, line_color)
+
+
+class IncarichiVociJSONView(View, IncarichiGetterMixin):
     def get(self, request, **kwargs):
 
         # get territorio_opid from GET parameter
@@ -232,16 +250,16 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
 
 
 
-        incarichi_set = self.get_incarichi(territorio_opid)
+        incarichi_set = self.get_incarichi(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce(territorio, voce_bilancio, line_id=1, line_color=settings.MAIN_LINE_COLOR)
+        voce_set = self.get_voce(territorio, voce_bilancio, line_id=1, line_color=settings.TERRITORIO_1_COLOR)
 
         cluster_mean_set = self.get_voce(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
 
         legend = [
             {
-              "color": settings.MAIN_LINE_COLOR,
+              "color": settings.TERRITORIO_1_COLOR,
               "id": 1,
               "label": voce_bilancio.denominazione.upper()
             },
@@ -264,6 +282,85 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             ),
             content_type="application/json"
         )
+
+
+class ConfrontiDataJSONView(View, IncarichiGetterMixin):
+    ##
+    # Constuct a JSON structur to feed the Visup widget
+    #
+    # The struct contains
+    # * Incarichi for Territorio 1 , 2
+    # * Data set for Indicator / Voce Bilancio selected
+    # * Legend data
+    ##
+
+
+    
+    def get(self, request, **kwargs):
+
+        # get territorio_opid from GET parameter
+        territorio_1_color = settings.TERRITORIO_1_COLOR
+        territorio_2_color = settings.TERRITORIO_2_COLOR
+
+        territorio_1_opid = kwargs['territorio_1_opid']
+        territorio_2_opid = kwargs['territorio_2_opid']
+
+        territorio_1 = get_object_or_404(Territorio, op_id = territorio_1_opid)
+        territorio_2 = get_object_or_404(Territorio, op_id = territorio_2_opid)
+
+        incarichi_set_1 = self.get_incarichi(territorio_1_opid, highlight_color = territorio_1_color)
+        incarichi_set_2 = self.get_incarichi(territorio_2_opid, highlight_color = territorio_2_color)
+
+        # get voce bilancio from GET parameter
+        parameter_slug = kwargs['parameter_slug']
+        parameter_type = kwargs['parameter_type']
+
+        if parameter_slug:
+            if parameter_type == 'indicatori':
+                indicatore = get_object_or_404(Indicatore, slug = parameter_slug)
+                # gets indicator value for the territorio over the period set
+                data_set_1 = self.get_indicatore(territorio_1, indicatore, line_id=1, line_color = territorio_1_color)
+                data_set_2 = self.get_indicatore(territorio_2, indicatore, line_id=2, line_color = territorio_2_color)
+
+            elif parameter_type == 'entrate' or parameter_type == 'spese':
+                voce_bilancio = get_object_or_404(Voce, slug = parameter_slug)
+                # gets voce value for the territorio over the period set
+                data_set_1 = self.get_voce(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color)
+                data_set_2 = self.get_voce(territorio_2, voce_bilancio, line_id=2, line_color = territorio_2_color)
+
+            else:
+                return reverse('404')
+
+        else:
+            return reverse('404')
+
+
+        legend = [
+            {
+              "color": territorio_1_color,
+              "id": 1,
+              "label": "{0}".format(territorio_1.denominazione)
+            },
+            {
+              "color": territorio_2_color,
+              "id": 2,
+              "label": "{0}".format(territorio_2.denominazione)
+            },
+        ]
+
+        data = [data_set_1, data_set_2]
+
+        return HttpResponse(
+            content=json.dumps(
+                {
+                    "timeSpans":[incarichi_set_1, incarichi_set_2],
+                    'data':data,
+                    'legend':legend
+                }
+            ),
+            content_type="application/json"
+        )
+    
 
 
 class BilancioRedirectView(RedirectView):
@@ -479,14 +576,14 @@ class ConfrontiEntrateView(ConfrontiView):
         context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
 
         context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
-        context['indicator_type'] = "Entrate"
+        context['parameter_type'] = "entrate"
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
-        context['indicator_type'] = "Spese"
+        context['parameter_type'] = "spese"
         context['indicator'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
 
 
@@ -496,7 +593,7 @@ class ConfrontiIndicatoriView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
-        context['indicator_type'] = "Indicatori"
+        context['parameter_type'] = "indicatori"
         context['indicator'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
 
 

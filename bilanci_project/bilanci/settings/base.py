@@ -376,10 +376,12 @@ GRAPH_START_DATE = time.strptime(GRAPH_START_DATE_STR, GRAPH_DATE_FMT)
 GRAPH_END_DATE = time.strptime(GRAPH_END_DATE_STR, GRAPH_DATE_FMT)
 
 # define lines color of the SINDACO marker on the timeline
-SINDACO_MARKER_COLOR = '#5e6a77'
-SINDACO_MARKER_HIGHLIGHT = '#cc6633'
+INCARICO_MARKER_INACTIVE = '#b9c6c4'
+INCARICO_MARKER_DUMMY = '/static/img/incarico_dummy.png'
 
 # defines the color of the line graph
-MAIN_LINE_COLOR = '#cc6633'
-SECOND_LINE_COLOR = '#a51206'
+TERRITORIO_1_COLOR = '#cc6633'
+TERRITORIO_2_COLOR = '#a51206'
+
 CLUSTER_LINE_COLOR = '#f7b5a1'
+

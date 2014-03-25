@@ -4,8 +4,8 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, HomeView, \
-    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVociJSONView, HomeView, \
+    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView
 
 admin.autodiscover()
 
@@ -19,7 +19,8 @@ urlpatterns = patterns('',
 
     url(r'^bilanci/(?P<slug>[-\w]+)', BilancioView.as_view(), name='bilanci-overall'),
 
-    url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
+    url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVociJSONView.as_view(), name = "incarichi-voci-json"),
+
 
     # confronti
     url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),
@@ -40,6 +41,11 @@ urlpatterns = patterns('',
     url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)',
         ConfrontiIndicatoriView.as_view(), name='confronti-indicatori'
         ),
+
+    url(r'^confronti_data/(?P<territorio_1_opid>[-\w]+)/(?P<territorio_2_opid>[-\w]+)/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)',
+        ConfrontiDataJSONView.as_view(), name = "confronti-data-json"
+        ),
+
 
     url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
 

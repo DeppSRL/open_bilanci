@@ -69,7 +69,7 @@
                 rowItems: 2
             }
         }),
-        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti-totale' %}",
+        d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti-totale' %}",
                 function (i) {
             chart.data(i)
         });
