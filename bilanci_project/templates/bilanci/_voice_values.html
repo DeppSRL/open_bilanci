@@ -1,21 +1,9 @@
 {% load humanize %}
 
-<td class="text-center">
-    {{ valore|floatformat:"0"|intcomma }}{% if valore != None%}&nbsp;Euro{% endif %}
+<td class="text-right">
+    {{ absolute_value|intcomma }}{% if absolute_value != None%}&nbsp;Euro{% endif %}
 </td>
-<td class="text-center">
-    {{ valore_procapite|floatformat:"2"|intcomma }}{% if valore_procapite != None%}&nbsp;Euro{% endif %}
+<td class="text-right">
+    {{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}&nbsp;Euro{% endif %}
 </td>
 
-<td>
-    <div class="progress">
-        <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-            <span class="sr-only">40%</span>
-        </div>
-    </div>
-    <div class="progress">
-        <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-            <span class="sr-only">60%</span>
-        </div>
-    </div>
-</td>

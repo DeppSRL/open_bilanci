@@ -17,7 +17,7 @@
             <p class="details">
                 <span class="location">{{ territorio.prov }}, {{ territorio.regione|title }} </span>
                 <span class="category"><span class="glyphicon glyphicon-record"></span>
-                    {{ territorio.get_cluster_display }}, {{ comune_context.popolazione_residente|intcomma }} abitanti</span>
+                    {{ territorio.get_cluster_display }}, {{ comune_context.bil_popolazione_residente|intcomma }} abitanti</span>
             </p>
         </div>
     {% endblock %}

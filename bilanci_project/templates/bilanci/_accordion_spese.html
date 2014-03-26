@@ -16,45 +16,66 @@
         <tbody>
 
             {% recursetree bilancio_tree %}
-                {% if node == bilancio_rootnode %}
 
-                    {{ children }}
+                {% if node.denominazione != "Spese per investimenti" and not "interventi" in node.slug.lower %}
 
-                {% else %}
+                    {% if node == bilancio_rootnode or node.denominazione.lower == "funzioni" %}
 
-                    <tr>
-                        {% if not node.is_leaf_node %}
-                            <td>
-                                <a class="collapse-toggle" href="#{{ node.slug|slugify }}">
-                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                        {{ children }}
+
+                    {% else %}
+
+                        <tr>
+                            {% if not node.is_leaf_node %}
+                                <td>
+                                    <a class="collapse-toggle" href="#{{ node.slug }}">
+                                        <span class="glyphicon glyphicon-plus-sign"></span>
+                                        {% if node.denominazione == "Spese correnti" %}
+                                            Spese
+                                        {% else %}
+                                            {{ node.denominazione|lower|capfirst }}
+                                        {% endif %}
+                                    </a>
+                                </td>
+                            {% else %}
+                                <td>
                                     {{ node.denominazione|lower|capfirst }}
-                                </a>
-                            </td>
-                        {% else %}
+                                </td>
+                            {% endif %}
+
+                            {% voice_values node.slug budget_values %}
+
                             <td>
-                                {{ node.denominazione|lower|capfirst }}
-                            </td>
-                        {% endif %}
-
-                        {% voice_values node.slug budget_values %}
-                    </tr>
-                    {% if not node.is_leaf_node %}
-                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                            <td colspan="4">
-                                <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
-
-                                <!-- Sub table level 1 -->
-                                <table class="table table-condensed">
-                                    <tbody>
-                                        {{ children }}
-                                    </tbody>
-                                </table>
+                                {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
+                                    {% voice_composition node.slug budget_values %}
+                                {% endif %}
                             </td>
                         </tr>
 
-                    {% endif %}
-                {% endif %}
+                        {% if not node.is_leaf_node %}
+                            <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                                <td colspan="4">
+                                    {% if node.denominazione == "Spese correnti" %}
+                                        <p>Testo descrittivo per la voce Spese</p>
+                                    {% else %}
+                                        <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
+                                    {% endif %}
 
+                                    <!-- Sub table level 1 -->
+                                    <table class="table table-condensed">
+                                        <tbody>
+                                            {{ children }}
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+
+                        {% endif %}
+
+
+                    {% endif %}
+
+                {% endif %}
 
             {% endrecursetree %}
 

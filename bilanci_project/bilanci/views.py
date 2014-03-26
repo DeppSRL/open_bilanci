@@ -341,12 +341,16 @@ class BilancioDetailView(BilancioView):
 
         # gets the part of bilancio data which is referring to Voce nodes which are
         # descendants of bilancio_treenodes to minimize queries and data size
-        bilancio_valori = ValoreBilancio.objects.filter(territorio = territorio, anno=year).\
+        budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=year).\
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
+
+        context['budget_values'] = {
+            'absolute': dict(budget_values.values_list('voce__slug', 'valore')),
+            'percapita': dict(budget_values.values_list('voce__slug', 'valore_procapite'))
+        }
 
         menu_voices_kwargs = {'slug': territorio.slug}
 
-        context['bilancio_valori'] = bilancio_valori
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
@@ -375,8 +379,11 @@ class BilancioSpeseView(BilancioDetailView):
     template_name = 'bilanci/spese.html'
 
     def get_slug(self):
-        return "{0}-{1}".format(self.request.GET['type'],"spese")
-
+        type = self.request.GET['type']
+        if type == 'preventivo':
+            return "{0}-{1}".format(self.request.GET['type'],"spese")
+        else:
+            return "{0}-{1}".format(self.request.GET['type'],"spese-impegni")
 
 class BilancioIndicatoriView(BilancioView):
     template_name = 'bilanci/indicatori.html'

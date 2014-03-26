@@ -1,0 +1,62 @@
+{% load mptt_tags %}
+{% load voice_values %}
+
+
+<!-- Main table -->
+<div class="table-responsive">
+    <table class="table" id="results">
+        <thead>
+            <tr>
+                <th class="alt">VOCE</th>
+                <th>VALORE ASSOLUTO</th>
+                <th>VALORE PROCAPITE</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% recursetree bilancio_tree %}
+                {% if node == bilancio_rootnode %}
+
+                    {{ children }}
+
+                {% else %}
+
+                    <tr>
+                        {% if not node.is_leaf_node %}
+                            <td>
+                                <a class="collapse-toggle" href="#{{ node.slug }}">
+                                    <span class="glyphicon glyphicon-plus-sign"></span>
+                                    {{ node.denominazione|lower|capfirst }}
+                                </a>
+                            </td>
+                        {% else %}
+                            <td>
+                                {{ node.denominazione|lower|capfirst }}
+                            </td>
+                        {% endif %}
+
+                        {% voice_values node.slug budget_values %}
+                    </tr>
+                    {% if not node.is_leaf_node %}
+                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                            <td colspan="3">
+                                <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
+
+                                <!-- Sub table level 1 -->
+                                <table class="table table-condensed">
+                                    <tbody>
+                                        {{ children }}
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+
+                    {% endif %}
+                {% endif %}
+
+
+            {% endrecursetree %}
+
+        </tbody>
+    </table>
+</div>
