@@ -32,7 +32,7 @@ class Command(BaseCommand):
         make_option('--csv-base-dir',
                     dest='csv_base_dir',
                     default='data/csv/',
-                    help='PAth to the directory where the CSV files will be written.'),
+                    help='Path to the directory where the CSV files will be written.'),
         make_option('--compress',
                     dest='compress',
                     action='store_true',

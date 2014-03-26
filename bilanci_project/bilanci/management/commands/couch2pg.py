@@ -190,8 +190,6 @@ class Command(BaseCommand):
                 tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
                 tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
-                print "All done!"
-
 
     def create_voci_tree(self):
         """
