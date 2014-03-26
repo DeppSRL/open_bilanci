@@ -1,10 +1,14 @@
 <ul class="nav nav-stacked menu">
     <li class="active">
-        <a href="#"><span class="icon sprite-autonomia-finanziaria"></span> {{ parameter_list_type|upper }}</a>
+        <span class="icon sprite-autonomia-finanziaria"></span> {{ parameter_list_type|upper }}
         <div class="scrollbox">
             <ul class="nav nav-stacked" id="parameter_list_{{ parameter_list_type }}">
                 {% for parameter in parameter_list %}
-                    <li>
+                    <li
+                        {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
+                            class="active"
+                        {% endif %}
+                            >
                         <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
 
                         {# initialize the url for parameter list menu   #}

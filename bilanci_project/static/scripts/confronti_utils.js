@@ -61,7 +61,7 @@ function checkTerritoriCluster(){
 
     if(territorio_1_cluster != territorio_2_cluster){
         // if territori are in different cluster show the error box
-        showWarningBox('ATTENZIONE, HAI SCELTO DUE COMUNI CHE APPARTENGONO A CLASSI DIMENSIONALI DIVERSE IL CONFRONTO POTREBBE NON AVERE SIGNIFICATO');
+        showWarningBox('ATTENZIONE, HAI SCELTO DUE COMUNI CHE APPARTENGONO A CLASSI DIMENSIONALI DIVERSE. IL CONFRONTO POTREBBE NON AVERE SIGNIFICATO');
 
     }
     else{

@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% load classifiche_parameter_list %}
+
+{% block content %}
+
+    <div class="panel-heading">
+        <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
+        <h1 class="panel-title">CLASSIFICHE</h1>
+    </div>
+
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-4">
+                <a href="" id="toggle-menu" role="button">
+                    <span class="icon sprite-toggle-menu"></span>
+                </a>
+            </div>
+        </div>
+
+        <hr class="no-border">
+
+        <div class="row">
+            <div id="content" class="col-sm-12">
+                <div class="row timeline">
+                    <div class="col-sm-12">
+                        selettore anni
+                    </div>
+                </div>
+
+                <div id="results" class="row">
+                    <div class="col-md-8">
+                        <div class="panel panel-default">
+                            <div class="panel-heading clearfix">
+                                <h3 class="panel-title pull-left">
+                                    {{ object_list.count }} COMUNI
+                                </h3>
+                                <form role="search" class="form-inline pull-left">
+                                    <div class="form-group search">
+                                        <label class="sr-only" for="city1">Cerca un comune</label>
+                                        <input type="text" class="form-control" id="city1" placeholder="CERCA UN COMUNE">
+                                        <span class="icon sprite-search-alt"></span>
+                                    </div>
+                                    <!--button type="submit" class="btn btn-default">Submit</button-->
+                                </form>
+                            </div>
+                            <div class="panel-body">
+                                <h4>{{ selected_par_type|upper }}</h4>
+                                <p class="small">
+                                    <span>{{ selected_parameter.denominazione|upper }}</span>
+                                </p>
+                                <div class="pagination-wrapper clearfix">
+                                    <ul>
+                                        <li><a href="#"><span class="icon sprite-arrow-left"></span></a></li>
+                                        <li class="active"><a href="#">1</a></li>
+                                        <li><a href="#">2</a></li>
+                                        <li><a href="#">3</a></li>
+                                        <li><span>...</span></li>
+                                        <li><a href="#">15</a></li>
+                                        <li class="more"><a href="#"><span class="icon sprite-arrow-right"></span></a></li>
+                                    </ul>
+                                    <div  class="pull-right">
+                                        <div class="dropdown pull-left">
+                                            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                                                RISULTATI: <span>10</span>
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">10</a></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">20</a></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">50</a></li>
+                                                <li role="presentation" class="divider"></li>
+                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Tutti</a></li>
+                                            </ul>
+                                        </div>
+                                        <a href="#" class="refresh"><span class="icon sprite-refresh"></span></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <tbody>
+                                        {% if object_list %}
+                                            {% for result in object_list %}
+                                                <tr>
+                                                    <td class="col-sm-1 rate">
+                                                        <span class="h2">{{ result.valore|intcomma }}</span>
+                                                    </td>
+                                                    <td class="col-sm-9 text">
+                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ result.territorio }}</a></h4>
+                                                        <p>{{ result.territorio.prov }}, {{ result.territorio.regione }}</p>
+
+                                                        <div class="media">
+                                                            <figure class="pull-left img-circle">
+                                                                <img class="media-object" src="http://cambelt.co/42x42/AS?color=a0180d" alt="avatar">
+                                                            </figure>
+                                                            <div class="media-body">
+                                                                <p class="h4"><a href="#">N. Cognome</a></p>
+                                                                <p class="small">Lista</p>
+                                                            </div>
+                                                        </div>
+
+                                                    </td>
+                                                    <td class="col-sm-1 pos">
+                                                        <span class="h3">{{ forloop.counter }}°</span>
+                                                    </td>
+                                                    <td class="col-sm-1 trend">
+                                                        <span class="icon sprite-trend-up-3"></span>
+                                                    </td>
+                                                </tr>
+                                             {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>  <!-- /panel panel-default -->
+                    </div> <!-- /col-md8 -->
+
+                <aside id="filters" class="col-md-4">
+                    <form>
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">
+                            <div class="pull-right">Rimuovi tutti <a href="#"><span class="icon sprite-delete"></span></a></div>
+                            <h3 class="panel-title">FILTRA</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="enabled">
+                                <p class="h4">REGIONE</p>
+                                <ul class="list-inline">
+                                    <li>
+                                        Regione 1
+                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                                    </li>
+                                    <li>
+                                        Regione 2
+                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                                    </li>
+                                    <li>
+                                        Regione 3
+                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                                    </li>
+                                </ul>
+
+                                <p class="h4">DIMENSI0NE</p>
+                                <ul class="list-inline">
+                                    <li>
+                                        Centri Piccolissimi
+                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                                    </li>
+                                </ul>
+
+                                <p class="h4">CLASSE</p>
+                                <ul class="list-inline">
+                                    <li>
+                                        Classe 1
+                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <ul class="list-group">
+                            <li class="list-group-item label">FILTRA PER REGIONE</li>
+                            {% for regione in regioni_list %}
+                                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ regione.denominazione }}</li>
+                            {% endfor %}
+
+                        </ul>
+
+                        <ul class="list-group">
+                            <li class="list-group-item label">FILTRA PER CLUSTER</li>
+                            {% for cluster in cluster_list %}
+                                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ cluster.denominazione }}</li>
+                            {% endfor %}
+                        </ul>
+
+                        <ul class="list-group">
+                            <li class="list-group-item label">FILTRA PER CLASSE</li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value="" checked="checked"> I
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value=""> II
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value=""> III
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value=""> IV
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value=""> V
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="checkbox" name="" value=""> VI
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                    </div>
+                    </form>
+                </aside> <!-- /#filters -->
+
+
+                </div> <!-- /results row -->
+
+
+                {% block results %}
+
+                {% endblock %}
+            </div>
+
+            {# comparison list menu  #}
+
+            <aside id="sidebar" class="classifiche_parameter_container" class="hidden">
+                {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
+                {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
+                {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}
+            </aside>
+
+
+        </div> <!-- ./row -->
+
+
+    </div><!-- /.panel-body -->
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            /*
+            opens by default the parameter menu on page load
+            */
+
+            var $sidebar = $( '#sidebar' ),
+                $content = $( '#content' );
+
+            var clss = {
+                btn: {
+                    on: 'active'
+                },
+                content: {
+                    on: 'col-sm-12',
+                    off: 'col-sm-8 col-sm-push-4'
+                },
+                sidebar: {
+                    on: 'col-sm-4 col-sm-pull-8',
+                    off: 'hidden'
+                }
+            };
+
+            $sidebar
+                .removeClass( clss.sidebar.off )
+                .addClass( clss.sidebar.on );
+            $content
+                .removeClass( clss.content.on )
+                .addClass( clss.content.off );
+            $( '#toggle-menu' ).addClass( clss.btn.on );
+
+
+        });
+
+    </script>
+
+    <!-- visup js -->
+    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
+
+    <!-- / visup js -->
+
+{% endblock %}
+
+{% block extra_css %}
+{#    <!-- visup css-->#}
+    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+
+{#    <!-- / visup css-->#}
+{% endblock %}
