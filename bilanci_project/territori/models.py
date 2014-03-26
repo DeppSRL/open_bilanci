@@ -127,6 +127,14 @@ class Territorio(models.Model):
             return u"{0} ({1})".format(self.nome,self.prov)
 
 
+    def get_abitanti(self, anno=settings.REFERENCE_YEAR):
+        try:
+            contesto = self.contesto_set.get(anno=anno)
+            return contesto.bil_popolazione_residente
+        except ObjectDoesNotExist:
+            return None
+
+
     def latest_contesto(self, anno = None):
         contesto = None
         if self.territorio == Territorio.TERRITORIO.C:
