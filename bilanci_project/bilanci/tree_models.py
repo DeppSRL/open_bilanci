@@ -4,6 +4,7 @@ Module containing a BilancioItem class and some factory methods.
 import sys
 import itertools
 from django.conf import settings
+from django.utils.formats import number_format
 from django.utils.text import slugify
 from bilanci.models import Voce, ValoreBilancio
 
@@ -223,6 +224,14 @@ class BilancioItem():
     def composite(self):
         return bool(self.children)
 
+    def get_ancestors(self):
+        ret = []
+        node = self
+        while node.parent is not None:
+            ret.append(node.denominazione)
+            node = node.parent
+        return ret
+
     def valore_reale(self, year):
         return self.valore * settings.GDP_DEFLATORS[year]
 
@@ -274,5 +283,15 @@ class BilancioItem():
         ))
         for child in self:
             child.emit(indent + u"  ")
+
+    def emit_as_list(self, list_of_leaves=None, ancestors_separator="|"):
+        list_of_leaves = [] if list_of_leaves is None else list_of_leaves
+
+        ancestors = ancestors_separator.join(self.get_ancestors()[::-1])
+        list_of_leaves.append([ancestors,
+                               str(self.valore),
+                               str(self.valore_procapite).replace(".", ",")])
+        for child in self:
+            child.emit_as_list(list_of_leaves, ancestors_separator=ancestors_separator)
 
 
