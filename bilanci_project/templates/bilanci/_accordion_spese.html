@@ -1,5 +1,5 @@
 {% load mptt_tags %}
-{% load voce_valore %}
+{% load voice_values %}
 
 
 <!-- Main table -->
@@ -36,21 +36,7 @@
                             </td>
                         {% endif %}
 
-                        {% voce_valore bilancio_valori node %}
-
-
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-                                    <span class="sr-only">40%</span>
-                                </div>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                    <span class="sr-only">60%</span>
-                                </div>
-                            </div>
-                        </td>
+                        {% voice_values node.slug budget_values %}
                     </tr>
                     {% if not node.is_leaf_node %}
                         <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
