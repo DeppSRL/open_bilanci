@@ -261,9 +261,9 @@ class Incarico(models.Model):
     data_fine = models.DateField(null=True, default=0)
 
     nome = models.CharField(max_length=50, blank=True, null=True)
-    cognome = models.CharField(max_length=50, blank=True, null=True)
+    cognome = models.CharField(max_length=80, blank=True, null=True)
     is_commissario = models.BooleanField(default=False)
-    motivo_commissariamento = models.CharField(max_length=100, blank=True, null=True)
+    motivo_commissariamento = models.CharField(max_length=500, blank=True, null=True)
     party_name = models.CharField(max_length=100, blank=True, null=True)
-    party_acronym = models.CharField(max_length=10, blank=True, null=True)
+    party_acronym = models.CharField(max_length=50, blank=True, null=True)
     pic_url = models.URLField(blank=True, null=True, default = None)

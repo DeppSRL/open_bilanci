@@ -48,7 +48,7 @@ class IncarichiGetterMixin(object):
                 'highlightColor': highlight_color,
             }
 
-            if incarico['charge_type'] == "http://api3.openpolis.it/politici/chargetypes/16":
+            if incarico['charge_type'] == settings.OP_API_HOST + "/politici/chargetypes/16":
                 # commissari
 
                 dict_widget['label'] = "Commissariamento".upper()
@@ -95,7 +95,7 @@ class IncarichiGetterMixin(object):
     def get_incarichi_api(self, territorio_opid, incarico_type):
 
         api_results_json = requests.get(
-            "http://api3.openpolis.it/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
+            settings.OP_API_HOST +"/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
                 format(incarico_type, territorio_opid)
             ).json()
 
