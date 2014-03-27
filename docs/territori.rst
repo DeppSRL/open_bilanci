@@ -42,7 +42,10 @@ To do that every Territorio needs to have an Openpolis id, which is set as follo
 Context
 =======
 
-Each Territorio for each year has context data read from Bilanci and from Istat.
+Each Territorio for each year has demographic context data read from Bilanci and from Istat.
+
+Apart from that each Territorio has political context data read from Openpolis Api.
+
 
 Istat data
 ----------
@@ -73,4 +76,20 @@ These fields are set as follows:
 .. code-block:: bash
 
     python manage.py data_completion -f contesto --years=YEARS_START-YEAR_END --cities=CITIES_LIST
+    
+
+Political charges
+-----------------
+
+Political charges are modeled with a specific class: Incarico.
+
+Incarico objects are read from Openpolis Api, merging the charges for 'Sindaco' and 'Commissario straordinario' charge type.
+The charges are then validated checking that no charges overlap for the same Territorio.
+
+Incarico model is imported from API as follows:
+
+
+.. code-block:: bash
+
+    python manage.py import_incarichi -v 2 [--update] [--delete] [--dry-run]
     
