@@ -375,6 +375,8 @@ GRAPH_END_DATE_STR = "2013-12-31"
 GRAPH_START_DATE = time.strptime(GRAPH_START_DATE_STR, GRAPH_DATE_FMT)
 GRAPH_END_DATE = time.strptime(GRAPH_END_DATE_STR, GRAPH_DATE_FMT)
 
+SELECTOR_DEFAULT_YEAR = 2012
+
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'
 INCARICO_MARKER_DUMMY = '/static/img/incarico_dummy.png'

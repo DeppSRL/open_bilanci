@@ -4,6 +4,7 @@
 var url_is_correct = false;
 var error_box_visible = false;
 
+
 function setIndicatorLinksUrl(){
     var territorio_1_slug = $("#id_territorio_1").select2("val");
     var territorio_2_slug = $("#id_territorio_2").select2("val");
@@ -108,4 +109,59 @@ function submitButtonConfronti(e){
         showWarningBox('ATTENZIONE, DEVI SELEZIONARE DUE COMUNI PER PROCEDERE NEL CONFRONTO');
 
     }
+}
+
+
+/*
+* initialize the confronti page
+*/
+
+function init_page(){
+    /*
+    opens by default the parameter menu on page load
+    */
+
+    var $sidebar = $( '#sidebar' ),
+        $content = $( '#content' );
+
+    var clss = {
+        btn: {
+            on: 'active'
+        },
+        content: {
+            on: 'col-sm-12',
+            off: 'col-sm-8 col-sm-push-4'
+        },
+        sidebar: {
+            on: 'col-sm-4 col-sm-pull-8',
+            off: 'hidden'
+        }
+    };
+
+    $sidebar
+        .removeClass( clss.sidebar.off )
+        .addClass( clss.sidebar.on );
+    $content
+        .removeClass( clss.content.on )
+        .addClass( clss.content.off );
+    $( '#toggle-menu' ).addClass( clss.btn.on );
+
+
+    /*
+    initialize fake submit button url and side menu url
+     */
+
+
+    $("#id_territorio_1").on("click", function(){ changeConfrontiUrl();});
+    $("#id_territorio_2").on("click", function(){ changeConfrontiUrl();});
+
+
+    changeConfrontiUrl();
+
+    $("#confronti_submit_btn").on('click', function(e) {
+        submitButtonConfronti(e);
+    });
+
+    //initialize linechart element
+    init_linechart();
 }

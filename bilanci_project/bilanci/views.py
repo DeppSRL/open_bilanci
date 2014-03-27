@@ -485,9 +485,10 @@ class ClassificheRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
         # redirects to appropriate confronti view based on default parameter for Territori
-        # todo: define in settings default parameter
+        # todo: define in settings default parameter for Classifiche
         kwargs['parameter_type'] = 'indicatori'
         kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+        kwargs['anno'] = settings.SELECTOR_DEFAULT_YEAR
 
         try:
             url = reverse('classifiche-list', args=args , kwargs=kwargs)
@@ -536,12 +537,13 @@ class ClassificheListView(ListView):
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
         context['selected_year'] = self.anno
+        context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
         context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
-        context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('denominazione')
+        context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
 
         return context
 
