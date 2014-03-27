@@ -10,14 +10,23 @@ register.filter('comma2dot', comma2dot)
 
 @register.inclusion_tag("bilanci/_voice_values.html", takes_context=True)
 def voice_values(context, voice_slug, values):
+    absolute_value = ''
+    percapita_value = ''
 
     if "spese-correnti" in voice_slug:
         inv_voice_slug = voice_slug.replace("spese-correnti", "spese-per-investimenti")
-        absolute_value = values['absolute'][voice_slug] + values['absolute'][inv_voice_slug]
-        percapita_value = values['percapita'][voice_slug] + values['percapita'][inv_voice_slug]
+
+        if voice_slug in values['absolute'].keys() and inv_voice_slug in values['absolute'].keys():
+            absolute_value = values['absolute'][voice_slug] + values['absolute'][inv_voice_slug]
+
+        if voice_slug in values['percapita'].keys() and inv_voice_slug in values['percapita'].keys():
+            percapita_value = values['percapita'][voice_slug] + values['percapita'][inv_voice_slug]
     else:
-        absolute_value = values['absolute'][voice_slug]
-        percapita_value = values['percapita'][voice_slug]
+        if voice_slug in values['absolute'].keys():
+            absolute_value = values['absolute'][voice_slug]
+
+        if voice_slug in values['percapita'].keys():
+            percapita_value = values['percapita'][voice_slug]
 
     return {
         'absolute_value': absolute_value,
