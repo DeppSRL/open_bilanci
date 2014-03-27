@@ -8,6 +8,8 @@ from bilanci.utils import unicode_csv
 
 __author__ = 'guglielmo'
 
+
+
 class FLScraper(object):
     """
     Finanza Locale Scraper
@@ -204,7 +206,7 @@ class FLCSVEmitter(FLEmitter):
     """
     Finanza Locale CSV Emitter
 
-    has one public method to emit the data into a set of csv files.
+    has one public method to emit the HTML-scraped data into a set of csv files.
     """
 
     def emit(self, **kwargs):

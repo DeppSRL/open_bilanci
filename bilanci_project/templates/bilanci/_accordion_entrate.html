@@ -1,5 +1,5 @@
 {% load mptt_tags %}
-{% load voce_valore %}
+{% load voice_values %}
 
 
 <!-- Main table -->
@@ -10,7 +10,6 @@
                 <th class="alt">VOCE</th>
                 <th>VALORE ASSOLUTO</th>
                 <th>VALORE PROCAPITE</th>
-                <th>RAPPORTO INVESTIMENTI/SPESE CORRENTI</th>
             </tr>
         </thead>
         <tbody>
@@ -25,7 +24,7 @@
                     <tr>
                         {% if not node.is_leaf_node %}
                             <td>
-                                <a class="collapse-toggle" href="#{{ node.slug|slugify }}">
+                                <a class="collapse-toggle" href="#{{ node.slug }}">
                                     <span class="glyphicon glyphicon-plus-sign"></span>
                                     {{ node.denominazione|lower|capfirst }}
                                 </a>
@@ -36,25 +35,11 @@
                             </td>
                         {% endif %}
 
-                        {% voce_valore bilancio_valori node %}
-
-
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar light" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-                                    <span class="sr-only">40%</span>
-                                </div>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar dark" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                    <span class="sr-only">60%</span>
-                                </div>
-                            </div>
-                        </td>
+                        {% voice_values node.slug budget_values %}
                     </tr>
                     {% if not node.is_leaf_node %}
                         <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                            <td colspan="4">
+                            <td colspan="3">
                                 <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
 
                                 <!-- Sub table level 1 -->

@@ -1,3 +1,4 @@
+from django.conf import settings
 from territori.models import Territorio, Contesto
 from django_select2.fields import AutoModelSelect2Field
 
@@ -5,9 +6,9 @@ class TerritoriChoices(AutoModelSelect2Field):
 
 
     queryset = Territorio.objects.\
-                filter(contesto__anno = 2012).\
+                filter(contesto__anno = settings.REFERENCE_YEAR).\
                 filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-contesto__istat_abitanti', 'denominazione')
+                order_by('-contesto__bil_popolazione_residente', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
 
@@ -18,9 +19,9 @@ class TerritoriChoices(AutoModelSelect2Field):
 class TerritoriClusterChoices(AutoModelSelect2Field):
 
     queryset = Territorio.objects.\
-                filter(contesto__anno = 2012).\
+                filter(contesto__anno = settings.REFERENCE_YEAR).\
                 filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-contesto__istat_abitanti', 'denominazione')
+                order_by('-contesto__bil_popolazione_residente', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
 

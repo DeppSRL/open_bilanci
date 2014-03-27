@@ -81,7 +81,7 @@ class Command(BaseCommand):
         for comune in comuni:
             cluster_value = None
             for cluster_id,upper_treshold in cluster_map.items():
-                if comune.abitanti <= upper_treshold:
+                if comune.get_abitanti() <= upper_treshold:
                     cluster_value = cluster_id
                     break
 
@@ -94,7 +94,12 @@ class Command(BaseCommand):
                 comune.save()
 
             self.logger.info(u"Comune: {0}, inhabitants:{1} cluster value:{2} - {3}".\
-                format(comune.denominazione,comune.abitanti,comune.cluster,comune.get_cluster_display()))
+                format(comune.denominazione,
+                       comune.get_abitanti(),
+                       comune.cluster,
+                       comune.get_cluster_display()
+                )
+            )
 
         return
 

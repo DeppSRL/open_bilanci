@@ -1,0 +1,9 @@
+{% load humanize %}
+
+<td class="text-right">
+    {{ absolute_value|intcomma }}{% if absolute_value != None%}&nbsp;Euro{% endif %}
+</td>
+<td class="text-right">
+    {{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}&nbsp;Euro{% endif %}
+</td>
+

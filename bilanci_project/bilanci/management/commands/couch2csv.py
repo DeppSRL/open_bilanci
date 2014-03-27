@@ -1,13 +1,17 @@
 from collections import OrderedDict
 import logging
 from optparse import make_option
+import os
+import zipfile
 from django.conf import settings
 from django.core.management import BaseCommand
-from django.utils.text import slugify
+import shutil
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
+from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
+from bilanci.utils.zipper import zipdir
 from territori.models import Territorio, ObjectDoesNotExist
 
 
@@ -37,14 +41,18 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
-        make_option('--create-tree',
-                    dest='create_tree',
+        make_option('--csv-base-dir',
+                    dest='csv_base_dir',
+                    default='data/csv/',
+                    help='Path to the directory where the CSV files will be written.'),
+        make_option('--compress',
+                    dest='compress',
                     action='store_true',
                     default=False,
-                    help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
+                    help="Generate compressed zip archive of the directory for each city, remove directory structure"),
     )
 
-    help = 'Import values from the simplified couchdb database into a Postgresql server'
+    help = 'Export values from the simplified couchdb database into a set of CSV files'
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
@@ -62,7 +70,8 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
-        create_tree = options['create_tree']
+        csv_base_dir = options['csv_base_dir']
+        compress = options['compress']
         skip_existing = options['skip_existing']
 
         ###
@@ -113,21 +122,23 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
-
-        # create the tree if it does not exist or if forced to do so
-        if create_tree or Voce.objects.count() == 0:
-            self.create_voci_tree()
-
+        csv_base_path = os.path.abspath(csv_base_dir)
 
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
         for city in cities:
 
-            try:
-                territorio = Territorio.objects.get(cod_finloc=city)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+            # check city path (skip if existing and skip-existing active)
+            city_path = os.path.join(csv_base_path, city)
+            if not os.path.exists(city_path):
+                os.makedirs(city_path)
+            else:
+                # check if files for this city exist and skip if
+                # the skip-existing option was required
+                if skip_existing:
+                    self.logger.info(u"Skipping city of {}, as already processed".format(city))
+                    continue
 
             # get all budgets for the city
             city_budget = couchdb.get(city)
@@ -136,15 +147,15 @@ class Command(BaseCommand):
                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
                continue
 
-            # check values for the city inside ValoreBilancio,
-            # skip if values are there and the skip-existing option was required
+
+            # get territorio corrsponding to city (to compute percapita values)
             try:
-                _ = ValoreBilancio.objects.filter(territorio=territorio)[0]
-                if skip_existing:
-                    self.logger.info(u"Skipping city of {}, as already processed".format(city))
-                    continue
-            except IndexError:
-                pass
+                territorio = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                territorio = None
+                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+                continue
+
 
             self.logger.info(u"Processing city of {0}".format(city))
 
@@ -155,6 +166,11 @@ class Command(BaseCommand):
 
                 self.logger.info(u"- Processing year: {}".format(year))
 
+                # check year path
+                year_path = os.path.join(city_path, str(year))
+                if not os.path.exists(year_path):
+                    os.mkdir(year_path)
+
 
                 # fetch valid population, starting from this year
                 # if no population found, set it to None, as not to break things
@@ -162,8 +178,8 @@ class Command(BaseCommand):
                     (pop_year, population) = territorio.nearest_valid_population(year)
                 except TypeError:
                     population = None
-
                 self.logger.debug("::Population: {0}".format(population))
+
 
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
@@ -179,109 +195,68 @@ class Command(BaseCommand):
                 )
 
 
-                ### persist the BilancioItem values
+                # open csv file
+                csv_filename = os.path.join(year_path, "preventivo.csv")
+                csv_file = open(csv_filename, 'w')
+                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
-                # previously remove all values for a city and a year
-                # used to speed up records insertion
-                ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+                # build and emit header
+                row = [ 'Path', 'Valore', 'Valore procapite' ]
+                csv_writer.writerow(row)
 
-                # add values fastly, without checking their existance
-                # do that for the whole tree (preventivo, consuntivo, ...)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+                # emit preventivo content
+                _list = []
+                city_year_preventivo_tree.emit_as_list(_list, ancestors_separator="/")
+                csv_writer.writerows(_list)
 
 
-    def create_voci_tree(self):
+                # open csv file
+                csv_filename = os.path.join(year_path, "consuntivo.csv")
+                csv_file = open(csv_filename, 'w')
+                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+
+                # build and emit header
+                row = [ 'Path', 'Valore', 'Valore procapite' ]
+                csv_writer.writerow(row)
+
+                # emit preventivo content
+                _list = []
+                city_year_consuntivo_tree.emit_as_list(_list, ancestors_separator="/")
+                csv_writer.writerows(_list)
+
+
+            if compress:
+                csv_path = os.path.join('data', 'csv')
+                zip_path = os.path.join('data', 'zip')
+                if not os.path.exists(zip_path):
+                    os.mkdir(zip_path)
+
+                zipfilename = os.path.join(zip_path, "{}.zip".format(city))
+
+                zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
+                self.logger.info("  Compressed!")
+
+                # remove all tree under city_path
+                # with security control
+                if 'data' in city_path and 'csv' in city_path:
+                    shutil.rmtree(city_path)
+
+
+    def write_csv(self, path, name, tree):
         """
-        Create a Voci tree. If the tree exists, then it is deleted.
+
         """
-        if Voce.objects.count() > 0:
-            Voce.objects.all().delete()
 
-        # get simplified leaves (from csv or gdocs), to build the voices tree
-        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves()
+        # open csv file
+        csv_filename = os.path.join(path, "{0}.csv".format(name))
+        csv_file = open(csv_filename, 'w')
+        csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
-        self.create_voci_preventivo_tree()
+        # build and emit header
+        row = [ 'Path', 'Valore', 'Valore procapite' ]
+        csv_writer.writerow(row)
 
-        self.create_voci_consuntivo_tree()
-
-
-    def create_voci_preventivo_tree(self):
-
-        # create preventivo root
-        subtree_node = Voce(denominazione='Preventivo', slug='preventivo')
-        subtree_node.insert_at(None, save=True, position='last-child')
-
-        # the preventivo subsections
-        subtrees = OrderedDict([
-            ('preventivo-entrate', 'Preventivo entrate'),
-            ('preventivo-spese',   'Preventivo spese'),
-        ])
-
-        # add all leaves from the preventivo sections under preventivo
-        # entrate and spese are already considered
-        for subtree_slug, subtree_denominazione in subtrees.items():
-
-            for leaf_bc in self.simplified_subtrees_leaves[subtree_slug]:
-                # add this leaf to the subtree, adding all needed intermediate nodes
-                self.add_leaf(leaf_bc, subtree_node)
-
-
-    def create_voci_consuntivo_tree(self):
-        # create consuntivo root
-        subtree_node = Voce(denominazione='Consuntivo', slug='consuntivo')
-        subtree_node.insert_at(None, save=True, position='last-child')
-
-        subtrees = OrderedDict([
-            ('consuntivo-entrate', {
-                'denominazione': u'Consuntivo entrate',
-                'sections': [u'Accertamenti', u'Riscossioni in conto competenza', u'Riscossioni in conto residui', u'Cassa']
-            }),
-            ('consuntivo-spese', {
-                'denominazione': u'Consuntivo spese',
-                'sections': [u'Impegni', u'Pagamenti in conto competenza', u'Pagamenti in conto residui', u'Cassa']
-            }),
-        ])
-
-        for subtree_slug, subtree_structure in subtrees.items():
-
-            for section_name in subtree_structure['sections']:
-                for leaf_bc in self.simplified_subtrees_leaves[subtree_slug]:
-                    bc = leaf_bc[:]
-                    bc.insert(1, section_name)
-                    self.add_leaf(bc, subtree_node, section_slug=slugify(section_name))
-
-
-    def add_leaf(self, breadcrumbs, subtree_node, section_slug=''):
-        """
-        Add a leaf to the subtree, given the breadcrumbs list.
-        Creates the needed nodes in the process.
-        """
-        self.logger.info(u"adding leaf {}".format(",".join(breadcrumbs)))
-
-        # skip 'totale' leaves (as totals values are attached to non-leaf nodes)
-        if 'totale' in [bc.lower() for bc in breadcrumbs]:
-            self.logger.info(u"skipped leaf {}".format(",".join(breadcrumbs)))
-            return
-
-        # copy breadcrumbs and remove last elements if empty
-        bc = breadcrumbs[:]
-        while not bc[-1]:
-            bc.pop()
-
-        prefix_slug = subtree_node.slug
-
-        current_node = subtree_node
-        for item in bc:
-            if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
-                slug = u"{0}-{1}".format(prefix_slug, "-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
-                node = Voce(denominazione=item, slug=slug)
-                node.insert_at(current_node, save=True, position='last-child')
-                if bc[-1] == item:
-                    return
-            else:
-                node = current_node.get_children().get(denominazione__iexact=item)
-
-            current_node = node
-
-
+        # emit preventivo content
+        _list = []
+        tree.emit_as_list(_list, ancestors_separator="/")
+        csv_writer.writerows(_list)
