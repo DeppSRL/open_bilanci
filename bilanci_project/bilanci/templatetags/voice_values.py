@@ -42,22 +42,25 @@ def voice_composition(context, voice_slug, values):
 
     inv_voice_slug = voice_slug.replace("spese-correnti", "spese-per-investimenti")
 
-    correnti = float(values['absolute'][voice_slug])
-    investimenti = float(values['absolute'][inv_voice_slug])
-    total = correnti + investimenti
+    if voice_slug in values['absolute'].keys():
+        correnti = float(values['absolute'][voice_slug])
 
-    if total:
-        correnti_perc = correnti / total * 100.0
-        investimenti_perc = investimenti / total * 100.0
-    else:
-        correnti_perc = 0.0
-        investimenti_perc = 0.0
+        if inv_voice_slug in values['absolute'].keys():
+            investimenti = float(values['absolute'][inv_voice_slug])
+            total = correnti + investimenti
 
-    return {
-        'correnti_value': correnti,
-        'correnti_perc': correnti_perc,
-        'investimenti_value': investimenti,
-        'investimenti_perc': investimenti_perc,
-    }
+            if total:
+                correnti_perc = correnti / total * 100.0
+                investimenti_perc = investimenti / total * 100.0
+            else:
+                correnti_perc = 0.0
+                investimenti_perc = 0.0
+
+            return {
+                'correnti_value': correnti,
+                'correnti_perc': correnti_perc,
+                'investimenti_value': investimenti,
+                'investimenti_perc': investimenti_perc,
+            }
 
 

@@ -170,6 +170,10 @@ class Command(BaseCommand):
             api_results = sindaci_api_results
             api_results.extend(commissari_api_results)
 
+            if len(api_results) == 0:
+                self.logger.warning('Incarichi missing for {0}'.format(unidecode(territorio.denominazione)).upper())
+                return
+
             # if data is ok transform data format to fit Visup widget specs
             date_check, incarichi_set = self.incarichi_date_check(api_results)
 
@@ -226,7 +230,7 @@ class Command(BaseCommand):
 
                     self.logger.warning("Incarico: {0} is overlapping with {1}".format(incarico_0_str, incarico_1_str))
 
-            pass
+
         return
 
     def format_incarico(self,incarico_dict):
@@ -249,8 +253,6 @@ class Command(BaseCommand):
         incarico.cognome = incarico_dict['politician']['last_name']
         incarico.territorio = territorio
         incarico.is_commissario = is_commissario
-        # incarico.data_fine = incarico_dict['date_end']
-        # incarico.data_inizio = incarico_dict['date_start']
         incarico.data_inizio = datetime.fromtimestamp(time.mktime(incarico_dict['date_start']))
         incarico.data_fine = datetime.fromtimestamp(time.mktime(incarico_dict['date_end']))
 
@@ -306,8 +308,8 @@ class Command(BaseCommand):
             exclude(denominazione__in = province).exclude(denominazione__in = altri_nomi_capoluoghi).order_by('-cluster','denominazione')
 
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
-        # self.get_incarichi(capoluoghi_provincia, dryrun, update)
-        # self.get_incarichi(altri_capoluoghi, dryrun, update)
+        self.get_incarichi(capoluoghi_provincia, dryrun, update)
+        self.get_incarichi(altri_capoluoghi, dryrun, update)
         self.get_incarichi(altri_territori, dryrun, update)
 
         return
