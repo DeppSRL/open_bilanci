@@ -268,6 +268,7 @@ class Incarico(models.Model):
     party_name = models.CharField(max_length=100, blank=True, null=True)
     party_acronym = models.CharField(max_length=50, blank=True, null=True)
     pic_url = models.URLField(blank=True, null=True, default = None)
+    op_link = models.URLField(blank=True, null=True, default = None)
 
     @staticmethod
     def get_incarichi_attivi(territorio, anno):
