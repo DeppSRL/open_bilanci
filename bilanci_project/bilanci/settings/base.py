@@ -367,15 +367,33 @@ GDP_DEFLATORS = {
 }
 
 ##
+# OP API VARIABLES:
+##
+
+OP_API_HOST = "http://api3.openpolis.it"
+
+##
+# APPLICATION VARIABLES:
+# set the start / end of the time span considered for incarichi related to Territori
+##
+
+
+APP_DATE_FMT = '%Y-%m-%d'
+APP_START_DATE_STR = "2003-01-01"
+APP_END_DATE_STR = "2013-12-31"
+APP_START_DATE = time.strptime(APP_START_DATE_STR, APP_DATE_FMT)
+APP_END_DATE = time.strptime(APP_END_DATE_STR, APP_DATE_FMT)
+
+##
 # BILANCIO GRAPHS VARIABLES:
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
 ##
 
-GRAPH_DATE_FMT = '%Y-%m-%d'
-GRAPH_START_DATE_STR = "2003-01-01"
-GRAPH_END_DATE_STR = "2013-12-31"
-GRAPH_START_DATE = time.strptime(GRAPH_START_DATE_STR, GRAPH_DATE_FMT)
-GRAPH_END_DATE = time.strptime(GRAPH_END_DATE_STR, GRAPH_DATE_FMT)
+
+GRAPH_START_DATE = APP_START_DATE
+GRAPH_END_DATE = APP_END_DATE
+
+SELECTOR_DEFAULT_YEAR = 2012
 
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'

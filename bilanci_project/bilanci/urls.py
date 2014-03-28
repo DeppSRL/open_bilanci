@@ -23,7 +23,7 @@ urlpatterns = patterns('',
 
     # classifiche
     url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
-    url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)/(?P<anno>[-\d]+)$', ClassificheListView.as_view(), name='classifiche-list'),
+    url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)/(?P<anno>[-\d]{4})$', ClassificheListView.as_view(), name='classifiche-list'),
 
     # confronti
     url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),

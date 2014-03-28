@@ -25,7 +25,7 @@
             <div id="content" class="col-sm-12">
                 <div class="row timeline">
                     <div class="col-sm-12">
-                        selettore anni
+                        <div class="year-selector"></div>
                     </div>
                 </div>
 
@@ -276,6 +276,11 @@
                 .addClass( clss.content.off );
             $( '#toggle-menu' ).addClass( clss.btn.on );
 
+            /*
+            * initialize year selectors
+            * */
+
+            init_selector({{ selector_default_year }},{{ selected_year }},false,null,"{% url 'classifiche-list' parameter_type=selected_par_type parameter_slug=selected_parameter.slug anno=selected_year %}");
 
         });
 
@@ -283,6 +288,7 @@
 
     <!-- visup js -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
 
     <!-- / visup js -->
 

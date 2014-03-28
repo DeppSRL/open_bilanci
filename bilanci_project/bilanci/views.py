@@ -14,7 +14,8 @@ from bilanci.utils import couch
 from collections import OrderedDict
 from django.conf import settings
 
-from territori.models import Territorio, Contesto
+from territori.models import Territorio, Contesto, Incarico
+
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -28,154 +29,68 @@ class IncarichiGetterMixin(object):
     timeline_start = settings.GRAPH_START_DATE
     timeline_end = settings.GRAPH_END_DATE
     
-    def transform_incarichi(self, incarichi, highlight_color):
+    def transform_incarichi(self, incarichi_set, highlight_color):
 
         incarichi_transformed = []
-        for incarico in incarichi:
+        for incarico in incarichi_set:
 
-            incarico_start = incarico['date_start']
-            incarico_end = None
-            if incarico['date_end']:
-                incarico_end = incarico['date_end']
 
 
             dict_widget = {
-                'start':  time.strftime(self.date_fmt, incarico_start),
-                'end': time.strftime(self.date_fmt,incarico_end),
+                'start':  incarico.data_inizio,
+                'end': incarico.data_fine,
 
                 # sets incarico marker color and highlight
                 'color': settings.INCARICO_MARKER_INACTIVE,
                 'highlightColor': highlight_color,
             }
 
-            if incarico['charge_type'] == "http://api3.openpolis.it/politici/chargetypes/16":
+            if incarico.is_commissario:
                 # commissari
 
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
-                dict_widget['sublabel'] = incarico['description']
+                dict_widget['sublabel'] = incarico.motivo_commissariamento
 
-            elif incarico['charge_type'] == "http://api3.openpolis.it/politici/chargetypes/14":
+            else :
                 # sindaci
 
                 # sets sindaco name, surname
                 dict_widget['label'] = "{0}.{1}".\
                     format(
-                        incarico['politician']['first_name'][0].upper(),
-                        incarico['politician']['last_name'].upper().encode('utf-8'),
+                        incarico.nome[0].upper(),
+                        incarico.cognome.upper().encode('utf-8'),
                     )
 
                 dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
-                if incarico['politician']['image_uri']:
-                    # controls that the sindaco picture actually exists at the url specified
-                    sindaco_pic = requests.get(incarico['politician']['image_uri'])
-                    if sindaco_pic.content != '':
-                        dict_widget['icon'] = incarico['politician']['image_uri']
+                if incarico.pic_url:
+                    dict_widget['icon'] = incarico.pic_url
 
 
                 # as a sublabel sets the party acronym, if it's not available then the party name is used
-                if incarico['party']['acronym']:
-                    dict_widget['sublabel'] = incarico['party']['acronym'].upper()
-                elif incarico['party']['name']:
+                if incarico.party_acronym:
+                    dict_widget['sublabel'] = incarico.party_acronym.upper()
+                elif incarico.party_name:
                     # removes text between parenthesis from party name
-                    dict_widget['sublabel'] = re.sub(r'\([^)]*\)', '', incarico['party']['name']).upper()
+                    dict_widget['sublabel'] = re.sub(r'\([^)]*\)', '', incarico.party_name).upper()
                 else:
                     dict_widget['sublabel']=''
 
 
-            else:
-                # incarico type not accepted
-                return None
 
             incarichi_transformed.append(dict_widget)
 
         return incarichi_transformed
 
 
-    def get_incarichi_api(self, territorio_opid, incarico_type):
-
-        api_results_json = requests.get(
-            "http://api3.openpolis.it/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
-                format(incarico_type, territorio_opid)
-            ).json()
-
-        if 'results' in api_results_json:
-            return api_results_json['results']
-        else:
-            return None
-
-    def incarichi_date_check(self, incarichi_set):
-
-        """
-        Incarichi check checks that incarichi for a given Comune are not overlapping and
-        sets incarichi beginnings and end based on the start / end of web app timeline.
-
-        Return a tuple (Bool, incarichi_set)
-        """
-
-
-        # converts all textual data to datetime obj type and
-        # discards incarichi out of timeline scope: happened before timeline_start or after timeline_end
-
-        incarichi_clean_set = []
-        for incarico in incarichi_set:
-
-            incarico['date_start'] = time.strptime(incarico['date_start'], self.date_fmt)
-            if incarico['date_end']:
-                incarico['date_end'] = time.strptime(incarico['date_end'], self.date_fmt)
-
-            # considers only charges which are contained between self.timeline_start / end
-            if ( incarico['date_end'] is None or incarico['date_end'] > self.timeline_start) and incarico['date_start'] < self.timeline_end:
-
-                if incarico['date_end'] is None or incarico['date_end'] > self.timeline_end:
-                    incarico['date_end'] = self.timeline_end
-
-                if incarico['date_start']  < self.timeline_start:
-                    incarico['date_start']  = self.timeline_start
-
-                incarichi_clean_set.append(incarico)
-
-
-        # checks if clean incarichi are overlapping
-        for incarico_considered in incarichi_clean_set:
-            considered_start = incarico_considered['date_start']
-            considered_end = incarico_considered['date_end']
-
-            for incarico_inner in incarichi_clean_set:
-                if incarico_inner is not incarico_considered:
-                    inner_start = incarico_inner['date_start']
-                    inner_end = incarico_inner['date_end']
-
-                    if inner_start < considered_start < inner_end:
-                        return False, []
-                    if inner_end > considered_end > inner_start:
-                        return False, []
-
-
-        return True, incarichi_clean_set
-
 
     def get_incarichi(self, territorio_opid, highlight_color):
 
-        # get sindaci
-        sindaci_api_results = self.get_incarichi_api(territorio_opid, incarico_type='14')
+        incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio_opid))
 
-        # get commissari
-        commissari_api_results = self.get_incarichi_api(territorio_opid, incarico_type='16')
+        return self.transform_incarichi(incarichi_set, highlight_color)
 
-        # unite data and check for data integrity
-        api_results = sindaci_api_results
-        api_results.extend(commissari_api_results)
 
-        # if data is ok transform data format to fit Visup widget specs
-        date_check, incarichi_set = self.incarichi_date_check(api_results)
-        if date_check:
-
-            return self.transform_incarichi(incarichi_set, highlight_color)
-
-        else:
-            # if data is not correct then turns off the sindaci timeline
-            return incarichi_set
 
 
     ##
@@ -492,9 +407,10 @@ class ClassificheRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
         # redirects to appropriate confronti view based on default parameter for Territori
-        # todo: define in settings default parameter
+        # todo: define in settings default parameter for Classifiche
         kwargs['parameter_type'] = 'indicatori'
         kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+        kwargs['anno'] = settings.SELECTOR_DEFAULT_YEAR
 
         try:
             url = reverse('classifiche-list', args=args , kwargs=kwargs)
@@ -543,12 +459,13 @@ class ClassificheListView(ListView):
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
         context['selected_year'] = self.anno
+        context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
         context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
-        context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('denominazione')
+        context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
 
         return context
 

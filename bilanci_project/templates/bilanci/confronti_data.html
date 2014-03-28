@@ -56,63 +56,20 @@
 
 {% block extra_js %}
 
+
+    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
+
 
     <script type="text/javascript">
 
         $(document).ready(function(){
 
-            /*
-            opens by default the parameter menu on page load
-            */
-
-            var $sidebar = $( '#sidebar' ),
-                $content = $( '#content' );
-
-            var clss = {
-                btn: {
-                    on: 'active'
-                },
-                content: {
-                    on: 'col-sm-12',
-                    off: 'col-sm-8 col-sm-push-4'
-                },
-                sidebar: {
-                    on: 'col-sm-4 col-sm-pull-8',
-                    off: 'hidden'
-                }
-            };
-
-            $sidebar
-                .removeClass( clss.sidebar.off )
-                .addClass( clss.sidebar.on );
-            $content
-                .removeClass( clss.content.on )
-                .addClass( clss.content.off );
-            $( '#toggle-menu' ).addClass( clss.btn.on );
-
-
-            /*
-            initialize fake submit button url and side menu url
-             */
-
-
-            $("#id_territorio_1").on("click", function(){ changeConfrontiUrl();});
-            $("#id_territorio_2").on("click", function(){ changeConfrontiUrl();});
-
-
-            changeConfrontiUrl();
-
-            $("#confronti_submit_btn").on('click', function(e) {
-                submitButtonConfronti(e);
-            });
+           init_page();
         });
 
     </script>
-
-    <!-- visup js -->
-    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/linegraph_utils.js' %}" type="text/javascript"></script>
 
     <script type="text/javascript">
 
@@ -120,11 +77,8 @@
 
         d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=parameter.slug %}",
             function (i) {
-            chart.data(i)
+            linechart.data(i)
         });
-
-
-
 
     </script>
 

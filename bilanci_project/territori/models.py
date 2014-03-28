@@ -246,3 +246,24 @@ class Contesto(models.Model):
         verbose_name = u'Contesto'
         verbose_name_plural = u'Contesti'
         ordering = ['territorio']
+
+
+
+class Incarico(models.Model):
+
+    ##
+    # Caches the Incarico data from Open Politici API for each Territorio
+    ##
+
+    territorio = models.ForeignKey(Territorio, null=False, default=0)
+
+    data_inizio = models.DateField(null=False,)
+    data_fine = models.DateField(null=True, default=0)
+
+    nome = models.CharField(max_length=50, blank=True, null=True)
+    cognome = models.CharField(max_length=80, blank=True, null=True)
+    is_commissario = models.BooleanField(default=False)
+    motivo_commissariamento = models.CharField(max_length=500, blank=True, null=True)
+    party_name = models.CharField(max_length=100, blank=True, null=True)
+    party_acronym = models.CharField(max_length=50, blank=True, null=True)
+    pic_url = models.URLField(blank=True, null=True, default = None)
