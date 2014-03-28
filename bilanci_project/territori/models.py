@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from model_utils import Choices
 from django.contrib.gis.db import models
+from datetime import datetime
 import struct
 
 class TerritoriManager(models.GeoManager):
@@ -267,3 +268,17 @@ class Incarico(models.Model):
     party_name = models.CharField(max_length=100, blank=True, null=True)
     party_acronym = models.CharField(max_length=50, blank=True, null=True)
     pic_url = models.URLField(blank=True, null=True, default = None)
+
+    @staticmethod
+    def get_incarichi_attivi(territorio, anno):
+        date_fmt = '%Y-%m-%d'
+        jan_1_date = datetime.strptime(str(anno)+"-01-01", date_fmt).date()
+        dec_31_date = datetime.strptime(str(anno)+"-12-31", date_fmt).date()
+
+        return Incarico.objects.\
+                filter(territorio=territorio,
+                data_inizio__lte = dec_31_date,
+                data_fine__gte = jan_1_date,
+                )
+
+

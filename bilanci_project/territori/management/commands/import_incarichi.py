@@ -6,6 +6,7 @@ from pprint import pprint
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
 from django.utils.datastructures import SortedDict
+import re
 import requests
 import time
 from datetime import datetime
@@ -210,10 +211,10 @@ class Command(BaseCommand):
                                     incarico.motivo_commissariamento = incarico_dict['description']
 
                                 if incarico_dict['party']['acronym']:
-                                    incarico.party_acronym = incarico['party']['acronym']
+                                    incarico.party_acronym = incarico['party']['acronym'].upper()
 
                                 if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
-                                    incarico.party_name = incarico['party']['name']
+                                    incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
 
                                 incarico.save()
 
@@ -261,11 +262,10 @@ class Command(BaseCommand):
             incarico.motivo_commissariamento = incarico_dict['description']
 
         if incarico_dict['party']['acronym']:
-            incarico.party_acronym = incarico_dict['party']['acronym']
+            incarico.party_acronym = incarico_dict['party']['acronym'].upper()
 
         if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
-            incarico.party_name = incarico_dict['party']['name']
-
+            incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
 
         incarico.save()
 
