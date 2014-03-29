@@ -47,6 +47,9 @@ $(document).ready(function(){
     if($('#toggle-menu').length){
         $("#toggle-menu").on("click", function(){ linechart.resize();});
     }
+
+    init_linechart();
+    feed_linechart();
 });
 
 $(window).on('resize', function(){
