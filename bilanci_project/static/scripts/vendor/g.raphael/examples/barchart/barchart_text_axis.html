@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>gRaphaël Bar Chart - a barchart with text x-axis</title>
+        <script type="text/javascript" src="../raphael-min.js"></script>
+        <script type="text/javascript" src="../../g.raphael.js"></script>
+        <script type="text/javascript" src="../../g.bar.js"></script>
+        <script type="text/javascript">
+            window.onload = function() {
+                // Creates canvas 640 × 480 at 10, 50
+                var r = Raphael(10, 50, 640, 480);
+
+                // Creates a single series barchart at 10, 10
+                // width 300, height 220, data: [10,20,30,40]
+                var max_val = 50
+                r.barchart(40, 10, 320, 220, [[10,20,30,40]]);
+                axis = r.raphael.g.axis(85,230,310,null,null,4,2,["Today",  "Yesterday", "Tomorrow", "Future"], "|", 0);
+                axis.text.attr({font:"12px Arial", "font-weight": "regular", "fill": "#333333"});
+                // show y-axis by setting orientation to 1
+                axis2 = r.raphael.g.axis(40,230,300,0,400,10,1);
+            }
+        </script>
+    </head>
+    <body>
+    </body>
+</html>

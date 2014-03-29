@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>gRaphaël Bar Chart - a barchart with customised axis</title>
+        <script type="text/javascript" src="../raphael-min.js"></script>
+        <script type="text/javascript" src="../../g.raphael.js"></script>
+        <script type="text/javascript" src="../../g.bar.js"></script>
+        <script type="text/javascript">
+            window.onload = function() {
+                // Creates canvas 640 × 480 at 10, 50
+                var r = Raphael(10, 50, 640, 480);
+                
+                // Creates a single series barchart at 10, 10
+                // width 300, height 220, data: [55, 20, 13, 32, 5, 1, 2, 10]
+                var max_val = 50
+                r.barchart(40, 10, 300, 220, [[55, 20, 13, 32, 5, 1, 2, 10]]);
+                axis = r.raphael.g.axis(40,230,300,0,400,10,2);
+                axis.text.attr({font:"9px Arial", fill:"#888", "font-weight": "regular", "color": "#ff0000", "fill": "#ff0000"});
+            }
+        </script>
+    </head>
+    <body>   
+    </body>
+</html>

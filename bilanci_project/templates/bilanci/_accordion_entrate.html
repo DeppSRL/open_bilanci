@@ -4,54 +4,50 @@
 
 <!-- Main table -->
 <div class="table-responsive">
-    <table class="table" id="results">
-        <thead>
-            <tr>
-                <th class="alt">VOCE</th>
-                <th>VALORE ASSOLUTO</th>
-                <th>VALORE PROCAPITE</th>
-            </tr>
-        </thead>
+
+    <table class="table entrate no-hover">
         <tbody>
 
             {% recursetree bilancio_tree %}
                 {% if node == bilancio_rootnode %}
-
                     {{ children }}
-
                 {% else %}
 
-                    <tr>
-                        {% if not node.is_leaf_node %}
-                            <td>
-                                <a class="collapse-toggle" href="#{{ node.slug }}">
-                                    <span class="glyphicon glyphicon-plus-sign"></span>
-                                    {{ node.denominazione|lower|capfirst }}
-                                </a>
-                            </td>
-                        {% else %}
-                            <td>
-                                {{ node.denominazione|lower|capfirst }}
-                            </td>
-                        {% endif %}
+                    <tr class="panel-heading">
+                        <td class="col-sm-5 entry">
+                            <a class="collapse-toggle" href="#{{ node.slug }}">
+                                <span class="icon sprite-plus"></span></a>
+                            {{ node.denominazione|lower|capfirst }}
+                        </td>
 
-                        {% voice_values node.slug budget_values %}
+                        <td class="col-sm-3 actions">
+                            {% voice_values node.slug budget_values %}
+                        </td>
                     </tr>
-                    {% if not node.is_leaf_node %}
-                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                            <td colspan="3">
-                                <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
+                    <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                        <td colspan="3" class="col-sm-12 details">
+                            <p>
+                                Testo corrente per la voce {{ node.denominazione|lower|capfirst }}
 
-                                <!-- Sub table level 1 -->
-                                <table class="table table-condensed">
-                                    <tbody>
-                                        {{ children }}
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
+                                <a href="#" class="btn btn-sm btn-default more-info pull-right" data-open="andamento nel tempo &lt;span class='glyphicon glyphicon-chevron-down'&gt;&lt;/span&gt;" data-close="chiudi &lt;span class='glyphicon glyphicon-chevron-up'&gt;&lt;/span&gt;">andamento nel tempo <span class="glyphicon glyphicon-chevron-down"></span></a>
+                            </p>
+                            <figure class="trend hidden">
+                                <img alt="Responsive image" class="img-responsive" src="img/temp/indicatori.png">
+                            </figure>
 
-                    {% endif %}
+                            {% if not node.is_leaf_node %}
+                            <br>
+
+                            <!-- Sub table level 1 -->
+                            <table class="table table-condensed">
+                                <tbody>
+                                    {{ children }}
+                                </tbody>
+                            </table>
+                            {% endif %}
+                        </td>
+                    </tr>
+
                 {% endif %}
 
 
