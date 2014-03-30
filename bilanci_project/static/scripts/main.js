@@ -149,13 +149,13 @@ $(document).ready(function(){
         var $panel = $( "#settings" ),
             $opener = $panel.find( '.slider-arrow.show' ),
             $closer = $panel.find( '.slider-arrow.close' ),
-            delta = $panel.width(),
-            hook = $( 'h2.text-alt' ).first(),
+            delta = $panel.width();
+
+        if ($( 'h2.text-alt' ).length) {
+            hook = $( 'h2.text-alt' ).first();
             y =  hook.offset().top - hook.position().top - hook.height();
-
-            console.log($( 'h2.text-alt' ).first(), delta, y);
-
-        $panel.css('top', y).show('fast');
+            $panel.css('top', y).show('fast');
+        }
 
         $opener.on( 'click', function(e){
             e.preventDefault();
