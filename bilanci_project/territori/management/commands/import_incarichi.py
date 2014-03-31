@@ -112,22 +112,22 @@ class Command(BaseCommand):
 
         interesting_incarichi = []
         overlapping_incarichi = []
-        for incarico in incarichi_set:
+        for incarico_dict in incarichi_set:
 
-            incarico['date_start'] = datetime.strptime(incarico['date_start'], self.date_fmt)
-            if incarico['date_end']:
-                incarico['date_end'] = datetime.strptime(incarico['date_end'], self.date_fmt)
+            incarico_dict['date_start'] = datetime.strptime(incarico_dict['date_start'], self.date_fmt)
+            if incarico_dict['date_end']:
+                incarico_dict['date_end'] = datetime.strptime(incarico_dict['date_end'], self.date_fmt)
 
             # considers only charges which are contained between self.timeline_start / end
-            if ( incarico['date_end'] is None or incarico['date_end'] > self.timeline_start) and incarico['date_start'] < self.timeline_end:
+            if ( incarico_dict['date_end'] is None or incarico_dict['date_end'] > self.timeline_start) and incarico_dict['date_start'] < self.timeline_end:
 
-                if incarico['date_end'] is None or incarico['date_end'] > self.timeline_end:
-                    incarico['date_end'] = self.timeline_end
+                if incarico_dict['date_end'] is None or incarico_dict['date_end'] > self.timeline_end:
+                    incarico_dict['date_end'] = self.timeline_end
 
-                if incarico['date_start']  < self.timeline_start:
-                    incarico['date_start']  = self.timeline_start
+                if incarico_dict['date_start']  < self.timeline_start:
+                    incarico_dict['date_start']  = self.timeline_start
 
-                interesting_incarichi.append(incarico)
+                interesting_incarichi.append(incarico_dict)
 
 
         # checks if interesting_incarichi are overlapping
@@ -214,7 +214,7 @@ class Command(BaseCommand):
                                 incarico.motivo_commissariamento = incarico_dict['description']
 
                             if incarico_dict['party']['acronym']:
-                                incarico.party_acronym = incarico['party']['acronym'].upper()
+                                incarico.party_acronym = incarico_dict['party']['acronym'].upper()
 
                             if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
                                 incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
@@ -240,8 +240,8 @@ class Command(BaseCommand):
                             unidecode(incarico_dict['politician']['first_name'][0].title()),
                             unidecode(incarico_dict['politician']['last_name'].title()),
                             incarico_dict['politician']['self'].replace(settings.OP_API_HOST+'/politici/politicians/',''),
-                            time.strftime(self.date_fmt, incarico_dict['date_start']),
-                            time.strftime(self.date_fmt, incarico_dict['date_end']),
+                            datetime.strftime(incarico_dict['date_start'], self.date_fmt ),
+                            datetime.strftime(incarico_dict['date_end'], self.date_fmt ),
 
                         )
 
@@ -253,8 +253,8 @@ class Command(BaseCommand):
         incarico.cognome = incarico_dict['politician']['last_name']
         incarico.territorio = territorio
         incarico.is_commissario = is_commissario
-        incarico.data_inizio = datetime.fromtimestamp(time.mktime(incarico_dict['date_start']))
-        incarico.data_fine = datetime.fromtimestamp(time.mktime(incarico_dict['date_end']))
+        incarico.data_inizio = incarico_dict['date_start']
+        incarico.data_fine = incarico_dict['date_end']
 
         # motivo commissariamento
         if 'description' in incarico_dict.keys():
