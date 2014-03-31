@@ -46,7 +46,7 @@ class IncarichiGetterMixin(object):
 
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
-                dict_widget['sublabel'] = incarico.motivo_commissariamento
+                dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else :
                 # sindaci
@@ -114,8 +114,8 @@ class IncarichiGetterMixin(object):
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
             voce = voce_bilancio,
-            anno__gte = self.timeline_start.tm_year,
-            anno__lte = self.timeline_end.tm_year
+            anno__gte = self.timeline_start.year,
+            anno__lte = self.timeline_end.year
         ).order_by('anno')
 
         return self.transform_voce(voce_values, line_id, line_color)
@@ -129,8 +129,8 @@ class IncarichiGetterMixin(object):
         indicatore_values = ValoreIndicatore.objects.filter(
             territorio = territorio,
             indicatore = indicatore,
-            anno__gte = self.timeline_start.tm_year,
-            anno__lte = self.timeline_end.tm_year
+            anno__gte = self.timeline_start.year,
+            anno__lte = self.timeline_end.year
         ).order_by('anno')
 
         return self.transform_voce(indicatore_values, line_id, line_color)
