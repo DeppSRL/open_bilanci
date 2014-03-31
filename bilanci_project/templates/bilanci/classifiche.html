@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load humanize %}
 {% load classifiche_parameter_list %}
+{% load classifiche_incarichi_politici %}
 
 {% block content %}
 
@@ -83,32 +84,17 @@
                                 <table class="table table-striped">
                                     <tbody>
                                         {% if valori_list %}
-                                            {% for result in valori_list %}
+                                            {% for valore_obj in valori_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
-                                                        <span class="h2">{{ result.valore|intcomma }}</span>
+                                                        <span class="h2">{{ valore_obj.valore|intcomma }}</span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ result.territorio }}</a></h4>
-                                                        <p>{{ result.territorio.prov }}, {{ result.territorio.regione }}</p>
+                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio }}</a></h4>
+                                                        <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
                                                         <div class="media">
-                                                            {% if result.incarichi_attivi %}
-                                                                {% if result.incarichi_attivi|length == 1 %}
-                                                                    {% if  result.incarichi_attivi.0.pic_url %}
-                                                                        <figure class="pull-left img-circle">
-                                                                            <img class="media-object" src="{{ result.incarichi_attivi.0.pic_url}}" alt="avatar">
-                                                                        </figure>
-                                                                    {% endif %}
-                                                                    <div class="media-body">
-                                                                        <p class="h4"><a href="#">
-                                                                            {{ result.incarichi_attivi.0.nome.0|upper }}. {{ result.incarichi_attivi.0.cognome|title }}</a></p>
-                                                                        <p class="small">{{ result.incarichi_attivi.0.party_name}}</p>
-                                                                    </div>
-                                                                {% else %}
-                                                                    Pi&ugrave; incarichi attivi per il Comune di {{ result.territorio.denominazione }}, <a href="#">clicca qui per vederli</a>
-                                                                {% endif %}
-                                                            {% endif %}
+                                                            {% classifiche_incarichi_politici valore_obj %}
                                                         </div>
 
                                                     </td>
