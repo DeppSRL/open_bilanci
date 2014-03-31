@@ -1,7 +1,7 @@
 """Common settings and globals."""
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
-import time
+from datetime import datetime
 import environ
 
 root = environ.Path(__file__) - 4  # (/open_bilanci/bilanci_project/bilanci/settings/ - 4 = /)
@@ -381,8 +381,8 @@ OP_API_HOST = "http://api3.openpolis.it"
 APP_DATE_FMT = '%Y-%m-%d'
 APP_START_DATE_STR = "2003-01-01"
 APP_END_DATE_STR = "2013-12-31"
-APP_START_DATE = time.strptime(APP_START_DATE_STR, APP_DATE_FMT)
-APP_END_DATE = time.strptime(APP_END_DATE_STR, APP_DATE_FMT)
+APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
+APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 
 ##
 # BILANCIO GRAPHS VARIABLES:
