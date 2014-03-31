@@ -4,15 +4,7 @@
 
 <!-- Main table -->
 <div class="table-responsive">
-    <table class="table" id="results">
-        <thead>
-            <tr>
-                <th class="alt">VOCE</th>
-                <th>VALORE ASSOLUTO</th>
-                <th>VALORE PROCAPITE</th>
-                <th>RAPPORTO INVESTIMENTI/SPESE CORRENTI</th>
-            </tr>
-        </thead>
+    <table class="table entrate no-hover">
         <tbody>
 
             {% recursetree bilancio_tree %}
@@ -26,52 +18,77 @@
                     {% else %}
 
                         <tr>
-                            {% if not node.is_leaf_node %}
-                                <td>
-                                    <a class="collapse-toggle" href="#{{ node.slug }}">
-                                        <span class="glyphicon glyphicon-plus-sign"></span>
+                            <td class="col-sm-5 entry">
+                                <a class="collapse-toggle" href="#{{ node.slug }}">
+                                    <span class="icon sprite-plus"></span></a>
+                                <span style="text-transform: uppercase">
+                                    {% if node.level == 6 %}
+                                        {% if node.parent.parent.parent.denominazione == "Spese correnti" %}
+                                            Spese
+                                        {% else %}
+                                            {{ node.parent.parent.parent.denominazione|lower|capfirst }}
+                                        {% endif %}
+                                    {% elif node.level == 5 or node.level == 4%}
+                                        {% if node.parent.parent.denominazione == "Spese correnti" %}
+                                            Spese
+                                        {% else %}
+                                            {{ node.parent.parent.denominazione|lower|capfirst }}
+                                        {% endif %}
+                                    {% else %}
                                         {% if node.denominazione == "Spese correnti" %}
                                             Spese
                                         {% else %}
                                             {{ node.denominazione|lower|capfirst }}
                                         {% endif %}
-                                    </a>
-                                </td>
-                            {% else %}
-                                <td>
-                                    {{ node.denominazione|lower|capfirst }}
-                                </td>
-                            {% endif %}
+                                    {% endif %}
+                                </span>
+                                {% if node.level == 6 %}
+                                    <br>
+                                    <small style="text-transform: uppercase">&gt; {{ node.parent.denominazione }} &gt; {{ node.denominazione }}</small>
+                                {% elif node.level == 5 or node.level == 4%}
+                                    <br>
+                                    <small style="text-transform: uppercase">&gt; {{ node.denominazione }}</small>
+                                {% endif %}
+                            </td>
 
-                            {% voice_values node.slug budget_values %}
+                            <td class="col-sm-3 actions">
+                                {% voice_values node.slug budget_values %}
+                            </td>
 
-                            <td>
+                            <td class="col-sm-4 chart-wrapper">
                                 {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
                                     {% voice_composition node.slug budget_values %}
                                 {% endif %}
                             </td>
                         </tr>
 
-                        {% if not node.is_leaf_node %}
-                            <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                                <td colspan="4">
-                                    {% if node.denominazione == "Spese correnti" %}
-                                        <p>Testo descrittivo per la voce Spese</p>
-                                    {% else %}
-                                        <p>Testo corrente per la voce {{ node.denominazione|lower|capfirst }}</p>
-                                    {% endif %}
+                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                            <td colspan="3" class="col-sm-12 details">
+                                <p>
+                                {% if node.denominazione == "Spese correnti" %}
+                                    Testo descrittivo per la voce Spese
+                                {% else %}
+                                    Testo corrente per la voce {{ node.denominazione|lower|capfirst }}
+                                {% endif %}
 
-                                    <!-- Sub table level 1 -->
-                                    <table class="table table-condensed">
-                                        <tbody>
-                                            {{ children }}
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
+                                <a href="#" class="btn btn-sm btn-default more-info pull-right" data-open="andamento nel tempo &lt;span class='glyphicon glyphicon-chevron-down'&gt;&lt;/span&gt;" data-close="chiudi &lt;span class='glyphicon glyphicon-chevron-up'&gt;&lt;/span&gt;">andamento nel tempo <span class="glyphicon glyphicon-chevron-down"></span></a>
+                                </p>
+                                <figure class="trend hidden">
+                                    <img alt="Responsive image" class="img-responsive" src="img/temp/indicatori.png">
+                                </figure>
 
-                        {% endif %}
+                                {% if not node.is_leaf_node %}
+                                <br>
 
+                                <!-- Sub table level 1 -->
+                                <table class="table table-condensed">
+                                    <tbody>
+                                        {{ children }}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                            </td>
+                        </tr>
 
                     {% endif %}
 

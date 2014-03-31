@@ -16,8 +16,11 @@
     <!-- Nav Tabs -->
     <ul class="nav nav-tabs nav-justified">
         <li ><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE ENTRATE</a></li>
-        <li class="active"><a href="#dettaglio" data-toggle="tab">DETTAGLIO DELLE ENTRATE</a></li>
+        <li class="active"><a href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
     </ul>
+
+    <hr class="no-border">
+
     <!-- Tab panes -->
     <div class="tab-content">
         <div class="tab-pane fade in " id="composizione">
@@ -26,10 +29,13 @@
 
         <div class="tab-pane fade in active" id="dettaglio">
             {% include 'commons/_lines_chart_over_the_years.html' %}
+
             <hr class="no-border">
 
             <!-- Default panel contents -->
-            <h3>Dettaglio delle entrate</h3>
+            <header class="clearfix">
+                <h3>DETTAGLIO {{ year }}</h3>
+            </header>
             <p>Una breve descrizione del contenuto ...</p>
 
             {% include 'bilanci/_accordion_entrate.html' %}
@@ -39,23 +45,29 @@
 {% endblock %}
 
 
-
-
 {% block extra_js %}
     <!-- visup js -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
 
     <script type="text/javascript">
+        $(document).ready(function(){
+            /*
+            * initialize year selectors
+            * */
+            init_selector({{ selector_default_year }},{{ year }},false,null,"{% url 'bilanci-entrate' slug=territorio.slug %}?anno={{ selected_year }}");
+        });
 
+        /*
         d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
                 function (i) {
             chart.data(i)
         });
-
+        */
     </script>
-
     <!-- / visup js -->
+
 {% endblock %}
 
 {% block extra_css %}

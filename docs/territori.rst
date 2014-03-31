@@ -91,5 +91,5 @@ Incarico model is imported from API as follows:
 
 .. code-block:: bash
 
-    python manage.py import_incarichi -v 2 [--update] [--delete] [--dry-run]
+    python manage.py import_incarichi -v 2 [--type=all|capoluoghi|others] [--delete] [--dry-run]
     

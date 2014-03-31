@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>gRaphaël Bar Chart - a simple barchart example</title>
+        <script type="text/javascript" src="../raphael-min.js"></script>
+        <script type="text/javascript" src="../../g.raphael.js"></script>
+        <script type="text/javascript" src="../../g.bar.js"></script>
+        <style>svg {border: 2px dotted red}</style>
+        <script type="text/javascript">
+            window.onload = function() {
+
+
+                // function to test event handlers
+                randomAlert = function (message) {
+                    alert(message);
+                }
+                // randomAlert("some message")
+
+                // Creates canvas 640 × 480 at 10, 50
+                //                   a         b        c
+                var r = Raphael("barchart", "540px", "380px");
+                //  a. id of the charts container
+                //  b. width of the paper (canvas)
+                //  c. height of the paper (canvas)
+
+
+                // Creates a single series barchart at 10, 10
+                // width 300, height 220, data: [55, 20, 13, 32, 5, 1, 2, 10]
+                // Most basic implementation -- not very helpful
+                //r.barchart(10, 10, 300, 220, [[55, 20, 13, 32, 5, 1, 2, 10]]);
+
+
+                // ----------------- NOTES ----------------------------------
+                //  The version of raphael (NOT g.raphael) in the official 
+                //  g.raphael repos is outdated (version 1.4.7), this repo 
+                //  has been updated to raphael version 2.1.1
+
+                // To do a horizontal barchart use r.hbarchart (add an 'h')
+
+                //        (-a  -b  -c-  -d-  ------------- e ---------------   - f --> )
+                var theChart = r.barchart(20, 40, 480, 280, [[55, 20, 13, 32, 5, 1, 2, 10]], {
+                    type    : "square",       // String. Default "square". Opts: round, soft, sharp
+                    
+                    gutter  : 20,             // Number (percentage of coumn width). Default 20%.
+                                              // Adjusts the gutter width between columns.
+                    
+                    vgutter : 20,             // Number (NOT a percentage of anything) 
+                                              // Spacing above and below the columns
+                                              // Defaults to 20
+                                              // Setting it to the height of the chart inverts 
+                                              // the chart
+                                              // NOT an option for horizontal barcharts
+
+                    colors  : ["#00901e",     // Array of Strings representing the color of columns
+                               "#e2b41e"],    // If the data set is a single array of values, each
+                                              // column needs to be assigned a color
+                                              // otherwise, each color represent all columns in an
+                                              // array
+
+                    stacked : 1,              // Boolean 
+                                              // Defaults to 0
+                                              // If true (1), the columns are stacked on top of 
+                                              // of eachother
+                                              // If false the datasets are presented side-by-side.
+
+                    stretch : 1               // Boolean
+                                              // Defaults to 0
+                                              // If true, g.raphael won't round the gutters and 
+                                              // column widths, it will use the full width of the
+                                              // chart area (??)
+                });
+                //  a. x-position of the chart on the canvas
+                //  b. y-position of the chart on the canvas
+                //  c. width of the chart
+                //  d. height of the chart
+                //  e. data. Expects and array of arrays. Each array is a data 
+                //     set on the bar chart (stacked)
+                //  f. options
+
+                // -------  TERMINOLOGY  --------
+                // Gutter: a gutter is the space between columns. So a gutter of 100% will make 
+                //         thespace between each column the same width as the width of the columns.
+
+
+                // Or chain the event handler on to the original .barchart call
+
+                // .hoverColumn(functionIn, functionOut)
+                theChart.hoverColumn(function (){
+                    console.log(this.bars.items[0].value);
+                }, function (){
+                    console.log("out");
+                });
+
+                // how to get the value of a column on an event handler
+                // this.bars.items[0].value
+                // item is an array for that column, each data set has its own array
+            
+
+            } // <-- end of onload function
+        </script>
+    </head>
+    <body>
+        <div id="barchart"></div>
+    </body>
+</html>

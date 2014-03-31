@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import template
+import hashlib
 
 register = template.Library()
 
@@ -57,6 +58,7 @@ def voice_composition(context, voice_slug, values):
                 investimenti_perc = 0.0
 
             return {
+                'hash': hashlib.sha512(voice_slug).hexdigest()[:8],
                 'correnti_value': correnti,
                 'correnti_perc': correnti_perc,
                 'investimenti_value': investimenti,

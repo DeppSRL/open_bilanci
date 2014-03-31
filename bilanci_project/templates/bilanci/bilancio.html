@@ -23,38 +23,54 @@
     {% endblock %}
 
     <div class="panel-body">
-        {% block bilanci_navigation_menu %}
-            {% include 'bilanci/_navigation_menu.html' with active_voice='bilancio' %}
-        {% endblock %}
 
-        <div class="panel">
-            <div class="panel-heading">
-                <h2 class="panel-title text-alt">
-                    {% block subtitle %}bilancio{% endblock %}
-                </h2>
-            </div>
-            <div class="panel-body">
-                {% block bilanci_content %}
-                    <!-- Nav Tabs -->
-                    <ul class="nav nav-tabs nav-justified">
-                        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE</a></li>
-                        <li><a href="#analisi-e-trend" data-toggle="tab">ANALISI E TREND</a></li>
-                    </ul>
-                    <!-- Tab panes -->
-                    <div class="tab-content">
-                        <div class="tab-pane fade in active" id="composizione">
-                            {% include 'bilanci/_composition_widget.html' with bilancio_type='complessivo' %}
-                        </div>
-
-                        <div class="tab-pane fade in" id="analisi-e-trend">
-                            <figure class="stripe thumbnail">
-                                <img src="http://cambelt.co/200x600/Analisi+e+trend" class="img-responsive" alt="Analisi e trend">
-                            </figure>
-                        </div>
-                    </div>
+        <div class="row">
+            <div class="col-sm-12">
+                {% block bilanci_navigation_menu %}
+                    {% include 'bilanci/_navigation_menu.html' with active_voice='bilancio' %}
                 {% endblock %}
+                <h2 class="panel-title text-alt">{% block subtitle %}bilancio{% endblock %}</h2>
             </div>
         </div>
+
+        <div class="row">
+            <div id="content" class="col-sm-12">
+
+                <div class="row timeline">
+                    <div class="col-sm-12">
+                        <div class="year-selector"></div>
+                    </div>
+                </div>
+
+                <div id="results" class="row">
+                    <div class="col-sm-12">
+                        {% block bilanci_content %}
+                            <!-- Nav Tabs -->
+                            <ul class="nav nav-tabs nav-justified">
+                                <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE</a></li>
+                                <li><a href="#analisi-e-trend" data-toggle="tab">ANALISI E TREND</a></li>
+                            </ul>
+
+                            <hr class="no-border">
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane fade in active" id="composizione">
+                                    {% include 'bilanci/_composition_widget.html' with bilancio_type='complessivo' %}
+                                </div>
+
+                                <div class="tab-pane fade in" id="analisi-e-trend">
+                                    <figure class="stripe thumbnail">
+                                        <img src="http://cambelt.co/200x600/Analisi+e+trend" class="img-responsive" alt="Analisi e trend">
+                                    </figure>
+                                </div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 

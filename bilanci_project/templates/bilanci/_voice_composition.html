@@ -1,19 +1,12 @@
 {% load humanize %}
 {% load voice_values %}
 
-<div class="progress">
-    <div class="progress-bar light" role="progressbar"
-         aria-valuenow="{{ correnti_perc|floatformat:"2"}}"
-         aria-valuemin="0" aria-valuemax="100" style="width: {{ correnti_perc|floatformat:"2"|comma2dot }}%;"
-         title="{{ correnti_value|floatformat:"0"|intcomma }} ({{ correnti_perc|floatformat:"2" }}%)">
-        <span class="sr-only">{{ correnti_perc|floatformat:"2" }}%</span>
-    </div>
-</div>
-<div class="progress">
-    <div class="progress-bar dark" role="progressbar"
-         aria-valuenow="{{ investimenti_perc|floatformat:"2" }}"
-         aria-valuemin="0" aria-valuemax="100" style="width: {{ investimenti_perc|floatformat:"2"|comma2dot }}%;"
-         title="{{ investimenti_value|floatformat:"0"|intcomma }} ({{ investimenti_perc|floatformat:"2" }}%)">
-        <span class="sr-only" >{{ investimenti_perc }}%</span>
-    </div>
-</div>
+<div class="chart pull-left" id="{{ hash }}" data-chart-value="{{ investimenti_perc|floatformat:"0" }}"></div>
+<ul class="list-unstyled small">
+    <li>
+        <span class="label">SPESE CORRENTI</span><span class="value">{{ correnti_value|floatformat:"0"|intword }} €</span>
+    </li>
+    <li>
+        <span class="label">INVESTIMENTI</span><span class="value">{{ investimenti_value|floatformat:"0"|intword }} €</span>
+    </li>
+</ul>
