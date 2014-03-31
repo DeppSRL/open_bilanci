@@ -99,7 +99,9 @@ function init_selector(default_year, selected_year, visible_buttons, selected_bu
 
     //when year is selected, navigate to the new page
     year_selector.on("clickYear", function(selected_year){
-        window.location.href = reference_url.replace(/[-\d]+$/,String(selected_year));
+        // gets the 4 digits in the reference url representing the year value and substitutes
+        //  it with the selected year value
+        window.location.href = reference_url.replace(/[-\d]{4}/,String(selected_year));
     } );
 
 }

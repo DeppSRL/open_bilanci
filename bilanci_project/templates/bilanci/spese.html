@@ -65,7 +65,7 @@
                 /*
                 * initialize year selectors
                 * */
-                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-entrate' slug=territorio.slug %}?anno={{ selected_year }}");
+                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
             });
 
 
