@@ -191,35 +191,30 @@ class Command(BaseCommand):
 
                         # save incarico
 
-                        #looks for existing incarico, if exists: updates, else creates
+                        #looks for existing incarico, if exists: pass, else creates
+
+                        party_acronym = None
+                        if incarico_dict['party']['acronym']:
+                            party_acronym = incarico_dict['party']['acronym'].upper()
+
+                        party_name = None
+                        if incarico_dict['party']['name']:
+                            party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper(),
 
                         try:
                             incarico = Incarico.objects.get(
                                 nome__iexact = incarico_dict['politician']['first_name'],
                                 cognome__iexact = incarico_dict['politician']['last_name'],
+                                data_inizio = incarico_dict['date_start'],
+                                data_fine = incarico_dict['date_end'],
                                 territorio = territorio,
                                 is_commissario = is_commissario,
+                                party_acronym = party_acronym,
+                                party_name = party_name,
                             )
                         except ObjectDoesNotExist:
                             # self.logger.info(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
                             self.create_incarico(incarico_dict, territorio, is_commissario)
-
-                        else:
-                            # self.logger.info(u"Updating Incarico:{0}".format(self.format_incarico(incarico_dict)))
-
-                            incarico.data_fine = incarico_dict['date_end']
-                            incarico.data_inizio = incarico_dict['date_start']
-                             # motivo commissariamento
-                            if 'description' in incarico_dict.keys():
-                                incarico.motivo_commissariamento = incarico_dict['description']
-
-                            if incarico_dict['party']['acronym']:
-                                incarico.party_acronym = incarico_dict['party']['acronym'].upper()
-
-                            if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
-                                incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
-
-                            incarico.save()
 
             else:
                 self.logger.warning("TERRITORIO: {0} OVERLAPPING INCARICHI:".format(unidecode(territorio.denominazione.upper())))

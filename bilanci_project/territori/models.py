@@ -283,3 +283,5 @@ class Incarico(models.Model):
                 )
 
 
+    def __unicode__(self):
+        return u"{0} - {1} - ({2}-{3})".format(self.territorio, self.cognome, self.data_inizio, self.data_fine,)
