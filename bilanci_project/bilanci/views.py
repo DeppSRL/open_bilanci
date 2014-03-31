@@ -367,10 +367,10 @@ class BilancioDetailView(BilancioView):
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
         context['query_string'] = query_string
-        context['year'] = year
+        context['selected_year'] = year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
 
-        context['tipo_bilancio'] = tipo_bilancio
+        context['selected_bilancio_type'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
