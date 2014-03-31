@@ -34,7 +34,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading clearfix">
                                 <h3 class="panel-title pull-left">
-                                    {{ object_list.count }} COMUNI
+                                    {{ valori_list.count }} COMUNI
                                 </h3>
                                 <form role="search" class="form-inline pull-left">
                                     <div class="form-group search">
@@ -82,8 +82,8 @@
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <tbody>
-                                        {% if object_list %}
-                                            {% for result in object_list %}
+                                        {% if valori_list %}
+                                            {% for result in valori_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">{{ result.valore|intcomma }}</span>
@@ -93,13 +93,22 @@
                                                         <p>{{ result.territorio.prov }}, {{ result.territorio.regione }}</p>
 
                                                         <div class="media">
-                                                            <figure class="pull-left img-circle">
-                                                                <img class="media-object" src="http://cambelt.co/42x42/AS?color=a0180d" alt="avatar">
-                                                            </figure>
-                                                            <div class="media-body">
-                                                                <p class="h4"><a href="#">N. Cognome</a></p>
-                                                                <p class="small">Lista</p>
-                                                            </div>
+                                                            {% if result.incarichi_attivi %}
+                                                                {% if result.incarichi_attivi|length == 1 %}
+                                                                    {% if  result.incarichi_attivi.0.pic_url %}
+                                                                        <figure class="pull-left img-circle">
+                                                                            <img class="media-object" src="{{ result.incarichi_attivi.0.pic_url}}" alt="avatar">
+                                                                        </figure>
+                                                                    {% endif %}
+                                                                    <div class="media-body">
+                                                                        <p class="h4"><a href="#">
+                                                                            {{ result.incarichi_attivi.0.nome.0|upper }}. {{ result.incarichi_attivi.0.cognome|title }}</a></p>
+                                                                        <p class="small">{{ result.incarichi_attivi.0.party_name}}</p>
+                                                                    </div>
+                                                                {% else %}
+                                                                    Pi&ugrave; incarichi attivi per il Comune di {{ result.territorio.denominazione }}, <a href="#">clicca qui per vederli</a>
+                                                                {% endif %}
+                                                            {% endif %}
                                                         </div>
 
                                                     </td>
