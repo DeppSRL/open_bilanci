@@ -264,34 +264,31 @@ class Command(BaseCommand):
                     for year in years:
                         self.logger.info("Considering year: {0}".format(year))
 
+                        media_valore =\
+                            ValoreBilancio.objects.filter(
+                                territorio__cluster = cluster_data[0],
+                                anno = year,
+                                voce = voce,
+                            ).aggregate(avg = Avg('valore'))['avg']
 
-                        for cluster in Territorio.CLUSTER:
+                        if media_valore is None:
+                            self.logger.warning("No values found for Voce: {0}, year:{1}. Average not computed ".format(
+                                voce, year
+                            ))
 
-                            media_valore =\
-                                ValoreBilancio.objects.filter(
-                                    territorio__cluster = cluster[0],
-                                    anno = year,
-                                    voce = voce,
-                                ).aggregate(avg = Avg('valore'))['avg']
+                        valore_medio, is_created = ValoreBilancio.objects.get_or_create(
+                            voce=voce,
+                            territorio=territorio_cluster,
+                            anno=year,
+                            defaults={
+                                'valore': media_valore
+                            }
+                        )
 
-                            if media_valore is None:
-                                self.logger.warning("No values found for Voce: {0}, year:{1}. Average not computed ".format(
-                                    voce, year
-                                ))
-
-                            valore_medio, is_created = ValoreBilancio.objects.get_or_create(
-                                voce=voce,
-                                territorio=territorio_cluster,
-                                anno=year,
-                                defaults={
-                                    'valore': media_valore
-                                }
-                            )
-
-                            # overwrite existing values
-                            if not is_created and not skip_existing:
-                                valore_medio.valore = media_valore
-                                valore_medio.save()
+                        # overwrite existing values
+                        if not is_created and not skip_existing:
+                            valore_medio.valore = media_valore
+                            valore_medio.save()
 
         return
 
