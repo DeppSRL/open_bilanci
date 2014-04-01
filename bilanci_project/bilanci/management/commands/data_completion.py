@@ -71,10 +71,10 @@ class Command(BaseCommand):
         ###
         function = options['function']
         if not function:
-            self.logger.error("Missing function parameter")
+            self.logger.error(u"Missing function parameter")
             return
         if function not in self.accepted_functions:
-            self.logger.error("Function parameter value not accepted")
+            self.logger.error(u"Function parameter value not accepted")
             return
 
 
@@ -89,7 +89,7 @@ class Command(BaseCommand):
         ###
 
         cities_codes = options['cities']
-        self.logger.info("Opening Lista Comuni")
+        self.logger.info(u"Opening Lista Comuni")
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
         # function cluster_mean doesn't need territori param
@@ -107,26 +107,26 @@ class Command(BaseCommand):
                             cod_finloc = city,
                         )
                     except ObjectDoesNotExist:
-                        self.logger.warning("Territorio:{0} doesnt exist, quitting".format(city))
+                        self.logger.warning(u"Territorio:{0} doesnt exist, quitting".format(city))
                         continue
 
                     else:
                         territori.append(territorio)
 
             else:
-                self.logger.error("Missing city parameter")
+                self.logger.error(u"Missing city parameter")
                 return
 
 
         if cities_codes.lower() != 'all':
-            self.logger.info("Considering cities: {0}".format(cities))
+            self.logger.info(u"Considering cities: {0}".format(cities))
 
         ###
         # years
         ###
         years = options['years']
         if not years:
-            self.logger.error("Missing years parameter")
+            self.logger.error(u"Missing years parameter")
             return
 
         if "-" in years:
@@ -136,10 +136,10 @@ class Command(BaseCommand):
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
 
         if not years:
-            self.logger.error("No suitable year found in {0}".format(years))
+            self.logger.error(u"No suitable year found in {0}".format(years))
             return
 
-        self.logger.info("Considering years: {0}".format(years))
+        self.logger.info(u"Considering years: {0}".format(years))
         self.years = years
 
 
@@ -154,11 +154,11 @@ class Command(BaseCommand):
             couchdb_dbname = settings.COUCHDB_NORMALIZED_VOCI_NAME
 
             if couchdb_server_alias not in settings.COUCHDB_SERVERS:
-                self.logger.error("Unknown couchdb server alias.")
+                self.logger.error(u"Unknown couchdb server alias.")
                 return
 
 
-            self.logger.info("Connecting to db: {0}".format(couchdb_dbname))
+            self.logger.info(u"Connecting to db: {0}".format(couchdb_dbname))
             couchdb = couch.connect(
                 couchdb_dbname,
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
@@ -176,7 +176,7 @@ class Command(BaseCommand):
             self.set_per_capita(territori, years, dryrun)
 
         else:
-            self.logger.error("Function not found, quitting")
+            self.logger.error(u"Function not found, quitting")
             return
 
 
@@ -184,7 +184,7 @@ class Command(BaseCommand):
     def set_per_capita(self, territori, years, dryrun):
         for year in years:
             for territorio in territori:
-                self.logger.info("Calculating per-capita value for Comune:{0} yr:{1}".\
+                self.logger.info(u"Calculating per-capita value for Comune:{0} yr:{1}".\
                     format(territorio, year)
                 )
 
@@ -195,7 +195,7 @@ class Command(BaseCommand):
                         territorio = territorio,
                     )
                 except ObjectDoesNotExist:
-                    self.logger.error("Context could not be found for Comune:{0} year:{1}".\
+                    self.logger.error(u"Context could not be found for Comune:{0} year:{1}".\
                         format(territorio, year,)
                     )
                     continue
@@ -218,7 +218,7 @@ class Command(BaseCommand):
                             voce.save()
 
                 else:
-                    self.logger.warning("Inhabitants is ZERO for Comune:{0} year:{1}, can't calculate per-capita values".\
+                    self.logger.warning(u"Inhabitants is ZERO for Comune:{0} year:{1}, can't calculate per-capita values".\
                         format(territorio, year,)
                         )
 
@@ -232,7 +232,7 @@ class Command(BaseCommand):
 
         for cluster_data in Territorio.CLUSTER:
 
-            self.logger.info("Considering cluster: {0}".format(cluster_data[1]))
+            self.logger.info(u"Considering cluster: {0}".format(cluster_data[1]))
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects.\
                 get_or_create(
@@ -249,10 +249,10 @@ class Command(BaseCommand):
 
             for voce in Voce.objects.all():
                 if voce.is_leaf_node():
-                    self.logger.debug("Considering voce: {0}".format(voce))
+                    self.logger.debug(u"Considering voce: {0}".format(voce))
 
                     for year in years:
-                        self.logger.info("Considering year: {0}".format(year))
+                        self.logger.info(u"Considering year: {0}".format(year))
 
                         totale = 0
                         totale_pc = 0
@@ -268,11 +268,11 @@ class Command(BaseCommand):
                                     )
 
                             except ObjectDoesNotExist:
-                                self.logger.warning("Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
+                                self.logger.warning(u"Voce: {0} doesnt exist for Comune: {1} year:{2} ".format(
                                     voce, territorio_in_cluster, year
                                 ))
                             except MultipleObjectsReturned:
-                                self.logger.error("Query on Valore bilancio on territorio:{0}, anno:{1}, voce:{2} returned multiple obj".\
+                                self.logger.error(u"Query on Valore bilancio on territorio:{0}, anno:{1}, voce:{2} returned multiple obj".\
                                     format(territorio_in_cluster, year, voce))
                                 valore_bilancio_set = ValoreBilancio.objects.filter(
                                         territorio = territorio_in_cluster,
@@ -356,15 +356,15 @@ class Command(BaseCommand):
 
 
                         else:
-                            self.logger.warning("Titolo 'quadro-1-dati-generali-al-31-dicembrenotizie-varie' not found for id:{0}, skipping". format(bilancio_id))
+                            self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembrenotizie-varie' not found for id:{0}, skipping". format(bilancio_id))
                     else:
-                        self.logger.warning("Quadro '01' not found for id:{0}, skipping".format(bilancio_id))
+                        self.logger.warning(u"Quadro '01' not found for id:{0}, skipping".format(bilancio_id))
 
                 else:
-                    self.logger.warning("Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
+                    self.logger.warning(u"Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
 
         if len(missing_territories)>0:
-            self.logger.error("Following cities could not be found in Territori DB and could not be processed:")
+            self.logger.error(u"Following cities could not be found in Territori DB and could not be processed:")
             for missing_city in missing_territories:
                 self.logger.error("{0}".format(missing_city))
 
