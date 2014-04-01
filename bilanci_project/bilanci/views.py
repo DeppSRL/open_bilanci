@@ -1,11 +1,9 @@
 import re
-import time
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
-import requests
 import json
 from bilanci.forms import TerritoriComparisonSearchForm
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
@@ -34,11 +32,9 @@ class IncarichiGetterMixin(object):
         incarichi_transformed = []
         for incarico in incarichi_set:
 
-
-
             dict_widget = {
-                'start':  incarico.data_inizio,
-                'end': incarico.data_fine,
+                'start':  incarico.data_inizio.strftime(self.date_fmt),
+                'end': incarico.data_fine.strftime(self.date_fmt),
 
                 # sets incarico marker color and highlight
                 'color': settings.INCARICO_MARKER_INACTIVE,
@@ -50,7 +46,7 @@ class IncarichiGetterMixin(object):
 
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
-                dict_widget['sublabel'] = incarico.motivo_commissariamento
+                dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else :
                 # sindaci
@@ -84,13 +80,10 @@ class IncarichiGetterMixin(object):
 
 
 
-    def get_incarichi(self, territorio_opid, highlight_color):
+    def get_incarichi_struct(self, territorio_opid, highlight_color):
 
         incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio_opid))
-
         return self.transform_incarichi(incarichi_set, highlight_color)
-
-
 
 
     ##
@@ -116,13 +109,13 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce(self, territorio, voce_bilancio, line_id, line_color):
+    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
             voce = voce_bilancio,
-            anno__gte = self.timeline_start.tm_year,
-            anno__lte = self.timeline_end.tm_year
+            anno__gte = self.timeline_start.year,
+            anno__lte = self.timeline_end.year
         ).order_by('anno')
 
         return self.transform_voce(voce_values, line_id, line_color)
@@ -131,13 +124,13 @@ class IncarichiGetterMixin(object):
     # get indicatori values of specified Indicatore for Territorio in the time span
     ##
 
-    def get_indicatore(self, territorio, indicatore, line_id, line_color):
+    def get_indicatore_struct(self, territorio, indicatore, line_id, line_color):
 
         indicatore_values = ValoreIndicatore.objects.filter(
             territorio = territorio,
             indicatore = indicatore,
-            anno__gte = self.timeline_start.tm_year,
-            anno__lte = self.timeline_end.tm_year
+            anno__gte = self.timeline_start.year,
+            anno__lte = self.timeline_end.year
         ).order_by('anno')
 
         return self.transform_voce(indicatore_values, line_id, line_color)
@@ -165,12 +158,12 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
 
 
 
-        incarichi_set = self.get_incarichi(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
+        incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce(territorio, voce_bilancio, line_id=1, line_color=settings.TERRITORIO_1_COLOR)
+        voce_set = self.get_voce_struct(territorio, voce_bilancio, line_id=1, line_color=settings.TERRITORIO_1_COLOR)
 
-        cluster_mean_set = self.get_voce(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
+        cluster_mean_set = self.get_voce_struct(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
 
         legend = [
             {
@@ -223,8 +216,8 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         territorio_1 = get_object_or_404(Territorio, op_id = territorio_1_opid)
         territorio_2 = get_object_or_404(Territorio, op_id = territorio_2_opid)
 
-        incarichi_set_1 = self.get_incarichi(territorio_1_opid, highlight_color = territorio_1_color)
-        incarichi_set_2 = self.get_incarichi(territorio_2_opid, highlight_color = territorio_2_color)
+        incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
+        incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
 
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
@@ -234,14 +227,14 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
             if parameter_type == 'indicatori':
                 indicatore = get_object_or_404(Indicatore, slug = parameter_slug)
                 # gets indicator value for the territorio over the period set
-                data_set_1 = self.get_indicatore(territorio_1, indicatore, line_id=1, line_color = territorio_1_color)
-                data_set_2 = self.get_indicatore(territorio_2, indicatore, line_id=2, line_color = territorio_2_color)
+                data_set_1 = self.get_indicatore_struct(territorio_1, indicatore, line_id=1, line_color = territorio_1_color)
+                data_set_2 = self.get_indicatore_struct(territorio_2, indicatore, line_id=2, line_color = territorio_2_color)
 
             elif parameter_type == 'entrate' or parameter_type == 'spese':
                 voce_bilancio = get_object_or_404(Voce, slug = parameter_slug)
                 # gets voce value for the territorio over the period set
-                data_set_1 = self.get_voce(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color)
-                data_set_2 = self.get_voce(territorio_2, voce_bilancio, line_id=2, line_color = territorio_2_color)
+                data_set_1 = self.get_voce_struct(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color)
+                data_set_2 = self.get_voce_struct(territorio_2, voce_bilancio, line_id=2, line_color = territorio_2_color)
 
             else:
                 return reverse('404')
@@ -363,14 +356,21 @@ class BilancioDetailView(BilancioView):
 
         menu_voices_kwargs = {'slug': territorio.slug}
 
+        # checks if political context data is available to show/hide timeline widget in the template
+        context['show_timeline'] = True
+        incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio.op_id))
+        if len(incarichi_set) == 0:
+            context['show_timeline'] = False
+
+
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
         context['query_string'] = query_string
-        context['year'] = year
+        context['selected_year'] = year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
 
-        context['tipo_bilancio'] = tipo_bilancio
+        context['selected_bilancio_type'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
@@ -424,6 +424,7 @@ class ClassificheRedirectView(RedirectView):
 class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
+    paginate_by = 20
     parameter_type = None
     parameter = None
     anno = None
@@ -457,6 +458,18 @@ class ClassificheListView(ListView):
 
         context = super(ClassificheListView, self).get_context_data( **kwargs)
 
+        # enrich the Queryset in object_list with Political context data
+        valori_list = []
+        for valoreObj in self.object_list:
+            valori_list.append(
+                {
+                'territorio': valoreObj.territorio,
+                'valore': valoreObj.valore,
+                'incarichi_attivi': Incarico.get_incarichi_attivi(valoreObj.territorio, self.anno),
+                }
+            )
+
+        context['valori_list'] = valori_list
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter

@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block page_title %}
-    Entrate del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
+    Entrate del bilancio {{ selected_bilancio_type }} per il Comune di {{ territorio }}, anno: {{ year }}
 {% endblock %}
 
 {% block bilanci_navigation_menu %}
@@ -56,15 +56,16 @@
             /*
             * initialize year selectors
             * */
-            init_selector({{ selector_default_year }},{{ year }},false,null,"{% url 'bilanci-entrate' slug=territorio.slug %}?anno={{ selected_year }}");
+            init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
         });
 
-        /*
-        d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
-                function (i) {
-            chart.data(i)
-        });
-        */
+
+        function feed_linechart(){
+            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
+                    function (i) {
+                linechart.data(i)
+            });
+        }
     </script>
     <!-- / visup js -->
 

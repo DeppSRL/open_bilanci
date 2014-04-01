@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load humanize %}
 {% load classifiche_parameter_list %}
+{% load classifiche_incarichi_politici %}
 
 {% block content %}
 
@@ -34,7 +35,7 @@
                         <div class="panel panel-default">
                             <div class="panel-heading clearfix">
                                 <h3 class="panel-title pull-left">
-                                    {{ object_list.count }} COMUNI
+                                    {{ valori_list.count }} COMUNI
                                 </h3>
                                 <form role="search" class="form-inline pull-left">
                                     <div class="form-group search">
@@ -82,24 +83,18 @@
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <tbody>
-                                        {% if object_list %}
-                                            {% for result in object_list %}
+                                        {% if valori_list %}
+                                            {% for valore_obj in valori_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
-                                                        <span class="h2">{{ result.valore|intcomma }}</span>
+                                                        <span class="h2">{{ valore_obj.valore|intcomma }}</span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ result.territorio }}</a></h4>
-                                                        <p>{{ result.territorio.prov }}, {{ result.territorio.regione }}</p>
+                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio }}</a></h4>
+                                                        <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
                                                         <div class="media">
-                                                            <figure class="pull-left img-circle">
-                                                                <img class="media-object" src="http://cambelt.co/42x42/AS?color=a0180d" alt="avatar">
-                                                            </figure>
-                                                            <div class="media-body">
-                                                                <p class="h4"><a href="#">N. Cognome</a></p>
-                                                                <p class="small">Lista</p>
-                                                            </div>
+                                                            {% classifiche_incarichi_politici valore_obj %}
                                                         </div>
 
                                                     </td>
