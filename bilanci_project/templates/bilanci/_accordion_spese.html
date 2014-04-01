@@ -1,5 +1,6 @@
 {% load mptt_tags %}
 {% load voice_values %}
+{% load repeat %}
 
 
 <!-- Main table -->
@@ -19,67 +20,45 @@
 
                         <tr>
                             <td class="col-sm-5 entry">
+                                {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                                {% if not node.is_leaf_node %}
                                 <a class="collapse-toggle" href="#{{ node.slug }}">
                                     <span class="icon sprite-plus"></span></a>
+                                {% else %}
+                                    <span class="icon sprite-plus" style="visibility: hidden"></span>
+                                {% endif %}
                                 <span style="text-transform: uppercase">
-                                    {% if node.level == 6 %}
-                                        {% if node.parent.parent.parent.denominazione == "Spese correnti" %}
-                                            Spese
-                                        {% else %}
-                                            {{ node.parent.parent.parent.denominazione|lower|capfirst }}
-                                        {% endif %}
-                                    {% elif node.level == 5 or node.level == 4%}
-                                        {% if node.parent.parent.denominazione == "Spese correnti" %}
-                                            Spese
-                                        {% else %}
-                                            {{ node.parent.parent.denominazione|lower|capfirst }}
-                                        {% endif %}
+                                    {% if node.denominazione == "Spese correnti" %}
+                                        Funzioni
                                     {% else %}
-                                        {% if node.denominazione == "Spese correnti" %}
-                                            Spese
-                                        {% else %}
-                                            {{ node.denominazione|lower|capfirst }}
-                                        {% endif %}
+                                        {{ node.denominazione|lower|capfirst }}
                                     {% endif %}
                                 </span>
-                                {% if node.level == 6 %}
-                                    <br>
-                                    <small style="text-transform: uppercase">&gt; {{ node.parent.denominazione }} &gt; {{ node.denominazione }}</small>
-                                {% elif node.level == 5 or node.level == 4%}
-                                    <br>
-                                    <small style="text-transform: uppercase">&gt; {{ node.denominazione }}</small>
-                                {% endif %}
                             </td>
 
                             <td class="col-sm-3 actions">
                                 {% voice_values node.slug budget_values %}
                             </td>
 
-                            <td class="col-sm-4 chart-wrapper">
+                            <td class="col-sm-3 chart-wrapper">
                                 {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
                                     {% voice_composition node.slug budget_values %}
                                 {% endif %}
                             </td>
+                            <td class="col-sm-1">
+                               <a href="#" class="pull-right trend-chart-toggle" id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
+                            </td>
+                        </tr>
+
+                        <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
+                            <td colspan="4" class="col-sm-12 details" style="border: 0">
+                            </td>
                         </tr>
 
                         <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                            <td colspan="3" class="col-sm-12 details">
-                                <p>
-                                {% if node.denominazione == "Spese correnti" %}
-                                    Testo descrittivo per la voce Spese
-                                {% else %}
-                                    Testo corrente per la voce {{ node.denominazione|lower|capfirst }}
-                                {% endif %}
-
-                                <a href="#" class="btn btn-sm btn-default more-info pull-right" data-open="andamento nel tempo &lt;span class='glyphicon glyphicon-chevron-down'&gt;&lt;/span&gt;" data-close="chiudi &lt;span class='glyphicon glyphicon-chevron-up'&gt;&lt;/span&gt;">andamento nel tempo <span class="glyphicon glyphicon-chevron-down"></span></a>
-                                </p>
-                                <figure class="trend hidden">
-                                    <img alt="Responsive image" class="img-responsive" src="">
-                                </figure>
+                            <td colspan="4" class="col-sm-12 details">
 
                                 {% if not node.is_leaf_node %}
-                                <br>
-
                                 <!-- Sub table level 1 -->
                                 <table class="table table-condensed">
                                     <tbody>

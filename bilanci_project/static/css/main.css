@@ -538,9 +538,6 @@ a:focus {
   width: 44px;
   height: 43px;
 }
-#results .collapse-toggle {
-  float: left;
-}
 #results .table.entrate > tbody > tr > td {
   border-top: 2px solid #5e6a77;
 }
@@ -553,7 +550,8 @@ a:focus {
 #results .table.entrate > tbody tr.panel-collapse > td {
   border-top: none !important;
 }
-#results .table.entrate .collapse-toggle .icon {
+#results .table.entrate .collapse-toggle .icon,
+#results .table.entrate td.entry .icon {
   margin-right: 6px;
 }
 #results .tab-pane header > * {

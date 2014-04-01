@@ -258,7 +258,7 @@ class Command(BaseCommand):
 
             for voce in Voce.objects.all():
                 if voce.is_leaf_node():
-                    self.logger.debug(u"Considering voce: {0}".format(voce))
+                    self.logger.info(u"Considering voce: {0}".format(voce))
 
                     for year in years:
                         self.logger.info(u"Considering year: {0}".format(year))

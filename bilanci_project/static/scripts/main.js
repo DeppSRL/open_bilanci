@@ -11,7 +11,6 @@ $(document).ready(function(){
         lock      = $( '#lock'),
         $sidebar  = $( '#sidebar' ),
         $content  = $( '#content' ),
-        $results  = $( '#results' ),
         $comments = $( '#comments' );
 
 
@@ -65,23 +64,6 @@ $(document).ready(function(){
                 toggler.find('span.icon')
                     .removeClass('sprite-plus')
                     .addClass('sprite-minus');
-            }
-
-            return false;
-
-        });
-
-        $results.find( '.more-info' ).on( 'click', function( e ){
-            e.preventDefault();
-
-            var btn = $( this ),
-                trend = btn.parents( '.details' ).find( '.trend' );
-            if (trend.hasClass('hidden')) {
-                trend.removeClass( 'hidden' );
-                btn.html( btn.data().close );
-            } else {
-                trend.addClass( 'hidden' );
-                btn.html( btn.data().open );
             }
 
             return false;

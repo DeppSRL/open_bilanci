@@ -34,7 +34,7 @@
 
             <!-- Default panel contents -->
             <header class="clearfix">
-                <h3>DETTAGLIO SPESE{{ year }}</h3>
+                <h3>DETTAGLIO SPESE {{ year }}</h3>
             </header>
             <p>Una breve descrizione del contenuto ...</p>
 
@@ -62,19 +62,78 @@
 
     <script type="text/javascript">
         $(document).ready(function(){
-                /*
+               /**
                 * initialize year selectors
-                * */
-                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
+                **/
+                init_selector(
+                        {{ selector_default_year }},
+                        {{ selected_year }},
+                        true,
+                        '{{ selected_bilancio_type }}',
+                        "{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
+                );
+
+
+
+               /**
+                * set handlers for trend charts
+                **/
+                $( "#results" ).find( '.trend-chart-toggle' ).on( 'click', function( e ){
+                    e.preventDefault();
+
+                    var btn = $( this );
+                    var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
+                    var chart_td = chart_container.find('td');
+
+                    if (chart_td.find('div').length == 0) {
+                        chart_td.append($("<div>").addClass("trend-chart"));
+                        chart = $("#" + chart_container.attr('id') + " .trend-chart");
+                        var linechart = visup.linechart("#" + chart_container.attr('id') + " .trend-chart");
+                        linechart.options({
+                                timeline: {
+                                    visible: false
+                                },
+                                linechart: {
+                                    height: 150,
+                                    start: 2003,
+                                    end: 2014,
+                                    circleRadius: 9,
+                                    axisUnit: "MILIONI",
+                                    tooltipUnit: "MLN",
+                                    format: "%Y",
+                                    visible: true
+                                },
+                                legend: {
+                                    rowItems: 2
+                                }
+                            });
+                        d3.json("http://localhost:8004/incarichi_voce/1974/preventivo-spese-spese-correnti", function (i) {
+                            linechart.data(i);
+                            linechart.resize();
+                        });
+                    }
+
+                    if (chart_container.hasClass('hidden')) {
+                        chart_container.removeClass( 'hidden' );
+                    } else {
+                        chart_container.addClass( 'hidden' );
+                    }
+
+                    return false;
+
+                });
+
             });
 
 
-        function feed_linechart(){
-            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti-totale' %}",
+            function feed_linechart(){
+                d3.json(
+                    "{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti' %}",
                     function (i) {
-                linechart.data(i)
-            });
-        }
+                        linechart.data(i)
+                    }
+                );
+            }
 
 
     </script>

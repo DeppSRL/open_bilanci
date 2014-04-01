@@ -2,6 +2,7 @@
 from django.db import models
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
+import re
 from territori.models import Territorio
 
 
@@ -25,6 +26,7 @@ class Voce(MPTTModel):
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 
 
+
     class MPTTMeta:
         order_insertion_by = ['denominazione']
 
@@ -35,6 +37,40 @@ class Voce(MPTTModel):
     # in the admin interface
     def short_title(self):
         return self.denominazione
+
+    def indent_level(self):
+        """
+        Transform the node level into indentation level.
+        Apply logic to handle various cases in different parts of the tree.
+        """
+        if re.match('preventivo-entrate', self.slug):
+            return self.get_level() - 1
+
+        if re.match('preventivo-spese', self.slug):
+            if self.get_level() <= 2:
+                return 0
+            else:
+                return self.get_level() - 3
+
+        if re.match('consuntivo-entrate', self.slug):
+            return self.get_level() - 1
+
+        if re.match('consuntivo-spese', self.slug):
+            if self.get_level() <= 4:
+                return 0
+            else:
+                return self.get_level() - 4
+
+        if re.match('consuntivo-spese', self.slug):
+            if self.get_level() <= 3:
+                return 0
+            else:
+                return self.get_level() - 3
+
+        # default case
+        return self.get_level() - 1
+
+
 
     def __unicode__(self):
         return u"%s" % (self.slug,)
