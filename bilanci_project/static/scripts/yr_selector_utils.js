@@ -13,10 +13,11 @@ function xfunct(y){
     alert(y);
 }
 
+
 function init_selector(default_year, selected_year, visible_buttons, selected_button_label, reference_url){
     "use strict";
     year_selector = visup.selector(".year-selector");
-    var selected_button;
+    var selected_button=null;
 
     // defines default values for the function parameters
     if(typeof(visible_buttons)==='undefined' || visible_buttons == null ) visible_buttons = false;
@@ -103,6 +104,34 @@ function init_selector(default_year, selected_year, visible_buttons, selected_bu
         //  it with the selected year value
         window.location.href = reference_url.replace(/[-\d]{4}/,String(selected_year));
     } );
+
+
+
+    function clicked_button(){
+        // if we are seeing preventivo navigates to consuntivo and viceversa
+        var destination_bilancio_type = '';
+        var re = /type=([\w]+)$/;
+
+        var actual_bilancio_type = reference_url.match(re)[1].toLowerCase();
+        if(actual_bilancio_type=='preventivo')
+            destination_bilancio_type = 'consuntivo';
+        else
+           destination_bilancio_type = 'preventivo';
+
+        window.location.href = reference_url.replace(re,'type='+destination_bilancio_type);
+
+    }
+    //if we are using buttons, binds the un-selected button with the callback function on the click event.
+    // ie: if the Preventivo page is viewed and the user clicks Consuntivo -> the app navigates to the Consuntivo page
+
+    if(visible_buttons){
+        if(selected_button == 'button1')
+            year_selector.on("clickButton2", clicked_button);
+        else
+            year_selector.on("clickButton1", clicked_button);
+    }
+
+
 
 }
 
