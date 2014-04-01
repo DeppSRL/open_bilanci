@@ -1,5 +1,4 @@
 {%  extends "bilanci/bilancio.html" %}
-{% load staticfiles %}
 {% load humanize %}
 
 {% block page_title %}
@@ -46,26 +45,17 @@
 
 
 
-{% block extra_js %}
-    <!-- visup js -->
-    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-
-    <!-- Enscroll -->
-    <script src="{% static 'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
-
-    <!-- Raphael -->
-    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+{% block extra_js_inner %}
 
     <script type="text/javascript">
         $(document).ready(function(){
-                /*
-                * initialize year selectors
-                * */
-                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
+            init_linechart();
+            feed_linechart();
+            /*
+            * initialize year selectors
+            * */
+            init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
+
             });
 
 
@@ -82,12 +72,3 @@
 
 {% endblock %}
 
-{% block extra_css %}
-{#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
-
-
-{#    <!-- / visup css-->#}
-{% endblock %}
