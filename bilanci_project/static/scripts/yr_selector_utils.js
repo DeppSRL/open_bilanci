@@ -145,6 +145,8 @@ $(document).ready(function(){
 
 });
 
-$(window).on('resize', function(){
+if(year_selector){
+    $(window).on('resize', function(){
     year_selector.resize();
 });
+}
