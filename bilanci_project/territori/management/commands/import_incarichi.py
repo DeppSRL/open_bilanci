@@ -8,8 +8,8 @@ from django.core.management import BaseCommand
 from django.utils.datastructures import SortedDict
 import re
 import requests
-import time
 from datetime import datetime
+import time
 from unidecode import unidecode
 from territori.models import Territorio, Incarico
 __author__ = 'stefano'
@@ -23,24 +23,27 @@ class Command(BaseCommand):
     timeline_end = settings.APP_END_DATE
     date_fmt = '%Y-%m-%d'
 
-    option_list = BaseCommand.option_list + (
-        make_option('--dry-run',
-                    dest='dryrun',
-                    action='store_true',
-                    default=False,
-                    help='Set the dry-run command mode: nothing is written on db'),
-        
-        make_option('--update',
-                    dest='update',
-                    action='store_true',
-                    default=False,
-                    help='Updates all current charges'),
+    accepted_types = ['all', 'capoluoghi', 'others']
 
+    option_list = BaseCommand.option_list + (
+
+        make_option('--territori','-t',
+            dest='territori',
+            action='store',
+            default='all',
+            help='Type of Territorio: '+  ' | '.join(accepted_types)),
+
+        make_option('--dry-run',
+            dest='dryrun',
+            action='store_true',
+            default=False,
+            help='Set the dry-run command mode: nothing is written on db'),
+        
         make_option('--delete',
-                    dest='delete',
-                    action='store_true',
-                    default=False,
-                    help='Deletes all current charges before import'),
+            dest='delete',
+            action='store_true',
+            default=False,
+            help='Deletes all current charges before import'),
 
     )
 
@@ -62,8 +65,8 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
-        update = options['update']
         delete = options['delete']
+        territori_type = options['territori']
 
         self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
 
@@ -72,7 +75,7 @@ class Command(BaseCommand):
             Incarico.objects.all().delete()
             self.logger.info(u"Done.".format(dryrun))
 
-        self.handle_incarichi(dryrun, update)
+        self.handle_incarichi(territori_type, dryrun)
         self.logger.info(u"End import charges script")
 
 
@@ -109,22 +112,22 @@ class Command(BaseCommand):
 
         interesting_incarichi = []
         overlapping_incarichi = []
-        for incarico in incarichi_set:
+        for incarico_dict in incarichi_set:
 
-            incarico['date_start'] = time.strptime(incarico['date_start'], self.date_fmt)
-            if incarico['date_end']:
-                incarico['date_end'] = time.strptime(incarico['date_end'], self.date_fmt)
+            incarico_dict['date_start'] = datetime.strptime(incarico_dict['date_start'], self.date_fmt)
+            if incarico_dict['date_end']:
+                incarico_dict['date_end'] = datetime.strptime(incarico_dict['date_end'], self.date_fmt)
 
             # considers only charges which are contained between self.timeline_start / end
-            if ( incarico['date_end'] is None or incarico['date_end'] > self.timeline_start) and incarico['date_start'] < self.timeline_end:
+            if ( incarico_dict['date_end'] is None or incarico_dict['date_end'] > self.timeline_start) and incarico_dict['date_start'] < self.timeline_end:
 
-                if incarico['date_end'] is None or incarico['date_end'] > self.timeline_end:
-                    incarico['date_end'] = self.timeline_end
+                if incarico_dict['date_end'] is None or incarico_dict['date_end'] > self.timeline_end:
+                    incarico_dict['date_end'] = self.timeline_end
 
-                if incarico['date_start']  < self.timeline_start:
-                    incarico['date_start']  = self.timeline_start
+                if incarico_dict['date_start']  < self.timeline_start:
+                    incarico_dict['date_start']  = self.timeline_start
 
-                interesting_incarichi.append(incarico)
+                interesting_incarichi.append(incarico_dict)
 
 
         # checks if interesting_incarichi are overlapping
@@ -157,7 +160,7 @@ class Command(BaseCommand):
 
         return True, interesting_incarichi
 
-    def get_incarichi(self, territori_set, dryrun, update):
+    def get_incarichi(self, territori_set, dryrun):
 
         for territorio in territori_set:
 
@@ -187,38 +190,29 @@ class Command(BaseCommand):
                             is_commissario =  True
 
                         # save incarico
-                        if update:
-                            #looks for existing incarico, if exists: updates, else creates
 
-                            try:
-                                incarico = Incarico.objects.get(
-                                    nome__iexact = incarico_dict['politician']['first_name'],
-                                    cognome__iexact = incarico_dict['politician']['last_name'],
-                                    territorio = territorio,
-                                    is_commissario = is_commissario,
-                                )
-                            except ObjectDoesNotExist:
-                                # self.logger.info(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
-                                self.create_incarico(incarico_dict, territorio, is_commissario)
+                        #looks for existing incarico, if exists: pass, else creates
 
-                            else:
-                                # self.logger.info(u"Updating Incarico:{0}".format(self.format_incarico(incarico_dict)))
+                        party_acronym = None
+                        if incarico_dict['party']['acronym']:
+                            party_acronym = incarico_dict['party']['acronym'].upper()
 
-                                incarico.data_fine = incarico_dict['date_end'].date()
-                                incarico.data_inizio = incarico_dict['date_start'].date()
-                                 # motivo commissariamento
-                                if 'description' in incarico_dict.keys():
-                                    incarico.motivo_commissariamento = incarico_dict['description']
+                        party_name = None
+                        if incarico_dict['party']['name']:
+                            party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper(),
 
-                                if incarico_dict['party']['acronym']:
-                                    incarico.party_acronym = incarico['party']['acronym'].upper()
-
-                                if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
-                                    incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
-
-                                incarico.save()
-
-                        else:
+                        try:
+                            incarico = Incarico.objects.get(
+                                nome__iexact = incarico_dict['politician']['first_name'],
+                                cognome__iexact = incarico_dict['politician']['last_name'],
+                                data_inizio = incarico_dict['date_start'],
+                                data_fine = incarico_dict['date_end'],
+                                territorio = territorio,
+                                is_commissario = is_commissario,
+                                party_acronym = party_acronym,
+                                party_name = party_name,
+                            )
+                        except ObjectDoesNotExist:
                             # self.logger.info(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
                             self.create_incarico(incarico_dict, territorio, is_commissario)
 
@@ -241,8 +235,8 @@ class Command(BaseCommand):
                             unidecode(incarico_dict['politician']['first_name'][0].title()),
                             unidecode(incarico_dict['politician']['last_name'].title()),
                             incarico_dict['politician']['self'].replace(settings.OP_API_HOST+'/politici/politicians/',''),
-                            time.strftime(self.date_fmt, incarico_dict['date_start']),
-                            time.strftime(self.date_fmt, incarico_dict['date_end']),
+                            datetime.strftime(incarico_dict['date_start'], self.date_fmt ),
+                            datetime.strftime(incarico_dict['date_end'], self.date_fmt ),
 
                         )
 
@@ -254,8 +248,8 @@ class Command(BaseCommand):
         incarico.cognome = incarico_dict['politician']['last_name']
         incarico.territorio = territorio
         incarico.is_commissario = is_commissario
-        incarico.data_inizio = datetime.fromtimestamp(time.mktime(incarico_dict['date_start']))
-        incarico.data_fine = datetime.fromtimestamp(time.mktime(incarico_dict['date_end']))
+        incarico.data_inizio = incarico_dict['date_start']
+        incarico.data_fine = incarico_dict['date_end']
 
         # motivo commissariamento
         if 'description' in incarico_dict.keys():
@@ -270,7 +264,7 @@ class Command(BaseCommand):
         incarico.save()
 
 
-    def handle_incarichi(self,dryrun, update):
+    def handle_incarichi(self, territori_type, dryrun):
 
         province = Territorio.objects.\
             filter(territorio=Territorio.TERRITORIO.P).values_list('denominazione', flat=True)
@@ -307,10 +301,16 @@ class Command(BaseCommand):
         altri_territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).\
             exclude(denominazione__in = province).exclude(denominazione__in = altri_nomi_capoluoghi).order_by('-cluster','denominazione')
 
+        # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
-        self.get_incarichi(capoluoghi_provincia, dryrun, update)
-        self.get_incarichi(altri_capoluoghi, dryrun, update)
-        self.get_incarichi(altri_territori, dryrun, update)
+
+        if territori_type == 'all' or territori_type == 'capoluoghi':
+            self.get_incarichi(capoluoghi_provincia, dryrun)
+            self.get_incarichi(altri_capoluoghi, dryrun)
+
+        if territori_type =='all' or territori_type == 'others':
+            self.get_incarichi(altri_territori, dryrun)
+
 
         return
 
