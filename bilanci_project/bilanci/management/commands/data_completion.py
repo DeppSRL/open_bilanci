@@ -39,6 +39,12 @@ class Command(BaseCommand):
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server to connect to (defaults to staging).'),
 
+        make_option('--skip-existing',
+                    dest='skip_existing',
+                    action='store_true',
+                    default=False,
+                    help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
+
         make_option('--dry-run',
                     dest='dryrun',
                     action='store_true',
@@ -84,6 +90,8 @@ class Command(BaseCommand):
         ###
 
         dryrun = options['dryrun']
+        skip_existing = options['skip_existing']
+
 
         ###
         # cities
@@ -170,7 +178,7 @@ class Command(BaseCommand):
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
 
-            self.set_cluster_mean(years, dryrun)
+            self.set_cluster_mean(years, dryrun, skip_existing=skip_existing)
 
         elif function == 'per_capita':
             # computes per-capita values
@@ -227,12 +235,12 @@ class Command(BaseCommand):
 
         return
 
-    def set_cluster_mean(self, years, dryrun):
+    def set_cluster_mean(self, years, dryrun, skip_existing=False):
         """
         Compute average values.
 
         Virtual locations are created, holding average values for every Voce and Year.
-        
+
         """
 
         self.logger.info("Cluster mean start")
@@ -271,12 +279,19 @@ class Command(BaseCommand):
                                     voce, year
                                 ))
 
-                            valore_medio = ValoreBilancio()
-                            valore_medio.voce = voce
-                            valore_medio.territorio = territorio_cluster
-                            valore_medio.anno = year
-                            valore_medio.valore = media_valore
-                            valore_medio.save()
+                            valore_medio, is_created = ValoreBilancio.objects.get_or_create(
+                                voce=voce,
+                                territorio=territorio_cluster,
+                                anno=year,
+                                defaults={
+                                    'valore': media_valore
+                                }
+                            )
+
+                            # overwrite existing values
+                            if not is_created and not skip_existing:
+                                valore_medio.valore = media_valore
+                                valore_medio.save()
 
         return
 
