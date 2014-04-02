@@ -43,7 +43,7 @@ class IncarichiGetterMixin(object):
 
             if incarico.is_commissario:
                 # commissari
-
+                dict_widget['icon'] = None
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
