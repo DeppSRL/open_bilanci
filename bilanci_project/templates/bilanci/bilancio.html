@@ -18,7 +18,11 @@
             <p class="details">
                 <span class="location">{{ territorio.prov }}, {{ territorio.regione|title }} </span>
                 <span class="category"><span class="glyphicon glyphicon-record"></span>
-                    {{ territorio.get_cluster_display }}, {{ comune_context.bil_popolazione_residente|intcomma }} abitanti</span>
+                    {{ territorio.get_cluster_display }}
+                    {% if comune_context.bil_popolazione_residente %}
+                        , {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                    {% endif %}
+                </span>
             </p>
         </div>
     {% endblock %}
@@ -88,6 +92,7 @@
     <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
     <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
     <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+
 
     {% block extra_js_inner %}
         {# block for extra js activity needed for children templates   #}
