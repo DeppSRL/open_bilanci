@@ -41,17 +41,6 @@ function init_linechart(){
 
 }
 
-$(document).ready(function(){
-
-    // binds the indicator menu toggle with the graph resize
-    if($('#toggle-menu').length){
-        $("#toggle-menu").on("click", function(){ linechart.resize();});
-    }
-
-    init_linechart();
-    feed_linechart();
-});
-
 $(window).on('resize', function(){
     linechart.resize();
 });

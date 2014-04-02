@@ -56,14 +56,19 @@
 
 
         <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="{% static 'scripts/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
-        <!-- Custom scripts -->
-        <script src="{% static 'scripts/main.js' %}"></script>
-        <script src="{% static 'scripts/project.js' %}"></script>
+        <script src="{% static 'scripts/vendor/bootstrap/js/bootstrap.js' %}"></script>
         <!-- Enscroll -->
         <script src="{% static  'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
 
+
         {% block extra_js %}{% endblock extra_js %}
+
+        <!-- Custom scripts -->
+        <script src="{% static 'scripts/main.js' %}"></script>
+        <script src="{% static 'scripts/project.js' %}"></script>
+
+
+
     </body>
 
 </html>

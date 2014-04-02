@@ -276,6 +276,10 @@
             * */
 
             init_selector({{ selector_default_year }},{{ selected_year }},false,null,"{% url 'classifiche-list' parameter_type=selected_par_type parameter_slug=selected_parameter.slug anno=selected_year %}");
+            // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
+            if($('#toggle-menu').length){
+                $("#toggle-menu").on("click", function(){ linechart.resize();});
+            }
 
         });
 

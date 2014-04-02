@@ -1,5 +1,4 @@
 {%  extends "bilanci/bilancio.html" %}
-{% load staticfiles %}
 {% load humanize %}
 
 {% block page_title %}
@@ -46,107 +45,16 @@
 
 
 
-{% block extra_js %}
-    <!-- visup js -->
-    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-
-    <!-- Enscroll -->
-    <script src="{% static 'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
-
-    <!-- Raphael -->
-    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
-
+{% block extra_js_inner %}
     <script type="text/javascript">
-        $(document).ready(function(){
-               /**
-                * initialize year selectors
-                **/
-                init_selector(
-                        {{ selector_default_year }},
-                        {{ selected_year }},
-                        true,
-                        '{{ selected_bilancio_type }}',
-                        "{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
-                );
-
-
-
-               /**
-                * set handlers for trend charts
-                **/
-                $( "#results" ).find( '.trend-chart-toggle' ).on( 'click', function( e ){
-                    e.preventDefault();
-
-                    var btn = $( this );
-                    var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
-                    var chart_td = chart_container.find('td');
-
-                    if (chart_td.find('div').length == 0) {
-                        chart_td.append($("<div>").addClass("trend-chart"));
-                        chart = $("#" + chart_container.attr('id') + " .trend-chart");
-                        var linechart = visup.linechart("#" + chart_container.attr('id') + " .trend-chart");
-                        linechart.options({
-                                timeline: {
-                                    visible: false
-                                },
-                                linechart: {
-                                    height: 150,
-                                    start: 2003,
-                                    end: 2014,
-                                    circleRadius: 9,
-                                    axisUnit: "MILIONI",
-                                    tooltipUnit: "MLN",
-                                    format: "%Y",
-                                    visible: true
-                                },
-                                legend: {
-                                    rowItems: 2
-                                }
-                            });
-                        d3.json("http://localhost:8004/incarichi_voce/1974/preventivo-spese-spese-correnti", function (i) {
-                            linechart.data(i);
-                            linechart.resize();
-                        });
-                    }
-
-                    if (chart_container.hasClass('hidden')) {
-                        chart_container.removeClass( 'hidden' );
-                    } else {
-                        chart_container.addClass( 'hidden' );
-                    }
-
-                    return false;
-
-                });
-
-            });
-
-
-            function feed_linechart(){
-                d3.json(
-                    "{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti' %}",
-                    function (i) {
-                        linechart.data(i)
-                    }
-                );
-            }
-
-
+        function feed_linechart(){
+            d3.json(
+                "{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo-spese-spese-correnti' %}",
+                function (i) {
+                    linechart.data(i)
+                }
+            );
+        }
     </script>
-    <!-- / visup js -->
-
 {% endblock %}
 
-{% block extra_css %}
-{#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
-
-
-{#    <!-- / visup css-->#}
-{% endblock %}

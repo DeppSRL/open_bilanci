@@ -11,6 +11,7 @@ $(document).ready(function(){
         lock      = $( '#lock'),
         $sidebar  = $( '#sidebar' ),
         $content  = $( '#content' ),
+        $results  = $( '#results' ),
         $comments = $( '#comments' );
 
 

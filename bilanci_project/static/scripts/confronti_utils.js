@@ -116,7 +116,7 @@ function submitButtonConfronti(e){
 * initialize the confronti page
 */
 
-function init_page(){
+function init_confronti_page(){
     /*
     opens by default the parameter menu on page load
     */
