@@ -41,6 +41,9 @@ function init_linechart(){
 
 }
 
-$(window).on('resize', function(){
+if(linechart){
+    $(window).on('resize', function(){
+
     linechart.resize();
 });
+}
