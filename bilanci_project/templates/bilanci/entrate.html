@@ -45,28 +45,14 @@
 
 
 {% block extra_js_inner %}
-
-
     <script type="text/javascript">
-        $(document).ready(function(){
-            init_linechart();
-            feed_linechart();
-            /*
-            * initialize year selectors
-            * */
-            init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
-
-        });
-
-
         function feed_linechart(){
-            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse-totale' %}",
-                    function (i) {
-                linechart.data(i)
-            });
+            d3.json(
+                "{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='consuntivo-entrate-cassa-imposte-e-tasse' %}",
+                function (i) {
+                    linechart.data(i)
+                }
+            );
         }
     </script>
-    <!-- / visup js -->
-
 {% endblock %}
-

@@ -1,10 +1,10 @@
 {% load mptt_tags %}
 {% load voice_values %}
+{% load repeat %}
 
 
 <!-- Main table -->
 <div class="table-responsive">
-
     <table class="table entrate no-hover">
         <tbody>
 
@@ -15,29 +15,44 @@
 
                     <tr class="panel-heading">
                         <td class="col-sm-5 entry">
+                            {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                            {% if not node.is_leaf_node %}
                             <a class="collapse-toggle" href="#{{ node.slug }}">
                                 <span class="icon sprite-plus"></span></a>
-                            {{ node.denominazione|lower|capfirst }}
+                            {% else %}
+                                <span class="icon sprite-plus" style="visibility: hidden"></span>
+                            {% endif %}
+                            <span style="text-transform: uppercase">
+                                {{ node.denominazione|lower|capfirst }}
+                            </span>
                         </td>
 
                         <td class="col-sm-3 actions">
                             {% voice_values node.slug budget_values %}
                         </td>
-                    </tr>
-                    <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                        <td colspan="3" class="col-sm-12 details">
-                            <p>
-                                Testo corrente per la voce {{ node.denominazione|lower|capfirst }}
 
-                                <a href="#" class="btn btn-sm btn-default more-info pull-right" data-open="andamento nel tempo &lt;span class='glyphicon glyphicon-chevron-down'&gt;&lt;/span&gt;" data-close="chiudi &lt;span class='glyphicon glyphicon-chevron-up'&gt;&lt;/span&gt;">andamento nel tempo <span class="glyphicon glyphicon-chevron-down"></span></a>
-                            </p>
-                            <figure class="trend hidden">
-                                <img alt="Responsive image" class="img-responsive" src="">
-                            </figure>
+                        <td class="col-sm-3 chart-wrapper">
+                            {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
+                                {% voice_composition node.slug budget_values %}
+                            {% endif %}
+                        </td>
+
+                        <td class="col-sm-1">
+                           <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle"
+                              id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
+                        </td>
+
+                    </tr>
+
+                    <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
+                        <td colspan="4" class="col-sm-12 details" style="border: 0">
+                        </td>
+                    </tr>
+
+                    <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                        <td colspan="4" class="col-sm-12 details">
 
                             {% if not node.is_leaf_node %}
-                            <br>
-
                             <!-- Sub table level 1 -->
                             <table class="table table-condensed">
                                 <tbody>

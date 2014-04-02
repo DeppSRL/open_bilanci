@@ -11,11 +11,8 @@
             {% recursetree bilancio_tree %}
 
                 {% if node.denominazione != "Spese per investimenti" and not "interventi" in node.slug.lower %}
-
                     {% if node == bilancio_rootnode or node.denominazione.lower == "funzioni" %}
-
                         {{ children }}
-
                     {% else %}
 
                         <tr>
@@ -45,8 +42,10 @@
                                     {% voice_composition node.slug budget_values %}
                                 {% endif %}
                             </td>
+
                             <td class="col-sm-1">
-                               <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle" id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
+                               <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle"
+                                  id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
                             </td>
                         </tr>
 
