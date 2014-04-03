@@ -22,10 +22,9 @@ class HomeView(TemplateView):
 class IncarichiGetterMixin(object):
     
     date_fmt = '%Y-%m-%d'
-            
-    #     sets the start / end of graphs 
-    timeline_start = settings.GRAPH_START_DATE
-    timeline_end = settings.GRAPH_END_DATE
+    #     sets the start / end of graphs
+    timeline_start = settings.TIMELINE_START_DATE
+    timeline_end = settings.TIMELINE_END_DATE
     
     def transform_incarichi(self, incarichi_set, highlight_color):
 
@@ -191,6 +190,35 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
         )
 
 
+
+class BilancioCompositionWidgetView(TemplateView):
+    template_name = 'bilanci/composizione_bilancio.html'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
+        return context
+
+
+class BilancioCompositionJSONView(View):
+
+    ##
+    # Creates the Json structure needed to feed the Visup composition widget
+    ##
+    def get(self, request, **kwargs):
+
+        return HttpResponse(
+            content=json.dumps(
+                {
+
+                    'data':[],
+
+                }
+            ),
+            content_type="application/json"
+        )
+
+
 class ConfrontiDataJSONView(View, IncarichiGetterMixin):
     ##
     # Constuct a JSON structur to feed the Visup widget
@@ -288,7 +316,7 @@ class BilancioRedirectView(RedirectView):
                 tipo_bilancio = "preventivo"
             kwargs.update({'slug': territorio.slug})
             try:
-                url = reverse('bilanci-overall', args=args , kwargs=kwargs)
+                url = reverse('bilanci-overview', args=args , kwargs=kwargs)
             except NoReverseMatch:
                 return reverse('404')
 
@@ -299,7 +327,10 @@ class BilancioRedirectView(RedirectView):
 class BilancioView(DetailView):
     model = Territorio
     context_object_name = "territorio"
-    template_name = 'bilanci/bilancio.html'
+    template_name = 'bilanci/bilancio_overview.html'
+
+    selected_section = "bilancio"
+
 
     def get_context_data(self, **kwargs ):
 
@@ -311,6 +342,7 @@ class BilancioView(DetailView):
         tipo_bilancio = self.request.GET['type']
         menu_voices_kwargs = {'slug': territorio.slug}
 
+        context['selected_section']=self.selected_section
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(year, territorio)
         context['territorio_opid'] = territorio.op_id
@@ -319,13 +351,17 @@ class BilancioView(DetailView):
         context['year'] = year
         context['tipo_bilancio'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
+            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
             ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
             ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
         ])
 
         return context
+
+class BilancioIndicatoriView(BilancioView):
+    template_name = 'bilanci/bilancio_indicatori.html'
+    selected_section = "indicatori"
 
 
 class BilancioDetailView(BilancioView):
@@ -361,6 +397,12 @@ class BilancioDetailView(BilancioView):
         if len(incarichi_set) == 0:
             context['show_timeline'] = False
 
+        # sets start / end for timeline graph
+        context['timeline_start_year'] = settings.TIMELINE_START_DATE.year
+        context['timeline_end_year'] = settings.TIMELINE_END_DATE.year
+
+        # selected_section adds to the context which section of bilancio is active
+        context['selected_section']=self.selected_section
 
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
@@ -371,7 +413,7 @@ class BilancioDetailView(BilancioView):
 
         context['selected_bilancio_type'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overall', kwargs=menu_voices_kwargs)),
+            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
             ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
             ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
@@ -381,7 +423,8 @@ class BilancioDetailView(BilancioView):
 
 
 class BilancioEntrateView(BilancioDetailView):
-    template_name = 'bilanci/entrate.html'
+    template_name = 'bilanci/bilancio_entrate.html'
+    selected_section = "entrate"
 
     def get_slug(self):
         return "{0}-{1}".format(self.request.GET['type'],"entrate")
@@ -389,17 +432,17 @@ class BilancioEntrateView(BilancioDetailView):
 
 
 class BilancioSpeseView(BilancioDetailView):
-    template_name = 'bilanci/spese.html'
+    template_name = 'bilanci/bilancio_spese.html'
+    selected_section = "spese"
 
     def get_slug(self):
-        type = self.request.GET['type']
-        if type == 'preventivo':
+        bilancio_type = self.request.GET['type']
+        if bilancio_type == 'preventivo':
             return "{0}-{1}".format(self.request.GET['type'],"spese")
         else:
             return "{0}-{1}".format(self.request.GET['type'],"spese-impegni")
 
-class BilancioIndicatoriView(BilancioView):
-    template_name = 'bilanci/indicatori.html'
+
 
 
 

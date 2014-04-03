@@ -163,5 +163,5 @@ function init_confronti_page(){
     });
 
     //initialize linechart element
-    init_linechart();
+    init_main_linechart();
 }

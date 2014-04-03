@@ -1,0 +1,50 @@
+{%  extends "bilanci/bilancio_base.html" %}
+{% load staticfiles %}
+
+{% block page_title %}
+    Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
+{% endblock %}
+
+
+{% block bilanci_content %}
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs nav-justified">
+        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE</a></li>
+        <li><a href="#analisi-e-trend" data-toggle="tab">ANALISI E TREND</a></li>
+    </ul>
+
+    <hr class="no-border">
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="composizione">
+            composition widget
+        </div>
+
+        <div class="tab-pane fade in" id="analisi-e-trend">
+            <figure class="stripe thumbnail">
+                <img src="http://cambelt.co/200x600/Analisi+e+trend" class="img-responsive" alt="Analisi e trend">
+            </figure>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+
+
+    <!-- Initialization for year/budget type selector and linecharts -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+               /**
+                * initialize year selectors
+                **/
+                init_selector({{ selector_default_year }},{{ selected_year }}, true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}" );
+
+            });
+    </script>
+
+{% endblock %}
+

@@ -1,0 +1,158 @@
+{% verbatim %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta content='text/html;charset=UTF-8' http-equiv='content-type'>
+<title>Open bilanci</title>
+<link href="/assets/dashboards/depp_openbilanci/application-e4fe03c9d2694effe5667a6c9dbf3c35.css" media="all" rel="stylesheet" />
+<link href='http://fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
+<link href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet'>
+<script src="/assets/dashboards/depp_openbilanci/application-e58e46e944e4adaae270d3ff9ce07c06.js"></script>
+<script>
+    $(document).ready( function() {
+      visup.composizione(function(){
+        d3.json("/tmp/depp_openbilanci/sample-composizione-preventivo.json", function(data){
+          visup.composizione.data(data);
+          visup.composizione.on("select", function(d) {
+              console.log(d);
+          });
+        });
+      })
+    });
+</script>
+</head>
+<body ng-app='appOB'>
+<div class='wrap' ng-controller='AppController3'>
+<div class='visup-main visup-graph-single'>
+<div class='visup-graph-menu'>
+<div class='visup-title pull-left'>{{type}}</div>
+<ul class='pull-left'>
+<li class='first active'>
+{{ button1 }}
+</li>
+<li class='second'>
+{{ button2 }}
+</li>
+<li class='third'>
+{{ button3 }}
+</li>
+</ul>
+<div class='clear'></div>
+</div>
+<div class='visup-graph-single-container'>
+<div class='visup-graph-container'></div>
+</div>
+<div class='visup-labels'>
+<div class='visup-label visup-label-1'>
+Aumenti Elevati
+<div class='h-divider'></div>
+</div>
+<div class='visup-label visup-label-2'>
+Valori in linea
+<div class='h-divider'></div>
+</div>
+<div class='visup-label visup-label-3'>
+Riduzioni elevate
+<div class='h-divider'></div>
+</div>
+</div>
+<div class='visup-legend'>
+<img alt="Legend" src="/assets/depp_openbilanci/legend-391613e23d0f375037d2533fa9b68a09.png" />
+</div>
+<div class='visup-graph-toolip'></div>
+</div>
+<div class='visup-sidebar visup-sidebar2'>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget1.label}}</div>
+<div class='visup-subtitle'>{{widget1.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-value-2 inline-block vertical-middle'>
+{{widget1.value | numstr}}€
+</div>
+<div class='visup-value-3 inline-block vertical-middle'>
+<span class='bold'>{{widget1.procapite}}</span>
+{{widget1.sublabel2}}
+</div>
+<div class='visup-progress-single'>
+<div class='visup-progress-bar' ng-class="(widget1.variation &lt; 0) ? 'negative' : '' " ng-style="{'width': widget1.variationAbs+'%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle'>
+<span class='bold'>{{widget1.variation}}%</span>
+{{widget1.sublabel3}}
+</div>
+</div>
+</div>
+<div class='visup-widget visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-description'>
+<div class='visup-title'>{{selected.label | limitTo:25}}</div>
+<div class='visup-subtitle'>{{type}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-value-2 inline-block vertical-middle'>
+{{selected.value | numstr}}€
+</div>
+<div class='visup-value-3 inline-block vertical-middle'>
+<span class='bold'>{{ selected.procapite }}</span>
+procapite
+</div>
+<div class='visup-progress-single'>
+<div class='visup-progress-bar' ng-class="(selected.variation &lt; 0) ? 'negative' : '' " ng-style="{'background':selected.color, 'width':selected.variationAbs+'%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle'>
+<span class='bold'>{{selected.variation}}%</span>
+su preventivo {{year}}
+</div>
+</div>
+<i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
+</div>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget2.label}}</div>
+<div class='visup-subtitle'>{{widget2.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget2.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{widget2.variation}}%</div>
+<div>{{widget2.sublabel2}}</div>
+</div>
+<div class='visup-graph-container visup-spark-0'></div>
+<div class='visup-label'>{{widget2.sublabel3}}</div>
+</div>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget3.label}}</div>
+<div class='visup-subtitle'>{{widget3.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget3.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{widget3.variation}}%</div>
+<div>{{widget3.sublabel2}}</div>
+</div>
+<div class='visup-graph-container visup-spark-1'></div>
+<div class='visup-label'>{{widget3.sublabel3}}</div>
+</div>
+<div class='visup-widget active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-pie-container'></div>
+<div>
+<span class='bold'>{{selected.percent}}%</span>
+sul totale delle {{type}}
+</div>
+</div>
+<div class='visup-widget notitle-variation inline-block vertical-middle active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(selected.andamento &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{selected.andamento}}%</div>
+</div>
+<div class='visup-graph-container visup-spark-2' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
+<div class='inline-block vertical-middle'>Andamento {{(selected.series != null) ? selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
+</div>
+<div class='visup-credits'>made by VISUP</div>
+</div>
+</div>
+</body>
+</html>
+{% endverbatim %}

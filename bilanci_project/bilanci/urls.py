@@ -5,7 +5,8 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
     BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVociJSONView, HomeView, \
-    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView
+    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
+    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView,BilancioCompositionJSONView, BilancioCompositionWidgetView
 
 admin.autodiscover()
 
@@ -13,13 +14,22 @@ urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home'),
 
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
-    url(r'^bilanci/(?P<slug>[-\w]+)/entrate', BilancioEntrateView.as_view(), name='bilanci-entrate'),
-    url(r'^bilanci/(?P<slug>[-\w]+)/spese', BilancioSpeseView.as_view(), name='bilanci-spese'),
-    url(r'^bilanci/(?P<slug>[-\w]+)/indicatori', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
+    url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioView.as_view(), name='bilanci-overview'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/entrate$', BilancioEntrateView.as_view(), name='bilanci-entrate'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/spese$', BilancioSpeseView.as_view(), name='bilanci-spese'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
-    url(r'^bilanci/(?P<slug>[-\w]+)', BilancioView.as_view(), name='bilanci-overall'),
 
+    # Json view for linegraph
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVociJSONView.as_view(), name = "incarichi-voci-json"),
+
+    # Json view for Bilancio Overview / Entrate/ Spese composition
+    url(r'^composition_json/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
+        BilancioCompositionJSONView.as_view(), name = "composition-partial-json"),
+
+    # Composition widget for Bilancio overview / entrate / spese
+    url(r'^composition_complete_widget/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
+        BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 
     # classifiche
     url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),

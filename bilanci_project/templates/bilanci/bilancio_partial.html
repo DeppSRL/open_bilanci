@@ -1,0 +1,102 @@
+{%  extends "bilanci/bilancio_base.html" %}
+{% load staticfiles %}
+
+{% block page_title %}
+    {{ selected_section|title }} del bilancio {{ selected_bilancio_type }} per il Comune di {{ territorio }}, anno: {{ year }}
+{% endblock %}
+
+
+{% block bilanci_content %}
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs nav-justified">
+        <li ><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE {{ selected_section|upper }}</a></li>
+        <li class="active"><a href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
+    </ul>
+
+    <hr class="no-border">
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane fade in" id="composizione">
+            composition widget
+        </div>
+
+        <div class="tab-pane fade in active" id="dettaglio">
+            {% include 'commons/_lines_chart_over_the_years.html' %}
+
+            <hr class="no-border">
+
+            <!-- Default panel contents -->
+            <header class="clearfix">
+                <h3>DETTAGLIO {{ selected_section|upper }} {{ year }}</h3>
+            </header>
+            <p>Una breve descrizione del contenuto ...</p>
+
+            {% if selected_section == 'entrate' %}
+                {% include 'bilanci/_accordion_entrate.html' %}
+            {% else %}
+                {% include 'bilanci/_accordion_spese.html' %}
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js_inner %}
+
+       <!-- visup linechart -->
+       <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
+
+        <!-- Raphael -->
+        <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+        <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+        <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+
+
+       <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            /*
+            * initialize year selectors
+            * */
+            {% if selected_section == 'entrate' %}
+                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
+            {% else %}
+                init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");
+            {% endif %}
+
+            /**
+            * set handlers for trend charts
+            **/
+            $( "#results .trend-chart-toggle" ).on( 'click', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
+
+            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            feed_main_linechart();
+
+
+        });
+
+
+        function feed_main_linechart(){
+            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}",
+                    function (i) {
+                linechart.data(i)
+            });
+
+        }
+
+       function feed_secondary_linechart(voce_slug){
+            d3.json(
+                "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug,
+                function (i) {
+                    secondary_linechart.data(i);
+                    secondary_linechart.resize();
+                }
+            );
+        }
+
+
+    </script>
+
+{% endblock %}
