@@ -511,6 +511,10 @@ class ClassificheListView(ListView):
                 }
             )
 
+        # sets start / end for timeline graph
+        context['timeline_start_year'] = settings.TIMELINE_START_DATE.year
+        context['timeline_end_year'] = settings.TIMELINE_END_DATE.year
+
         context['valori_list'] = valori_list
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
