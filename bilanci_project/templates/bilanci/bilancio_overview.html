@@ -30,18 +30,29 @@
 
 {% endblock %}
 
-{% block extra_js %}
-
+{% block extra_js_inner %}
 
 
     <!-- Initialization for year/budget type selector and linecharts -->
     <script type="text/javascript">
         $(document).ready(function(){
 
-               /**
-                * initialize year selectors
-                **/
-                init_selector({{ selector_default_year }},{{ selected_year }}, true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}" );
+            /*
+            * initialize year selectors
+            * */
+
+            var selector_init_obj ={
+                'selector_default_year':{{ selector_default_year }},
+                'selected_year':{{ selected_year }},
+                'visible_buttons': false,
+                'selected_bilancio_type': null,
+                'start_year': {{ timeline_start_year }},
+                'end_year': {{ timeline_end_year }},
+                'reference_url': "{% url "bilanci-overview" slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
+            };
+
+
+            init_selector(selector_init_obj);
 
             });
     </script>

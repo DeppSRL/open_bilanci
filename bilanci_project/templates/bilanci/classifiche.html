@@ -14,7 +14,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-sm-4">
-                <a href="" id="toggle-menu" role="button">
+                <a href=""  id="toggle-menu" role="button">
                     <span class="icon sprite-toggle-menu"></span>
                 </a>
             </div>
@@ -238,6 +238,12 @@
 
 {% block extra_js %}
 
+
+    <!-- visup js -->
+    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
+    <!-- / visup js -->
+
     <script type="text/javascript">
 
         $(document).ready(function(){
@@ -247,7 +253,8 @@
             */
 
             var $sidebar = $( '#sidebar' ),
-                $content = $( '#content' );
+                $content = $( '#content'),
+                $toggleMenu = $( '#toggle-menu' ) ;
 
             var clss = {
                 btn: {
@@ -269,26 +276,36 @@
             $content
                 .removeClass( clss.content.on )
                 .addClass( clss.content.off );
-            $( '#toggle-menu' ).addClass( clss.btn.on );
+            $toggleMenu.addClass( clss.btn.on );
 
             /*
             * initialize year selectors
             * */
 
-            init_selector({{ selector_default_year }},{{ selected_year }},false,null,"{% url 'classifiche-list' parameter_type=selected_par_type parameter_slug=selected_parameter.slug anno=selected_year %}");
+            var selector_init_obj ={
+                'selector_default_year':{{ selector_default_year }},
+                'selected_year':{{ selected_year }},
+                'visible_buttons': false,
+                'selected_bilancio_type': null,
+                'start_year': {{ timeline_start_year }},
+                'end_year': {{ timeline_end_year }},
+                'reference_url': "{% url 'classifiche-list' parameter_type=selected_par_type parameter_slug=selected_parameter.slug anno=selected_year %}"
+            };
+
+
+            init_selector(selector_init_obj);
+
             // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
-            if($('#toggle-menu').length){
-                $("#toggle-menu").on("click", function(){ linechart.resize();});
+            if($toggleMenu.length){
+                $toggleMenu.on("click", function(){
+                    year_selector.resize();
+                });
             }
 
         });
 
     </script>
 
-    <!-- visup js -->
-    <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-    <!-- / visup js -->
 
 {% endblock %}
 

@@ -9,6 +9,7 @@
 
 .visup-selector-buttons {
 	text-align: center;
+	display: inline-block;
 	position: absolute;
 	right: 0px;
 	top: 0px;
@@ -16,8 +17,7 @@
 
 .visup-selector-button {
 	height: 42px;
-	width: 150px;
-	padding-top: 11px;
+	padding: 11px 10px 20px 10px;
 	border-radius: 7px;
 	margin-bottom: 20px;
 	cursor: pointer; 
@@ -29,24 +29,10 @@
 	stroke-width: 5px;
 }
 
-.visup-selector-circle {
-	cursor: pointer;
-}
-
 .visup-selector-tick {
 	height: 45px;
 	position: absolute;
 	text-align: center;
-}
-
-.visup-selector-tick-text {
-	cursor: pointer;
-	border-radius: 5px;
-	padding: 4px 0px;
-	width: 80px;
-	margin-left: -40px;
-	margin-top: 8px;
-	font-size: 18px;
 }
 
 .visup-selector-tick-line {
@@ -55,6 +41,27 @@
 	height: 8px;
 	width: 2px;
 	margin-left: -1px;
+}
+
+.visup-selector-tick-text {
+	border-radius: 5px;
+	padding: 4px 0px;
+	width: 80px;
+	margin-left: -40px;
+	margin-top: 8px;
+	font-size: 18px;
+}
+
+.visup-selector-tick-pointer {
+	opacity: 0;
+	background-color: transparent;
+	cursor: pointer;
+	border-radius: 5px;
+	width: 80px;
+	height: 80px;
+	margin-left: -40px;
+	margin-top: -80px;
+	font-size: 18px;
 }
 
 .visup-selector-axisX-container {
@@ -77,6 +84,7 @@
 }
 
 .visup-span-descriptions {
+	white-space: nowrap;
 	position: relative;
 	height: 80%;
 	width: 100%;
@@ -97,7 +105,7 @@
 .visup-span-descr-labels {
 	vertical-align: top;
 	display: inline-block;
-	padding: 3px 8px;
+	padding: 3px 8px 3px 0px;
 }
 
 .visup-span-bar {
@@ -109,6 +117,7 @@
 }
 
 .visup-span-icon {
+	margin-right: 8px;
 	background-size: cover;
 	vertical-align: top;
 	display: inline-block;
@@ -317,12 +326,23 @@ g.tick text {
 
 /*COMPOSIZIONE*/
 
+.visup-composizione-button {
+	border-radius: 6px;
+	margin: 5px;
+	background-color: #c6d1cf;
+	width: 130px;
+	height: 30px;
+	display: inline-block;
+	vertical-align: middle;
+	text-align: center;
+	padding: 8px;
+}
+
 .visup-dot-circle {
   stroke-width: 8px;
 }
 
 .visup-dot-text {
-  fill: "blue";
   text-anchor: middle;
 }
 
@@ -335,6 +355,10 @@ g.tick text {
 
 .visup-chart-yAxis path {
   fill: none;
+}
+
+.visup-composizione-legend-container {
+	bottom: 0px;
 }
 
 .visup-composizione-legend-item {
