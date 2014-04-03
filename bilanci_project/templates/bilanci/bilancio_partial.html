@@ -72,10 +72,8 @@
 
         {% if selected_section == 'entrate' %}
             selector_init_obj['reference_url']="{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";
-{#            init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");#}
         {% else %}
             selector_init_obj['reference_url']="{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";
-{#            init_selector({{ selector_default_year }},{{ selected_year }},true,'{{ selected_bilancio_type }}',"{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}");#}
         {% endif %}
 
         init_selector(selector_init_obj);

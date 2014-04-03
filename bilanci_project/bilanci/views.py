@@ -348,7 +348,9 @@ class BilancioView(DetailView):
         context['territorio_opid'] = territorio.op_id
         context['slug'] = territorio.slug
         context['query_string'] = query_string
-        context['year'] = year
+        context['selected_year'] = year
+        context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
+        context['selected_bilancio_type'] = tipo_bilancio
         context['tipo_bilancio'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
@@ -397,21 +399,11 @@ class BilancioDetailView(BilancioView):
         if len(incarichi_set) == 0:
             context['show_timeline'] = False
 
-        # sets start / end for timeline graph
-        context['timeline_start_year'] = settings.TIMELINE_START_DATE.year
-        context['timeline_end_year'] = settings.TIMELINE_END_DATE.year
-
-        # selected_section adds to the context which section of bilancio is active
-        context['selected_section']=self.selected_section
-
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
         context['slug'] = territorio.slug
         context['query_string'] = query_string
-        context['selected_year'] = year
-        context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
 
-        context['selected_bilancio_type'] = tipo_bilancio
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
@@ -510,10 +502,6 @@ class ClassificheListView(ListView):
                 'incarichi_attivi': Incarico.get_incarichi_attivi(valoreObj.territorio, self.anno),
                 }
             )
-
-        # sets start / end for timeline graph
-        context['timeline_start_year'] = settings.TIMELINE_START_DATE.year
-        context['timeline_end_year'] = settings.TIMELINE_END_DATE.year
 
         context['valori_list'] = valori_list
         # defines the lists of possible confrontation parameters
