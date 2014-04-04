@@ -1,37 +1,70 @@
 {%  extends "bilanci/bilancio_base.html" %}
 {% load humanize %}
+{% load staticfiles %}
+{% load bilancio_indicatori_parameter_list %}
 
 {% block page_title %}
     Indicatori del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
 {% endblock %}
 
+{% block year_selector %}{% endblock %}
 
-{#{% block subtitle %}indicatori{% endblock %}#}
+{% block bilancio_indicatori_parameter_menu_toggle %}
+   <div class="row">
+        <div class="col-sm-4">
+            <a href="" id="toggle-menu" role="button">
+                <span class="icon sprite-toggle-menu"></span>
+            </a>
+        </div>
+    </div>
+{% endblock %}
 
-{% block timeline %}{% endblock %}
+{% block bilancio_indicatori_parameter_menu %}
+     <aside id="sidebar" class="confronti_parameter_container" class="hidden">
+        {% bilancio_indicatori_parameter_list  indicator_list territorio_slug 'spese-test'%}
+    </aside>
+{% endblock %}
+
+
 {% block bilanci_content %}
     <div class="tab-pane fade in" id="dettaglio">
 
         <div id="indicatori-selezionati">
-            <figure class="stripe thumbnail">
-                <img src="http://cambelt.co/1500x200/Indicatori-selezionati"
-                     class="img-responsive" alt="Classifiche indicatori">
-            </figure>
+            {% include 'commons/_lines_chart_over_the_years.html' %}
         </div>
 
-        <hr class="no-border">
 
-        {% include 'commons/_lines_chart_over_the_years.html' %}
-
-        <hr class="no-border">
-
-        <div id="classifiche-indicatori">
-            <figure class="stripe thumbnail">
-                <img src="http://cambelt.co/1500x600/Posizionamento+comune+in+classifiche+indicatori"
-                     class="img-responsive" alt="Classifiche indicatori">
-            </figure>
-        </div>
 
     </div>
+
+{% endblock %}
+
+
+{% block extra_js_inner %}
+
+        <script src="{% static 'scripts/bilancio_indicatori_utils.js' %}" type="text/javascript"></script>
+        <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            init_bilancio_indicatori_page();
+            // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
+            if($('#toggle-menu').length){
+                $("#toggle-menu").on("click", function(){ linechart.resize();});
+            }
+
+            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            feed_main_linechart();
+        });
+
+        function feed_main_linechart(){
+            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo' %}",
+                    function (i) {
+                linechart.data(i)
+            });
+
+        }
+
+    </script>
 
 {% endblock %}

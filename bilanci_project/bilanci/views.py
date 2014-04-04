@@ -328,7 +328,6 @@ class BilancioView(DetailView):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_overview.html'
-
     selected_section = "bilancio"
 
 
@@ -346,7 +345,6 @@ class BilancioView(DetailView):
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(year, territorio)
         context['territorio_opid'] = territorio.op_id
-        context['slug'] = territorio.slug
         context['query_string'] = query_string
         context['selected_year'] = year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
@@ -364,6 +362,12 @@ class BilancioView(DetailView):
 class BilancioIndicatoriView(BilancioView):
     template_name = 'bilanci/bilancio_indicatori.html'
     selected_section = "indicatori"
+
+    def get_context_data(self, **kwargs ):
+
+        context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
+        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        return context
 
 
 class BilancioDetailView(BilancioView):
@@ -391,7 +395,6 @@ class BilancioDetailView(BilancioView):
             'percapita': dict(budget_values.values_list('voce__slug', 'valore_procapite'))
         }
 
-        menu_voices_kwargs = {'slug': territorio.slug}
 
         # checks if political context data is available to show/hide timeline widget in the template
         context['show_timeline'] = True
@@ -401,15 +404,9 @@ class BilancioDetailView(BilancioView):
 
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
-        context['slug'] = territorio.slug
         context['query_string'] = query_string
 
-        context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
-            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
-            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
-            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
-        ])
+
         return context
 
 

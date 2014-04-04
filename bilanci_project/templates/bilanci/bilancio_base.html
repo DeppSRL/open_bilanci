@@ -39,15 +39,20 @@
             </div>
         </div>
 
+        {#  here goes the Menu toggle for bilanci-indicatori page       #}
+        {% block bilancio_indicatori_parameter_menu_toggle %}{% endblock %}
+
         <div class="row">
             <div id="content" class="col-sm-12">
 
                 {# year selector widget #}
-                <div class="row timeline">
-                    <div class="col-sm-12">
-                        <div class="year-selector"></div>
+                {% block year_selector %}
+                    <div class="row timeline">
+                        <div class="col-sm-12">
+                            <div class="year-selector"></div>
+                        </div>
                     </div>
-                </div>
+                {% endblock %}
 
             <div id="results" class="row">
                 <div class="col-sm-12">
@@ -56,7 +61,10 @@
                     {% endblock %}
                 </div>
             </div>
-            </div>
+        </div>
+
+        {#  here goes the Menu for bilanci-indicatori page       #}
+        {% block bilancio_indicatori_parameter_menu %}{% endblock %}
         </div>
 
     </div>
