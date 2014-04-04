@@ -60,17 +60,31 @@ class BilanciSimpleBaseTestCaseMixin(object):
 
     def test_totali_consuntivo_spese(self):
         """
-        totals for 1st level sections of the uscite consuntivo subtree are compared
-
-        normalized and simplified totals must match
+        totals for 1st level sections of the consuntivo/spese in the normalized tree (quadri 3, 4, 5)
+        are compared with the corresponding values in the simplified tree
         """
+
+        # totali will hold a list of all voices to be compared
+        # norm refers to the normalized tree
+        # simp refers to the simple tree
         totali = []
+
+        # quadro 3
+        # section_name and section_idx contains the Impegni/Competenze/Residui name and indexes
         for section_name, section_idx in self.spese_sections.items():
             totali.extend([
                 {'norm': ('consuntivo', '03',
                           'quadro-3-riepilogo-generale-delle-spese',
                           'data', 'totale generale delle spese', section_idx),
                  'simp': ('consuntivo', 'SPESE', section_name, 'TOTALE')},
+                {'norm': ('consuntivo', '03',
+                          'quadro-3-riepilogo-generale-delle-spese',
+                          'data', 'titolo i - spese correnti', section_idx),
+                 'simp': ('consuntivo', 'SPESE', section_name, 'Spese correnti')},
+                {'norm': ('consuntivo', '03',
+                          'quadro-3-riepilogo-generale-delle-spese',
+                          'data', 'titolo ii - spese in c/capitale', section_idx),
+                 'simp': ('consuntivo', 'SPESE', section_name, 'Spese per investimenti')},
                 {'norm': ('consuntivo', '03',
                           'quadro-3-riepilogo-generale-delle-spese',
                           'data', 'titolo iii - spese per rimborso di prestiti', section_idx),
@@ -81,6 +95,7 @@ class BilanciSimpleBaseTestCaseMixin(object):
                  'simp': ('consuntivo', 'SPESE', section_name, 'Spese per conto terzi')},
             ])
 
+        # quadro 4
         totali.extend([
             {'norm': ('consuntivo', '04',
                       'quadro-4-a-impegni',
@@ -96,6 +111,7 @@ class BilanciSimpleBaseTestCaseMixin(object):
              'simp': ('consuntivo', 'SPESE', 'Pagamenti in conto residui', 'Spese correnti', 'TOTALE')},
         ])
 
+        # quadro 5
         totali.extend([
             {'norm': ('consuntivo', '05',
                       'quadro-5-a-impegni',
@@ -112,10 +128,15 @@ class BilanciSimpleBaseTestCaseMixin(object):
         ])
 
         for tot in totali:
+            # extract year section from the simple doc (simple docs contain all years)
             tot_simp = self.simp_doc[self.year]
             tot_norm = self.norm_doc
+
+            # drill through the tree to fetch the leaf value in tot['simp']
             for t in tot['simp']:
                 tot_simp = tot_simp[t]
+
+            # drill through the tree to fetch the leaf value in tot['norm']
             for t in tot['norm']:
                 if t == 'totale':
                     try:
@@ -124,6 +145,10 @@ class BilanciSimpleBaseTestCaseMixin(object):
                         tot_norm = tot_norm['totali']
                 else:
                     tot_norm = tot_norm[t]
+
+            # transform the string representation in the normalized doc,
+            # into an integer (used in the simplified doc)
+            # so that the comparison is possible
             tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
 
             self.assertEqual(tot_simp, tot_norm, "Totals are different.\n norm: {0}={1}, \n simp: {2}={3}".format(
@@ -133,16 +158,15 @@ class BilanciSimpleBaseTestCaseMixin(object):
 
     def test_totali_consuntivo_entrate(self):
         """
-        totals for 1st level sections of the entrate consuntivo subtree are compared
-
-        normalized and simplified totals
+        totals for 1st level sections of the consuntivo/entrate in the normalized tree (quadro 2)
+        are compared with the corresponding values in the simplified tree
         """
+
+        # totali will hold a list of all voices to be compared
+        # norm refers to the normalized tree
+        # simp refers to the simple tree
         for section_name, section_idx in self.entrate_sections.items():
             totali = [
-                {'norm': ('consuntivo', '02',
-                          'quadro-2-entrate-titolo-vi-entrate-da-servizi-per-conto-di-terzi',
-                          'data', 'totale generale delle entrate', section_idx),
-                 'simp': ('consuntivo', 'ENTRATE', section_name, 'TOTALE')},
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-i-entrate-tributarie',
                           'data', 'totale  entrate  tributarie', section_idx),
@@ -170,12 +194,21 @@ class BilanciSimpleBaseTestCaseMixin(object):
             ]
 
             for tot in totali:
+                # extract year section from the simple doc (simple docs contain all years)
                 tot_simp = self.simp_doc[self.year]
                 tot_norm = self.norm_doc
+
+                # drill through the tree to fetch the leaf value in tot['simp']
                 for t in tot['simp']:
                     tot_simp = tot_simp[t]
+
+                # drill through the tree to fetch the leaf value in tot['simp']
                 for t in tot['norm']:
                     tot_norm = tot_norm[t]
+
+                # transform the string representation in the normalized doc,
+                # into an integer (used in the simplified doc)
+                # so that the comparison is possible
                 tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
 
                 self.assertEqual(tot_simp, tot_norm, "Totals are different. norm: {0}, simp: {1}".format(
@@ -185,7 +218,7 @@ class BilanciSimpleBaseTestCaseMixin(object):
 
     def test_somme_consuntivo_entrate(self):
         """
-        Tests the sum of sections of the entrate/uscite trees, against the totals.
+        Tests the sum of sections of the entrate tree, against the totals.
         This verifies the consistency of the simplified tree,
         and, indirectly, the completeness and correctness of the
         data fetched from the normalized tree.
@@ -193,14 +226,15 @@ class BilanciSimpleBaseTestCaseMixin(object):
         nodes = []
         for section_name in self.entrate_sections.keys():
             nodes.extend([
-                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitale'),
-                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie'),
-                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Servizi pubblici'),
-                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Proventi di beni dell\'ente'),
-                ('consuntivo', 'ENTRATE', section_name, 'Contributi pubblici'),
                 ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse'),
                 ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse', 'Imposte'),
                 ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse', 'Tasse'),
+                ('consuntivo', 'ENTRATE', section_name, 'Contributi pubblici'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Servizi pubblici'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Proventi di beni dell\'ente'),
+                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitale'),
+                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitale', 'Trasferimenti di capitali da privati'),
             ])
 
         # set level to logging.DEBUG to show debug messages
@@ -232,13 +266,13 @@ class BilanciSimpleBaseTestCaseMixin(object):
         for section_name in self.spese_sections.keys():
             for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
                 nodes.extend([
+                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Amministrazione'),
+                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Sociale'),
+                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Territorio e ambiente'),
                     ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', u'Viabilità e trasporti'),
                     ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Istruzione'),
-                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Territorio e ambiente'),
-                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Sociale'),
-                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Amministrazione'),
-                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Sport'),
                     ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Cultura'),
+                    ('consuntivo', 'SPESE', section_name, tipo_spese, 'funzioni', 'Sport'),
                 ])
 
         # set level to logging.DEBUG to show debug messages
