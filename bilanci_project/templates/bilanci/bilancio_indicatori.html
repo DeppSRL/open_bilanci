@@ -9,20 +9,10 @@
 
 {% block year_selector %}{% endblock %}
 
-{% block bilancio_indicatori_parameter_menu_toggle %}
-   <div class="row">
-        <div class="col-sm-4">
-            <a href="" id="toggle-menu" role="button">
-                <span class="icon sprite-toggle-menu"></span>
-            </a>
-        </div>
-    </div>
-{% endblock %}
-
 {% block bilancio_indicatori_parameter_menu %}
-     <aside id="sidebar" class="confronti_parameter_container" class="hidden">
+
         {% bilancio_indicatori_parameter_list  indicator_list territorio_slug 'spese-test'%}
-    </aside>
+
 {% endblock %}
 
 
