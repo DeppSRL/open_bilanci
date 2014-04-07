@@ -274,7 +274,7 @@ class Command(BaseCommand):
         current_node = subtree_node
         for item in bc:
             if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
-                slug = u"{0}-{1}".format(prefix_slug, "-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
+                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
                 node = Voce(denominazione=item, slug=slug)
                 node.insert_at(current_node, save=True, position='last-child')
                 if bc[-1] == item:
