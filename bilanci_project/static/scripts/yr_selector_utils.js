@@ -123,7 +123,7 @@ function init_selector(selector_init_obj){
 $(document).ready(function(){
 
     // binds the indicator menu toggle with the graph resize
-    if($('#toggle-menu').length){
+    if($('#toggle-menu').length && year_selector){
         $("#toggle-menu").on("click", function(){ year_selector.resize();});
     }
 

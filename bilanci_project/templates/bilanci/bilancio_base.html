@@ -38,16 +38,19 @@
                 <h2 class="panel-title text-alt">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
             </div>
         </div>
+        <hr class="no-border">
 
         <div class="row">
             <div id="content" class="col-sm-12">
 
                 {# year selector widget #}
-                <div class="row timeline">
-                    <div class="col-sm-12">
-                        <div class="year-selector"></div>
+                {% block year_selector %}
+                    <div class="row timeline">
+                        <div class="col-sm-12">
+                            <div class="year-selector"></div>
+                        </div>
                     </div>
-                </div>
+                {% endblock %}
 
             <div id="results" class="row">
                 <div class="col-sm-12">
@@ -56,8 +59,14 @@
                     {% endblock %}
                 </div>
             </div>
-            </div>
         </div>
+
+
+        {#  here goes the Menu for bilanci-indicatori page       #}
+        {% block bilancio_indicatori_parameter_menu %}{% endblock %}
+        </div>
+
+
 
     </div>
 
@@ -68,7 +77,8 @@
     <!-- visup base and yr selector -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-
+   <!-- visup linechart -->
+   <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
 
     {% block extra_js_inner %}
         {# block for extra js activity needed for children templates   #}

@@ -44,9 +44,6 @@
 
 {% block extra_js_inner %}
 
-   <!-- visup linechart -->
-   <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
-
     <!-- Raphael -->
     <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
     <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
@@ -79,7 +76,7 @@
         init_selector(selector_init_obj);
 
         /**
-        * set handlers for trend charts
+        * set handlers for secondary trend charts (the ones in the accordion)
         **/
         $( "#results .trend-chart-toggle" ).on( 'click', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
 
