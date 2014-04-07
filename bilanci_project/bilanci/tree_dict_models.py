@@ -311,8 +311,8 @@ class BudgetTreeDict(OrderedDict):
             for interventi_match in interventi_matches:
                 # shift 1 position to the left, to handle the header mismatch
                 try:
-                    col_idx = normalized_voce_columns.index(interventi_match) - 1
-                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',',''))))
+                    col_idx = normalized_voce_columns.index(interventi_match)
+                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
                 except ValueError:
                     continue
         else:
