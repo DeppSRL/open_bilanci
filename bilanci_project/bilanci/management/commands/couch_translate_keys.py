@@ -218,6 +218,12 @@ class Command(BaseCommand):
                                     if translation_type == 'v':
                                         # voci translation
                                         for voce_name, voce_obj in titolo_object['data'].iteritems():
+                                            # voci are always translated into lowercase, unicode strings
+                                            # trailing dash is removed, if present
+                                            voce_name = unicode(voce_name.lower())
+                                            if voce_name.find("- ") == 0:
+                                                voce_name = voce_name.replace("- ","")
+
                                             # for each voce, apply translation_map, if valid
                                             try:
                                                 idx = [row[3] for row in normalized_map[bilancio_name]].index(voce_name)
