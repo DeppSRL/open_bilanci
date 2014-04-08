@@ -8,10 +8,9 @@
 
 {% block bilanci_content %}
 
-    <div class="tab-content">
-
-        composition widget
-
+    <div class="tab-content composition-widget-container">
+        <iframe class="composition-widget" frameborder='0' style="width: 100%;height:100%;"
+                src="{% url 'composition-widget' type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}"></iframe>
     </div>
 
 {% endblock %}
