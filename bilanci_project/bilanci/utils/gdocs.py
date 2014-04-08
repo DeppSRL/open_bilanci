@@ -77,6 +77,40 @@ def write_to_csv(path_name, contents, csv_base_dir='data/gdocs_csv_cache/'):
         logger.info("{} file written".format(csv_filename))
 
 
+def get_normalized_map(normalization_type, connection=None, force_google=False, n_header_lines=0):
+    """
+    :param: normalization_type (t|v)
+    :param: connection - (optional) a connection to the google account (singleton)
+    :param: n_header_lines - (optional) n. of lines to ignore
+
+    :ret: a dict, containing the consuntivo and preventivo sheets
+
+    Try a local CSV version of the documents, or retrieve them from google
+
+    Always retrieve from google, if instructed to do so.
+
+    Skip header lines when reading from google (csv do not contain header lines).
+
+    Return a dict of the sheets.
+    """
+    ret = None
+
+    if normalization_type == 't':
+        map_name = 'titoli_map'
+    elif normalization_type == 'v':
+        map_name = 'voci_map'
+    else:
+        raise Exception("normalization_type arg accepts 't' or 'v' as possible values")
+
+    if force_google == False:
+        ret = read_from_csv(map_name)
+
+    if not ret:
+        ret = get_normalized_map_from_google(normalization_type, n_header_lines=n_header_lines)
+        write_to_csv(map_name, ret)
+
+    return ret
+
 
 def get_simple_map(connection=None, force_google=False, n_header_lines=0):
     """
@@ -120,6 +154,69 @@ def get_simplified_leaves(connection=None, force_google=False, n_header_lines=0)
 
 
     return ret
+
+
+
+
+
+
+
+
+def get_normalized_map_from_google(normalization_type, connection=None, n_header_lines=0):
+    """
+    get normalized voci or titoli mapping from gdoc spreadsheets
+
+    :param: normalization_type (t|v)
+    :param: connection - (optional) a connection to the google account (singleton)
+    :param: n_header_lines - (optional) n. of lines to ignore
+
+    :ret: a dict, containing the consuntivo and preventivo sheets
+    """
+
+    # get all gdocs keys
+    gdoc_keys = settings.GDOC_KEYS
+
+    if normalization_type == 't':
+        gdoc_key = gdoc_keys['titoli_map']
+    elif normalization_type == 'v':
+        gdoc_key = gdoc_keys['voci_map']
+    else:
+        raise Exception("normalization_type arg accepts 't' or 'v' as possible values")
+
+    if connection is None:
+        connection = get_connection()
+
+    # open the list worksheet
+    list_sheet = None
+    try:
+        list_sheet = connection.open_by_key(gdoc_key)
+    except exceptions.SpreadsheetNotFound:
+        raise Exception("Error: gdoc url not found: {0}".format(
+            gdoc_key
+        ))
+
+    logger.info("normalized mapping gdoc read. key: {0}".format(
+        gdoc_key
+    ))
+
+    # put the mapping into the voci_map dict
+    # preventivo and consuntivo sheets are appended in a single list
+    # the first two rows are removed (labels)
+    try:
+        logger.info("reading preventivo ...")
+        voci_map_preventivo = list_sheet.worksheet("preventivo").get_all_values()[n_header_lines:]
+        logger.info("reading consuntivo ...")
+        voci_map_consuntivo = list_sheet.worksheet("consuntivo").get_all_values()[n_header_lines:]
+    except URLError:
+        raise Exception("Connection error to Gdrive")
+
+    logger.info("done with reading the mapping list.")
+
+    return {
+        'preventivo': voci_map_preventivo,
+        'consuntivo': voci_map_consuntivo,
+    }
+
 
 
 def get_simple_map_from_google(connection=None, n_header_lines=0):
