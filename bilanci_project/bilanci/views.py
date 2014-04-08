@@ -1,3 +1,6 @@
+from itertools import groupby
+from operator import itemgetter
+from pprint import pprint
 import re
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -192,31 +195,158 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
 
 
 class BilancioCompositionWidgetView(TemplateView):
-    template_name = 'bilanci/composizione_bilancio.html'
 
-    def get_context_data(self, **kwargs):
+    template_name = None
+    serie_start_year = settings.TIMELINE_START_DATE.year
+    serie_end_year = settings.TIMELINE_END_DATE.year
+    territorio = None
+
+
+    def create_composition_data(self, totale_pk, main_pk, main_bilancio_year, comparison_pk, comparison_bilancio_year):
+
+        composition_data = []
+
+        totale = ValoreBilancio.objects.filter(
+            voce__pk=totale_pk,
+            anno__gte=self.serie_start_year,
+            anno__lte=self.serie_end_year,
+            territorio=self.territorio
+            ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+
+        main_qset = ValoreBilancio.objects.filter(
+            voce__pk__in=main_pk,
+            anno__gte=self.serie_start_year,
+            anno__lte=self.serie_end_year,
+            territorio=self.territorio
+            ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+
+        comparison_qset = ValoreBilancio.objects.filter(
+            voce__pk__in=comparison_pk,
+            anno = comparison_bilancio_year,
+            territorio=self.territorio
+        ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+
+        # creates a dictionary using as key voce__slug. Each item in the dict contains a list of dictionaries
+        # with the value, value pcc and anno
+        denominazione_getter = itemgetter('voce__denominazione')
+        main_entrate_dict = dict((k,list(v)) for k,v in groupby(main_qset, key=denominazione_getter))
+
+        # creates a dict based on the iteritem on comparison_entrate_qset group_by
+        comparison_entrate_dict = dict((k,list(v)[0]) for k,v in groupby(comparison_qset, key=denominazione_getter))
+
+        # insert the Total value in the data struct
+        voce_entrata_dict =  dict(total = True, label = totale[0]['voce__denominazione'], series = [])
+        for single_entrata in totale:
+            voce_entrata_dict['series'].append([single_entrata['anno'], single_entrata['valore']])
+
+            if single_entrata['anno'] == main_bilancio_year:
+                voce_entrata_dict['value'] = single_entrata['valore']
+                voce_entrata_dict['procapite'] = single_entrata['valore_procapite']
+
+                #calculate the % of variation between main_bilancio and comparison bilancio
+                # variation = ((single_entrata['valore']-comparison_entrate_dict[entrate_voce_denominazione]['valore'])/(1.0*comparison_entrate_dict[entrate_voce_denominazione]['valore']))*100.0
+                # voce_entrata_dict['variation'] = variation
+                # todo: variation for totals
+                voce_entrata_dict['variation'] = 0
+
+        composition_data.append(voce_entrata_dict)
+
+
+        # insert all the children values in the data struct
+        for entrate_voce_denominazione, entrate_list in main_entrate_dict.iteritems():
+            voce_entrata_dict = dict(total = False, label = entrate_voce_denominazione, series = [])
+
+            for single_entrata in entrate_list:
+                voce_entrata_dict['series'].append([single_entrata['anno'], single_entrata['valore']])
+
+                if single_entrata['anno'] == main_bilancio_year:
+                    voce_entrata_dict['value'] = single_entrata['valore']
+                    voce_entrata_dict['procapite'] = single_entrata['valore_procapite']
+
+                    #calculate the % of variation between main_bilancio and comparison bilancio
+                    # todo: what to do when a value passes from 0 to N?
+                    variation = 0
+                    if comparison_entrate_dict[entrate_voce_denominazione]['valore'] != 0:
+                        variation = ((single_entrata['valore']-comparison_entrate_dict[entrate_voce_denominazione]['valore'])/(1.0*comparison_entrate_dict[entrate_voce_denominazione]['valore']))*100.0
+                    voce_entrata_dict['variation'] = variation
+
+            composition_data.append(voce_entrata_dict)
+
+        return composition_data
+
+
+    def get_context_data(self, type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
 
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
+
+        ##
+        # sets the correct template_name based on the type of rappresentation needed
+        # gets the specified bilancio based on kwargs
+        # identifies the bilancio to compare it with
+        # creates the context to feed the Visup composition widget
+        ##
+
+        # composition data is the data struct to be passed to the context
+        composition_data = {'hover': True, 'showLabels':True}
+
+
+        widget_type = type
+
+        entrate_slug = {
+            'preventivo': 'preventivo-entrate',
+            'consuntivo': 'consuntivo-entrate-cassa',
+        }
+
+        spese_slug = {
+            'preventivo': 'preventivo-spese-spese-correnti-funzioni',
+            'consuntivo': 'consuntivo-spese-cassa-spese-correnti-funzioni',
+        }
+
+
+        if widget_type == 'overview':
+            self.template_name = 'bilanci/composizione_bilancio.html'
+        else:
+            self.template_name = 'bilanci/composizione_entrate_uscite.html'
+
+        territorio_slug = territorio_slug
+        self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
+
+        main_bilancio_year = int(bilancio_year)
+        main_bilancio_type = bilancio_type
+
+        composition_data['year'] = main_bilancio_year
+
+        # identifies the bilancio for comparison
+
+        comparison_bilancio_type = None
+        if main_bilancio_type == 'preventivo':
+            comparison_bilancio_type = 'consuntivo'
+            comparison_bilancio_year = main_bilancio_year-1
+        else:
+            comparison_bilancio_type = 'preventivo'
+            comparison_bilancio_year = main_bilancio_year
+
+
+        # gets the Bilancio value set to construct the data
+        entrate_main_totale_pk = Voce.objects.get(slug=entrate_slug[main_bilancio_type]).pk
+        entrate_main_pk = Voce.objects.get(slug=entrate_slug[main_bilancio_type]).get_children().values('pk')
+        spese_main_pk = Voce.objects.get(slug=spese_slug[main_bilancio_type]).get_children().values('pk')
+        
+        entrate_comparison_pk = Voce.objects.get(slug=entrate_slug[comparison_bilancio_type]).get_children().values('pk')
+        spese_main_totale_pk = Voce.objects.get(slug=spese_slug[main_bilancio_type]).pk
+        spese_comparison_pk = Voce.objects.get(slug=spese_slug[comparison_bilancio_type]).get_children().values('pk')
+
+        composition_data['entrate']=[]
+        composition_data['spese']=[]
+        composition_data['widget1']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
+        composition_data['widget2']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
+        composition_data['widget3']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
+
+        composition_data['entrate'] = self.create_composition_data(entrate_main_totale_pk, entrate_main_pk, main_bilancio_year, entrate_comparison_pk, comparison_bilancio_year)
+        composition_data['spese'] = self.create_composition_data(spese_main_totale_pk, spese_main_pk, main_bilancio_year, spese_comparison_pk, comparison_bilancio_year)
+        context['composition_data']=json.dumps(composition_data)
+
         return context
-
-
-class BilancioCompositionJSONView(View):
-
-    ##
-    # Creates the Json structure needed to feed the Visup composition widget
-    ##
-    def get(self, request, **kwargs):
-
-        return HttpResponse(
-            content=json.dumps(
-                {
-
-                    'data':[],
-
-                }
-            ),
-            content_type="application/json"
-        )
 
 
 class ConfrontiDataJSONView(View, IncarichiGetterMixin):

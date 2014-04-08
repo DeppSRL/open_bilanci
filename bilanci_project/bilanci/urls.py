@@ -6,7 +6,7 @@ from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
     BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVociJSONView, HomeView, \
     ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
-    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView,BilancioCompositionJSONView, BilancioCompositionWidgetView
+    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView
 
 admin.autodiscover()
 
@@ -23,13 +23,13 @@ urlpatterns = patterns('',
     # Json view for linegraph
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVociJSONView.as_view(), name = "incarichi-voci-json"),
 
-    # Json view for Bilancio Overview / Entrate/ Spese composition
-    url(r'^composition_json/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
-        BilancioCompositionJSONView.as_view(), name = "composition-partial-json"),
-
     # Composition widget for Bilancio overview / entrate / spese
-    url(r'^composition_complete_widget/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
+    url(r'^composition_widget/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
         BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
+
+    # Composition widget for Bilancio comparison choosing explicitly comparison Bilancio
+    # url(r'^composition_widget/(?P<type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
+    #     BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 
     # classifiche
     url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
