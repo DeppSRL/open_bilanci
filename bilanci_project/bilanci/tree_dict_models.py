@@ -168,6 +168,15 @@ class SpeseBudgetMixin(object):
         for voce_match in voci_matches:
 
             interventi_matches = ()
+
+            if bc[2] == 'interventi':
+                # handle mapping and sum
+                interventi_matches = self._get_matching_interventi(bc[3], interventi_map)
+                if not interventi_matches:
+                    self._emit_warning("Could not find proper mapping for [{}]".format(
+                        bc[3]
+                    ))
+
             if bc[3] == 'interventi':
                 # handle mapping and sum
                 interventi_matches = self._get_matching_interventi(bc[4], interventi_map)
@@ -309,10 +318,9 @@ class BudgetTreeDict(OrderedDict):
             # value is the sum of the matching interventi's
             ret = 0
             for interventi_match in interventi_matches:
-                # shift 1 position to the left, to handle the header mismatch
                 try:
-                    col_idx = normalized_voce_columns.index(interventi_match) - 1
-                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',',''))))
+                    col_idx = normalized_voce_columns.index(interventi_match)
+                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
                 except ValueError:
                     continue
         else:

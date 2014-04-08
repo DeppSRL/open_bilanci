@@ -1,5 +1,10 @@
 #!/usr/local/bin/python
 # coding: utf-8
+
+"""
+DEPRECATED. Superseeded by the couch_translate_keys management task.
+"""
+
 import sys
 import couchdb
 import gspread
