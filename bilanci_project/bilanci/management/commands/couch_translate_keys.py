@@ -228,7 +228,7 @@ class Command(BaseCommand):
 
                                                 # for each voce, apply translation_map, if valid
                                                 try:
-                                                    idx = [row[3] for row in normalized_map[bilancio_name]].index(voce_name)
+                                                    idx = [(row[2], row[3]) for row in normalized_map[bilancio_name]].index((titolo_name,voce_name))
                                                     voce_name = normalized_map[bilancio_name][idx][4]
                                                 except ValueError:
                                                     pass
