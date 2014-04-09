@@ -179,12 +179,12 @@ titoli and for voci):
 
     # let the skilled operators operate (skillfully)
 
-+ the mapping is read and used by the normalization script (``translate_keys.py``),
++ the mapping is read and used by the normalization management task,
   to create a new normalized couchdb database:
 
   .. code-block:: bash
 
-    python translate_keys.py -t [titoli|voci]
+    python manage.py couch_translate_keys --type=[titoli|voci] --cities=all --years=2003-2013
 
 
 The Google Document mapping spreadsheet must have a fixed structure for the algorithm to work.
