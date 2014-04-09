@@ -202,75 +202,76 @@ class BilancioCompositionWidgetView(TemplateView):
     territorio = None
 
 
-    def create_composition_data(self, totale_pk, main_pk, main_bilancio_year, comparison_pk, comparison_bilancio_year):
+    def create_composition_data(self, main_bilancio_year, main_bilancio_slug, comparison_bilancio_year, comparison_bilancio_slug):
 
         composition_data = []
 
-        totale = ValoreBilancio.objects.filter(
-            voce__pk=totale_pk,
+        ##
+        # Create composition data retrieves the data needed to feed the composition widget:
+        # * gets the complete set of values during the years
+        #   for main_bilancio_slug which is the root node of preventivo/consuntivo entrate/spese
+        # * gets the value for the comparison bilancio for a specific year
+        # * loops over the results to create the data struct to be returned
+        ##
+        totale_label = 'Totale'
+        main_rootnode = Voce.objects.get(slug=main_bilancio_slug)
+        main_nodes = main_rootnode.get_descendants(include_self=True).filter(level__lte=main_rootnode.level+1)
+
+        comparison_rootnode = Voce.objects.get(slug=comparison_bilancio_slug)
+        comparison_nodes = comparison_rootnode.get_descendants(include_self=True).filter(level__lte=comparison_rootnode.level+1)
+
+        main_values = ValoreBilancio.objects.filter(
+            voce__in= main_nodes,
             anno__gte=self.serie_start_year,
             anno__lte=self.serie_end_year,
             territorio=self.territorio
-            ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+            ).values('voce__denominazione','voce__level','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-        main_qset = ValoreBilancio.objects.filter(
-            voce__pk__in=main_pk,
-            anno__gte=self.serie_start_year,
-            anno__lte=self.serie_end_year,
-            territorio=self.territorio
-            ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
-
-        comparison_qset = ValoreBilancio.objects.filter(
-            voce__pk__in=comparison_pk,
+        comparison_values = ValoreBilancio.objects.filter(
+            voce__in=comparison_nodes,
             anno = comparison_bilancio_year,
             territorio=self.territorio
-        ).values('voce__denominazione','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+        ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-        # creates a dictionary using as key voce__slug. Each item in the dict contains a list of dictionaries
-        # with the value, value pcc and anno
-        denominazione_getter = itemgetter('voce__denominazione')
-        main_entrate_dict = dict((k,list(v)) for k,v in groupby(main_qset, key=denominazione_getter))
+        # regroup the main and comparison value set based on voce__denominazione
+        # to match the rootnode the label Totale is used when needed
 
-        # creates a dict based on the iteritem on comparison_entrate_qset group_by
-        comparison_entrate_dict = dict((k,list(v)[0]) for k,v in groupby(comparison_qset, key=denominazione_getter))
+        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione']
+        main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        # insert the Total value in the data struct
-        voce_entrata_dict =  dict(total = True, label = totale[0]['voce__denominazione'], series = [])
-        for single_entrata in totale:
-            voce_entrata_dict['series'].append([single_entrata['anno'], single_entrata['valore']])
-
-            if single_entrata['anno'] == main_bilancio_year:
-                voce_entrata_dict['value'] = single_entrata['valore']
-                voce_entrata_dict['procapite'] = single_entrata['valore_procapite']
-
-                #calculate the % of variation between main_bilancio and comparison bilancio
-                # variation = ((single_entrata['valore']-comparison_entrate_dict[entrate_voce_denominazione]['valore'])/(1.0*comparison_entrate_dict[entrate_voce_denominazione]['valore']))*100.0
-                # voce_entrata_dict['variation'] = variation
-                # todo: variation for totals
-                voce_entrata_dict['variation'] = 0
-
-        composition_data.append(voce_entrata_dict)
+        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione']
+        comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
 
 
         # insert all the children values in the data struct
-        for entrate_voce_denominazione, entrate_list in main_entrate_dict.iteritems():
-            voce_entrata_dict = dict(total = False, label = entrate_voce_denominazione, series = [])
+        for main_value_label, main_value_set in main_values_regroup.iteritems():
 
-            for single_entrata in entrate_list:
-                voce_entrata_dict['series'].append([single_entrata['anno'], single_entrata['valore']])
+            # sets data label
+            value_dict = dict(label = main_value_label, series = [], total = False)
 
-                if single_entrata['anno'] == main_bilancio_year:
-                    voce_entrata_dict['value'] = single_entrata['valore']
-                    voce_entrata_dict['procapite'] = single_entrata['valore_procapite']
+            # if the value considered is a total value then sets the appropriate flag
+            if main_value_label == totale_label:
+                value_dict['total'] = True
+
+            # unpacks year values for the considered voice of entrate/spese
+            for index, single_value in enumerate(main_value_set):
+
+                value_dict['series'].append([single_value['anno'], single_value['valore']])
+
+                if single_value['anno'] == main_bilancio_year:
+                    value_dict['value'] = single_value['valore']
+                    value_dict['procapite'] = single_value['valore_procapite']
 
                     #calculate the % of variation between main_bilancio and comparison bilancio
                     # todo: what to do when a value passes from 0 to N?
                     variation = 0
-                    if comparison_entrate_dict[entrate_voce_denominazione]['valore'] != 0:
-                        variation = ((single_entrata['valore']-comparison_entrate_dict[entrate_voce_denominazione]['valore'])/(1.0*comparison_entrate_dict[entrate_voce_denominazione]['valore']))*100.0
-                    voce_entrata_dict['variation'] = variation
+                    comparison_value = comparison_values_regroup[main_value_label]['valore']
+                    if comparison_value != 0:
+                        variation = ((single_value['valore']-comparison_value)/(1.0*comparison_value))*100.0
 
-            composition_data.append(voce_entrata_dict)
+                    value_dict['variation'] = variation
+
+            composition_data.append(value_dict)
 
         return composition_data
 
@@ -327,23 +328,15 @@ class BilancioCompositionWidgetView(TemplateView):
             comparison_bilancio_year = main_bilancio_year
 
 
-        # gets the Bilancio value set to construct the data
-        entrate_main_totale_pk = Voce.objects.get(slug=entrate_slug[main_bilancio_type]).pk
-        entrate_main_pk = Voce.objects.get(slug=entrate_slug[main_bilancio_type]).get_children().values('pk')
-        spese_main_pk = Voce.objects.get(slug=spese_slug[main_bilancio_type]).get_children().values('pk')
-        
-        entrate_comparison_pk = Voce.objects.get(slug=entrate_slug[comparison_bilancio_type]).get_children().values('pk')
-        spese_main_totale_pk = Voce.objects.get(slug=spese_slug[main_bilancio_type]).pk
-        spese_comparison_pk = Voce.objects.get(slug=spese_slug[comparison_bilancio_type]).get_children().values('pk')
-
         composition_data['entrate']=[]
         composition_data['spese']=[]
         composition_data['widget1']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
         composition_data['widget2']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
         composition_data['widget3']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
 
-        composition_data['entrate'] = self.create_composition_data(entrate_main_totale_pk, entrate_main_pk, main_bilancio_year, entrate_comparison_pk, comparison_bilancio_year)
-        composition_data['spese'] = self.create_composition_data(spese_main_totale_pk, spese_main_pk, main_bilancio_year, spese_comparison_pk, comparison_bilancio_year)
+        composition_data['entrate'] = self.create_composition_data(main_bilancio_year, entrate_slug[main_bilancio_type],comparison_bilancio_year, entrate_slug[comparison_bilancio_type])
+        composition_data['spese'] = self.create_composition_data(main_bilancio_year,spese_slug[main_bilancio_type] , comparison_bilancio_year, spese_slug[comparison_bilancio_type])
+
         context['composition_data']=json.dumps(composition_data)
 
         return context
