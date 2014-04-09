@@ -167,84 +167,86 @@ class Command(BaseCommand):
 
                 couchdb_dest.save(destination_document)
 
-        for city in cities:
-            for year in years:
+        if cities and years:
 
-                doc_id = u"{0}_{1}".format(year, city)
+            for city in cities:
+                for year in years:
 
-                if doc_id in couchdb_dest and skip_existing:
-                    self.logger.info("Skipping city of {}, as already existing".format(city))
-                    continue
+                    doc_id = u"{0}_{1}".format(year, city)
 
-                # identify source document or skip
-                source_document = couchdb_source.get(doc_id)
-                if source_document is None:
-                    self.logger.warning("{0} doc_id not found in source db. skipping.".format(doc_id))
-                    continue
+                    if doc_id in couchdb_dest and skip_existing:
+                        self.logger.info("Skipping city of {}, as already existing".format(city))
+                        continue
 
-                # create destination document, to REPLACE old one
-                destination_document = {'_id': doc_id}
+                    # identify source document or skip
+                    source_document = couchdb_source.get(doc_id)
+                    if source_document is None:
+                        self.logger.warning("{0} doc_id not found in source db. skipping.".format(doc_id))
+                        continue
 
-                for bilancio_name in ['preventivo', 'consuntivo']:
-                    if bilancio_name in source_document.keys():
-                        bilancio_object = source_document[bilancio_name]
-                        destination_document[bilancio_name] = {}
+                    # create destination document, to REPLACE old one
+                    destination_document = {'_id': doc_id}
 
-                        for quadro_name, quadro_object in bilancio_object.iteritems():
-                            destination_document[bilancio_name][quadro_name] = {}
+                    for bilancio_name in ['preventivo', 'consuntivo']:
+                        if bilancio_name in source_document.keys():
+                            bilancio_object = source_document[bilancio_name]
+                            destination_document[bilancio_name] = {}
 
-                            for titolo_name, titolo_object in quadro_object.iteritems():
+                            for quadro_name, quadro_object in bilancio_object.iteritems():
+                                destination_document[bilancio_name][quadro_name] = {}
 
-                                if translation_type == 't':
-                                    # for each titolo, apply translation_map, if valid
-                                    try:
-                                        idx = [row[2] for row in normalized_map[bilancio_name]].index(titolo_name)
-                                        titolo_name = normalized_map[bilancio_name][idx][3]
-                                    except ValueError:
-                                        pass
+                                for titolo_name, titolo_object in quadro_object.iteritems():
 
-                                # create dest doc titolo dictionary
-                                destination_document[bilancio_name][quadro_name][titolo_name] = {}
+                                    if translation_type == 't':
+                                        # for each titolo, apply translation_map, if valid
+                                        try:
+                                            idx = [row[2] for row in normalized_map[bilancio_name]].index(titolo_name)
+                                            titolo_name = normalized_map[bilancio_name][idx][3]
+                                        except ValueError:
+                                            pass
 
-                                # copy meta
-                                if 'meta' in titolo_object.keys():
-                                    destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = {}
-                                    destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = titolo_object['meta']
+                                    # create dest doc titolo dictionary
+                                    destination_document[bilancio_name][quadro_name][titolo_name] = {}
 
-                                # copy data (normalize voci if needed)
-                                if 'data' in titolo_object.keys():
-                                    destination_document[bilancio_name][quadro_name][titolo_name]['data'] = {}
+                                    # copy meta
+                                    if 'meta' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = {}
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = titolo_object['meta']
 
-                                    if translation_type == 'v':
-                                        # voci translation
-                                        for voce_name, voce_obj in titolo_object['data'].iteritems():
-                                            # voci are always translated into lowercase, unicode strings
-                                            # trailing dash is removed, if present
-                                            voce_name = unicode(voce_name.lower())
-                                            if voce_name.find("- ") == 0:
-                                                voce_name = voce_name.replace("- ","")
+                                    # copy data (normalize voci if needed)
+                                    if 'data' in titolo_object.keys():
+                                        destination_document[bilancio_name][quadro_name][titolo_name]['data'] = {}
 
-                                            # for each voce, apply translation_map, if valid
-                                            try:
-                                                idx = [row[3] for row in normalized_map[bilancio_name]].index(voce_name)
-                                                voce_name = normalized_map[bilancio_name][idx][4]
-                                            except ValueError:
-                                                pass
+                                        if translation_type == 'v':
+                                            # voci translation
+                                            for voce_name, voce_obj in titolo_object['data'].iteritems():
+                                                # voci are always translated into lowercase, unicode strings
+                                                # trailing dash is removed, if present
+                                                voce_name = unicode(voce_name.lower())
+                                                if voce_name.find("- ") == 0:
+                                                    voce_name = voce_name.replace("- ","")
 
-                                            # create voice dictionary with normalized name
-                                            destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = {}
-                                            destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = voce_obj
+                                                # for each voce, apply translation_map, if valid
+                                                try:
+                                                    idx = [row[3] for row in normalized_map[bilancio_name]].index(voce_name)
+                                                    voce_name = normalized_map[bilancio_name][idx][4]
+                                                except ValueError:
+                                                    pass
 
-                                    else:
-                                        # copy all voci in data, with no normalization
-                                        destination_document[bilancio_name][quadro_name][titolo_name]['data'] = titolo_object['data']
+                                                # create voice dictionary with normalized name
+                                                destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = {}
+                                                destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = voce_obj
+
+                                        else:
+                                            # copy all voci in data, with no normalization
+                                            destination_document[bilancio_name][quadro_name][titolo_name]['data'] = titolo_object['data']
 
 
-                # overwrite detination document
-                if doc_id in couchdb_dest:
-                    couchdb_dest.delete(couchdb_dest[doc_id])
-                couchdb_dest[doc_id] = destination_document
-                self.logger.info(u"Document {} updated".format(doc_id))
+                    # overwrite detination document
+                    if doc_id in couchdb_dest:
+                        couchdb_dest.delete(couchdb_dest[doc_id])
+                    couchdb_dest[doc_id] = destination_document
+                    self.logger.info(u"Document {} updated".format(doc_id))
 
 
 
