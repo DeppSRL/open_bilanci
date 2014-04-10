@@ -236,21 +236,22 @@ class BilancioCompositionWidgetView(TemplateView):
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
 
-        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione']
+        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
         main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione']
+        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
         comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
 
 
         # insert all the children values in the data struct
-        for main_value_label, main_value_set in main_values_regroup.iteritems():
+        for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # sets data label
-            value_dict = dict(label = main_value_label, series = [], total = False)
+            label = main_value_denominazione.replace(' ',' @')
+            value_dict = dict(label = label, series = [], total = False)
 
             # if the value considered is a total value then sets the appropriate flag
-            if main_value_label == totale_label:
+            if main_value_denominazione == totale_label:
                 value_dict['total'] = True
 
             # unpacks year values for the considered voice of entrate/spese
@@ -263,20 +264,26 @@ class BilancioCompositionWidgetView(TemplateView):
                     value_dict['procapite'] = single_value['valore_procapite']
 
                     #calculate the % of variation between main_bilancio and comparison bilancio
-                    # todo: what to do when a value passes from 0 to N?
-                    variation = 0
-                    comparison_value = comparison_values_regroup[main_value_label]['valore']
-                    if comparison_value != 0:
-                        variation = ((single_value['valore']-comparison_value)/(1.0*comparison_value))*100.0
 
-                    value_dict['variation'] = variation
+                    variation = 0
+                    comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
+                    if comparison_value != 0:
+                        single_value = float(single_value['valore'])
+                        variation = ((single_value-comparison_value)/ comparison_value)*100.0
+                    else:
+                        # todo: what to do when a value passes from 0 to N?
+                        variation = 999.0
+
+                    # sets 2 digit precision for variation after decimal point
+
+                    value_dict['variation'] = round(variation,2)
 
             composition_data.append(value_dict)
 
         return composition_data
 
 
-    def get_context_data(self, type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
+    def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
 
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
 
@@ -289,9 +296,6 @@ class BilancioCompositionWidgetView(TemplateView):
 
         # composition data is the data struct to be passed to the context
         composition_data = {'hover': True, 'showLabels':True}
-
-
-        widget_type = type
 
         entrate_slug = {
             'preventivo': 'preventivo-entrate',
