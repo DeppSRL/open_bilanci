@@ -115,10 +115,10 @@ class EntrateBudgetMixin(object):
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e.message)
+                self._emit_warning(e)
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e.message)
+                self._emit_debug(e)
                 continue
 
             ret += val
@@ -188,10 +188,10 @@ class SpeseBudgetMixin(object):
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e.message)
+                self._emit_warning(e)
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e.message)
+                self._emit_debug(e)
                 continue
 
 

@@ -139,7 +139,7 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
-        self.logger.info("Connecting to source destination: {0}".format(couchdb_dest_name))
+        self.logger.info("Connecting to destination db: {0}".format(couchdb_dest_name))
         couchdb_dest = couch.connect(
             couchdb_dest_name,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
