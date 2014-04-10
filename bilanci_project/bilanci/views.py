@@ -244,13 +244,14 @@ class BilancioCompositionWidgetView(TemplateView):
 
 
         # insert all the children values in the data struct
-        for main_value_label, main_value_set in main_values_regroup.iteritems():
+        for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # sets data label
-            value_dict = dict(label = main_value_label, series = [], total = False)
+            label = main_value_denominazione.replace(' ',' @')
+            value_dict = dict(label = label, series = [], total = False)
 
             # if the value considered is a total value then sets the appropriate flag
-            if main_value_label == totale_label:
+            if main_value_denominazione == totale_label:
                 value_dict['total'] = True
 
             # unpacks year values for the considered voice of entrate/spese
@@ -265,7 +266,7 @@ class BilancioCompositionWidgetView(TemplateView):
                     #calculate the % of variation between main_bilancio and comparison bilancio
 
                     variation = 0
-                    comparison_value = float(comparison_values_regroup[main_value_label]['valore'])
+                    comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
                     if comparison_value != 0:
                         single_value = float(single_value['valore'])
                         variation = ((single_value-comparison_value)/ comparison_value)*100.0
