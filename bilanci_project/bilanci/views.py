@@ -236,10 +236,10 @@ class BilancioCompositionWidgetView(TemplateView):
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
 
-        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione']
+        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
         main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione']
+        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
         comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
 
 
