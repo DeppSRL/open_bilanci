@@ -1,7 +1,7 @@
 from django.utils.text import slugify
 import math
 from bilanci.tree_dict_models import deep_sum
-from bilanci.utils import couch
+from bilanci.utils import couch, nearly_equal
 from bilanci.utils.comuni import FLMapper
 
 from django.test import TestCase
@@ -371,4 +371,4 @@ class Command(BaseCommand, TestCase):
         """
         Return true if the numbers are equals or close matches
         """
-        return (a==b or math.fabs(a-b) <= settings.NEARLY_EQUAL_TRESHOLD)
+        return nearly_equal(a, b, threshold=settings.NEARLY_EQUAL_THRESHOLD)

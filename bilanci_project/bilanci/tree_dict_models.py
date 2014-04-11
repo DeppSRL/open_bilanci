@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from bilanci.utils import nearly_equal
 
 __author__ = 'guglielmo'
 
@@ -540,6 +541,22 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
                 bc.insert(1, section_name)
                 # add the leaf to the tree, with the computed value
                 self.add_leaf(bc, value)
+
+
+            # HACK
+            # compute and add the 'Altro' leaf in the funzioni subtotals
+            # when there is a substantial difference between the total and the sum
+            for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
+                funzioni = self['SPESE'][section_name][tipo_spese]['funzioni']
+                for funzione, subtotals in funzioni.items():
+                    if isinstance(subtotals, OrderedDict) and 'TOTALE' in subtotals:
+                        remainder = subtotals['TOTALE'] - sum(v for k,v in subtotals.items() if k != 'TOTALE')
+                        if remainder:
+                            altro_bc = ('SPESE', section_name, tipo_spese, 'funzioni', funzione, 'Altro')
+                            self.add_leaf(altro_bc, remainder)
+
+
+
 
         # create the Cassa section of the tree,
         # by recursively adding two other branches

@@ -408,4 +408,4 @@ CLUSTER_LINE_COLOR = '#f7b5a1'
 # euros range to define two sums equal
 # due to round of floats to integers,
 # can be as large as 10
-NEARLY_EQUAL_TRESHOLD = 10
+NEARLY_EQUAL_THRESHOLD = 10
