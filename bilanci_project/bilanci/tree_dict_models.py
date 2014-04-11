@@ -551,10 +551,18 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
                 for funzione, subtotals in funzioni.items():
                     if isinstance(subtotals, OrderedDict) and 'TOTALE' in subtotals:
                         remainder = subtotals['TOTALE'] - sum(v for k,v in subtotals.items() if k != 'TOTALE')
-                        if remainder:
+                        if remainder > 0:
                             altro_bc = ('SPESE', section_name, tipo_spese, 'funzioni', funzione, 'Altro')
                             self.add_leaf(altro_bc, remainder)
 
+                            # warn if remainder is greater than 50% of the total
+                            if remainder/float(subtotals['TOTALE']) > 0.5:
+                                self.logger.warning(
+                                    "/".join(altro_bc) +
+                                    ": altro {0:.0f}% of {1}".format(
+                                        (100.*remainder/float(subtotals['TOTALE'])), subtotals['TOTALE']
+                                    )
+                                )
 
 
 
