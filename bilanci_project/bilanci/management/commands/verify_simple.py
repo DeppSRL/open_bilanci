@@ -1,3 +1,6 @@
+from django.utils.text import slugify
+import math
+from bilanci.tree_dict_models import deep_sum
 from bilanci.utils import couch
 from bilanci.utils.comuni import FLMapper
 
@@ -63,7 +66,7 @@ class Command(BaseCommand, TestCase):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year)+1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
+            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -251,12 +254,25 @@ class Command(BaseCommand, TestCase):
                 norm_doc = norm_db[norm_doc_id]
                 simple_doc = simple_db[simple_doc_id]
 
+                # preventivo tests
                 if len(simple_doc[str(year)]['preventivo'].keys()) > 0:
                     self.test_totali(totali_preventivo_entrate, simple_doc, norm_doc, year)
 
+                    for tipo_spese in (u'Spese correnti', u'Spese per investimenti'):
+                        node = simple_doc[str(year)]['preventivo']['SPESE'][tipo_spese]
+                        label = u"/Preventivo/{0}".format(tipo_spese)
+                        self.test_totale_funzioni_interventi(label, node, year)
+
+                # consuntivo tests
                 if len(simple_doc[str(year)]['consuntivo'].keys()) > 0:
                     self.test_totali(totali_consuntivo_entrate, simple_doc, norm_doc, year)
                     self.test_totali(totali_consuntivo_spese, simple_doc, norm_doc, year)
+                    for section_name in spese_sections.keys():
+                        for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
+                            node = simple_doc[str(year)]['consuntivo']['SPESE'][section_name][tipo_spese]
+                            label = u"/Consuntivo/{0}/{1}".format(section_name, tipo_spese)
+                            self.test_totale_funzioni_interventi(label, node, year)
+
 
 
     ###
@@ -321,3 +337,38 @@ class Command(BaseCommand, TestCase):
                         tot_norm, tot['norm'],
                         tot_simp, tot['simp'],
                     ))
+
+
+    ###
+    # sum of funzioni, interventi and the explicit totals in
+    # the simplified tree are compared
+    ###
+    def test_totale_funzioni_interventi(self, simple_tree_label, simple_tree_node, year):
+
+        totale = simple_tree_node['TOTALE']
+        somma_funzioni = deep_sum(simple_tree_node['funzioni'])
+        somma_interventi = deep_sum(simple_tree_node['interventi'])
+
+        if self.nearly_equal(totale, somma_interventi) and \
+           self.nearly_equal(totale, somma_funzioni):
+            self.logger.debug(u"node: {0}. OK. totale: {1}".format(
+                simple_tree_label, totale
+            ))
+        else:
+            self.logger.warning(u"\nnode: {0}. NOT OK.\n  totale:\t\t {1}\n  somma_funzioni:\t {2}\n  somma_interventi:\t {3}".format(
+                simple_tree_label, totale, somma_funzioni, somma_interventi
+            ))
+
+            # dump non-matching details to logger
+            if not self.nearly_equal(totale, somma_funzioni):
+                _ = deep_sum(simple_tree_node['funzioni'], logger=self.logger)
+            if not self.nearly_equal(totale, somma_interventi):
+                _ = deep_sum(simple_tree_node['interventi'], logger=self.logger)
+
+
+
+    def nearly_equal(self, a, b):
+        """
+        Return true if the numbers are equals or close matches
+        """
+        return (a==b or math.fabs(a-b) <= settings.NEARLY_EQUAL_TRESHOLD)

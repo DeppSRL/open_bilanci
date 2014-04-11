@@ -30,7 +30,7 @@ def subtree_sum(a, b):
         return c
 
 
-def deep_sum(node, exclude='totale'):
+def deep_sum(node, exclude='totale', logger=None, level=0):
     """
     Recursive function to generate the sum of all descending leaves of a node
 
@@ -42,10 +42,21 @@ def deep_sum(node, exclude='totale'):
         return node
     else:
         s = 0
+        level += 1
         for k, v in node.items():
+            if logger:
+                if (isinstance(v, int) or isinstance(v, long)):
+                    logger.info(u"{0}node: {1} => {2}".format(level * "-", k, v))
+                else:
+                    logger.info(u"{0}node: {1} => *".format(level * "-", k))
+
             if k.lower() == exclude.lower():
                 continue
-            s += deep_sum(v, exclude=exclude)
+            s += deep_sum(v, exclude=exclude, logger=logger, level=level)
+
+        if logger:
+            logger.info(u"{0}::::{1}:::::".format(level * "-", s))
+
         return s
 
 
@@ -315,15 +326,25 @@ class BudgetTreeDict(OrderedDict):
 
         # value extraction (or computation)
         if interventi_matches:
-            # value is the sum of the matching interventi's
+            # interventi_matches being not null signals
+            # that the value must be computed for an interventi node
             ret = 0
-            for interventi_match in interventi_matches:
-                try:
-                    col_idx = normalized_voce_columns.index(interventi_match)
+            if len(normalized_voce_columns) == 1 and 'Dati' in normalized_voce_columns:
+                # 2003-2007: budgets have a simple data structure
+                col_idx = -1
+                ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+            else:
+                # 2008-*: budgets
+                # value is the sum of the matching interventi
+                for interventi_match in interventi_matches:
+                    try:
+                        col_idx = normalized_voce_columns.index(interventi_match)
+                    except ValueError:
+                        continue
                     ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
-                except ValueError:
-                    continue
         else:
+            # value computed for a function or other sections
+            #
             # if the column index is not specified, fetch the last value
             # - when there is more than one column, the last value is usually the total
             # - when there is only one value, that's the last one, too
