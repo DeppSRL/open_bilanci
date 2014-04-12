@@ -235,6 +235,29 @@ class Command(BaseCommand, TestCase):
         ])
 
 
+        somme_consuntivo_nodes = []
+        for section_name in entrate_sections.keys():
+            somme_consuntivo_nodes.extend([
+                ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse'),
+                ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse', 'Imposte'),
+                ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse', 'Tasse'),
+                ('consuntivo', 'ENTRATE', section_name, 'Contributi pubblici'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Servizi pubblici'),
+                ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Proventi di beni dell\'ente'),
+                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali'),
+                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali', 'Trasferimenti di capitali da privati'),
+            ])
+
+        somme_preventivo_nodes = [
+            ('preventivo', 'ENTRATE', 'Imposte e tasse'),
+            ('preventivo', 'ENTRATE', 'Imposte e tasse', 'Imposte'),
+            ('preventivo', 'ENTRATE', 'Imposte e tasse', 'Tasse'),
+            ('preventivo', 'ENTRATE', 'Contributi pubblici'),
+            ('preventivo', 'ENTRATE', 'Entrate extratributarie'),
+            ('preventivo', 'ENTRATE', 'Vendite e trasferimenti di capitali'),
+        ]
+
         for city in cities:
 
             for year in years:
@@ -256,22 +279,35 @@ class Command(BaseCommand, TestCase):
 
                 # preventivo tests
                 if len(simple_doc[str(year)]['preventivo'].keys()) > 0:
+                    self.logger.debug("::::: Testing first level totals for preventivo entrate")
                     self.test_totali(totali_preventivo_entrate, simple_doc, norm_doc, year)
 
+                    self.logger.debug("::::: Testing totale - funzioni - interventi for preventivo/spese")
                     for tipo_spese in (u'Spese correnti', u'Spese per investimenti'):
                         node = simple_doc[str(year)]['preventivo']['SPESE'][tipo_spese]
                         label = u"/Preventivo/{0}".format(tipo_spese)
                         self.test_totale_funzioni_interventi(label, node, year)
 
+                    self.logger.debug("::::: Testing inner sums for preventivo entrate")
+                    self.test_somme(somme_preventivo_nodes, simple_doc, year)
+
                 # consuntivo tests
                 if len(simple_doc[str(year)]['consuntivo'].keys()) > 0:
+                    self.logger.debug("::::: Testing first level totals for consuntivo entrate")
                     self.test_totali(totali_consuntivo_entrate, simple_doc, norm_doc, year)
+
+                    self.logger.debug("::::: Testing first level totals for consuntivo spese")
                     self.test_totali(totali_consuntivo_spese, simple_doc, norm_doc, year)
+
+                    self.logger.debug("::::: Testing totale - funzioni - interventi for consuntivo/spese")
                     for section_name in spese_sections.keys():
                         for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
                             node = simple_doc[str(year)]['consuntivo']['SPESE'][section_name][tipo_spese]
                             label = u"/Consuntivo/{0}/{1}".format(section_name, tipo_spese)
                             self.test_totale_funzioni_interventi(label, node, year)
+
+                    self.logger.debug("::::: Testing inner sums for consuntivo entrate")
+                    self.test_somme(somme_consuntivo_nodes, simple_doc, year)
 
 
 
@@ -295,7 +331,6 @@ class Command(BaseCommand, TestCase):
         totals for 1st level sections of the preventivo/entrate in the normalized tree (quadro 2)
         are compared with the corresponding values in the simplified tree
         """
-
         for tot in totali:
             # extract year section from the simple doc (simple docs contain all years)
             tot_simp = simple_doc[str(year)]
@@ -344,7 +379,6 @@ class Command(BaseCommand, TestCase):
     # the simplified tree are compared
     ###
     def test_totale_funzioni_interventi(self, simple_tree_label, simple_tree_node, year):
-
         totale = simple_tree_node['TOTALE']
         somma_funzioni = deep_sum(simple_tree_node['funzioni'])
         somma_interventi = deep_sum(simple_tree_node['interventi'])
@@ -364,6 +398,44 @@ class Command(BaseCommand, TestCase):
                 _ = deep_sum(simple_tree_node['funzioni'], logger=self.logger)
             if not self.nearly_equal(totale, somma_interventi):
                 _ = deep_sum(simple_tree_node['interventi'], logger=self.logger)
+
+
+
+    ###
+    # first level explicit totals and sums of underlying sections
+    # in the simplified tree are compared (consistency test)
+    ###
+    def test_somme(self, nodes, simple_doc, year):
+        """
+        Tests the sum of sections of the tree, against the totals.
+        This verifies the consistency of the simplified tree,
+        and, indirectly, the completeness and correctness of the
+        data fetched from the normalized tree.
+        """
+        test_results = OrderedDict()
+        for node in nodes:
+            node_path = u"/{0}/../{1}".format(node[0], node[-1])
+            simp = simple_doc[str(year)]
+            for t in node:
+                simp = simp[t]
+
+            somma = deep_sum(simp)
+            totale = simp['TOTALE']
+
+            test_results[node[-1]] = (totale == somma)
+
+            if self.nearly_equal(totale, somma):
+                self.logger.debug(u"node: {0}. OK. totale: {1}".format(
+                    node_path, totale
+                ))
+            else:
+                self.logger.warning(u"node: {0}. NOT OK. totale: {1}. somma: {2}".format(
+                    node_path, totale, somma
+                ))
+
+                # dump non-matching details to logger
+                if not self.nearly_equal(totale, somma):
+                    _ = deep_sum(simp, logger=self.logger)
 
 
 
