@@ -2,7 +2,7 @@ from django.contrib.gis import admin
 from .models import Territorio, Contesto
 
 class TerritorioAdmin(admin.OSMGeoAdmin):
-    list_filter = ('territorio',)
+    list_filter = ('territorio','cluster')
     search_fields = ('denominazione',)
     prepopulated_fields = {"slug": ("denominazione",)}
 

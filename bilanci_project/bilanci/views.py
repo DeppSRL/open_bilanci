@@ -43,14 +43,14 @@ class IncarichiGetterMixin(object):
                 'highlightColor': highlight_color,
             }
 
-            if incarico.is_commissario:
+            if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
                 dict_widget['icon'] = None
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else :
-                # sindaci
+                # sindaci / vicesindaco ff
 
                 # sets sindaco name, surname
                 dict_widget['label'] = "{0}.{1}".\
@@ -156,7 +156,6 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
             voce_bilancio = get_object_or_404(Voce, slug = voce_slug)
         else:
             return
-
 
 
         incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)

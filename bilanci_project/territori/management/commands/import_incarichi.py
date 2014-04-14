@@ -79,17 +79,18 @@ class Command(BaseCommand):
         self.logger.info(u"End import charges script")
 
 
-    def get_incarichi_api(self, territorio_opid, incarico_type):
+    def get_incarichi_api(self, territorio_opid):
 
+        # get incarichi from politici/city_mayors
         api_results_json = requests.get(
-            settings.OP_API_HOST +"/politici/instcharges?charge_type_id={0}&location_id={1}&order_by=date".\
-                format(incarico_type, territorio_opid)
+            settings.OP_API_HOST +"/politici/city_mayors/{0}/".\
+                format(territorio_opid)
             ).json()
 
-        if 'results' not in api_results_json:
-            return None
+        if 'sindaci' not in api_results_json:
+            return []
 
-        return api_results_json['results']
+        return api_results_json['sindaci']
 
 
     def incarichi_date_check(self, incarichi_set):
@@ -163,58 +164,63 @@ class Command(BaseCommand):
     def get_incarichi(self, territori_set, dryrun):
 
         for territorio in territori_set:
+            self.logger.info('Getting incarichi for territorio:{0},opid: {1}'.format(territorio,territorio.op_id))
+            # get incarichi for territorio
+            incarichi_api_results = self.get_incarichi_api(territorio.op_id)
 
-            # get incarichi for sindaco
-            sindaci_api_results = self.get_incarichi_api(territorio.op_id, "14")
+            # check for data integrity
 
-            # get incarichi for commissario
-            commissari_api_results = self.get_incarichi_api(territorio.op_id, "16")
-
-            # unite data and check for data integrity
-            api_results = sindaci_api_results
-            api_results.extend(commissari_api_results)
-
-            if len(api_results) == 0:
+            if len(incarichi_api_results) == 0:
                 self.logger.warning('Incarichi missing for {0}'.format(unidecode(territorio.denominazione)).upper())
                 return
 
             # if data is ok transform data format to fit Visup widget specs
-            date_check, incarichi_set = self.incarichi_date_check(api_results)
+            date_check, incarichi_set = self.incarichi_date_check(incarichi_api_results)
 
             if date_check:
 
                 for incarico_dict in incarichi_set:
                     if not dryrun:
-                        is_commissario = False
-                        if incarico_dict['charge_type'] == settings.OP_API_HOST + '/politici/chargetypes/16':
-                            is_commissario =  True
 
-                        # save incarico
+                        tipologia = ''
+                        if incarico_dict['charge_type'] == "Sindaco":
+                            tipologia = Incarico.TIPOLOGIA.sindaco
+                        elif incarico_dict['charge_type'] == "Commissario":
+                            tipologia = Incarico.TIPOLOGIA.commissario
+                        elif incarico_dict['charge_type'] == "Vicesindaco f.f.":
+                            tipologia = Incarico.TIPOLOGIA.vicesindaco_ff
+
+                        if tipologia == '':
+                            self.logger.error(u"Incarico charge_type not accepted: {0} for {1}".\
+                                format(incarico_dict['charge_type'], self.format_incarico(incarico_dict)))
+
 
                         #looks for existing incarico, if exists: pass, else creates
-
                         party_acronym = None
-                        if incarico_dict['party']['acronym']:
-                            party_acronym = incarico_dict['party']['acronym'].upper()
-
                         party_name = None
-                        if incarico_dict['party']['name']:
-                            party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper(),
+
+                        if tipologia != Incarico.TIPOLOGIA.commissario:
+
+                            if 'party_acronym' in incarico_dict:
+                                party_acronym = incarico_dict['party_acronym'].upper()
+
+                            if 'party_name' in incarico_dict:
+                                party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party_name']).upper()
 
                         try:
                             incarico = Incarico.objects.get(
-                                nome__iexact = incarico_dict['politician']['first_name'],
-                                cognome__iexact = incarico_dict['politician']['last_name'],
+                                nome__iexact = incarico_dict['first_name'],
+                                cognome__iexact = incarico_dict['last_name'],
                                 data_inizio = incarico_dict['date_start'],
                                 data_fine = incarico_dict['date_end'],
                                 territorio = territorio,
-                                is_commissario = is_commissario,
+                                tipologia = tipologia,
                                 party_acronym = party_acronym,
                                 party_name = party_name,
                             )
                         except ObjectDoesNotExist:
                             # self.logger.info(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
-                            self.create_incarico(incarico_dict, territorio, is_commissario)
+                            self.create_incarico(incarico_dict, territorio, tipologia)
 
             else:
                 self.logger.warning("TERRITORIO: {0} OVERLAPPING INCARICHI:".format(unidecode(territorio.denominazione.upper())))
@@ -230,24 +236,28 @@ class Command(BaseCommand):
 
     def format_incarico(self,incarico_dict):
 
-        return "{0}.{1} OPID: {2} - ({3} - {4})".\
-                        format(
-                            unidecode(incarico_dict['politician']['first_name'][0].title()),
-                            unidecode(incarico_dict['politician']['last_name'].title()),
-                            incarico_dict['politician']['self'].replace(settings.OP_API_HOST+'/politici/politicians/',''),
-                            datetime.strftime(incarico_dict['date_start'], self.date_fmt ),
-                            datetime.strftime(incarico_dict['date_end'], self.date_fmt ),
+        date_start = datetime.strftime(incarico_dict['date_start'], self.date_fmt)
+        date_end = datetime.strftime(incarico_dict['date_end'], self.date_fmt)
+        opid = re.search(r'^.*/([0-9]+)$', incarico_dict['op_link']).groups()[0]
 
+
+        return "{0}.{1} - {2} ({3} - {4})".\
+                        format(
+                            unidecode(incarico_dict['first_name'][0].title()),
+                            unidecode(incarico_dict['last_name'].title()),
+                            opid,
+                            date_start,
+                            date_end
                         )
 
 
-    def create_incarico(self, incarico_dict, territorio, is_commissario):
+    def create_incarico(self, incarico_dict, territorio, tipologia):
 
         incarico = Incarico()
-        incarico.nome = incarico_dict['politician']['first_name']
-        incarico.cognome = incarico_dict['politician']['last_name']
+        incarico.nome = incarico_dict['first_name']
+        incarico.cognome = incarico_dict['last_name']
         incarico.territorio = territorio
-        incarico.is_commissario = is_commissario
+        incarico.tipologia = tipologia
         incarico.data_inizio = incarico_dict['date_start']
         incarico.data_fine = incarico_dict['date_end']
 
@@ -255,11 +265,14 @@ class Command(BaseCommand):
         if 'description' in incarico_dict.keys():
             incarico.motivo_commissariamento = incarico_dict['description']
 
-        if incarico_dict['party']['acronym']:
-            incarico.party_acronym = incarico_dict['party']['acronym'].upper()
+        if 'party_acronym' in incarico_dict:
+            incarico.party_acronym = incarico_dict['party_acronym'][:50].upper()
 
-        if incarico_dict['party']['name'] and incarico_dict['party']['name'].lower() != 'non specificato':
-            incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party']['name']).upper()
+        if 'party_name' in incarico_dict:
+            if incarico_dict['party_name'].lower() != 'non specificato':
+                incarico.party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party_name']).upper()
+
+
 
         incarico.save()
 
@@ -304,11 +317,11 @@ class Command(BaseCommand):
         # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
 
-        if territori_type == 'all' or territori_type == 'capoluoghi':
+        if territori_type != 'others':
             self.get_incarichi(capoluoghi_provincia, dryrun)
             self.get_incarichi(altri_capoluoghi, dryrun)
 
-        if territori_type =='all' or territori_type == 'others':
+        if territori_type !='capoluoghi':
             self.get_incarichi(altri_territori, dryrun)
 
 

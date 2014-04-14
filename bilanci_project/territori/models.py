@@ -256,14 +256,19 @@ class Incarico(models.Model):
     # Caches the Incarico data from Open Politici API for each Territorio
     ##
 
+    TIPOLOGIA = Choices(
+        (u'1',u"sindaco", u'Sindaco'),
+        (u'2', u"commissario", u'Commissario'),
+        (u'3', u"vicesindaco_ff", u'Vicesindaco f.f.'),
+        )
+
     territorio = models.ForeignKey(Territorio, null=False, default=0)
 
     data_inizio = models.DateField(null=False,)
     data_fine = models.DateField(null=True, default=0)
-
+    tipologia = models.CharField(max_length=1, choices=TIPOLOGIA, db_index=True)
     nome = models.CharField(max_length=50, blank=True, null=True)
     cognome = models.CharField(max_length=80, blank=True, null=True)
-    is_commissario = models.BooleanField(default=False)
     motivo_commissariamento = models.CharField(max_length=500, blank=True, null=True)
     party_name = models.CharField(max_length=100, blank=True, null=True)
     party_acronym = models.CharField(max_length=50, blank=True, null=True)
