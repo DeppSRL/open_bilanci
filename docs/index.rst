@@ -13,6 +13,7 @@ Contents:
 
    install
    data
+   simplify
    ai
    elements
    templates

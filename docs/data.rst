@@ -228,7 +228,7 @@ the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`
   .. code-block:: bash
 
 
-    # browse to the view and wait for view generation to finisc (status)
+    # browse to the view and wait for view generation to finish (status)
 
     # save views to json files (may take time, if launched for the first time)
     curl -o output/voci_consuntivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
@@ -265,7 +265,7 @@ the unique warnings with the help of awk:
     grep WARNING ../log/import_logfile | grep "No matching" | awk '{for (i=5; i<NF; i++) printf $i " "; print $NF}' | sort | uniq
 
 
-
+See details of the inner workings in the ``simplify`` task :ref:`here <simplify>`.
 
 Conversion to relational database
 ---------------------------------
