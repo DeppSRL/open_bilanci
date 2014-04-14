@@ -333,7 +333,9 @@ class BudgetTreeDict(OrderedDict):
             if len(normalized_voce_columns) == 1 and 'Dati' in normalized_voce_columns:
                 # 2003-2007: budgets have a simple data structure
                 col_idx = -1
-                ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+
+                if normalized_voce[col_idx] != '':
+                    ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
             else:
                 # 2008-*: budgets
                 # value is the sum of the matching interventi
@@ -342,7 +344,8 @@ class BudgetTreeDict(OrderedDict):
                         col_idx = normalized_voce_columns.index(interventi_match)
                     except ValueError:
                         continue
-                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+                    if normalized_voce[col_idx] != '':
+                        ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
         else:
             # value computed for a function or other sections
             #
