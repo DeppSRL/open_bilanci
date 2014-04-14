@@ -365,7 +365,10 @@ class Command(BaseCommand, TestCase):
                 # transform the string representation in the normalized doc,
                 # into an integer (used in the simplified doc)
                 # so that the comparison is possible
-                tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
+                if tot_norm != '':
+                    tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
+                else:
+                    tot_norm = 0
 
                 if tot_simp != tot_norm:
                     self.logger.warning("Totals are different.\n\tnorm val:{0}, node: {1}\n\tsimp val:{2}, node: {3}".format(
