@@ -260,6 +260,10 @@ class Command(BaseCommand):
         incarico.tipologia = tipologia
         incarico.data_inizio = incarico_dict['date_start']
         incarico.data_fine = incarico_dict['date_end']
+        incarico.op_link = incarico_dict['op_link']
+
+        if 'picture_url' in incarico_dict:
+            incarico.pic_url = incarico_dict['picture_url']
 
         # motivo commissariamento
         if 'description' in incarico_dict.keys():
