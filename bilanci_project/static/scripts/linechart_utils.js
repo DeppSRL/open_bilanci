@@ -24,8 +24,8 @@ function init_main_linechart(timeline_start_year, timeline_end_year){
         },
         linechart: {
             height: 270,
-            start: 2003,
-            end: 2014,
+            start: timeline_start_year,
+            end: timeline_end_year,
             circleRadius: 9,
             axisUnit: "MILIONI",
             tooltipUnit: "MLN",

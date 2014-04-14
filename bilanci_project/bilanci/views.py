@@ -39,39 +39,43 @@ class IncarichiGetterMixin(object):
                 'end': incarico.data_fine.strftime(self.date_fmt),
 
                 # sets incarico marker color and highlight
+                'icon': settings.INCARICO_MARKER_DUMMY,
                 'color': settings.INCARICO_MARKER_INACTIVE,
                 'highlightColor': highlight_color,
             }
 
-            if incarico.is_commissario:
+            if incarico.pic_url:
+                dict_widget['icon'] = incarico.pic_url
+
+            if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
-                dict_widget['icon'] = None
                 dict_widget['label'] = "Commissariamento".upper()
                 dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
-            else :
-                # sindaci
+            else:
 
-                # sets sindaco name, surname
+                # sets sindaco / vicesindaco name, surname
                 dict_widget['label'] = "{0}.{1}".\
                     format(
                         incarico.nome[0].upper(),
                         incarico.cognome.upper().encode('utf-8'),
                     )
 
-                dict_widget['icon'] = settings.INCARICO_MARKER_DUMMY
-                if incarico.pic_url:
-                    dict_widget['icon'] = incarico.pic_url
+                if incarico.tipologia == Incarico.TIPOLOGIA.vicesindaco_ff :
+                    # vicesindaco ff
+                    dict_widget['sublabel'] = "Vicesindaco f.f.".upper()
 
-
-                # as a sublabel sets the party acronym, if it's not available then the party name is used
-                if incarico.party_acronym:
-                    dict_widget['sublabel'] = incarico.party_acronym.upper()
-                elif incarico.party_name:
-                    # removes text between parenthesis from party name
-                    dict_widget['sublabel'] = re.sub(r'\([^)]*\)', '', incarico.party_name).upper()
                 else:
-                    dict_widget['sublabel']=''
+                    # sindaci
+
+                    # as a sublabel sets the party acronym, if it's not available then the party name is used
+                    if incarico.party_acronym:
+                        dict_widget['sublabel'] = incarico.party_acronym.upper()
+                    elif incarico.party_name:
+                        # removes text between parenthesis from party name
+                        dict_widget['sublabel'] = re.sub(r'\([^)]*\)', '', incarico.party_name).upper()
+                    else:
+                        dict_widget['sublabel']=''
 
 
 
@@ -156,7 +160,6 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
             voce_bilancio = get_object_or_404(Voce, slug = voce_slug)
         else:
             return
-
 
 
         incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
