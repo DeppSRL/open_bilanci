@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from bilanci.utils import nearly_equal
 
 __author__ = 'guglielmo'
 
@@ -30,7 +31,7 @@ def subtree_sum(a, b):
         return c
 
 
-def deep_sum(node, exclude='totale'):
+def deep_sum(node, exclude='totale', logger=None, level=0):
     """
     Recursive function to generate the sum of all descending leaves of a node
 
@@ -42,10 +43,21 @@ def deep_sum(node, exclude='totale'):
         return node
     else:
         s = 0
+        level += 1
         for k, v in node.items():
+            if logger:
+                if (isinstance(v, int) or isinstance(v, long)):
+                    logger.info(u"{0}node: {1} => {2}".format(level * "-", k, v))
+                else:
+                    logger.info(u"{0}node: {1} => *".format(level * "-", k))
+
             if k.lower() == exclude.lower():
                 continue
-            s += deep_sum(v, exclude=exclude)
+            s += deep_sum(v, exclude=exclude, logger=logger, level=level)
+
+        if logger:
+            logger.info(u"{0}::::{1}:::::".format(level * "-", s))
+
         return s
 
 
@@ -115,10 +127,10 @@ class EntrateBudgetMixin(object):
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e.message)
+                self._emit_warning(e)
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e.message)
+                self._emit_debug(e)
                 continue
 
             ret += val
@@ -188,10 +200,10 @@ class SpeseBudgetMixin(object):
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e.message)
+                self._emit_warning(e)
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e.message)
+                self._emit_debug(e)
                 continue
 
 
@@ -315,15 +327,28 @@ class BudgetTreeDict(OrderedDict):
 
         # value extraction (or computation)
         if interventi_matches:
-            # value is the sum of the matching interventi's
+            # interventi_matches being not null signals
+            # that the value must be computed for an interventi node
             ret = 0
-            for interventi_match in interventi_matches:
-                try:
-                    col_idx = normalized_voce_columns.index(interventi_match)
-                    ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
-                except ValueError:
-                    continue
+            if len(normalized_voce_columns) == 1 and 'Dati' in normalized_voce_columns:
+                # 2003-2007: budgets have a simple data structure
+                col_idx = -1
+
+                if normalized_voce[col_idx] != '':
+                    ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
+            else:
+                # 2008-*: budgets
+                # value is the sum of the matching interventi
+                for interventi_match in interventi_matches:
+                    try:
+                        col_idx = normalized_voce_columns.index(interventi_match)
+                    except ValueError:
+                        continue
+                    if normalized_voce[col_idx] != '':
+                        ret += int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
         else:
+            # value computed for a function or other sections
+            #
             # if the column index is not specified, fetch the last value
             # - when there is more than one column, the last value is usually the total
             # - when there is only one value, that's the last one, too
@@ -519,6 +544,30 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
                 bc.insert(1, section_name)
                 # add the leaf to the tree, with the computed value
                 self.add_leaf(bc, value)
+
+
+            # HACK
+            # compute and add the 'Altro' leaf in the funzioni subtotals
+            # when there is a substantial difference between the total and the sum
+            for tipo_spese in ('Spese correnti', 'Spese per investimenti'):
+                funzioni = self['SPESE'][section_name][tipo_spese]['funzioni']
+                for funzione, subtotals in funzioni.items():
+                    if isinstance(subtotals, OrderedDict) and 'TOTALE' in subtotals:
+                        remainder = subtotals['TOTALE'] - sum(v for k,v in subtotals.items() if k != 'TOTALE')
+                        if remainder > 0:
+                            altro_bc = ('SPESE', section_name, tipo_spese, 'funzioni', funzione, 'Altro')
+                            self.add_leaf(altro_bc, remainder)
+
+                            # warn if remainder is greater than 50% of the total
+                            if remainder/float(subtotals['TOTALE']) > 0.5:
+                                self.logger.warning(
+                                    "/".join(altro_bc) +
+                                    ": altro {0:.0f}% of {1}".format(
+                                        (100.*remainder/float(subtotals['TOTALE'])), subtotals['TOTALE']
+                                    )
+                                )
+
+
 
         # create the Cassa section of the tree,
         # by recursively adding two other branches

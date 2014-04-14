@@ -2,6 +2,15 @@ from _csv import register_dialect, QUOTE_ALL
 import csv
 import codecs
 import cStringIO
+import math
+
+
+def nearly_equal(a, b, threshold=1):
+    """
+    Return true if the numbers are equals or close matches
+    """
+    return (a==b or math.fabs(a-b) <= threshold)
+
 
 class UTF8Recoder:
     """
