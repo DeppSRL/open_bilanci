@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.utils.module_loading import import_by_path
+from bilanci.models import Indicatore
 from bilanci.utils.comuni import FLMapper
 from  bilanci import indicators
 import logging
@@ -24,6 +25,10 @@ class Command(BaseCommand):
                     dest='cities',
                     default='',
                     help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+        make_option('--indicators',
+                    dest='indicators',
+                    default='all',
+                    help='Indicators slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
         make_option('--skip-existing',
                     dest='skip_existing',
                     action='store_true',
@@ -31,7 +36,7 @@ class Command(BaseCommand):
                     help='Skip existing documents. Use to speed up long import of many cities, when errors occur'),
     )
 
-    help = 'Compute indicators for given cities and years.'
+    help = 'Compute indicators\' values for given cities and years.'
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
@@ -50,48 +55,69 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
-
         skip_existing = options['skip_existing']
 
+        # massaging cities option and getting cities finloc codes
         cities_codes = options['cities']
         if not cities_codes:
             raise Exception("Missing city parameter")
-
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
 
-
+        # massaging years option
         years = options['years']
         if not years:
             raise Exception("Missing years parameter")
-
         if "-" in years:
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year)+1)
         else:
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
-
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
-
         self.logger.info("Processing years: {0}".format(years))
 
+        # massaging indicators option
+        indicators_slugs = options['indicators']
+        indicators_slugs = [(i.strip()) for i in indicators_slugs.split(",")]
+
+        # meta-programming
+        # using the bilanci.indicators module to read indicators and their formulas
+        # generating records in the DB, if not existing
         base_class = import_by_path('bilanci.indicators.BaseIndicator')
         indicators_instances = []
         for attr_name in dir(indicators):
             if attr_name.endswith("Indicator") and attr_name != base_class.__name__:
                 indicator_class = import_by_path("bilanci.indicators.{0}".format(attr_name))
-                indicators_instances.append(indicator_class())
+                indicator_instance = indicator_class()
 
+                # skip indicators not in --indicators slugs
+                if indicators_slugs != ['all'] and not indicator_instance.slug in indicators_slugs:
+                    continue
+                indicators_instances.append(indicator_instance)
+
+                # singleton - create indicator record in the DB, if non existing
+                #             update existing denominazione, with label in class, if existing
+                indicator_obj, created = Indicatore.objects.get_or_create(
+                    slug=indicator_instance.slug,
+                    defaults={
+                        'denominazione': indicator_instance.label
+                    }
+                )
+                if not created:
+                    indicator_obj.denominazione = indicator_instance.label
+                    indicator_obj.save()
+
+        # actual computation of the values
         for indicator in indicators_instances:
-            self.logger.debug("Indicator: {0}".format(
-                indicator
+            self.logger.debug(u"Indicator: {0}".format(
+                indicator.label
             ))
-            for city in cities:
-                self.logger.debug("City: {0}".format(
-                    city
-                ))
-                results_over_years = indicator.compute((city,), years)
-                print results_over_years
+            if dryrun:
+                # no db storage
+                _ = indicator.compute(cities, years, logger=self.logger)
+            else:
+                # db storage
+                indicator.compute_and_commit(cities, years, logger=self.logger, skip_existing=skip_existing)

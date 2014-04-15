@@ -91,7 +91,6 @@ class ValoreBilancio(models.Model):
 class Indicatore(models.Model):
     denominazione = models.CharField(max_length=50)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
-    formula = models.TextField(max_length=800, null=False, blank=False, default='')
 
     class Meta:
         verbose_name_plural = u'Indicatori'
@@ -109,6 +108,7 @@ class ValoreIndicatore(models.Model):
 
     class Meta:
         verbose_name_plural = u'Valori indicatori'
+        unique_together = ('indicatore', 'anno', 'territorio', )
 
     def __unicode__(self):
         return u"%s: %s" % (self.indicatore, self.valore,)
