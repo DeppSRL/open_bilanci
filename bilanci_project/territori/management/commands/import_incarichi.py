@@ -32,13 +32,19 @@ class Command(BaseCommand):
             action='store',
             default='all',
             help='Type of Territorio: '+  ' | '.join(accepted_types)),
-
         make_option('--dry-run',
             dest='dryrun',
             action='store_true',
             default=False,
             help='Set the dry-run command mode: nothing is written on db'),
-        
+        make_option('--auth',
+            dest='auth',
+            default='',
+            help='Auth, as user,pass. Separated by a comma, no space.'),
+        make_option('--api-domain',
+            dest='apidomain',
+            default='api3.openpolis.it',
+            help='The domain of the API. Defaults to api3.openpolis.it'),
         make_option('--delete',
             dest='delete',
             action='store_true',
@@ -67,6 +73,13 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
         delete = options['delete']
         territori_type = options['territori']
+        self.apidomain = options['apidomain']
+
+        if options['auth']:
+            (user, pwd) = options['auth'].split(",")
+            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
+        else:
+            self.baseurl = "http://{0}".format(self.apidomain)
 
         self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
 
@@ -82,10 +95,9 @@ class Command(BaseCommand):
     def get_incarichi_api(self, territorio_opid):
 
         # get incarichi from politici/city_mayors
-        api_results_json = requests.get(
-            settings.OP_API_HOST +"/politici/city_mayors/{0}/".\
-                format(territorio_opid)
-            ).json()
+        api_request = requests.get("http://{0}/politici/city_mayors/{1}".\
+                                   format(self.apidomain, territorio_opid))
+        api_results_json = api_request.json()
 
         if 'sindaci' not in api_results_json:
             return []
@@ -105,9 +117,6 @@ class Command(BaseCommand):
         if bool is False: incarichi_set is a list of tuples of overlapping incarichi for the considered timespan
 
         """
-
-        
-
         # converts all textual data to datetime obj type and
         # discards incarichi out of timeline scope: happened before timeline_start or after timeline_end
 
