@@ -114,7 +114,7 @@ class EntrateBudgetMixin(object):
         (voci_map, normalized_doc) = mapping
 
 
-        # get all voices in mormalized tree, matching the voce in simplified tree
+        # get all voices in normalized tree, matching the voce in simplified tree
         voci_matches = self._get_matching_voci(simplified_bc, voci_map)
         if not voci_matches:
             self._emit_warning(u"No matching voci found for: {0}.".format(
