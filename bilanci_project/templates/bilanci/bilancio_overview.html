@@ -39,19 +39,9 @@
 
             init_selector(selector_init_obj);
 
-            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
-            feed_main_linechart();
-
             });
 
-        function feed_main_linechart(){
 
-            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo' %}",
-                    function (i) {
-                linechart.data(i)
-            });
-
-        }
     </script>
 
 {% endblock %}
