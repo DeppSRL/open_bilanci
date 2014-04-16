@@ -39,7 +39,8 @@ class BaseIndicator(object):
         return data_dict
 
     def get_val(self, data_dict, city, year, slug_code):
-        return float(data_dict[(year, city, self.used_voci_slugs[slug_code])])
+        key = (year, city, self.used_voci_slugs[slug_code])
+        return float(data_dict[key])
 
     def get_indicator_obj(self):
         return Indicatore.objects.get(slug=self.slug)
@@ -76,6 +77,12 @@ class BaseIndicator(object):
                         ))
                 except IntegrityError:
                     pass
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+
 
 
 class AutonomiaFinanziariaIndicator(BaseIndicator):
@@ -105,14 +112,20 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
         for city in cities:
             ret[city] = OrderedDict([])
             for year in years:
-                it = self.get_val(data_dict, city,  year, 'it')
-                ex = self.get_val(data_dict, city, year, 'ex')
-                pb = self.get_val(data_dict, city, year, 'pb')
-                ret[city][year] = 100.0 / ( 1.0 + pb / ( it + ex ) )
-                if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
+                try:
+                    it = self.get_val(data_dict, city,  year, 'it')
+                    ex = self.get_val(data_dict, city, year, 'ex')
+                    pb = self.get_val(data_dict, city, year, 'pb')
+                    ret[city][year] = 100.0 / ( 1.0 + pb / ( it + ex ) )
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
         return ret
 
 
@@ -135,13 +148,20 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
         for city in cities:
             ret[city] = OrderedDict([])
             for year in years:
-                ps = self.get_val(data_dict, city, year, 'ps')
-                cs = self.get_val(data_dict, city, year, 'cs')
-                ret[city][year] = 100.0 * (1.0 - cs / ps )
-                if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
+                try:
+                    ps = self.get_val(data_dict, city, year, 'ps')
+                    cs = self.get_val(data_dict, city, year, 'cs')
+                    ret[city][year] = 100.0 * (1.0 - cs / ps )
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+
 
         return ret
 
