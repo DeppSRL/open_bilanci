@@ -167,6 +167,11 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
                         logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
                             city, year
                         ))
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
 
 
         return ret
