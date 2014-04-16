@@ -9,7 +9,7 @@ from django.core.management import BaseCommand
 from django.db.models import Avg
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-from bilanci.models import Voce, ValoreBilancio
+from bilanci.models import Voce, ValoreBilancio, Indicatore, ValoreIndicatore
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, Contesto
 from bilanci.utils import couch
@@ -257,11 +257,9 @@ class Command(BaseCommand):
         Median values are computed both for Voci and Indicatori.
         """
 
-        self.logger.info("Cluster mean start")
+        self.logger.info("Cluster median values computation start")
 
         for cluster_data in Territorio.CLUSTER:
-
-            self.logger.info(u"Considering cluster: {0}".format(cluster_data[1]))
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects.\
                 get_or_create(
@@ -270,12 +268,46 @@ class Command(BaseCommand):
                     cluster = cluster_data[0]
                 )
 
+            for indicatore in Indicatore.objects.all():
+                for year in years:
+                    self.logger.info(u"cluster: {0}, year: {1}, indicatore: {2}".format(territorio_cluster, year, indicatore.slug))
+                    valori =\
+                        ValoreIndicatore.objects.filter(
+                            territorio__cluster = cluster_data[0],
+                            anno = year,
+                            indicatore = indicatore,
+                        ).values_list('valore', flat=True)
+
+                    if valori is None:
+                        self.logger.warning("No values found for Indicatore: {0}, year:{1}. Median value not computed ".format(
+                            indicatore, year
+                        ))
+                        continue
+
+                    # remove null values
+                    valori = [v for v in valori if v]
+
+                    mediana = numpy.median(valori)
+                    if not math.isnan(mediana):
+                        valore_mediano, is_created = ValoreIndicatore.objects.get_or_create(
+                            indicatore=indicatore,
+                            territorio=territorio_cluster,
+                            anno=year,
+                            defaults={
+                                'valore': long(mediana)
+                            }
+                        )
+
+                        # overwrite existing values
+                        if not is_created and not skip_existing:
+                            valore_mediano.valore = long(mediana)
+                            valore_mediano.save()
+
+
             for voce in Voce.objects.all():
                 if voce.is_leaf_node():
-                    self.logger.info(u"Considering voce: {0}".format(voce))
-
                     for year in years:
-                        self.logger.info(u"Considering year: {0}".format(year))
+                        self.logger.info(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
 
                         valori =\
                             ValoreBilancio.objects.filter(
