@@ -22,6 +22,27 @@ class HomeView(TemplateView):
     template_name = "home.html"
 
 
+class IndicatorSlugVerifierMixin(object):
+
+    ##
+    # IndicatorSlugVerifier given a slug list of Indicatore verifies that all slug exist
+    # returns a list of those slugs that were verified
+    ##
+
+    def verify_slug(self,slug_list):
+
+        verified_slug_list =[]
+        # verify that all indicators exist and creates a verified list of slugs
+        for ind_slug in slug_list:
+            try:
+                Indicatore.objects.get(slug = ind_slug)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                verified_slug_list.append(ind_slug)
+
+        return verified_slug_list
+
 class IncarichiGetterMixin(object):
     
     date_fmt = '%Y-%m-%d'
@@ -141,7 +162,7 @@ class IncarichiGetterMixin(object):
         return self.transform_voce(indicatore_values, line_id, line_color)
 
 
-class IncarichiVociJSONView(View, IncarichiGetterMixin):
+class IncarichiVoceJSONView(View, IncarichiGetterMixin):
     def get(self, request, **kwargs):
 
         # get territorio_opid from GET parameter
@@ -194,6 +215,49 @@ class IncarichiVociJSONView(View, IncarichiGetterMixin):
             ),
             content_type="application/json"
         )
+
+
+class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerifierMixin):
+    def get(self, request, **kwargs):
+
+        # get territorio_opid from GET parameter
+        territorio_opid = kwargs['territorio_opid']
+        territorio = get_object_or_404(Territorio, op_id = territorio_opid)
+
+        # get indicatori slug from GET parameter
+        indicatori_slug_list = self.verify_slug(request.GET.getlist('slug'))
+        indicatori = Indicatore.objects.filter(slug__in = indicatori_slug_list)
+
+        if len(indicatori) == 0:
+            return HttpResponse()
+
+
+        incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
+
+        # gets voce value for the territorio over the period set
+        indicatori_set = []
+        legend_set = []
+        for k, indicatore in enumerate(indicatori):
+            indicatori_set.append(self.get_indicatore_struct(territorio, indicatore, line_id=k, line_color=settings.INDICATOR_COLORS[k]))
+            legend_set.append(
+                {
+                "color": settings.INDICATOR_COLORS[k],
+                "id": k,
+                "label": indicatore.denominazione.upper()
+                }
+            )
+
+        return HttpResponse(
+            content=json.dumps(
+                {
+                    "timeSpans":[incarichi_set],
+                    'data':indicatori_set,
+                    'legend':legend_set
+                }
+            ),
+            content_type="application/json"
+        )
+
 
 
 
@@ -489,14 +553,20 @@ class BilancioView(DetailView):
 
         return context
 
-class BilancioIndicatoriView(BilancioView):
+class BilancioIndicatoriView(BilancioView, IndicatorSlugVerifierMixin):
     template_name = 'bilanci/bilancio_indicatori.html'
     selected_section = "indicatori"
 
     def get_context_data(self, **kwargs ):
 
+        # get selected indicatori slug list from request and verifies them
+        verified_slug_list = self.verify_slug(self.request.GET.getlist('slug'))
+
         context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+
+        # creates the query string to call the IncarichiIndicatori Json view in template
+        context['selected_indicators_qstring'] = '?slug='+'&slug='.join(verified_slug_list)
         return context
 
 

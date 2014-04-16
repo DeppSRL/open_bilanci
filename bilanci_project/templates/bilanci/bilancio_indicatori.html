@@ -48,7 +48,7 @@
         });
 
         function feed_main_linechart(){
-            d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug='preventivo' %}",
+            d3.json("{% url 'incarichi-indicatori-json' territorio_opid=territorio_opid %}{{ selected_indicators_qstring|safe }}",
                     function (i) {
                 linechart.data(i)
             });

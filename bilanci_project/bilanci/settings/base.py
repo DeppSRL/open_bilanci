@@ -405,6 +405,9 @@ TERRITORIO_2_COLOR = '#a51206'
 
 CLUSTER_LINE_COLOR = '#f7b5a1'
 
+INDICATOR_COLORS = ['#cc6633','#a51206','#f7b5a1','#8568d8','#1ca368','#78a31c']
+
+
 # euros range to define two sums equal
 # due to round of floats to integers,
 # can be as large as 10

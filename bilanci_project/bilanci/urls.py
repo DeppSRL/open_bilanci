@@ -4,8 +4,8 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVociJSONView, HomeView, \
-    ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
+    HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
     ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView
 
 admin.autodiscover()
@@ -20,14 +20,17 @@ urlpatterns = patterns('',
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
 
-    # Json view for linegraph
-    url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVociJSONView.as_view(), name = "incarichi-voci-json"),
+    # Json view for linegraph voci di bilancio
+    url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
+
+    # Json view for linegraph indicatori
+    url(r'^incarichi_indicatori/(?P<territorio_opid>[-\w]+)', IncarichiIndicatoriJSONView.as_view(), name = "incarichi-indicatori-json"),
 
     # Composition widget for Bilancio overview / entrate / spese
     url(r'^composition_widget/(?P<widget_type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
         BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 
-    # Composition widget for Bilancio comparison choosing explicitly comparison Bilancio
+    # todo: Composition widget for Bilancio comparison choosing explicitly comparison Bilancio
     # url(r'^composition_widget/(?P<widget_type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
     #     BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 

@@ -88,7 +88,7 @@
 
 
     function feed_main_linechart(){
-        d3.json("{% url 'incarichi-voci-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}",
+        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}",
                 function (i) {
             linechart.data(i)
         });
