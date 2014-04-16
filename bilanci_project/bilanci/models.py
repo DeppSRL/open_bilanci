@@ -104,7 +104,7 @@ class ValoreIndicatore(models.Model):
     indicatore = models.ForeignKey(Indicatore)
     anno = models.PositiveIntegerField()
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
-    valore = models.BigIntegerField(default=0, null=True, blank=True)
+    valore = models.FloatField(default=0.)
 
     class Meta:
         verbose_name_plural = u'Valori indicatori'

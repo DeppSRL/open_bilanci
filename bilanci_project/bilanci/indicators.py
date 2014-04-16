@@ -1,4 +1,5 @@
 # encoding: utf-8
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from bilanci.models import ValoreBilancio, ValoreIndicatore, Indicatore
 from territori.models import Territorio
@@ -17,11 +18,16 @@ class BaseIndicator(object):
     used_voci_slugs = {}
 
     def get_queryset(self, cities, years):
-        return ValoreBilancio.objects.filter(
+        qs = ValoreBilancio.objects.filter(
             voce__slug__in=self.used_voci_slugs.values(),
-            anno__in=years,
-            territorio__cod_finloc__in=cities
-        ).values('voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite').order_by('anno', 'voce__slug')
+            anno__in=years
+        )
+        if len(cities) < Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).count():
+            qs = qs.filter(territorio__cod_finloc__in=cities)
+
+        return qs.values(
+            'voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite'
+        ).order_by('anno', 'voce__slug')
 
     def get_data(self, cities, years):
         data_qs = self.get_queryset(cities, years)
@@ -34,7 +40,8 @@ class BaseIndicator(object):
         return data_dict
 
     def get_val(self, data_dict, city, year, slug_code):
-        return float(data_dict[(year, city, self.used_voci_slugs[slug_code])])
+        key = (year, city, self.used_voci_slugs[slug_code])
+        return float(data_dict[key])
 
     def get_indicator_obj(self):
         return Indicatore.objects.get(slug=self.slug)
@@ -56,7 +63,10 @@ class BaseIndicator(object):
             ).delete()
 
         for city in cities:
-            city_obj = Territorio.objects.get(cod_finloc=city)
+            try:
+                city_obj = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                continue
             for year in years:
                 try:
                     ValoreIndicatore.objects.create(
@@ -71,6 +81,12 @@ class BaseIndicator(object):
                         ))
                 except IntegrityError:
                     pass
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+
 
 
 class AutonomiaFinanziariaIndicator(BaseIndicator):
@@ -100,14 +116,26 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
         for city in cities:
             ret[city] = OrderedDict([])
             for year in years:
-                it = self.get_val(data_dict, city,  year, 'it')
-                ex = self.get_val(data_dict, city, year, 'ex')
-                pb = self.get_val(data_dict, city, year, 'pb')
-                ret[city][year] = 100.0 / ( 1.0 + pb / ( it + ex ) )
-                if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
+                try:
+                    it = self.get_val(data_dict, city,  year, 'it')
+                    ex = self.get_val(data_dict, city, year, 'ex')
+                    pb = self.get_val(data_dict, city, year, 'pb')
+                    ret[city][year] = 100.0 / ( 1.0 + pb / ( it + ex ) )
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
+
         return ret
 
 
@@ -130,13 +158,25 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
         for city in cities:
             ret[city] = OrderedDict([])
             for year in years:
-                ps = self.get_val(data_dict, city, year, 'ps')
-                cs = self.get_val(data_dict, city, year, 'cs')
-                ret[city][year] = 100.0 * (1.0 - cs / ps )
-                if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
+                try:
+                    ps = self.get_val(data_dict, city, year, 'ps')
+                    cs = self.get_val(data_dict, city, year, 'cs')
+                    ret[city][year] = 100.0 * (1.0 - cs / ps )
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
+
 
         return ret
 

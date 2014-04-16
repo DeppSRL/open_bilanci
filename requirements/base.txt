@@ -18,3 +18,4 @@ Django-Select2==4.2.2
 django-mptt==0.6.0
 -e git+git@github.com:openpolis/django-treeadmin.git#egg=django-treeadmin
 django-front==0.3.6
+numpy==1.8.1
