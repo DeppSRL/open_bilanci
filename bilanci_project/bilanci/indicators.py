@@ -177,3 +177,30 @@ class QuotaSpesaPersonaleIndicator(BaseIndicator):
         sc = self.get_val(data_dict, city, year, 'sc')
         return 100.0 * sp / sc
 
+
+class GradoRigiditaStrutturaleSpesaIndicator(BaseIndicator):
+    """
+    ( consuntivo-spese-cassa-spese-correnti-interventi-personale +
+      consuntivo-spese-cassa-prestiti ) /
+    ( consuntivo-entrate-cassa-imposte-e-tasse +
+      consuntivo-entrate-cassa-entrate-extratributarie +
+      consuntivo-entrate-cassa-contributi-pubblici ) * 100
+    """
+    slug = 'grado-rigidita-strutturale-spesa'
+    label = u'Grado rigidità strutturale della spesa'
+    used_voci_slugs = {
+        's_pe': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
+        's_pr': 'consuntivo-spese-cassa-prestiti',
+        'e_it': 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'e_ex': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'e_pb': 'consuntivo-entrate-cassa-contributi-pubblici'
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        s_pe = self.get_val(data_dict, city, year, 's_pe')
+        s_pr = self.get_val(data_dict, city, year, 's_pr')
+        e_it = self.get_val(data_dict, city, year, 'e_it')
+        e_ex = self.get_val(data_dict, city, year, 'e_ex')
+        e_pb = self.get_val(data_dict, city, year, 'e_pb')
+        return 100.0 * (s_pe + s_pr) / (e_it + e_ex + e_pb)
+
