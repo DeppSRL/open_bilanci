@@ -141,13 +141,13 @@ class Command(BaseCommand):
                                 territorio=territorio_cluster,
                                 anno=year,
                                 defaults={
-                                    'valore': long(mediana)
+                                    'valore': mediana
                                 }
                             )
 
                             # overwrite existing values
                             if not is_created and not skip_existing:
-                                valore_mediano.valore = long(mediana)
+                                valore_mediano.valore = mediana
                                 valore_mediano.save()
 
             if values_type == 'voci':
