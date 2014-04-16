@@ -46,8 +46,33 @@ class BaseIndicator(object):
     def get_indicator_obj(self):
         return Indicatore.objects.get(slug=self.slug)
 
+    def get_formula_result(self, data_dict, city, year):
+        raise Exception("Not implemented.")
+
     def compute(self, cities, years, logger=None):
-        raise Exception("To be implemented")
+        data_dict = self.get_data(cities, years)
+
+        ret = OrderedDict([])
+        for city in cities:
+            ret[city] = OrderedDict([])
+            for year in years:
+                try:
+                    ret[city][year] = self.get_formula_result(data_dict, city, year)
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
+        return ret
 
     def compute_and_commit(self, cities, years, logger=None, skip_existing=False):
         """
@@ -109,34 +134,11 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
         'pb': 'consuntivo-entrate-cassa-contributi-pubblici'
     }
 
-    def compute(self, cities, years, logger=None):
-        data_dict = self.get_data(cities, years)
-
-        ret = OrderedDict([])
-        for city in cities:
-            ret[city] = OrderedDict([])
-            for year in years:
-                try:
-                    it = self.get_val(data_dict, city,  year, 'it')
-                    ex = self.get_val(data_dict, city, year, 'ex')
-                    pb = self.get_val(data_dict, city, year, 'pb')
-                    ret[city][year] = 100.0 / ( 1.0 + pb / ( it + ex ) )
-                    if logger:
-                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, ret[city][year]
-                        ))
-                except KeyError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
-                        ))
-                except ZeroDivisionError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
-                        ))
-
-        return ret
+    def get_formula_result(self, data_dict, city, year):
+        it = self.get_val(data_dict, city,  year, 'it')
+        ex = self.get_val(data_dict, city, year, 'ex')
+        pb = self.get_val(data_dict, city, year, 'pb')
+        return 100.0 / ( 1.0 + pb / ( it + ex ) )
 
 
 class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
@@ -151,33 +153,27 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
         'cs': 'consuntivo-spese-cassa-spese-correnti',
     }
 
-    def compute(self, cities, years, logger=None):
-        data_dict = self.get_data(cities, years)
-
-        ret = OrderedDict([])
-        for city in cities:
-            ret[city] = OrderedDict([])
-            for year in years:
-                try:
-                    ps = self.get_val(data_dict, city, year, 'ps')
-                    cs = self.get_val(data_dict, city, year, 'cs')
-                    ret[city][year] = 100.0 * (1.0 - cs / ps )
-                    if logger:
-                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, ret[city][year]
-                        ))
-                except KeyError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
-                        ))
-                except ZeroDivisionError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
-                        ))
+    def get_formula_result(self, data_dict, city, year):
+        ps = self.get_val(data_dict, city, year, 'ps')
+        cs = self.get_val(data_dict, city, year, 'cs')
+        return 100.0 * (1.0 - cs / ps )
 
 
-        return ret
 
+class QuotaSpesaPersonaleIndicator(BaseIndicator):
+    """
+    consuntivo-spese-cassa-spese-correnti-interventi-personale /
+    consuntivo-spese-cassa-spese-correnti * 100
+    """
+    slug = 'quota-spesa-personale'
+    label = u'Quota della spesa per il personale'
+    used_voci_slugs = {
+        'sp': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
+        'sc': 'consuntivo-spese-cassa-spese-correnti',
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        sp = self.get_val(data_dict, city, year, 'sp')
+        sc = self.get_val(data_dict, city, year, 'sc')
+        return 100.0 * sp / sc
 
