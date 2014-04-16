@@ -1,11 +1,14 @@
 # coding=utf-8
-from pprint import pprint
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 import logging
+import math
+import numpy
 from optparse import make_option
+
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.db.models import Avg
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, Contesto
@@ -14,7 +17,7 @@ from bilanci.utils import couch
 
 class Command(BaseCommand):
 
-    accepted_functions = ['contesto','cluster_mean','per_capita']
+    accepted_functions = ['contesto','cluster_mean', 'cluster_median']
 
     option_list = BaseCommand.option_list + (
         make_option('--years',
@@ -101,9 +104,9 @@ class Command(BaseCommand):
         self.logger.info(u"Opening Lista Comuni")
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
-        # function cluster_mean doesn't need territori param
+        # function cluster_mean and cluster_median doesn't need territori param
         cities = None
-        if function != 'cluster_mean':
+        if function != 'cluster_mean' and function != 'cluster_median':
             if cities_codes:
                 cities = mapper.get_cities(cities_codes)
 
@@ -177,63 +180,16 @@ class Command(BaseCommand):
 
         elif function == 'cluster_mean':
             # computes cluster mean for each value in the simplified tree
-
             self.set_cluster_mean(years, dryrun, skip_existing=skip_existing)
 
-        elif function == 'per_capita':
-            # computes per-capita values
-            self.set_per_capita(territori, years, dryrun)
+        elif function == 'cluster_median':
+            # computes cluster mean for each value in the simplified tree
+            self.set_cluster_median(years, dryrun, skip_existing=skip_existing)
 
         else:
             self.logger.error(u"Function not found, quitting")
             return
 
-
-
-    def set_per_capita(self, territori, years, dryrun):
-        for year in years:
-            for territorio in territori:
-                self.logger.info(u"Calculating per-capita value for Comune:{0} yr:{1}".\
-                    format(territorio, year)
-                )
-
-                # get context data for comune, anno
-                try:
-                    comune_context = Contesto.objects.get(
-                        anno = year,
-                        territorio = territorio,
-                    )
-                except ObjectDoesNotExist:
-                    self.logger.error(u"Context could not be found for Comune:{0} year:{1}".\
-                        format(territorio, year,)
-                    )
-                    continue
-
-                n_abitanti = comune_context.bil_popolazione_residente
-
-                if n_abitanti > 0:
-                    voci = ValoreBilancio.objects.filter(
-                        anno = year,
-                        territorio = territorio,
-                    )
-                    # for all the Voce in bilancio
-                    # calculates the per_capita value
-
-                    for voce in voci:
-                        voce.valore_procapite = voce.valore / float(n_abitanti)
-
-                        # writes on db
-                        if dryrun is False:
-                            voce.save()
-
-                else:
-                    self.logger.warning(u"Inhabitants is ZERO for Comune:{0} year:{1}, can't calculate per-capita values".\
-                        format(territorio, year,)
-                        )
-
-
-
-        return
 
     def set_cluster_mean(self, years, dryrun, skip_existing=False):
         """
@@ -290,6 +246,71 @@ class Command(BaseCommand):
                             valore_medio.save()
 
         return
+
+
+    def set_cluster_median(self, years, dryrun, skip_existing=False):
+        """
+        Compute median values for the cluster
+
+        Virtual *cluster* locations are created, if non-existing-
+
+        Median values are computed both for Voci and Indicatori.
+        """
+
+        self.logger.info("Cluster mean start")
+
+        for cluster_data in Territorio.CLUSTER:
+
+            self.logger.info(u"Considering cluster: {0}".format(cluster_data[1]))
+            # creates a fake territorio for each cluster if it doens't exist already
+            territorio_cluster, is_created = Territorio.objects.\
+                get_or_create(
+                    denominazione = cluster_data[1],
+                    territorio = Territorio.TERRITORIO.L,
+                    cluster = cluster_data[0]
+                )
+
+            for voce in Voce.objects.all():
+                if voce.is_leaf_node():
+                    self.logger.info(u"Considering voce: {0}".format(voce))
+
+                    for year in years:
+                        self.logger.info(u"Considering year: {0}".format(year))
+
+                        valori =\
+                            ValoreBilancio.objects.filter(
+                                territorio__cluster = cluster_data[0],
+                                anno = year,
+                                voce = voce,
+                            ).values_list('valore', flat=True)
+
+                        if valori is None:
+                            self.logger.warning("No values found for Voce: {0}, year:{1}. Median value not computed ".format(
+                                voce, year
+                            ))
+                            continue
+
+                        # remove null values
+                        valori = [v for v in valori if v]
+
+                        mediana = numpy.median(valori)
+                        if not math.isnan(mediana):
+                            valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
+                                voce=voce,
+                                territorio=territorio_cluster,
+                                anno=year,
+                                defaults={
+                                    'valore': long(mediana)
+                                }
+                            )
+
+                            # overwrite existing values
+                            if not is_created and not skip_existing:
+                                valore_mediano.valore = long(mediana)
+                                valore_mediano.save()
+
+        return
+
 
     def set_contesto(self, couchdb, territori, years, dryrun):
         missing_territories = []
