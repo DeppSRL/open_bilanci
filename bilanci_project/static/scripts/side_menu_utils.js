@@ -43,7 +43,6 @@ $(document).ready(function(){
     if($hideMenu.length){
         $hideMenu.on("click", resizeComponents);
     }
-    console.log('done');
 });
 
 function resizeComponents(){
