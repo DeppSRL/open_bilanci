@@ -17,11 +17,16 @@ class BaseIndicator(object):
     used_voci_slugs = {}
 
     def get_queryset(self, cities, years):
-        return ValoreBilancio.objects.filter(
+        qs = ValoreBilancio.objects.filter(
             voce__slug__in=self.used_voci_slugs.values(),
-            anno__in=years,
-            territorio__cod_finloc__in=cities
-        ).values('voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite').order_by('anno', 'voce__slug')
+            anno__in=years
+        )
+        if len(cities) < Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).count():
+            qs = qs.filter(territorio__cod_finloc__in=cities)
+
+        return qs.values(
+            'voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite'
+        ).order_by('anno', 'voce__slug')
 
     def get_data(self, cities, years):
         data_qs = self.get_queryset(cities, years)
