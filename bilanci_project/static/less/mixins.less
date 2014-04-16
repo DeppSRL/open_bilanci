@@ -1,7 +1,7 @@
 /**
  * Common LESS mixins
  * @author mleone
- * @version 1.0.0
+ * @version 1.5.2
  **/
 
 .text-shadow (@string: 0 1px 3px rgba(0, 0, 0, 0.25)) {
@@ -27,6 +27,12 @@
     -webkit-box-sizing: @type;
     -moz-box-sizing:    @type;
     box-sizing:         @type;
+}
+
+.background-sizing (@x: 0, @y: 0) {
+    -moz-background-size: @x @y;
+    -webkit-background-size: @x @y;
+    background-size: @x @y;
 }
 
 .border-radius (@radius: 5px) {
