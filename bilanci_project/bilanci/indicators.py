@@ -1,4 +1,5 @@
 # encoding: utf-8
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from bilanci.models import ValoreBilancio, ValoreIndicatore, Indicatore
 from territori.models import Territorio
@@ -62,7 +63,10 @@ class BaseIndicator(object):
             ).delete()
 
         for city in cities:
-            city_obj = Territorio.objects.get(cod_finloc=city)
+            try:
+                city_obj = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                continue
             for year in years:
                 try:
                     ValoreIndicatore.objects.create(
