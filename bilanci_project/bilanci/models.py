@@ -89,7 +89,8 @@ class ValoreBilancio(models.Model):
 
 
 class Indicatore(models.Model):
-    denominazione = models.CharField(max_length=50)
+    denominazione = models.CharField(max_length=100)
+    descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
 
     class Meta:
