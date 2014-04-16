@@ -257,7 +257,7 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
                 try:
                     t2 = self.get_formula_result(data_dict, city, year-2)
                     n_available_years += 1
-                except KeyError, ZeroDivisionError:
+                except (KeyError, ZeroDivisionError):
                     t2 = 0
 
                 ret[city][year] = (t0 + t1 + t2) / n_available_years
