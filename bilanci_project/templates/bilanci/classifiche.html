@@ -242,41 +242,13 @@
     <!-- visup js -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+    
     <!-- / visup js -->
 
     <script type="text/javascript">
 
         $(document).ready(function(){
-
-            /*
-            opens by default the parameter menu on page load
-            */
-
-            var $sidebar = $( '#sidebar' ),
-                $content = $( '#content'),
-                $toggleMenu = $( '#toggle-menu' ) ;
-
-            var clss = {
-                btn: {
-                    on: 'active'
-                },
-                content: {
-                    on: 'col-sm-12',
-                    off: 'col-sm-8 col-sm-push-4'
-                },
-                sidebar: {
-                    on: 'col-sm-4 col-sm-pull-8',
-                    off: 'hidden'
-                }
-            };
-
-            $sidebar
-                .removeClass( clss.sidebar.off )
-                .addClass( clss.sidebar.on );
-            $content
-                .removeClass( clss.content.on )
-                .addClass( clss.content.off );
-            $toggleMenu.addClass( clss.btn.on );
 
             /*
             * initialize year selectors
@@ -294,13 +266,6 @@
 
 
             init_selector(selector_init_obj);
-
-            // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
-            if($toggleMenu.length){
-                $toggleMenu.on("click", function(){
-                    year_selector.resize();
-                });
-            }
 
         });
 
