@@ -95,8 +95,8 @@ class Command(BaseCommand):
     def get_incarichi_api(self, territorio_opid):
 
         # get incarichi from politici/city_mayors
-        api_request = requests.get("http://{0}/politici/city_mayors/{1}".\
-                                   format(self.apidomain, territorio_opid))
+        api_request = requests.get("{0}/politici/city_mayors/{1}".\
+                                   format(self.baseurl, territorio_opid))
         api_results_json = api_request.json()
 
         if 'sindaci' not in api_results_json:
