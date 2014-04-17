@@ -397,14 +397,13 @@ class BilancioCompositionWidgetView(TemplateView):
             comparison_bilancio_year = main_bilancio_year
 
 
-        composition_data['entrate']=[]
-        composition_data['spese']=[]
+        composition_data['entrate'] = self.create_composition_data(main_bilancio_year, entrate_slug[main_bilancio_type],comparison_bilancio_year, entrate_slug[comparison_bilancio_type])
+        composition_data['spese'] = self.create_composition_data(main_bilancio_year,spese_slug[main_bilancio_type] , comparison_bilancio_year, spese_slug[comparison_bilancio_type])
+
         composition_data['widget1']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
         composition_data['widget2']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
         composition_data['widget3']={"label": "Indicatore","series": [[2008,0.07306034071370959],],"variation": -10,"sublabel1": "Propensione all'investimento","sublabel2": "Propensione all'investimento","sublabel3": "Propensione all'investimento",}
 
-        composition_data['entrate'] = self.create_composition_data(main_bilancio_year, entrate_slug[main_bilancio_type],comparison_bilancio_year, entrate_slug[comparison_bilancio_type])
-        composition_data['spese'] = self.create_composition_data(main_bilancio_year,spese_slug[main_bilancio_type] , comparison_bilancio_year, spese_slug[comparison_bilancio_type])
 
         context['composition_data']=json.dumps(composition_data)
 

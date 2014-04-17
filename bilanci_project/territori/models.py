@@ -128,7 +128,7 @@ class Territorio(models.Model):
             return u"{0} ({1})".format(self.nome,self.prov)
 
 
-    def get_abitanti(self, anno=settings.REFERENCE_YEAR):
+    def get_abitanti(self, anno=settings.TERRITORI_CONTEXT_REFERENCE_YEAR):
         try:
             contesto = self.contesto_set.get(anno=anno)
             return contesto.bil_popolazione_residente

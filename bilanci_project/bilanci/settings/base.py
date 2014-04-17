@@ -387,7 +387,7 @@ APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
 ##
 
-REFERENCE_YEAR = 2012
+TERRITORI_CONTEXT_REFERENCE_YEAR = 2012
 
 TIMELINE_START_DATE = APP_START_DATE
 TIMELINE_END_DATE = APP_END_DATE

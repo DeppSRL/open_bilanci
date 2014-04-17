@@ -6,9 +6,8 @@ class TerritoriChoices(AutoModelSelect2Field):
 
 
     queryset = Territorio.objects.\
-                filter(contesto__anno = settings.REFERENCE_YEAR).\
                 filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-contesto__bil_popolazione_residente', 'denominazione')
+                order_by('-cluster', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
 
@@ -19,9 +18,8 @@ class TerritoriChoices(AutoModelSelect2Field):
 class TerritoriClusterChoices(AutoModelSelect2Field):
 
     queryset = Territorio.objects.\
-                filter(contesto__anno = settings.REFERENCE_YEAR).\
                 filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-contesto__bil_popolazione_residente', 'denominazione')
+                order_by('-cluster', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
 
