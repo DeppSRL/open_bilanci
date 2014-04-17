@@ -231,18 +231,17 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         if len(indicatori) == 0:
             return HttpResponse()
 
-
         incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
 
         # gets voce value for the territorio over the period set
         indicatori_set = []
         legend_set = []
-        for k, indicatore in enumerate(indicatori):
-            indicatori_set.append(self.get_indicatore_struct(territorio, indicatore, line_id=k, line_color=settings.INDICATOR_COLORS[k]))
+        for indicator_num, indicatore in enumerate(indicatori):
+            indicatori_set.append(self.get_indicatore_struct(territorio, indicatore, line_id=indicator_num, line_color=settings.INDICATOR_COLORS[indicator_num]))
             legend_set.append(
                 {
-                "color": settings.INDICATOR_COLORS[k],
-                "id": k,
+                "color": settings.INDICATOR_COLORS[indicator_num],
+                "id": indicator_num,
                 "label": indicatore.denominazione.upper()
                 }
             )
@@ -518,32 +517,70 @@ class BilancioRedirectView(RedirectView):
         else:
             return reverse('404')
 
-class BilancioView(DetailView):
+class BilancioOverView(DetailView):
+
     model = Territorio
     context_object_name = "territorio"
+    territorio= None
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
+    year = settings.SELECTOR_DEFAULT_YEAR
+    tipo_bilancio = settings.SELECTOR_DEFAULT_BILANCIO_TYPE
+
+    def get(self, request, *args, **kwargs):
+
+        ##
+        # if year or type parameter ar missing redirects to a page for default year / default bilancio type
+        ##
+
+        missing_parameter = False
+        self.territorio = self.get_object()
+
+        if self.request.GET.get('year') is not None:
+            self.year = self.request.GET.get('year')
+        else:
+            missing_parameter = True
+
+        if self.request.GET.get('type') is not None:
+            self.tipo_bilancio = self.request.GET.get('type')
+        else:
+            missing_parameter = True
+
+        if missing_parameter:
+
+            if self.selected_section == 'bilancio':
+                destination_view = 'bilanci-overview'
+            elif self.selected_section == 'entrate':
+                destination_view = 'bilanci-entrate'
+            elif self.selected_section == 'spese':
+                destination_view = 'bilanci-spese'
+
+            return HttpResponseRedirect(reverse(destination_view, kwargs={'slug':self.territorio.slug})\
+                                        + "?year={0}&type={1}".format(self.year, self.tipo_bilancio))
+        else:
+            return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 
 
     def get_context_data(self, **kwargs ):
 
-        context = super(BilancioView, self).get_context_data(**kwargs)
-        territorio = self.get_object()
+        context = super(BilancioOverView, self).get_context_data(**kwargs)
+        
         query_string = self.request.META['QUERY_STRING']
 
-        year = self.request.GET['year']
-        tipo_bilancio = self.request.GET['type']
-        menu_voices_kwargs = {'slug': territorio.slug}
+        context['tipo_bilancio'] = self.tipo_bilancio
+        context['selected_bilancio_type'] = self.tipo_bilancio
+
+        menu_voices_kwargs = {'slug': self.territorio.slug}
 
         context['selected_section']=self.selected_section
         # get Comune context data from db
-        context['comune_context'] = Contesto.get_context(year, territorio)
-        context['territorio_opid'] = territorio.op_id
+        context['comune_context'] = Contesto.get_context(self.year, self.territorio)
+        context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
-        context['selected_year'] = year
+        context['selected_year'] = self.year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
-        context['selected_bilancio_type'] = tipo_bilancio
-        context['tipo_bilancio'] = tipo_bilancio
+
+
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
             ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
@@ -553,16 +590,37 @@ class BilancioView(DetailView):
 
         return context
 
-class BilancioIndicatoriView(BilancioView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
+    model = Territorio
+    context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
     selected_section = "indicatori"
 
     def get_context_data(self, **kwargs ):
 
+        context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
+
         # get selected indicatori slug list from request and verifies them
         verified_slug_list = self.verify_slug(self.request.GET.getlist('slug'))
 
-        context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
+        territorio = self.get_object()
+
+        menu_voices_kwargs = {'slug': territorio.slug}
+
+        context['selected_section']=self.selected_section
+        # get Comune context data from db
+        year = settings.SELECTOR_DEFAULT_YEAR
+
+        context['comune_context'] = Contesto.get_context(year, territorio)
+        context['territorio_opid'] = territorio.op_id
+
+        context['menu_voices'] = OrderedDict([
+            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
+            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
+            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
+            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
+        ])
+
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
 
         # creates the query string to call the IncarichiIndicatori Json view in template
@@ -570,16 +628,14 @@ class BilancioIndicatoriView(BilancioView, IndicatorSlugVerifierMixin):
         return context
 
 
-class BilancioDetailView(BilancioView):
+class BilancioDetailView(BilancioOverView):
 
     def get_context_data(self, **kwargs ):
 
         context = super(BilancioDetailView, self).get_context_data(**kwargs)
         territorio = self.get_object()
         query_string = self.request.META['QUERY_STRING']
-        year = self.request.GET['year']
 
-        tipo_bilancio = self.request.GET['type']
         voce_slug = self.get_slug()
 
         # gets the tree structure from db
@@ -587,7 +643,7 @@ class BilancioDetailView(BilancioView):
 
         # gets the part of bilancio data which is referring to Voce nodes which are
         # descendants of bilancio_treenodes to minimize queries and data size
-        budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=year).\
+        budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=self.year).\
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
         context['budget_values'] = {
@@ -616,7 +672,8 @@ class BilancioEntrateView(BilancioDetailView):
     selected_section = "entrate"
 
     def get_slug(self):
-        return "{0}-{1}".format(self.request.GET['type'],"entrate")
+
+        return "{0}-{1}".format(self.tipo_bilancio,"entrate")
 
 
 
@@ -625,14 +682,11 @@ class BilancioSpeseView(BilancioDetailView):
     selected_section = "spese"
 
     def get_slug(self):
-        bilancio_type = self.request.GET['type']
-        if bilancio_type == 'preventivo':
-            return "{0}-{1}".format(self.request.GET['type'],"spese")
+
+        if self.tipo_bilancio == 'preventivo':
+            return "{0}-{1}".format(self.tipo_bilancio,"spese")
         else:
-            return "{0}-{1}".format(self.request.GET['type'],"spese-impegni")
-
-
-
+            return "{0}-{1}".format(self.tipo_bilancio,"spese-impegni")
 
 
 class ClassificheRedirectView(RedirectView):

@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
+    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
     HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
     ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView
 
@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     url(r'^$', HomeView.as_view(), name='home'),
 
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
-    url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioView.as_view(), name='bilanci-overview'),
+    url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
     url(r'^bilanci/(?P<slug>[-\w]+)/entrate$', BilancioEntrateView.as_view(), name='bilanci-entrate'),
     url(r'^bilanci/(?P<slug>[-\w]+)/spese$', BilancioSpeseView.as_view(), name='bilanci-spese'),
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
