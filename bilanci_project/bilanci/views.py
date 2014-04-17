@@ -312,9 +312,8 @@ class BilancioCompositionWidgetView(TemplateView):
         # insert all the children values in the data struct
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
-            # sets data label
-            label = main_value_denominazione.replace(' ',' @')
-            value_dict = dict(label = label, series = [], total = False)
+            # creates value dict
+            value_dict = dict(label = '', series = [], total = False)
 
             # if the value considered is a total value then sets the appropriate flag
             if main_value_denominazione == totale_label:
@@ -548,9 +547,9 @@ class BilancioOverView(DetailView):
 
         if missing_parameter:
 
-            if self.selected_section == 'bilancio':
-                destination_view = 'bilanci-overview'
-            elif self.selected_section == 'entrate':
+            destination_view = 'bilanci-overview'
+
+            if self.selected_section == 'entrate':
                 destination_view = 'bilanci-entrate'
             elif self.selected_section == 'spese':
                 destination_view = 'bilanci-spese'
