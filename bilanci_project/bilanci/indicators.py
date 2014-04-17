@@ -251,7 +251,7 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
                 try:
                     t1 = self.get_formula_result(data_dict, city, year-1)
                     n_available_years += 1
-                except KeyError, ZeroDivisionError:
+                except (KeyError, ZeroDivisionError):
                     t1 = 0
 
                 try:
