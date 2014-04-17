@@ -20,10 +20,10 @@
         <p class="details">
             <span class="location">
 
-                {{ territorio.prov|default_if_none:"" }},
+                {{ territorio.prov|default:"" }},
 
 
-                {{ territorio.regione|title|default_if_none:"" }} </span>
+                {{ territorio.regione|title|default:"" }} </span>
             <span class="category"><span class="glyphicon glyphicon-record"></span>
                 {{ territorio.get_cluster_display }}
                 {% if comune_context.bil_popolazione_residente %}
