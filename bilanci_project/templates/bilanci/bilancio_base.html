@@ -18,7 +18,12 @@
         <a href="" class="pull-right share">Condividi <span class="glyphicon glyphicon-share"></span></a>
         <h1 class="panel-title">{{territorio.denominazione}}</h1>
         <p class="details">
-            <span class="location">{{ territorio.prov }}, {{ territorio.regione|title }} </span>
+            <span class="location">
+
+                {{ territorio.prov|default_if_none:"" }},
+
+
+                {{ territorio.regione|title|default_if_none:"" }} </span>
             <span class="category"><span class="glyphicon glyphicon-record"></span>
                 {{ territorio.get_cluster_display }}
                 {% if comune_context.bil_popolazione_residente %}
