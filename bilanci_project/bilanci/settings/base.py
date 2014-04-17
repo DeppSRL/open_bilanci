@@ -393,7 +393,8 @@ APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 TIMELINE_START_DATE = APP_START_DATE
 TIMELINE_END_DATE = APP_END_DATE
 
-SELECTOR_DEFAULT_YEAR = 2012
+SELECTOR_DEFAULT_YEAR = 2013
+SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
 
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'
@@ -405,8 +406,8 @@ TERRITORIO_2_COLOR = '#a51206'
 
 CLUSTER_LINE_COLOR = '#f7b5a1'
 
+DEFAULT_INDICATOR_SLUG = 'autonomia-finanziaria'
 INDICATOR_COLORS = ['#cc6633','#a51206','#f7b5a1','#8568d8','#1ca368','#78a31c']
-
 
 # euros range to define two sums equal
 # due to round of floats to integers,

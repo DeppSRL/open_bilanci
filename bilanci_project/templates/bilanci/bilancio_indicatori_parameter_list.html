@@ -1,5 +1,5 @@
 <aside id="sidebar" class="hidden">
-    <form id="parameter-list-form">
+    <form id="parameter-list-form"  method="get" >
         <div class="panel panel-default">
             <div class="panel-body">
 
@@ -18,7 +18,11 @@
                                 {% for parameter in parameter_list %}
                                 <li>
                                     <a href="#" class="pin pull-right" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i comuni per questo indicatore.<br><strong class='link'><span class='icon sprite-search-alt'></span> Lorem ipsum</strong>"><span class="icon sprite-info"></span></a>
-                                    <input type="checkbox" value="" name="">
+                                    <input type="checkbox" value="{{ parameter.slug }}" name="slug"
+                                            {% if parameter.slug in selected_parameters %}
+                                                checked="checked"
+                                            {% endif %}
+                                            >
                                     {{ parameter.denominazione }}
                                 </li>
                                 {% endfor %}
@@ -26,7 +30,7 @@
 
                         </li>
                         <li style="border:0; margin-top: 20px;">
-                            <button type="button" class="btn btn-default">Aggiorna</button>
+                            <input type="submit" class="btn btn-default" value="Aggiorna">
                         </li>
 
                     </ul>

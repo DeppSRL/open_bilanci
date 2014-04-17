@@ -272,7 +272,10 @@ class Command(BaseCommand):
         incarico.op_link = incarico_dict['op_link']
 
         if 'picture_url' in incarico_dict:
-            incarico.pic_url = incarico_dict['picture_url']
+            # checks that the pic is attually there before writing the url in the db
+            pic_data = requests.get(incarico_dict['picture_url'])
+            if pic_data.content != '':
+                incarico.pic_url = incarico_dict['picture_url']
 
         # motivo commissariamento
         if 'description' in incarico_dict.keys():

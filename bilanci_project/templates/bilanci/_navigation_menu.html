@@ -4,7 +4,8 @@
         {% ifequal active_voice voice %}
             <li class="active"><a>{{ voice }}</a></li>
         {% else %}
-            <li><a href="{{ url }}?{{query_string}}">{{ voice }}</a></li>
+
+            <li><a href="{{ url }}{% if query_string and voice != 'indicatori' %}?{{query_string}}{% endif %}">{{ voice }}</a></li>
         {% endifequal %}
     {% endfor %}
     </ul>
