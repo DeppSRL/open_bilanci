@@ -116,7 +116,7 @@ class IncarichiGetterMixin(object):
     # transform bilancio values to be feeded to Visup widget
     ##
 
-    def transform_voce(self, voce_values, line_id, line_color):
+    def transform_voce(self, voce_values, line_id, line_color, decimals=0):
 
         series_dict = {
             'id':line_id,
@@ -126,7 +126,7 @@ class IncarichiGetterMixin(object):
 
         for voce_value in voce_values:
             series_dict['series'].append(
-                [voce_value.anno, voce_value.valore]
+                [voce_value.anno, round(voce_value.valore,decimals)]
             )
 
         return series_dict
@@ -159,7 +159,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_voce(indicatore_values, line_id, line_color)
+        return self.transform_voce(indicatore_values, line_id, line_color, decimals=2)
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
