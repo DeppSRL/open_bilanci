@@ -9,10 +9,14 @@
 var linechart = null;
 var secondary_linechart = null;
 
-function init_main_linechart(timeline_start_year, timeline_end_year){
+function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, tooltipUnit){
 
     "use strict";
     linechart = visup.linechart(".timeline-multiline");
+
+    // sets default values for Y axis value unit and tooltip value unit
+    axisUnit = typeof axisUnit !== 'undefined' ? axisUnit : 'MILIONI';
+    tooltipUnit = typeof tooltipUnit !== 'undefined' ? tooltipUnit : 'MLN';
 
     linechart.options({
         timeline: {
@@ -27,8 +31,8 @@ function init_main_linechart(timeline_start_year, timeline_end_year){
             start: timeline_start_year,
             end: timeline_end_year,
             circleRadius: 9,
-            axisUnit: "MILIONI",
-            tooltipUnit: "MLN",
+            axisUnit: axisUnit,
+            tooltipUnit: tooltipUnit,
             format: "%Y",
             visible: true
         },
