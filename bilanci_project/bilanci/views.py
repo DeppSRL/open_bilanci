@@ -280,6 +280,7 @@ class BilancioCompositionWidgetView(TemplateView):
         # * loops over the results to create the data struct to be returned
         ##
         totale_label = 'Totale'
+        comparison_not_available = False
         main_rootnode = Voce.objects.get(slug=main_bilancio_slug)
         main_nodes = main_rootnode.get_descendants(include_self=True).filter(level__lte=main_rootnode.level+1)
 
@@ -298,6 +299,9 @@ class BilancioCompositionWidgetView(TemplateView):
             anno = comparison_bilancio_year,
             territorio=self.territorio
         ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+
+        if len(comparison_values) == 0:
+            comparison_not_available = True
 
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
@@ -331,13 +335,14 @@ class BilancioCompositionWidgetView(TemplateView):
                     #calculate the % of variation between main_bilancio and comparison bilancio
 
                     variation = 0
-                    comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
-                    if comparison_value != 0:
-                        single_value = float(single_value['valore'])
-                        variation = ((single_value-comparison_value)/ comparison_value)*100.0
-                    else:
-                        # todo: what to do when a value passes from 0 to N?
-                        variation = 999.0
+                    if comparison_not_available is False:
+                        comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
+                        if comparison_value != 0:
+                            single_value = float(single_value['valore'])
+                            variation = ((single_value-comparison_value)/ comparison_value)*100.0
+                        else:
+                            # todo: what to do when a value passes from 0 to N?
+                            variation = 999.0
 
                     # sets 2 digit precision for variation after decimal point
 
