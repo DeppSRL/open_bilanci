@@ -18,7 +18,11 @@
                                 {% for parameter in parameter_list %}
                                 <li>
                                     <a href="#" class="pin pull-right" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i comuni per questo indicatore.<br><strong class='link'><span class='icon sprite-search-alt'></span> Lorem ipsum</strong>"><span class="icon sprite-info"></span></a>
-                                    <input type="checkbox" value="{{ parameter.slug }}" name="slug">
+                                    <input type="checkbox" value="{{ parameter.slug }}" name="slug"
+                                            {% if parameter.slug in selected_parameters %}
+                                                checked="checked"
+                                            {% endif %}
+                                            >
                                     {{ parameter.denominazione }}
                                 </li>
                                 {% endfor %}

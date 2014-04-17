@@ -530,7 +530,7 @@ class BilancioOverView(DetailView):
     def get(self, request, *args, **kwargs):
 
         ##
-        # if year or type parameter ar missing redirects to a page for default year / default bilancio type
+        # if year or type parameter are missing redirects to a page for default year / default bilancio type
         ##
 
         missing_parameter = False
@@ -557,8 +557,8 @@ class BilancioOverView(DetailView):
 
             return HttpResponseRedirect(reverse(destination_view, kwargs={'slug':self.territorio.slug})\
                                         + "?year={0}&type={1}".format(self.year, self.tipo_bilancio))
-        else:
-            return super(BilancioOverView, self).get(self, request, *args, **kwargs)
+
+        return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 
 
     def get_context_data(self, **kwargs ):
@@ -595,24 +595,38 @@ class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
     selected_section = "indicatori"
+    territorio = None
+    
+    def get(self, request, *args, **kwargs):
+
+        ##
+        # if parameter is missing redirects to a page for default indicator
+        ##
+        self.territorio = self.get_object()
+
+        if self.request.GET.get('slug') is None:
+            return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
+                                        + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
+
+        return super(BilancioIndicatoriView, self).get(self, request, *args, **kwargs)
+
+
 
     def get_context_data(self, **kwargs ):
 
         context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
+        
+        menu_voices_kwargs = {'slug':self.territorio.slug}
 
         # get selected indicatori slug list from request and verifies them
-        verified_slug_list = self.verify_slug(self.request.GET.getlist('slug'))
-
-        territorio = self.get_object()
-
-        menu_voices_kwargs = {'slug': territorio.slug}
+        selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
 
         context['selected_section']=self.selected_section
         # get Comune context data from db
         year = settings.SELECTOR_DEFAULT_YEAR
 
-        context['comune_context'] = Contesto.get_context(year, territorio)
-        context['territorio_opid'] = territorio.op_id
+        context['comune_context'] = Contesto.get_context(year,self.territorio)
+        context['territorio_opid'] =self.territorio.op_id
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
@@ -624,7 +638,8 @@ class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
 
         # creates the query string to call the IncarichiIndicatori Json view in template
-        context['selected_indicators_qstring'] = '?slug='+'&slug='.join(verified_slug_list)
+        context['selected_indicators'] = selected_indicators_slugs
+        context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)
         return context
 
 
