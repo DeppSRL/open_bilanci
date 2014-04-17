@@ -19,7 +19,6 @@ urlpatterns = patterns('',
     url(r'^bilanci/(?P<slug>[-\w]+)/spese$', BilancioSpeseView.as_view(), name='bilanci-spese'),
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
-
     # Json view for linegraph voci di bilancio
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
 
@@ -30,17 +29,12 @@ urlpatterns = patterns('',
     url(r'^composition_widget/(?P<widget_type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
         BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 
-    # todo: Composition widget for Bilancio comparison choosing explicitly comparison Bilancio
-    # url(r'^composition_widget/(?P<widget_type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
-    #     BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
-
     # classifiche
     url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
     url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)/(?P<anno>[-\d]{4})$', ClassificheListView.as_view(), name='classifiche-list'),
 
     # confronti
     url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),
-
 
     url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)$',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'

@@ -347,8 +347,6 @@ CACHE_PAGE_DURATION_SECS = 3600
 
 SOUTH_TESTS_MIGRATE = False
 
-REFERENCE_YEAR = 2012
-
 GDP_DEFLATORS = {
     2000: 0.777728432,
     2001: 0.800109527,
@@ -389,6 +387,7 @@ APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
 ##
 
+REFERENCE_YEAR = 2012
 
 TIMELINE_START_DATE = APP_START_DATE
 TIMELINE_END_DATE = APP_END_DATE
