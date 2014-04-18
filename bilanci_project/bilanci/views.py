@@ -10,7 +10,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View, L
 import json
 from bilanci.forms import TerritoriComparisonSearchForm
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
 from collections import OrderedDict
 from django.conf import settings
@@ -648,6 +648,9 @@ class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
 
 class BilancioDetailView(BilancioOverView):
 
+    def get_slug(self):
+        raise Exception("Not implemented in base class.")
+
     def get_context_data(self, **kwargs ):
 
         context = super(BilancioDetailView, self).get_context_data(**kwargs)
@@ -664,9 +667,27 @@ class BilancioDetailView(BilancioOverView):
         budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=self.year).\
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
+        values_type = self.request.GET.get('values_type', 'real')
+
+        absolute_values = budget_values.values_list('voce__slug', 'valore')
+        percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
+        if values_type == 'nominal':
+            absolute_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
+                    absolute_values
+                )
+            )
+            percapita_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
+                    percapita_values
+                )
+            )
+
         context['budget_values'] = {
-            'absolute': dict(budget_values.values_list('voce__slug', 'valore')),
-            'percapita': dict(budget_values.values_list('voce__slug', 'valore_procapite'))
+            'absolute': dict(absolute_values),
+            'percapita': dict(percapita_values)
         }
 
 
@@ -690,7 +711,6 @@ class BilancioEntrateView(BilancioDetailView):
     selected_section = "entrate"
 
     def get_slug(self):
-
         return "{0}-{1}".format(self.tipo_bilancio,"entrate")
 
 
@@ -700,11 +720,16 @@ class BilancioSpeseView(BilancioDetailView):
     selected_section = "spese"
 
     def get_slug(self):
+        query_string = self.request.META['QUERY_STRING']
 
         if self.tipo_bilancio == 'preventivo':
             return "{0}-{1}".format(self.tipo_bilancio,"spese")
         else:
-            return "{0}-{1}".format(self.tipo_bilancio,"spese-impegni")
+            cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+            return "{0}-{1}".format(
+                self.tipo_bilancio,
+                "spese-{0}".format(cas_com_type)
+            )
 
 
 class ClassificheRedirectView(RedirectView):
