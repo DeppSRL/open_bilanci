@@ -11,7 +11,7 @@
 
 {% block bilancio_indicatori_parameter_menu %}
 
-        {% bilancio_indicatori_parameter_list  indicator_list territorio_slug selected_indicators%}
+    {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
 
 {% endblock %}
 
@@ -42,7 +42,7 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
-
+            //init linechart settings % as measure unit
             init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},'%','%');
             feed_main_linechart();
         });

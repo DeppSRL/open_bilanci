@@ -11,7 +11,7 @@ function setIndicatorLinksUrl(){
 
     var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
     //gets all the link in the parameter side menu
-    var parameters = $('.confronti_parameter_container li a');
+    var parameters = $('#confronti_parameter_container li a');
 
     //sets the link for indicators in the menu as
     // confronti/territorio1/territorio2/typeofindicator/indicator-slug
@@ -132,7 +132,4 @@ function init_confronti_page(){
     $("#confronti_submit_btn").on('click', function(e) {
         submitButtonConfronti(e);
     });
-
-    //initialize linechart element
-    init_main_linechart();
 }
