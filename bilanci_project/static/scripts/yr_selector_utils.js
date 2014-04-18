@@ -17,7 +17,7 @@ function xfunct(y){
 function clicked_year(selected_year){
     // gets the 4 digits in the reference url representing the year value and substitutes
     //  it with the selected year value
-    window.location.href = reference_url.replace(/[-\d]{4}/,String(selected_year));
+    window.location.href = window.location.href.replace(/year=[-\d]{4}/,"year=" + String(selected_year));
 
 }
 
@@ -25,7 +25,7 @@ function clicked_year(selected_year){
 function clicked_button(){
     // if we are seeing preventivo navigates to consuntivo and viceversa
     var destination_bilancio_type = '';
-    var re = /type=([\w]+)$/;
+    var re = /type=([\w]+)?/;
 
     var actual_bilancio_type = reference_url.match(re)[1].toLowerCase();
     if(actual_bilancio_type=='preventivo')
@@ -33,7 +33,7 @@ function clicked_button(){
     else
        destination_bilancio_type = 'preventivo';
 
-    window.location.href = reference_url.replace(re,'type='+destination_bilancio_type);
+    window.location.href = window.location.href.replace(re,'type='+destination_bilancio_type);
 
 }
 

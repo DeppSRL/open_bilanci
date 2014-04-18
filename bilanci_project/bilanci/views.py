@@ -561,6 +561,10 @@ class BilancioOverView(DetailView):
             return HttpResponseRedirect(reverse(destination_view, kwargs={'slug':self.territorio.slug})\
                                         + "?year={0}&type={1}".format(self.year, self.tipo_bilancio))
 
+
+        self.values_type = self.request.GET.get('values_type', 'real')
+        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+
         return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 
 
@@ -667,7 +671,7 @@ class BilancioDetailView(BilancioOverView):
         budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=self.year).\
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
-        values_type = self.request.GET.get('values_type', 'real')
+        values_type = self.values_type
 
         absolute_values = budget_values.values_list('voce__slug', 'valore')
         percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
@@ -711,7 +715,16 @@ class BilancioEntrateView(BilancioDetailView):
     selected_section = "entrate"
 
     def get_slug(self):
-        return "{0}-{1}".format(self.tipo_bilancio,"entrate")
+        if self.cas_com_type == 'competenza':
+            self.cas_com_type = 'accertamenti'
+
+        if self.tipo_bilancio == 'preventivo':
+            return "{0}-{1}".format(self.tipo_bilancio,"entrate")
+        else:
+            return "{0}-{1}".format(
+                self.tipo_bilancio,
+                "entrate-{0}".format(self.cas_com_type)
+            )
 
 
 
@@ -720,15 +733,15 @@ class BilancioSpeseView(BilancioDetailView):
     selected_section = "spese"
 
     def get_slug(self):
-        query_string = self.request.META['QUERY_STRING']
+        if self.cas_com_type == 'competenza':
+            self.cas_com_type = 'impegni'
 
         if self.tipo_bilancio == 'preventivo':
             return "{0}-{1}".format(self.tipo_bilancio,"spese")
         else:
-            cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
             return "{0}-{1}".format(
                 self.tipo_bilancio,
-                "spese-{0}".format(cas_com_type)
+                "spese-{0}".format(self.cas_com_type)
             )
 
 
