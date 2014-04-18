@@ -31,12 +31,6 @@
                             {% voice_values node.slug budget_values %}
                         </td>
 
-                        <td class="col-sm-3 chart-wrapper">
-                            {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
-                                {% voice_composition node.slug budget_values %}
-                            {% endif %}
-                        </td>
-
                         <td class="col-sm-1">
                            <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle"
                               id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
@@ -45,12 +39,12 @@
                     </tr>
 
                     <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
-                        <td colspan="4" class="col-sm-12 details" style="border: 0">
+                        <td colspan="3" class="col-sm-12 details" style="border: 0">
                         </td>
                     </tr>
 
                     <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                        <td colspan="4" class="col-sm-12 details">
+                        <td colspan="3" class="col-sm-12 details">
 
                             {% if not node.is_leaf_node %}
                             <!-- Sub table level 1 -->

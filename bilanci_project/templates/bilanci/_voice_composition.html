@@ -1,7 +1,18 @@
 {% load humanize %}
 {% load voice_values %}
 
-<div class="chart pull-left" id="{{ hash }}" data-chart-value="{{ investimenti_perc|floatformat:"0" }}"></div>
+{% if correnti_value > 0 or investimenti_totali > 0 %}
+    {% if investimenti_perc <= 1 %}
+        <!-- small values hack to avoid donut disappeareance -->
+        <div class="chart pull-left" id="{{ hash }}" data-chart-value="0.01"></div>
+    {% else %}
+        <!-- standard donut -->
+        <div class="chart pull-left" id="{{ hash }}" data-chart-value="{{ investimenti_perc|floatformat:"2" }}"></div>
+    {% endif %}
+{% else %}
+    <!-- no values, no donut -->
+    <div class="chart pull-left" id="{{ hash }}" data-chart-value="0"></div>
+{% endif %}
 <ul class="list-unstyled small">
     <li>
         <span class="label">SPESE CORRENTI</span><span class="value">{{ correnti_value|floatformat:"0"|intword }} €</span>
