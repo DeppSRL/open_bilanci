@@ -16,21 +16,31 @@
 {% endblock %}
 
 {% block confronti_parameter_menu_toggle %}
-    <div class="row">
-        <div class="col-sm-4">
-            <a href="" id="toggle-menu" role="button">
-                <span class="icon sprite-toggle-menu"></span>
-            </a>
-        </div>
+
+    {# menu handle is hidden on pageload   #}
+    <div id="side-controls" style="display: block; left: -50px; top: 343px;">
+        <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-open-menu"></span></a>
     </div>
+
 {% endblock %}
 
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
-    <aside id="sidebar" class="confronti_parameter_container" class="hidden">
-        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
-        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
-        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+    <aside id="sidebar" class="hidden">
+        <form id="parameter-list-form"  method="get" >
+            <div class="panel panel-default">
+                <div class="panel-body" id="confronti_parameter_container">
+
+                    <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
+                    <h3 class="menu-title">
+                        Seleziona
+                    </h3>
+                    {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+                    {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
+                    {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+                </div>
+            </div>
+        </form>
 
     </aside>
 {% endblock %}
@@ -68,6 +78,7 @@
         $(document).ready(function(){
 
             init_confronti_page();
+            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
             // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
             if($('#push-menu').length){
                 $("#push-menu").on("click", function(){ linechart.resize();});
