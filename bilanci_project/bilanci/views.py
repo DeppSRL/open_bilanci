@@ -116,7 +116,7 @@ class IncarichiGetterMixin(object):
     # transform bilancio values to be feeded to Visup widget
     ##
 
-    def transform_voce(self, voce_values, line_id, line_color, decimals=0):
+    def transform_voce(self, voce_values, line_id, line_color, decimals=0, values_type='real'):
 
         series_dict = {
             'id':line_id,
@@ -124,25 +124,14 @@ class IncarichiGetterMixin(object):
             'series':[]
         }
 
-        """
-        if values_type == 'nominal':
-            absolute_values = dict(
-                map(
-                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
-                    absolute_values
-                )
-            )
-            percapita_values = dict(
-                map(
-                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
-                    percapita_values
-                )
-            )
-        """
-
         for voce_value in voce_values:
+            # real values are multiplied by GDP_DEFLATOR rates
+            if values_type == 'real':
+                valore = voce_value.valore * settings.GDP_DEFLATORS[voce_value.anno]
+            else:
+                valore = voce_value.valore
             series_dict['series'].append(
-                [voce_value.anno, round(voce_value.valore,decimals)]
+                [voce_value.anno, round(valore,decimals)]
             )
 
         return series_dict
@@ -151,7 +140,7 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color):
+    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color, values_type='real'):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
@@ -160,7 +149,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_voce(voce_values, line_id, line_color)
+        return self.transform_voce(voce_values, line_id, line_color, values_type=values_type)
 
     ##
     # get indicatori values of specified Indicatore for Territorio in the time span
@@ -202,7 +191,12 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
 
         # gets voce value for the territorio over the period set
-        voce_set = self.get_voce_struct(territorio, voce_bilancio, line_id=1, line_color=settings.TERRITORIO_1_COLOR)
+        # check nominal or real values in query string
+        voce_set = self.get_voce_struct(
+            territorio, voce_bilancio, line_id=1,
+            line_color=settings.TERRITORIO_1_COLOR,
+            values_type=self.request.GET.get('values_type', 'real')
+        )
 
         cluster_mean_set = self.get_voce_struct(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
 
@@ -565,8 +559,6 @@ class BilancioOverView(DetailView):
     territorio= None
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
-    year = settings.SELECTOR_DEFAULT_YEAR
-    tipo_bilancio = settings.SELECTOR_DEFAULT_BILANCIO_TYPE
 
     def get(self, request, *args, **kwargs):
 
@@ -574,21 +566,37 @@ class BilancioOverView(DetailView):
         # if year or type parameter are missing redirects to a page for default year / default bilancio type
         ##
 
-        missing_parameter = False
+        must_redirect = False
         self.territorio = self.get_object()
 
-        if self.request.GET.get('year') is not None:
-            self.year = self.request.GET.get('year')
+        self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
+        try:
+            best_bilancio = self.territorio.best_bilancio_type(self.year)
+        except Exception:
+            return HttpResponseRedirect(reverse('404'))
+
+        if 'type' in self.request.GET and self.request.GET['type'] == 'consuntivo' and \
+            best_bilancio == 'preventivo':
+            must_redirect = True
+
+        if self.selected_section == 'bilancio':
+            self.tipo_bilancio = best_bilancio
+            if 'type' in self.request.GET and self.request.GET['type'] != self.tipo_bilancio:
+                must_redirect = True
         else:
-            missing_parameter = True
+            if not must_redirect:
+                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
+            else:
+                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
 
-        if self.request.GET.get('type') is not None:
-            self.tipo_bilancio = self.request.GET.get('type')
-        else:
-            missing_parameter = True
+        self.values_type = self.request.GET.get('values_type', 'real')
+        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
 
-        if missing_parameter:
+        qs = self.request.META['QUERY_STRING']
+        must_redirect = (len(qs.split('&')) < 4) or must_redirect
 
+
+        if must_redirect:
             destination_view = 'bilanci-overview'
 
             if self.selected_section == 'entrate':
@@ -596,12 +604,11 @@ class BilancioOverView(DetailView):
             elif self.selected_section == 'spese':
                 destination_view = 'bilanci-spese'
 
-            return HttpResponseRedirect(reverse(destination_view, kwargs={'slug':self.territorio.slug})\
-                                        + "?year={0}&type={1}".format(self.year, self.tipo_bilancio))
-
-
-        self.values_type = self.request.GET.get('values_type', 'real')
-        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+            return HttpResponseRedirect(
+                reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
+                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
+                    self.year, self.tipo_bilancio,
+                    self.values_type, self.cas_com_type))
 
         return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 
@@ -624,6 +631,7 @@ class BilancioOverView(DetailView):
         context['query_string'] = query_string
         context['selected_year'] = self.year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
+        context['values_type'] = self.values_type
 
 
         context['menu_voices'] = OrderedDict([
@@ -713,7 +721,7 @@ class BilancioDetailView(BilancioOverView):
 
         absolute_values = budget_values.values_list('voce__slug', 'valore')
         percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
-        if values_type == 'nominal':
+        if values_type == 'real':
             absolute_values = dict(
                 map(
                     lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),

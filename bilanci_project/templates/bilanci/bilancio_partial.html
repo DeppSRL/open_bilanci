@@ -90,7 +90,8 @@
 
 
     function feed_main_linechart(){
-        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}",
+        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
+                "?values_type={{ values_type }}",
                 function (i) {
             linechart.data(i)
         });
@@ -99,7 +100,8 @@
 
    function feed_secondary_linechart(voce_slug){
         d3.json(
-            "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug,
+            "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug +
+                "?values_type={{ values_type }}",
             function (i) {
                 secondary_linechart.data(i);
                 secondary_linechart.resize();
