@@ -124,6 +124,22 @@ class IncarichiGetterMixin(object):
             'series':[]
         }
 
+        """
+        if values_type == 'nominal':
+            absolute_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
+                    absolute_values
+                )
+            )
+            percapita_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
+                    percapita_values
+                )
+            )
+        """
+
         for voce_value in voce_values:
             series_dict['series'].append(
                 [voce_value.anno, round(voce_value.valore,decimals)]
@@ -737,15 +753,16 @@ class BilancioEntrateView(BilancioDetailView):
     selected_section = "entrate"
 
     def get_slug(self):
+        cassa_competenza_type = self.cas_com_type
         if self.cas_com_type == 'competenza':
-            self.cas_com_type = 'accertamenti'
+            cassa_competenza_type = 'accertamenti'
 
         if self.tipo_bilancio == 'preventivo':
             return "{0}-{1}".format(self.tipo_bilancio,"entrate")
         else:
             return "{0}-{1}".format(
                 self.tipo_bilancio,
-                "entrate-{0}".format(self.cas_com_type)
+                "entrate-{0}".format(cassa_competenza_type)
             )
 
 
@@ -755,15 +772,16 @@ class BilancioSpeseView(BilancioDetailView):
     selected_section = "spese"
 
     def get_slug(self):
+        cassa_competenza_type = self.cas_com_type
         if self.cas_com_type == 'competenza':
-            self.cas_com_type = 'impegni'
+            cassa_competenza_type = 'impegni'
 
         if self.tipo_bilancio == 'preventivo':
             return "{0}-{1}".format(self.tipo_bilancio,"spese")
         else:
             return "{0}-{1}".format(
                 self.tipo_bilancio,
-                "spese-{0}".format(self.cas_com_type)
+                "spese-{0}".format(cassa_competenza_type)
             )
 
 
