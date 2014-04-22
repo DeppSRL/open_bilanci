@@ -277,6 +277,11 @@ class BilancioCompositionWidgetView(TemplateView):
     serie_end_year = settings.TIMELINE_END_DATE.year
     territorio = None
 
+    def get(self, request, *args, **kwargs):
+        self.values_type = self.request.GET.get('values_type', 'real')
+        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+        return super(BilancioCompositionWidgetView, self).get(self, request, *args, **kwargs)
+
 
     def create_composition_data(self, main_bilancio_year, main_bilancio_slug, comparison_bilancio_year, comparison_bilancio_slug):
 
@@ -322,6 +327,13 @@ class BilancioCompositionWidgetView(TemplateView):
         comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
         comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
 
+        # assign correct GDP deflators (1 is assigned to nominal values)
+        if self.values_type == 'real':
+            main_gdp_deflator = settings.GDP_DEFLATORS[int(main_bilancio_year)]
+            comparison_gdp_deflator = settings.GDP_DEFLATORS[int(comparison_bilancio_year)]
+        else:
+            main_gdp_deflator = 1.0
+            comparison_gdp_deflator = 1.0
 
         # insert all the children values in the data struct
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
@@ -339,16 +351,16 @@ class BilancioCompositionWidgetView(TemplateView):
                 value_dict['series'].append([single_value['anno'], single_value['valore']])
 
                 if single_value['anno'] == main_bilancio_year:
-                    value_dict['value'] = single_value['valore']
-                    value_dict['procapite'] = single_value['valore_procapite']
+                    value_dict['value'] = single_value['valore'] * main_gdp_deflator
+                    value_dict['procapite'] = single_value['valore_procapite'] * main_gdp_deflator
 
                     #calculate the % of variation between main_bilancio and comparison bilancio
 
                     variation = 0
                     if comparison_not_available is False:
-                        comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
+                        comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore']) * comparison_gdp_deflator
                         if comparison_value != 0:
-                            single_value = float(single_value['valore'])
+                            single_value = float(single_value['valore']) * main_gdp_deflator
                             variation = ((single_value-comparison_value)/ comparison_value)*100.0
                         else:
                             # todo: what to do when a value passes from 0 to N?
@@ -377,14 +389,22 @@ class BilancioCompositionWidgetView(TemplateView):
         # composition data is the data struct to be passed to the context
         composition_data = {'hover': True, 'showLabels':True}
 
+        if self.cas_com_type == 'competenza':
+            entrate_consuntivo_slug = 'consuntivo-entrate-accertamenti'
+            spese_consuntivo_slug = 'consuntivo-spese-impegni-spese-correnti-funzioni'
+        else:
+            entrate_consuntivo_slug = 'consuntivo-entrate-cassa'
+            spese_consuntivo_slug = 'consuntivo-spese-cassa-spese-correnti-funzioni'
+
+
         entrate_slug = {
             'preventivo': 'preventivo-entrate',
-            'consuntivo': 'consuntivo-entrate-cassa',
+            'consuntivo': entrate_consuntivo_slug,
         }
 
         spese_slug = {
             'preventivo': 'preventivo-spese-spese-correnti-funzioni',
-            'consuntivo': 'consuntivo-spese-cassa-spese-correnti-funzioni',
+            'consuntivo': spese_consuntivo_slug,
         }
 
 
