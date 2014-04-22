@@ -153,6 +153,22 @@ class Territorio(models.Model):
 
         return contesto
 
+    def best_bilancio_type(self, year):
+        """
+        Return consuntivo, as first choice, if available,
+        else preventivo, as second choice-
+
+        Return None if nothing's available (no-data).
+        """
+        available_types = self.valorebilancio_set.all().values_list('voce__slug', flat=True).filter(
+            anno=year, voce__slug__in=('preventivo-entrate', 'consuntivo-entrate'))
+
+        if 'consuntivo-entrate' in available_types:
+            return 'consuntivo'
+        elif 'preventivo-entrate' in available_types:
+            return 'preventivo'
+        else:
+            raise Exception()
 
     def nearest_valid_population(self, year):
         """

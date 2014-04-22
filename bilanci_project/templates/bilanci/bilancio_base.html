@@ -68,10 +68,73 @@
 
 
         {#  here goes the Menu for bilanci-indicatori page       #}
-        {% block bilancio_indicatori_parameter_menu %}{% endblock %}
+        {% block bilancio_settings_menu %}
+            <div id="side-controls">
+                <a href="#" role="button" class="slider-arrow show" id="open-settings"><span class="icon sprite-open-menu"></span></a>
+            </div>
+            <div id="settings" class="closed">
+                <form id="settings-list-form" method="get">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <a href="#" role="button" href="#" class="pull-right slider-arrow close" id="hide-settings"><span class="icon sprite-close-menu"></span></a>
+                            <h3 class="panel-title">IMPOSTAZIONI</h3>
+                            <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
+                            <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item label">MOSTRA PER</li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="radio" value="cassa"
+                                               {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
+                                               id="cas_com_type_cassa" name="cas_com_type">
+                                        <label for="cas_com_type_cassa">Cassa</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" value="competenza"
+                                               {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
+                                               id="cas_com_type_competenza" name="cas_com_type">
+                                        <label for="cas_com_type_competenza">Competenza</label>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <ul class="list-group">
+                            <li class="list-group-item label">VALORI</li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="radio" value="real"
+                                               {% if values_type == "real" %}checked="checked"{% endif %}
+                                               id="values_type_real" name="values_type">
+                                        <label for="values_type_real">Reali</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" value="nominal"
+                                               {% if values_type == "nominal" %}checked="checked"{% endif %}
+                                               id="values_type_nominal" name="values_type">
+                                        <label for="values_type_nominal">Nominali</label>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="panel-footer text-center">
+                            <input type="submit" class="btn btn-default" value="Aggiorna">
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        {% endblock %}
+
+        {% block bilancio_indicatori_selection_menu %}{% endblock %}
         </div>
+
         {#  here goes the handle for Menu for bilanci-indicatori page       #}
-        {% block bilancio_indicatori_toggle_menu %}{% endblock %}
+        {% block bilancio_indicatori_selection_toggle_menu %}{% endblock %}
+
+
 
     </div>
 
