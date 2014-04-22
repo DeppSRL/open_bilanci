@@ -413,6 +413,11 @@ class BilancioCompositionWidgetView(TemplateView):
 
         if widget_type == 'overview':
             self.template_name = 'bilanci/composizione_bilancio.html'
+
+        #     debug: only for visup testing
+        elif widget_type =='overview_new':
+            self.template_name = 'bilanci/composizione_bilancio_new.html'
+        #  / debug
         else:
             self.template_name = 'bilanci/composizione_entrate_uscite.html'
 
