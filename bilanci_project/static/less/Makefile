@@ -1,4 +1,4 @@
-STYLES_LESS = ./main.less
+STYLES_LESS = ./project.less
 STYLES_CSS = ../css/main.css
 DATE=$(shell date +%I:%M%p)
 CHECK=\033[32m✔\033[39m

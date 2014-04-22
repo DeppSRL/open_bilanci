@@ -297,44 +297,37 @@ class BilancioCompositionWidgetView(TemplateView):
         comparison_rootnode = Voce.objects.get(slug=comparison_bilancio_slug)
         comparison_nodes = comparison_rootnode.get_descendants(include_self=True).filter(level__lte=comparison_rootnode.level+1)
 
-        # Values over the years to create line graphs for each voce bilancio
-        main_historic = ValoreBilancio.objects.filter(
+        main_values = ValoreBilancio.objects.filter(
             voce__in= main_nodes,
             anno__gte=self.serie_start_year,
             anno__lte=self.serie_end_year,
             territorio=self.territorio
             ).values('voce__denominazione','voce__level','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-
-        # one-year values to calculate variation between main bilancio and comparison bilancio
-        main_one_year = ValoreBilancio.objects.filter(
-            voce__in= main_nodes,
-            anno = main_bilancio_year,
-            territorio=self.territorio
-            ).values('voce__denominazione','voce__level','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
-
-
-        comparison_one_year = ValoreBilancio.objects.filter(
+        comparison_values = ValoreBilancio.objects.filter(
             voce__in=comparison_nodes,
             anno = comparison_bilancio_year,
             territorio=self.territorio
         ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-        if len(comparison_one_year) == 0 or len(main_one_year) == 0:
+        if len(comparison_values) == 0:
             comparison_not_available = True
-
 
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
 
-        main_historic_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
-        main_historic_regroup = dict((k,list(v)) for k,v in groupby(main_historic, key=main_historic_keygen))
+        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
+        main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        # creates data struct for bilancio voices
-        for main_value_denominazione, main_value_set in main_historic_regroup.iteritems():
+        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
+        comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
+
+
+        # insert all the children values in the data struct
+        for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # creates value dict
-            value_dict = dict(label = '', series = [], total = False)
+            value_dict = dict(label = main_value_denominazione, series = [], total = False)
 
             # if the value considered is a total value then sets the appropriate flag
             if main_value_denominazione == totale_label:
@@ -345,42 +338,27 @@ class BilancioCompositionWidgetView(TemplateView):
 
                 value_dict['series'].append([single_value['anno'], single_value['valore']])
 
+                if single_value['anno'] == main_bilancio_year:
+                    value_dict['value'] = single_value['valore']
+                    value_dict['procapite'] = single_value['valore_procapite']
+
+                    #calculate the % of variation between main_bilancio and comparison bilancio
+
+                    variation = 0
+                    if comparison_not_available is False:
+                        comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore'])
+                        if comparison_value != 0:
+                            single_value = float(single_value['valore'])
+                            variation = ((single_value-comparison_value)/ comparison_value)*100.0
+                        else:
+                            # todo: what to do when a value passes from 0 to N?
+                            variation = 999.0
+
+                    # sets 2 digit precision for variation after decimal point
+
+                    value_dict['variation'] = round(variation,2)
+
             composition_data.append(value_dict)
-
-
-        # creates variation data for the comparison year: this sets the circles forces in the widget
-        if comparison_not_available is False:
-            main_one_yr_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
-            main_one_yr_regroup = dict((k,list(v)[0]) for k,v in groupby(main_one_year, key=main_one_yr_keygen))
-
-            comparison_one_yr_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
-            comparison_one_yr_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_one_year, key=comparison_one_yr_keygen))
-
-            for main_one_yr_denominazione, main_one_yr_value in main_one_yr_regroup.iteritems():
-                value_dict = dict(label = '', series = [], total = False)
-                # if the value considered is a total value then sets the appropriate flag
-                if main_one_yr_denominazione == totale_label:
-                    value_dict['total'] = True
-
-                value_dict['value'] = main_one_yr_value['valore']
-                value_dict['procapite'] = main_one_yr_value['valore_procapite']
-
-                #calculate the % of variation between main_bilancio and comparison bilancio
-
-                variation = 0
-                if comparison_not_available is False and main_one_yr_denominazione in comparison_one_yr_regroup :
-                    comparison_value = float(comparison_one_yr_regroup[main_one_yr_denominazione]['valore'])
-                    if comparison_value != 0:
-                        single_value = float(main_one_yr_value['valore'])
-                        variation = ((single_value-comparison_value)/ comparison_value)*100.0
-                    else:
-                        # todo: what to do when a value passes from 0 to N?
-                        variation = 999.0
-
-                # sets 2 digit precision for variation after decimal point
-
-                value_dict['variation'] = round(variation,2)
-                composition_data.append(value_dict)
 
         return composition_data
 

@@ -46,10 +46,18 @@ $(document).ready(function(){
 });
 
 function resizeComponents(){
-    if(year_selector){
-        year_selector.resize();
+    /*
+    When the side menu is hidden / shown resizes the components that are defined for the page
+    */
+
+    if(typeof year_selector !== 'undefined' ){
+        if(year_selector){
+            year_selector.resize();
+        }
     }
-    if(linechart){
-        linechart.resize();
+    if(typeof linechart !== 'undefined' ){
+        if(linechart){
+            linechart.resize();
+        }
     }
 }
