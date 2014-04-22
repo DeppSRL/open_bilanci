@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta content='text/html;charset=UTF-8' http-equiv='content-type'>
+<title>Open bilanci</title>
+<link href='http://fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
+<link href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet'>
+<script src="/static/scripts/visup/visup-application-new.js"></script>
+<script>
+    $(document).ready( function() {
+
+      var data = {{ composition_data|safe }};
+
+      visup.bilancio(function(){
+{#            d3.json("/static/data/sample-bilancio.json", function(data){#}
+{#                visup.bilancio.data(data);#}
+{#                visup.bilancio.on("select", function(d) {#}
+{#                  console.log(d);#}
+{#                });#}
+{#            });#}
+      visup.bilancio.data(data);
+      })
+    });
+</script>
+{% verbatim %}
+<link href="/static/css/visup/visup-application-new.css" media="all" rel="stylesheet" />
+</head>
+<body ng-app='appOB'>
+<div class='wrap' ng-controller='AppControllerBilancio'>
+<div class='visup-main visup-graph-compare'>
+<div class='visup-graph-left-container'>
+<div class='visup-title'>Entrate</div>
+<div class='visup-graph-container'>
+</div>
+</div>
+<div class='visup-graph-right-container'>
+<div class='visup-title'>Spese</div>
+<div class='visup-graph-container'>
+</div>
+</div>
+<div class='visup-labels'>
+<div class='visup-label visup-label-1'>
+Aumenti Elevati
+<div class='h-divider'></div>
+</div>
+<div class='visup-label visup-label-2'>
+Valori in linea
+<div class='h-divider'></div>
+</div>
+<div class='visup-label visup-label-3'>
+Riduzioni elevate
+<div class='h-divider'></div>
+</div>
+<div class='v-divider'></div>
+</div>
+<div class='visup-legend'>
+<img alt="Legend" src="/assets/depp_openbilanci/legend-391613e23d0f375037d2533fa9b68a09.png" />
+</div>
+<div class='visup-graph-toolip' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
+<div class='visup-graph-toggle' ng-class="showLabels ? 'active' : ''">{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
+</div>
+<div class='visup-sidebar visup-sidebar1'>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget1.label}}</div>
+<div class='visup-subtitle'>{{widget1.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget1.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{widget1.variation}}%</div>
+<div>{{widget1.sublabel2}}</div>
+</div>
+<div class='visup-graph-container visup-spark-1'></div>
+<div class='visup-label'>{{widget1.sublabel3}}</div>
+</div>
+<div class='visup-widget visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-description'>
+<div class='visup-title'>{{selected.label}}</div>
+<div class='visup-subtitle'>{{type}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-value-2 inline-block vertical-middle'>
+{{selected.value | numstr}}?
+<!-- %span.small md ? -->
+</div>
+<div class='visup-value-3 inline-block vertical-middle'>
+<span class='bold'>{{ selected.procapite }}</span>
+procapite
+</div>
+<div class='visup-progress-single'>
+<div class='visup-progress-bar' ng-class="(selected.variation &lt; 0) ? 'negative' : '' " ng-style="{'background':selected.color, 'width':selected.variationAbs+'%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle'>
+<span class='bold'>{{selected.variation}}%</span>
+su preventivo {{year}}
+</div>
+</div>
+<i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
+</div>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget2.label}}</div>
+<div class='visup-subtitle'>{{widget2.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget2.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{widget2.variation}}%</div>
+<div>{{widget2.sublabel2}}</div>
+</div>
+<div class='visup-graph-container visup-spark-2'></div>
+<div class='visup-label'>{{widget2.sublabel3}}</div>
+</div>
+<div class='visup-widget'>
+<div class='visup-description'>
+<div class='visup-title'>{{widget3.label}}</div>
+<div class='visup-subtitle'>{{widget3.sublabel1}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget3.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
+<div class='visup-value-1 inline-block vertical-middle'>{{widget3.variation}}%</div>
+<div>{{widget3.sublabel2}}</div>
+</div>
+<div class='visup-graph-container visup-spark-3'></div>
+<div class='visup-label'>{{widget3.sublabel3}}</div>
+</div>
+<div class='visup-widget notitle-variation active-selection active-hover'>
+<div>Percentuale sul totale delle {{type}}</div>
+<div class='visup-pie-container'></div>
+<div class='visup-value-2'>{{selected.percent}}%</div>
+</div>
+<div class='visup-widget notitle active-selection active-hover'>
+<div class='visup-graph-container visup-spark-4' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
+<div class='inline-block vertical-middle'>Andamento {{(selected.series != null) ? selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
+</div>
+<div class='visup-credits'>made by VISUP</div>
+</div>
+</div>
+</body>
+</html>
+{% endverbatim %}
