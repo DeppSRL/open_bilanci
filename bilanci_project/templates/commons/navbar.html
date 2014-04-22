@@ -21,8 +21,19 @@
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="{% url 'confronti-home' %}"><span class="icon sprite-confronti"></span> confronti</a></li>
-                        <li class="active"><a href="{% url 'classifiche-redirect' %}"><span class="icon sprite-classifiche"></span> classifiche</a></li>
-                        <li><a href="#"><span class="icon sprite-blog"></span> blog</a></li>
+                        <li>
+                            <a
+{#                                href="{% url 'classifiche-redirect' %}"#}
+                            >
+                                <span class="icon sprite-classifiche"></span>
+                                classifiche
+                            </a>
+                        </li>
+                        <li>
+                            <a>
+                                <span class="icon sprite-blog"></span> blog
+                            </a>
+                        </li>
                     </ul>
                 </div><!-- /.nav-collapse -->
             </div><!-- /.navbar -->
