@@ -333,7 +333,7 @@ class BilancioCompositionWidgetView(TemplateView):
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # creates value dict
-            value_dict = dict(label = '', series = [], total = False)
+            value_dict = dict(label = main_value_denominazione, series = [], total = False)
 
             # if the value considered is a total value then sets the appropriate flag
             if main_value_denominazione == totale_label:
