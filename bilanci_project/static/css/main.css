@@ -1892,4 +1892,5 @@ a:hover .sprite-close-menu {
 }
 form ul li label {
   font-weight: normal;
+  display: inline;
 }
