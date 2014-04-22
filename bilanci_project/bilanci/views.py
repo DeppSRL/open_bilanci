@@ -632,6 +632,7 @@ class BilancioOverView(DetailView):
         context['selected_year'] = self.year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['values_type'] = self.values_type
+        context['cas_com_type'] = self.cas_com_type
 
 
         context['menu_voices'] = OrderedDict([
