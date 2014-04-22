@@ -9,18 +9,19 @@
 
 {% block year_selector %}{% endblock %}
 
-{% block bilancio_indicatori_parameter_menu %}
-
+{% block bilancio_indicatori_selection_menu %}
     {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
-
 {% endblock %}
 
-{% block bilancio_indicatori_toggle_menu %}
+{% block bilancio_indicatori_selection_toggle_menu %}
     {# indicatori handle is hidden on pageload   #}
     <div id="side-controls" style="display: block; left: -50px; top: 343px;">
         <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-open-menu"></span></a>
     </div>
 {% endblock %}
+
+{% block bilancio_settings_menu %}{% endblock %}
+
 
 
 {% block bilanci_content %}
@@ -37,7 +38,9 @@
 
 {% block extra_js_inner %}
 
-    <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+   <!-- setup and bindings for sidebar menu(s) -->
+   <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+
 
     <script type="text/javascript">
 
