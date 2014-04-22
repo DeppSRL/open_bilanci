@@ -182,10 +182,6 @@ class Command(BaseCommand):
             # computes cluster mean for each value in the simplified tree
             self.set_cluster_mean(years, dryrun, skip_existing=skip_existing)
 
-        elif function == 'cluster_median':
-            # computes cluster mean for each value in the simplified tree
-            self.set_cluster_median(years, dryrun, skip_existing=skip_existing)
-
         else:
             self.logger.error(u"Function not found, quitting")
             return
@@ -248,102 +244,6 @@ class Command(BaseCommand):
         return
 
 
-    def set_cluster_median(self, years, dryrun, skip_existing=False):
-        """
-        Compute median values for the cluster
-
-        Virtual *cluster* locations are created, if non-existing-
-
-        Median values are computed both for Voci and Indicatori.
-        """
-
-        self.logger.info("Cluster median values computation start")
-
-        for cluster_data in Territorio.CLUSTER:
-            # creates a fake territorio for each cluster if it doens't exist already
-            territorio_cluster, is_created = Territorio.objects.\
-                get_or_create(
-                    denominazione = cluster_data[1],
-                    territorio = Territorio.TERRITORIO.L,
-                    cluster = cluster_data[0]
-                )
-
-            for indicatore in Indicatore.objects.all():
-                for year in years:
-                    self.logger.info(u"cluster: {0}, year: {1}, indicatore: {2}".format(territorio_cluster, year, indicatore.slug))
-                    valori =\
-                        ValoreIndicatore.objects.filter(
-                            territorio__cluster = cluster_data[0],
-                            anno = year,
-                            indicatore = indicatore,
-                        ).values_list('valore', flat=True)
-
-                    if valori is None:
-                        self.logger.warning("No values found for Indicatore: {0}, year:{1}. Median value not computed ".format(
-                            indicatore, year
-                        ))
-                        continue
-
-                    # remove null values
-                    valori = [v for v in valori if v]
-
-                    mediana = numpy.median(valori)
-                    if not math.isnan(mediana):
-                        valore_mediano, is_created = ValoreIndicatore.objects.get_or_create(
-                            indicatore=indicatore,
-                            territorio=territorio_cluster,
-                            anno=year,
-                            defaults={
-                                'valore': long(mediana)
-                            }
-                        )
-
-                        # overwrite existing values
-                        if not is_created and not skip_existing:
-                            valore_mediano.valore = long(mediana)
-                            valore_mediano.save()
-
-
-            for voce in Voce.objects.all():
-                if voce.is_leaf_node():
-                    for year in years:
-                        self.logger.info(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
-
-                        valori =\
-                            ValoreBilancio.objects.filter(
-                                territorio__cluster = cluster_data[0],
-                                anno = year,
-                                voce = voce,
-                            ).values_list('valore', flat=True)
-
-                        if valori is None:
-                            self.logger.warning("No values found for Voce: {0}, year:{1}. Median value not computed ".format(
-                                voce, year
-                            ))
-                            continue
-
-                        # remove null values
-                        valori = [v for v in valori if v]
-
-                        mediana = numpy.median(valori)
-                        if not math.isnan(mediana):
-                            valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
-                                voce=voce,
-                                territorio=territorio_cluster,
-                                anno=year,
-                                defaults={
-                                    'valore': long(mediana)
-                                }
-                            )
-
-                            # overwrite existing values
-                            if not is_created and not skip_existing:
-                                valore_mediano.valore = long(mediana)
-                                valore_mediano.save()
-
-        return
-
-
     def set_contesto(self, couchdb, territori, years, dryrun):
         missing_territories = []
 
@@ -355,10 +255,21 @@ class Command(BaseCommand):
                 # read data from couch
                 if bilancio_id in couchdb:
                     bilancio_data = couchdb[bilancio_id]
+                    titoli = [
+                        "quadro-1-dati-generali-al-31-dicembrenotizie-varie",
+                        "quadro-1-dati-generali-al-31-dicembre-notizie-varie",
+                        "quadro-1-dati-generali-al-31-dicembre-1-notizie-varie"
+                    ]
                     if "01" in bilancio_data['consuntivo']:
-                        if "quadro-1-dati-generali-al-31-dicembrenotizie-varie" in bilancio_data["consuntivo"]["01"]:
+                        for titolo in titoli:
+                            if titolo in bilancio_data["consuntivo"]["01"]:
+                                break
+                        else:
+                            titolo = None
+
+                        if titolo:
                             contesto_couch = bilancio_data["consuntivo"]["01"]\
-                                ["quadro-1-dati-generali-al-31-dicembrenotizie-varie"]["data"]
+                                [titolo]["data"]
 
                             # if the contesto data is not present, inserts the data in the db
                             # otherwise skips
@@ -401,7 +312,7 @@ class Command(BaseCommand):
 
 
                         else:
-                            self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembrenotizie-varie' not found for id:{0}, skipping". format(bilancio_id))
+                            self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembre[-]notizie-varie' not found for id:{0}, skipping". format(bilancio_id))
                     else:
                         self.logger.warning(u"Quadro '01' not found for id:{0}, skipping".format(bilancio_id))
 
