@@ -17,6 +17,7 @@
 {#                  console.log(d);#}
 {#                });#}
 {#            });#}
+
       visup.bilancio.data(data);
       })
     });
@@ -28,7 +29,7 @@
 <link href='/static/css/font-awesome.min.css' rel='stylesheet'>
 </head>
 <body ng-app='appOB'>
-<div class='wrap' ng-controller='AppController'>
+<div class='wrap' ng-controller='AppControllerBilancio'>
 <div class='visup-main visup-graph-compare'>
 <div class='visup-graph-left-container'>
 <div class='visup-title'>Entrate</div>
@@ -56,9 +57,10 @@ Riduzioni elevate
 <div class='v-divider'></div>
 </div>
 <div class='visup-legend'>
-<img alt="Legend" src="/static/img/visup/legend.png" />
+<img alt="Legend"   src="/static/img/visup/legend.png" />
 </div>
-<div class='visup-graph-toolip'></div>
+<div class='visup-graph-toolip' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
+<div class='visup-graph-toggle' ng-class="showLabels ? 'active' : ''">{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
 </div>
 <div class='visup-sidebar visup-sidebar1'>
 <div class='visup-widget'>
@@ -67,7 +69,7 @@ Riduzioni elevate
 <div class='visup-subtitle'>{{widget1.sublabel1}}</div>
 </div>
 <div class='visup-values'>
-<div class='visup-icon inline-block vertical-middle' ng-class="(widget1.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget1.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
 <div class='visup-value-1 inline-block vertical-middle'>{{widget1.variation}}%</div>
 <div>{{widget1.sublabel2}}</div>
 </div>
@@ -105,7 +107,7 @@ su preventivo {{year}}
 <div class='visup-subtitle'>{{widget2.sublabel1}}</div>
 </div>
 <div class='visup-values'>
-<div class='visup-icon inline-block vertical-middle' ng-class="(widget2.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget2.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
 <div class='visup-value-1 inline-block vertical-middle'>{{widget2.variation}}%</div>
 <div>{{widget2.sublabel2}}</div>
 </div>
@@ -118,21 +120,19 @@ su preventivo {{year}}
 <div class='visup-subtitle'>{{widget3.sublabel1}}</div>
 </div>
 <div class='visup-values'>
-<div class='visup-icon inline-block vertical-middle' ng-class="(widget3.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' "></div>
+<div class='visup-icon inline-block vertical-middle' ng-class="(widget3.variation &lt; 0) ? 'visup-icon-arrow-down' : 'visup-icon-arrow-up' " style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-697ea0e3d61e83b3682c7b2eed5114c6.png)'></div>
 <div class='visup-value-1 inline-block vertical-middle'>{{widget3.variation}}%</div>
 <div>{{widget3.sublabel2}}</div>
 </div>
 <div class='visup-graph-container visup-spark-3'></div>
 <div class='visup-label'>{{widget3.sublabel3}}</div>
 </div>
-<div class='visup-widget active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-widget notitle-variation active-selection active-hover'>
+<div>Percentuale sul totale delle {{type}}</div>
 <div class='visup-pie-container'></div>
-<div>
-<span class='bold'>{{selected.percent}}%</span>
-sul totale delle {{type}}
+<div class='visup-value-2'>{{selected.percent}}%</div>
 </div>
-</div>
-<div class='visup-widget notitle active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-widget notitle active-selection active-hover'>
 <div class='visup-graph-container visup-spark-4' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
 <div class='inline-block vertical-middle'>Andamento {{(selected.series != null) ? selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
 </div>
@@ -141,4 +141,5 @@ sul totale delle {{type}}
 </div>
 </body>
 </html>
+
 {% endverbatim %}
