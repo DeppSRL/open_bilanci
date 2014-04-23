@@ -125,14 +125,19 @@ class IncarichiGetterMixin(object):
         }
 
         for voce_value in voce_values:
-            # real values are multiplied by GDP_DEFLATOR rates
-            if values_type == 'real':
-                valore = voce_value.valore * settings.GDP_DEFLATORS[voce_value.anno]
+            if voce_value.valore is not None:
+                # real values are multiplied by GDP_DEFLATOR rates
+                if values_type == 'real':
+                    valore = voce_value.valore * settings.GDP_DEFLATORS[voce_value.anno]
+                else:
+                    valore = voce_value.valore
+                series_dict['series'].append(
+                    [voce_value.anno, round(valore,decimals)]
+                )
             else:
-                valore = voce_value.valore
-            series_dict['series'].append(
-                [voce_value.anno, round(valore,decimals)]
-            )
+                series_dict['series'].append(
+                    [voce_value.anno, None]
+                )
 
         return series_dict
 
