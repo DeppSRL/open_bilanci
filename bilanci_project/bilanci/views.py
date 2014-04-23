@@ -214,7 +214,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             {
               "color": settings.CLUSTER_LINE_COLOR,
               "id": 2,
-              "label": 'MEDIA CLUSTER "' + cluster.denominazione.upper()+'"'
+              "label": 'MEDIANA CLUSTER "' + cluster.denominazione.upper()+'"'
             },
 
         ]
