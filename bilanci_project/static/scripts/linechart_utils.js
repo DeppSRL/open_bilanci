@@ -50,6 +50,8 @@ function init_secondary_linechart(event){
     event.preventDefault();
     var timeline_start_year = event.data.timeline_start_year;
     var timeline_end_year = event.data.timeline_end_year;
+    var button_on_img = event.data.button_on_img;
+    var button_off_img = event.data.button_off_img;
 
     var btn = $( this );
     var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
@@ -64,7 +66,7 @@ function init_secondary_linechart(event){
                     visible: false
                 },
                 linechart: {
-                    height: 150,
+                    height: 270,
                     start: timeline_start_year,
                     end: timeline_end_year,
                     circleRadius: 9,
@@ -79,17 +81,43 @@ function init_secondary_linechart(event){
             });
         feed_secondary_linechart(voce_slug);
     }
-
+    /*
+     hides / show container div
+     change handler icon to on / off img
+     */
     if (chart_container.hasClass('hidden')) {
         chart_container.removeClass( 'hidden' );
+        event.target.src = button_on_img;
     } else {
         chart_container.addClass( 'hidden' );
+        event.target.src = button_off_img;
     }
 
     return false;
 
     }
 
+/*
+* switches the secondary timeline toggle on mouse over. avoids switching img after graph collapse
+* */
+
+function hover_secondary_toggle(event){
+    event.preventDefault();
+    var btn = $( this );
+    var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
+    var button_on_img = event.data.button_on_img;
+    var button_off_img = event.data.button_off_img;
+
+    if(chart_container[0].className == "hidden" &&(event.type != "mouseleave" || event.target.src != window.location.origin + button_off_img) ){
+
+        if(event.target.src == window.location.origin + button_on_img)
+            event.target.src = window.location.origin + button_off_img;
+        else
+            event.target.src = window.location.origin + button_on_img;
+
+    }
+
+}
 
 if(linechart){
     $(window).on('resize', function(){
