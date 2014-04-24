@@ -38,13 +38,14 @@ $(document).ready(function(){
 
         tables.find( '.collapse' ).on( 'shown.bs.collapse', function(){
             var panel = $(this);
+            var panel_id = panel[0].id;
 
             panel.siblings( '.shown' ).removeClass( 'shown' );
             panel.prev().addClass( 'shown' );
 
-            panel.siblings( '.panel-heading' ).not( $( '.shown' ) ).find( 'span.icon' )
-                    .removeClass( 'sprite-minus' )
-                    .addClass( 'sprite-plus' );
+            //finds sibling who are already expaneded and changes icon minus to icon plus
+            panel.siblings('.panel-heading').not("#heading-"+panel_id).find('span.sprite-minus')
+                .removeClass( 'sprite-minus' ).addClass( 'sprite-plus' );
 
             $lock.modal( 'hide' );
         });

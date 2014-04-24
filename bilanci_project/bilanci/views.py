@@ -116,7 +116,7 @@ class IncarichiGetterMixin(object):
     # transform bilancio values to be feeded to Visup widget
     ##
 
-    def transform_voce(self, voce_values, line_id, line_color, decimals=0, values_type='real'):
+    def transform_voce(self, voce_values, line_id, line_color, decimals=0, values_type='real', per_capita = False):
 
         series_dict = {
             'id':line_id,
@@ -125,14 +125,27 @@ class IncarichiGetterMixin(object):
         }
 
         for voce_value in voce_values:
-            # real values are multiplied by GDP_DEFLATOR rates
-            if values_type == 'real':
-                valore = voce_value.valore * settings.GDP_DEFLATORS[voce_value.anno]
+
+            # considers absolute or per_capita values
+            if per_capita is False:
+                value_to_consider = voce_value.valore
             else:
-                valore = voce_value.valore
-            series_dict['series'].append(
-                [voce_value.anno, round(valore,decimals)]
-            )
+                value_to_consider = voce_value.valore_procapite
+
+            if value_to_consider is not None:
+                # real values are multiplied by GDP_DEFLATOR rates
+                if values_type == 'real':
+                    valore = value_to_consider * settings.GDP_DEFLATORS[voce_value.anno]
+                else:
+                    valore = value_to_consider
+
+                series_dict['series'].append(
+                    [voce_value.anno, round(valore,decimals)]
+                )
+            else:
+                series_dict['series'].append(
+                    [voce_value.anno, None]
+                )
 
         return series_dict
 
@@ -140,7 +153,7 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color, values_type='real'):
+    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color, values_type='real', per_capita = False):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
@@ -149,7 +162,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_voce(voce_values, line_id, line_color, values_type=values_type)
+        return self.transform_voce(voce_values, line_id, line_color, values_type=values_type, per_capita=per_capita)
 
     ##
     # get indicatori values of specified Indicatore for Territorio in the time span
@@ -209,7 +222,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             {
               "color": settings.CLUSTER_LINE_COLOR,
               "id": 2,
-              "label": 'MEDIA CLUSTER "' + cluster.denominazione.upper()+'"'
+              "label": 'MEDIANA CLUSTER "' + cluster.denominazione.upper()+'"'
             },
 
         ]
@@ -507,8 +520,8 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
             elif parameter_type == 'entrate' or parameter_type == 'spese':
                 voce_bilancio = get_object_or_404(Voce, slug = parameter_slug)
                 # gets voce value for the territorio over the period set
-                data_set_1 = self.get_voce_struct(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color)
-                data_set_2 = self.get_voce_struct(territorio_2, voce_bilancio, line_id=2, line_color = territorio_2_color)
+                data_set_1 = self.get_voce_struct(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color, per_capita=True)
+                data_set_2 = self.get_voce_struct(territorio_2, voce_bilancio, line_id=2, line_color = territorio_2_color, per_capita=True)
 
             else:
                 return reverse('404')
