@@ -96,6 +96,10 @@ STATICFILES_FINDERS = (
 ########## END STATIC FILE CONFIGURATION
 
 
+OPENDATA_ROOT = root('open_data')
+OPENDATA_URL = '/opendata/zip/'
+
+
 ########## SECRET CONFIGURATION
 SECRET_KEY = env('SECRET_KEY')  # Raises ImproperlyConfigured exception if SECRET_KEY not in os.environ
 ########## END SECRET CONFIGURATION

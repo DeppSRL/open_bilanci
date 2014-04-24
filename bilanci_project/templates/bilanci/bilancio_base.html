@@ -15,7 +15,13 @@
 
     {# header block with Comune name, inhabitants and share button    #}
     <div class="panel-heading">
-        <a href="" class="pull-right share">Condividi <span class="glyphicon glyphicon-share"></span></a>
+        <span class="pull-right">
+            {% if csv_package_file %}
+            Scarica i dati <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share">CSV ({{ csv_package_file.file_size|filesizeformat }})<span class="glyphicon glyphicon-download-alt"></span></a>
+            |
+            {% endif %} 
+            <a href="" class="share">Condividi <span class="glyphicon glyphicon-share"></span></a>
+        </span>
         <h1 class="panel-title">{{territorio.denominazione}}</h1>
         <p class="details">
             <span class="location">
