@@ -1,4 +1,5 @@
 """Common settings and globals."""
+import os
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from datetime import datetime
@@ -96,8 +97,8 @@ STATICFILES_FINDERS = (
 ########## END STATIC FILE CONFIGURATION
 
 
-OPENDATA_ROOT = root('open_data')
-OPENDATA_URL = '/opendata/zip/'
+OPENDATA_ROOT = os.path.join(root('open_data'), 'zip')
+OPENDATA_URL = '/opendata/'
 
 
 ########## SECRET CONFIGURATION
