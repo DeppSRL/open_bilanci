@@ -116,13 +116,15 @@ class IncarichiGetterMixin(object):
     # transform bilancio values to be feeded to Visup widget
     ##
 
-    def transform_voce(self, voce_values, line_id, line_color, decimals=0, values_type='real', per_capita = False):
+    def transform_for_widget(self, voce_values, line_id, line_color, decimals=0, values_type='real', per_capita = False):
 
-        series_dict = {
+        line_dict = {
             'id':line_id,
             'color':  line_color ,
             'series':[]
         }
+
+        serie = []
 
         for voce_value in voce_values:
 
@@ -139,15 +141,38 @@ class IncarichiGetterMixin(object):
                 else:
                     valore = value_to_consider
 
-                series_dict['series'].append(
+                serie.append(
                     [voce_value.anno, round(valore,decimals)]
                 )
             else:
-                series_dict['series'].append(
+                serie.append(
                     [voce_value.anno, None]
                 )
 
-        return series_dict
+        # before returning the data struct checks if there is any missing year in the data set:
+        # if so adds a list of [missing_year, None] to the serie: this creates a gap in the line chart
+
+        fill_in = False
+        for idx, [year, valore] in enumerate(serie):
+            if idx != 0:
+                prev_yr = serie[idx-1][0]
+                yr_difference = year - prev_yr
+                if yr_difference > 1:
+                    fill_in_yr = prev_yr + 1
+                    while fill_in_yr <= year -1 :
+                        serie.append([fill_in_yr,None])
+                        fill_in = True
+                        fill_in_yr +=1
+
+
+        # after inserting the fill-in years re-orders the list based on the year value: if this is not performed
+        # the gap is not displayed on the graph
+        if fill_in:
+            line_dict['series'] = sorted(serie, key=lambda data: data[0])
+        else:
+            line_dict['series'] = serie
+
+        return line_dict
 
     ##
     # get bilancio values of specified Voce for Territorio in the time span
@@ -162,7 +187,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_voce(voce_values, line_id, line_color, values_type=values_type, per_capita=per_capita)
+        return self.transform_for_widget(voce_values, line_id, line_color, values_type=values_type, per_capita=per_capita)
 
     ##
     # get indicatori values of specified Indicatore for Territorio in the time span
@@ -177,7 +202,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_voce(indicatore_values, line_id, line_color, decimals=2)
+        return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2)
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
