@@ -15,7 +15,7 @@
                         {{ children }}
                     {% else %}
 
-                        <tr>
+                        <tr class="panel-heading" id="heading-{{ node.slug|slugify }}">
                             <td class="col-sm-5 entry">
                                 {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
                                 {% if not node.is_leaf_node %}
