@@ -1,4 +1,4 @@
-Django>=1.6
+Django<1.7
 readline==6.2.4.1 # need easy_install on OSX
 ipython==0.13.2
 django-braces==1.2.2
