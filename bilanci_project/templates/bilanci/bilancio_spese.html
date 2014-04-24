@@ -1,2 +1,16 @@
 {% extends "bilanci/bilancio_partial.html" %}
 {% load humanize %}
+
+{% block bilanci_accordion %}
+    <header class="clearfix">
+        <h3>DETTAGLIO {{ selected_section|upper }} {{ year }} - Vista per {{ fun_int_current_view|capfirst }}</h3>
+        <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>
+    </header>
+    <p>Una breve descrizione del contenuto ...</p>
+
+    {% if fun_int_current_view == 'interventi' %}
+        {% include 'bilanci/_accordion_spese_interventi.html' %}
+    {% else %}
+        {% include 'bilanci/_accordion_spese_funzioni.html' %}
+    {% endif %}
+{%  endblock bilanci_accordion %}

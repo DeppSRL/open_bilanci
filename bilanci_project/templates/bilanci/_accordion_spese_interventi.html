@@ -1,0 +1,80 @@
+{% load mptt_tags %}
+{% load voice_values %}
+{% load repeat %}
+
+
+<!-- Main table -->
+<div class="table-responsive">
+    <table class="table entrate no-hover">
+        <tbody>
+
+            {% recursetree bilancio_tree %}
+
+                {% if not "funzioni" in node.slug.lower %}
+
+                    {% if node == bilancio_rootnode or node.denominazione.lower == "interventi" %}
+                        {{ children }}
+                    {% else %}
+
+                        <tr>
+                            <td class="col-sm-5 entry">
+                                {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                                {% if not node.is_leaf_node %}
+                                <a class="collapse-toggle" href="#{{ node.slug }}">
+                                    <span class="icon sprite-plus"></span></a>
+                                {% else %}
+                                    <span class="icon sprite-plus" style="visibility: hidden"></span>
+                                {% endif %}
+                                <span style="text-transform: uppercase">
+                                    {% if node.denominazione == "Spese correnti" %}
+                                        Interventi - Spese correnti
+                                    {% elif node.denominazione == "Spese per investimenti" %}
+                                        Interventi - Spese per investimenti
+                                    {% else %}
+                                        {{ node.denominazione|lower|capfirst }}
+                                    {% endif %}
+                                </span>
+                            </td>
+
+                            <td class="col-sm-3 actions">
+                                {# set 3rd parameter to True, (is_interventi) #}
+                                {% voice_values node.slug budget_values True %}
+                            </td>
+
+                            <td class="col-sm-3 chart-wrapper">
+                            </td>
+
+                            <td class="col-sm-1">
+                               <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle"
+                                  id="trend-chart-toggle-{{ node.pk }}"><i class="glyphicon glyphicon-stats"></i></a>
+                            </td>
+                        </tr>
+
+                        <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
+                            <td colspan="4" class="col-sm-12 details" style="border: 0">
+                            </td>
+                        </tr>
+
+                        <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
+                            <td colspan="4" class="col-sm-12 details">
+
+                                {% if not node.is_leaf_node %}
+                                <!-- Sub table level 1 -->
+                                <table class="table table-condensed">
+                                    <tbody>
+                                        {{ children }}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% endif %}
+
+                {% endif %}
+
+            {% endrecursetree %}
+
+        </tbody>
+    </table>
+</div>

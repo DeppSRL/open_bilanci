@@ -1,5 +1,3 @@
-from django.utils.text import slugify
-import math
 from bilanci.tree_dict_models import deep_sum
 from bilanci.utils import couch, nearly_equal
 from bilanci.utils.comuni import FLMapper

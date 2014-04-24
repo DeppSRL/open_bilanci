@@ -10,11 +10,16 @@ def comma2dot(value):
 register.filter('comma2dot', comma2dot)
 
 @register.inclusion_tag("bilanci/_voice_values.html", takes_context=True)
-def voice_values(context, voice_slug, values):
+def voice_values(context, voice_slug, values, is_interventi=False):
+    """
+    Compute the values for the given voice_slug.
+    is_interventi is a flag, set to True when the tag is called
+                  within an interventi view
+    """
     absolute_value = ''
     percapita_value = ''
 
-    if "spese-correnti" in voice_slug:
+    if "spese-correnti" in voice_slug and not is_interventi:
         inv_voice_slug = voice_slug.replace("spese-correnti", "spese-per-investimenti")
 
         if voice_slug in values['absolute'].keys() and inv_voice_slug in values['absolute'].keys():

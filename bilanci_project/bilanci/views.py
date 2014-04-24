@@ -623,6 +623,7 @@ class BilancioOverView(DetailView):
 
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+        self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
 
         qs = self.request.META['QUERY_STRING']
         must_redirect = (len(qs.split('&')) < 4) or must_redirect
@@ -782,8 +783,10 @@ class BilancioDetailView(BilancioOverView):
 
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
+
         context['query_string'] = query_string
 
+        context['year'] = self.year
 
         return context
 
@@ -824,6 +827,32 @@ class BilancioSpeseView(BilancioDetailView):
                 self.tipo_bilancio,
                 "spese-{0}".format(cassa_competenza_type)
             )
+
+
+    def get_context_data(self, **kwargs):
+        """
+        Extend the context with funzioni/interventi view and switch variables
+        """
+
+        context = super(BilancioSpeseView, self).get_context_data(**kwargs)
+
+        full_path = self.request.get_full_path()
+        if not 'fun_int_view' in full_path:
+            fun_int_switch_url = full_path + "&fun_int_view=interventi"
+        else:
+            if self.fun_int_view == 'funzioni':
+                fun_int_switch_url = full_path.replace("&fun_int_view=funzioni", "&fun_int_view=interventi")
+            else:
+                fun_int_switch_url = full_path.replace("&fun_int_view=interventi", "&fun_int_view=funzioni")
+
+
+        context['fun_int_current_view'] = self.fun_int_view
+        context['fun_int_switch'] = {
+            'label': 'interventi' if self.fun_int_view == 'funzioni' else 'funzioni',
+            'url': fun_int_switch_url
+        }
+
+        return context
 
 
 class ClassificheRedirectView(RedirectView):

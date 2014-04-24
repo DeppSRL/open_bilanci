@@ -1,4 +1,14 @@
 {% extends "bilanci/bilancio_partial.html" %}
 {% load humanize %}
 
+{% block bilanci_accordion %}
+    <!-- Default panel contents -->
+    <header class="clearfix">
+        <h3>DETTAGLIO {{ selected_section|upper }} {{ year }}</h3>
+    </header>
+    <p>Una breve descrizione del contenuto ...</p>
+
+    {% include 'bilanci/_accordion_entrate.html' %}
+{%  endblock bilanci_accordion %}
+
 

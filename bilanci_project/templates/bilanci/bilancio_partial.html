@@ -28,18 +28,15 @@
 
             <hr class="no-border">
 
-            <!-- Default panel contents -->
-            <header class="clearfix">
-                <h3>DETTAGLIO {{ selected_section|upper }} {{ year }}</h3>
-            </header>
-            <p>Una breve descrizione del contenuto ...</p>
+            {% block bilanci_accordion %}
+                <!-- Default panel contents -->
+                <header class="clearfix">
+                    <h3>DETTAGLIO {{ selected_section|upper }} {{ year }}</h3>
+                </header>
+                <p>Una breve descrizione del contenuto ...</p>
 
-            {% if selected_section == 'entrate' %}
-                {% include 'bilanci/_accordion_entrate.html' %}
-            {% else %}
-                {% include 'bilanci/_accordion_spese.html' %}
-            {% endif %}
-
+                <div>ACCORDION HERE</div>
+            {%  endblock bilanci_accordion %}
         </div>
     </div>
 {% endblock %}
