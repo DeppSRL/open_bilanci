@@ -1881,6 +1881,20 @@ a:hover .sprite-close-menu {
   max-width: 100%;
   height: auto;
 }
+.fun-int,
+.fun-int:visited {
+  background: #b9c6c4;
+  border-color: #b9c6c4;
+  color: #57616c;
+  font-size: 12px;
+  padding-left: 40px;
+  padding-right: 40px;
+  text-transform: uppercase;
+}
+.fun-int span,
+.fun-int:visited span {
+  font-size: 10px;
+}
 .composition-widget-container iframe,
 .composition-widget-container object,
 .composition-widget-container embed {
