@@ -598,7 +598,7 @@ class BilancioView(DetailView):
         None if the file does not exist.
         """
 
-        file_path = os.path.join(settings.OPENDATA_ROOT, "zip", file_name)
+        file_path = os.path.join(settings.OPENDATA_ROOT, file_name)
         if os.path.isfile(file_path):
             file_size = os.stat(file_path).st_size
             return {
