@@ -47,10 +47,10 @@ $(document).ready(function(){
             var elements_to_change = panel.siblings('.panel-heading').not("#heading-"+panel_id).find('span.sprite-minus')
                 .removeClass( 'sprite-minus' ).addClass( 'sprite-plus' );
 //            var elements_to_change =panel.siblings( '.panel-heading' ).not( $( '.shown' ) ).find( 'span.icon' );
-
-            elements_to_change
-                    .removeClass( 'sprite-minus' )
-                    .addClass( 'sprite-plus' );
+//
+//            elements_to_change
+//                    .removeClass( 'sprite-minus' )
+//                    .addClass( 'sprite-plus' );
 
             $lock.modal( 'hide' );
         });
