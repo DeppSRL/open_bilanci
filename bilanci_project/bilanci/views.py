@@ -1,5 +1,6 @@
 from itertools import groupby
 from operator import itemgetter
+import os
 from pprint import pprint
 import re
 from django.core.cache import cache
@@ -609,11 +610,40 @@ class BilancioRedirectView(RedirectView):
         else:
             return reverse('404')
 
-class BilancioOverView(DetailView):
+
+class BilancioView(DetailView):
 
     model = Territorio
     context_object_name = "territorio"
     territorio= None
+
+    def get_complete_file(self, file_name):
+        """
+        Return a dict with file_name and file_size, if a file exists,
+        None if the file does not exist.
+        """
+
+        file_path = os.path.join(settings.OPENDATA_ROOT, "zip", file_name)
+        if os.path.isfile(file_path):
+            file_size = os.stat(file_path).st_size
+            return {
+                'file_name': file_name,
+                'file_size': file_size
+            }
+        else:
+            return {}
+
+    def get_context_data(self, **kwargs ):
+        context = super(BilancioView, self).get_context_data(**kwargs)
+
+        territorio = self.get_object()
+        csv_package_filename = "{0}.zip".format(territorio.cod_finloc)
+        context['csv_package_file'] = self.get_complete_file(csv_package_filename)
+        context['open_data_url'] = settings.OPENDATA_URL
+        return context
+
+
+class BilancioOverView(BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
 

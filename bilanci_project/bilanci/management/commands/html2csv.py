@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     help='Base URL for HTML files (mirror)'),
         make_option('--csv-base-dir',
                     dest='csv_base_dir',
-                    default='data/csv/',
+                    default='../open_data/csv/',
                     help='Path to the directory where the CSV files will be written.'),
         make_option('--compress',
                     dest='compress',
@@ -166,8 +166,8 @@ class Command(BaseCommand):
 
 
             if compress:
-                csv_path = os.path.join('data', 'csv')
-                zip_path = os.path.join('data', 'zip')
+                csv_path = csv_base_dir
+                zip_path = os.path.join(csv_base_dir, '..', 'zip')
                 if not os.path.exists(zip_path):
                     os.mkdir(zip_path)
 
@@ -178,6 +178,6 @@ class Command(BaseCommand):
 
                 # remove all tree under city_path
                 # with security control
-                if 'data' in city_path and 'csv' in city_path:
+                if 'open_data' in city_path and 'csv' in city_path:
                     shutil.rmtree(city_path)
 
