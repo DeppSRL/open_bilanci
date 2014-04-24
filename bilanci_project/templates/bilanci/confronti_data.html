@@ -78,7 +78,12 @@
         $(document).ready(function(){
 
             init_confronti_page();
-            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            {% if parameter_type == 'indicatori' %}
+                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"%","%");
+            {% else %}
+                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            {% endif %}
+
             // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
             if($('#push-menu').length){
                 $("#push-menu").on("click", function(){ linechart.resize();});
