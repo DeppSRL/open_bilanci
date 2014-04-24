@@ -33,6 +33,11 @@ class Command(BaseCommand):
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server to connect to (defaults to staging).'),
+        make_option('--append',
+            dest='append',
+            action='store_true',
+            default=False,
+            help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
 
     )
 
@@ -54,6 +59,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
 
         cities_codes = options['cities']
         if not cities_codes:

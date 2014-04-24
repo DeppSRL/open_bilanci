@@ -52,8 +52,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force reloading mapping file and simplified subtrees leaves from gdocs (invalidate the csv cache)'),
-
-
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Read the simplification mappings from a Google Doc and maps the normalized couchdb instance into a simplified one.'
@@ -74,6 +77,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
 
         force_google = options['force_google']
         skip_existing = options['skip_existing']
