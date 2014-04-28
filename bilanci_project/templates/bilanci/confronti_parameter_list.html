@@ -1,37 +1,40 @@
-<ul class="nav nav-stacked menu">
-    <li class="active">
-        <span class="icon sprite-autonomia-finanziaria"></span> {{ parameter_list_type|upper }}
-        <div class="scrollbox">
-            <ul class="nav nav-stacked" id="parameter_list_{{ parameter_list_type }}">
-                {% for parameter in parameter_list %}
-                    <li
-                        {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
-                            class="active"
-                        {% endif %}
-                            >
-                        <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
-
-                        {# initialize the url for parameter list menu   #}
-                        {% if parameter_list_type == 'indicatori' %}
-                            href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                            {% else %}
-                            {% if parameter_list_type == 'entrate' %}
-                                href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                                {% else %}
-                                {% if parameter_list_type == 'spese' %}
-                                    href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+<div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
+    <div class="scrollbox"  >
+        <ul class="nav nav-stacked menu">
+            <li class="active">
+                <div class="">
+                    <ul class="nav nav-stacked" id="parameter_list_{{ parameter_list_type }}">
+                        {% for parameter in parameter_list %}
+                            <li
+                                {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
+                                    class="active"
                                 {% endif %}
-                            {% endif %}
-                        {% endif %}
+                                    >
+                                <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
 
-                            >
-                            <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
-                        </a>
-                    </li>
+                                {# initialize the url for parameter list menu   #}
+                                {% if parameter_list_type == 'indicatori' %}
+                                    href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                    {% else %}
+                                    {% if parameter_list_type == 'entrate' %}
+                                        href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                        {% else %}
+                                        {% if parameter_list_type == 'spese' %}
+                                            href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
 
-                {% endfor %}
+                                    >
+                                    <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
+                                </a>
+                            </li>
 
-            </ul>
-        </div>
-    </li>
-</ul>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
