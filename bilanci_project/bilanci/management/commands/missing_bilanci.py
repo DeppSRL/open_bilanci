@@ -201,7 +201,7 @@ class Command(BaseCommand):
             output_file.write('cd ../bilanci_project/\n')
             for considered_city in missing_bilanci.keys():
                 for considered_yr in missing_bilanci[considered_city]:
-                    output_file.write('python manage.py html2couch --cities={0} --year={1} --verbosity=2\n'.\
+                    output_file.write('python manage.py html2couch --cities={0} --year={1} --verbosity=2 --append\n'.\
                         format(considered_city,considered_yr))
 
             # make script file executable

@@ -262,6 +262,13 @@ LOGGING = {
             'mode': 'w',
             'formatter': 'standard',
         },
+        'import_logfile_append': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': REPO_ROOT + "/log/import_logfile",
+            'mode': 'a',
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'django.request': {
@@ -271,6 +278,11 @@ LOGGING = {
         },
         'management': {
             'handlers': ['console', 'import_logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'management_append': {
+            'handlers': ['console', 'import_logfile_append'],
             'level': 'DEBUG',
             'propagate': False,
         },
