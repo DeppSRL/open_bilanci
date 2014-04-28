@@ -429,3 +429,5 @@ INDICATOR_COLORS = ['#cc6633','#a51206','#f7b5a1','#8568d8','#1ca368','#78a31c']
 # due to round of floats to integers,
 # can be as large as 10
 NEARLY_EQUAL_THRESHOLD = 10
+
+LOGIN_URL = 'login'

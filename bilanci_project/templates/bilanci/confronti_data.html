@@ -27,17 +27,29 @@
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
     <aside id="sidebar" class="hidden">
-        <form id="parameter-list-form"  method="get" >
-            <div class="panel panel-default">
+
+        <form id="parameter-list-form"  method="get">
+            <div class="panel panel-default" id="side-menu">
                 <div class="panel-body" id="confronti_parameter_container">
 
                     <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
-                    <h3 class="menu-title">
+
+
+                    <h3 class="menu-title" style="margin-bottom:20px;">
                         Seleziona
                     </h3>
-                    {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
-                    {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
-                    {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+                    <div class="dropdown" >
+                        <div style="margin-bottom: 20px;">
+                             <select id="confronti-dropdown">
+                              <option value="indicatori" selected="selected">INDICATORI</option>
+                              <option value="entrate">ENTRATE</option>
+                              <option value="spese">SPESE</option>
+                             </select>
+                        </div>
+                        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+                        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
+                        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
+                    </div>
                 </div>
             </div>
         </form>
@@ -88,6 +100,7 @@
             if($('#push-menu').length){
                 $("#push-menu").on("click", function(){ linechart.resize();});
             }
+
         });
 
     </script>
