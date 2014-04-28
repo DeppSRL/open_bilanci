@@ -207,7 +207,7 @@ class Command(BaseCommand):
         # missing bilanci arguments list
         for city_code in missing_bilanci.keys():
             missing_bilanci_args_file.write(
-                "--cities={0} --years={1} --verbosity=2\n".format(
+                "--cities={0} --years={1}\n".format(
                     city_code, ",".join(missing_bilanci[city_code])
                 )
             )
