@@ -14,6 +14,7 @@ Contents:
    install
    data
    simplify
+   indicators
    ai
    elements
    templates

@@ -292,27 +292,36 @@ functional to Bilanci app:
 
 .. code-block:: bash
 
-  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v 3
+  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v2
 
 -  Territorio Openpolis id, necessary to get political data from Openpolis API
 
 .. code-block:: bash
 
-    python manage.py set_opid -v 3
+    python manage.py set_opid -v2
 
 
 Then there are data which need to be computed on the data already present in the db
 
--  mean values of bilanci for territori clusters
+-  median values of bilanci for territori clusters
 
 .. code-block:: bash
 
-    python manage.py data_completion -f cluster_mean -v 3
+    python manage.py median --type=voci --years=2003-2013 -v2
 
--  per-capita values of bilanci
+- indicators, and indicators median values (see a description of the indicators computation internals on :ref:`here <indicators>`
 
 .. code-block:: bash
 
-    python manage.py data_completion -f per_capita --cities=all --year=2001-2012 -v 3
+    python manage.py indicators --cities=all --years=2003-2013 -v2
+    python manage.py median --type=indicatori --years=2003-2013 -v2
+
+
+- generating downloadable packages of CSV files
+
+.. code-block:: bash
+
+    python manage.py couch2csv --cities=all --years=2003-2013 --compress -v2
+
 
 
