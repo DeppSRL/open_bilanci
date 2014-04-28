@@ -117,21 +117,21 @@ class BaseIndicator(object):
 class AutonomiaFinanziariaIndicator(BaseIndicator):
     """
     (
-     consuntivo-entrate-cassa-imposte-e-tasse +
-     consuntivo-entrate-cassa-entrate-extratributarie
+     consuntivo-entrate-accertamenti-imposte-e-tasse +
+     consuntivo-entrate-accertamenti-entrate-extratributarie
     )
     /
-    (consuntivo-entrate-cassa-imposte-e-tasse +
-     consuntivo-entrate-cassa-entrate-extratributarie +
-     consuntivo-entrate-cassa-contributi-pubblici
+    (consuntivo-entrate-accertamenti-imposte-e-tasse +
+     consuntivo-entrate-accertamenti-entrate-extratributarie +
+     consuntivo-entrate-accertamenti-contributi-pubblici
     ) * 100
     """
     slug = 'autonomia-finanziaria'
     label = 'Autonomia finanziaria'
     used_voci_slugs = {
-        'it': 'consuntivo-entrate-cassa-imposte-e-tasse',
-        'ex': 'consuntivo-entrate-cassa-entrate-extratributarie',
-        'pb': 'consuntivo-entrate-cassa-contributi-pubblici'
+        'it': 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'ex': 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+        'pb': 'consuntivo-entrate-accertamenti-contributi-pubblici'
     }
 
     def get_formula_result(self, data_dict, city, year):
@@ -143,20 +143,22 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
 
 class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
     """
-    (preventivo-spese-spese-correnti - consuntivo-spese-cassa-spese-correnti) /
+    (preventivo-spese-spese-correnti - (consuntivo-spese-impegni-spese-correnti + consuntivo-spese-impegni-spese-per-investimenti) /
     preventivo-spese-spese-correnti * 100
     """
     slug = 'bonta-previsione-spesa-corrente'
     label = u'Bontà di previsione della spesa corrente'
     used_voci_slugs = {
-        'ps': 'preventivo-spese-spese-correnti',
-        'cs': 'consuntivo-spese-cassa-spese-correnti',
+        'psc': 'preventivo-spese-spese-correnti',
+        'csc': 'consuntivo-spese-impegni-spese-correnti',
+        'csi': 'consuntivo-spese-impegni-spese-per-investimenti',
     }
 
     def get_formula_result(self, data_dict, city, year):
-        ps = self.get_val(data_dict, city, year, 'ps')
-        cs = self.get_val(data_dict, city, year, 'cs')
-        return 100.0 * (1.0 - cs / ps )
+        psc = self.get_val(data_dict, city, year, 'psc')
+        csc = self.get_val(data_dict, city, year, 'csc')
+        csi = self.get_val(data_dict, city, year, 'csi')
+        return 100.0 * (1.0 - (csc+csi) / psc )
 
 
 
