@@ -1912,3 +1912,9 @@ form ul li label {
   margin-bottom: 0;
   padding-bottom: 20px;
 }
+select#confronti-dropdown {
+  width: 100%;
+  padding: 3px;
+  background-color: #fff;
+  border-radius: 4px;
+}
