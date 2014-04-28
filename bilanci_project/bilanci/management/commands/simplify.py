@@ -81,6 +81,7 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
+
         force_google = options['force_google']
         skip_existing = options['skip_existing']
 

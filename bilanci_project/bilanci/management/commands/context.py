@@ -39,6 +39,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written in the db'),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = """
@@ -65,6 +70,9 @@ class Command(BaseCommand):
         ###
         dryrun = options['dryrun']
         skip_existing = options['skip_existing']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
 
         ###
         # cities

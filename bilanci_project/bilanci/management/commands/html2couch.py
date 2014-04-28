@@ -34,11 +34,10 @@ class Command(BaseCommand):
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server to connect to (defaults to staging).'),
         make_option('--append',
-            dest='append',
-            action='store_true',
-            default=False,
-            help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
-
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Import the data for given cities and years, from HTML code into Couchdb'

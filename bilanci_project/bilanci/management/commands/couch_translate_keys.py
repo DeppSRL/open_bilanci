@@ -54,6 +54,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Copy design documents into destination db'),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Translate the keys of couchdb documents, normalizing them.'
@@ -74,6 +79,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
 
         # type option, different values are accepted:
         #  v, V, voce, Voce, VOCE or

@@ -42,6 +42,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Import values from the simplified couchdb database into a Postgresql server'
@@ -64,6 +69,10 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
+
 
         ###
         # cities

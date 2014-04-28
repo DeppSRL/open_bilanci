@@ -50,6 +50,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help="Generate compressed zip archive of the directory for each city, remove directory structure"),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Export values from the simplified couchdb database into a set of CSV files'
@@ -73,6 +78,10 @@ class Command(BaseCommand):
         csv_base_dir = options['csv_base_dir']
         compress = options['compress']
         skip_existing = options['skip_existing']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
+
 
         ###
         # cities

@@ -34,6 +34,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing documents. Use to speed up long import of many cities, when errors occur'),
+        make_option('--append',
+                    dest='append',
+                    action='store_true',
+                    default=False,
+                    help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
     help = 'Compute indicators\' values for given cities and years.'
@@ -56,6 +61,10 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
         skip_existing = options['skip_existing']
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
+
 
         # massaging cities option and getting cities finloc codes
         cities_codes = options['cities']
