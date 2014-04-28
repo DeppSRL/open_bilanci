@@ -3,25 +3,36 @@ from operator import itemgetter
 import os
 from pprint import pprint
 import re
+import json
+from collections import OrderedDict
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
-import json
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.conf import settings
 from bilanci.forms import TerritoriComparisonSearchForm
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
-from collections import OrderedDict
-from django.conf import settings
 
 from territori.models import Territorio, Contesto, Incarico
 
 
-class HomeView(TemplateView):
+class LoginRequiredMixin(object):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
+
+class HomeTemporaryView(TemplateView):
+    template_name = "home_temporary.html"
 
 class IndicatorSlugVerifierMixin(object):
 
@@ -307,9 +318,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         )
 
 
-
-
-class BilancioCompositionWidgetView(TemplateView):
+class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
     template_name = None
     serie_start_year = settings.TIMELINE_START_DATE.year
@@ -584,7 +593,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
     
 
 
-class BilancioRedirectView(RedirectView):
+class BilancioRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -611,7 +620,7 @@ class BilancioRedirectView(RedirectView):
             return reverse('404')
 
 
-class BilancioView(DetailView):
+class BilancioView(LoginRequiredMixin, DetailView):
 
     model = Territorio
     context_object_name = "territorio"
@@ -732,7 +741,7 @@ class BilancioOverView(BilancioView):
 
         return context
 
-class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -846,7 +855,6 @@ class BilancioDetailView(BilancioOverView):
         return context
 
 
-
 class BilancioEntrateView(BilancioDetailView):
     template_name = 'bilanci/bilancio_entrate.html'
     selected_section = "entrate"
@@ -910,7 +918,7 @@ class BilancioSpeseView(BilancioDetailView):
         return context
 
 
-class ClassificheRedirectView(RedirectView):
+class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -927,7 +935,7 @@ class ClassificheRedirectView(RedirectView):
         else:
             return url
 
-class ClassificheListView(ListView):
+class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = 20
@@ -991,7 +999,7 @@ class ClassificheListView(ListView):
         return context
 
 
-class ConfrontiHomeView(TemplateView):
+class ConfrontiHomeView(LoginRequiredMixin, TemplateView):
 
     ##
     # ConfrontiHomeView shows the search form to compare two Territori
@@ -1010,7 +1018,7 @@ class ConfrontiHomeView(TemplateView):
         return context
 
 
-class ConfrontiRedirectView(RedirectView):
+class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1026,7 +1034,7 @@ class ConfrontiRedirectView(RedirectView):
             return url
 
 
-class ConfrontiView(TemplateView):
+class ConfrontiView(LoginRequiredMixin, TemplateView):
 
     template_name = "bilanci/confronti_data.html"
 

@@ -11,16 +11,12 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="{% url 'home' %}">Open<strong>Bilanci</strong><small>tagline</small></a>
-                    <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
-                        <div class="form-group">
-                             {{ territori_search_form }}
-                        </div>
-                    </form>
+
                 </div>
 
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="{% url 'confronti-home' %}"><span class="icon sprite-confronti"></span> confronti</a></li>
+                        <li><a ><span class="icon sprite-confronti"></span> confronti</a></li>
                         <li>
                             <a
 {#                                href="{% url 'classifiche-redirect' %}"#}
@@ -32,11 +28,6 @@
                         <li>
                             <a>
                                 <span class="icon sprite-blog"></span> blog
-                            </a>
-                        </li>
-                         <li>
-                            <a href="{% url 'logout' %}">
-                                logout
                             </a>
                         </li>
                     </ul>

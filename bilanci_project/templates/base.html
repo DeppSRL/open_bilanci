@@ -36,7 +36,10 @@
         <div class="container">
 
             <!-- Main menu -->
-            {% include 'commons/navbar.html' %}
+            {% block main_menu %}
+                {% include 'commons/navbar.html' %}
+            {% endblock %}
+
 
 
             <div class="row">
@@ -47,9 +50,12 @@
                     {% endblock content %}
                 </div>
             </div>
+
             <div class="row">
-                <!-- Footer -->
-                {% include 'commons/footer.html' %}
+                {% block footer %}
+                    <!-- Footer -->
+                    {% include 'commons/footer.html' %}
+                {% endblock %}
             </div>
 
         </div> <!-- /container -->
