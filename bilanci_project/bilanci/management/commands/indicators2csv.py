@@ -120,6 +120,7 @@ class Command(BaseCommand):
 
         for indicator_slug in indicators_slugs:
             indicator = Indicatore.objects.get(slug=indicator_slug)
+            self.logger.info(u"Indicatore:::: {0} ::::".format(indicator.denominazione))
 
             # check if files for this indicator exists and skip if
             # the skip-existing option was required
@@ -166,6 +167,7 @@ class Command(BaseCommand):
                         row.append(str(valori_dict[city][year]))
 
                 csv_writer.writerow(row)
+                self.logger.debug(",".join(row))
 
         if compress:
             csv_path = os.path.join('data', 'csv')
