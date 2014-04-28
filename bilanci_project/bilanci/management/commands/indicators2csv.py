@@ -6,12 +6,14 @@ import zipfile
 import shutil
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
 
 from bilanci.models import Voce, ValoreBilancio, Indicatore
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
 from bilanci.utils.zipper import zipdir
+from territori.models import Territorio
 
 __author__ = 'guglielmo'
 
@@ -140,7 +142,7 @@ class Command(BaseCommand):
             csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
             # build and emit header
-            row = [ 'City',  ]
+            row = [ 'City', 'Cluster', 'Region' ]
             row.extend(map(str, years))
             csv_writer.writerow(row)
 
@@ -148,8 +150,15 @@ class Command(BaseCommand):
                 if city not in valori_dict:
                     continue
 
+                try:
+                    territorio = Territorio.objects.get(cod_finloc=city)
+                except ObjectDoesNotExist:
+                    self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+
                 # emit
-                row = [city]
+                cluster = territorio.cluster if territorio.cluster else ''
+                region = territorio.regione if territorio.regione else ''
+                row = [city, cluster, region]
                 for year in years:
                     if year not in valori_dict[city]:
                         row.append('')
@@ -173,23 +182,3 @@ class Command(BaseCommand):
             # with security control
             if 'data' in indicators_path and 'csv' in indicators_path:
                 shutil.rmtree(indicators_path)
-
-
-    def write_csv(self, path, name, tree):
-        """
-
-        """
-
-        # open csv file
-        csv_filename = os.path.join(path, "{0}.csv".format(name))
-        csv_file = open(csv_filename, 'w')
-        csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
-
-        # build and emit header
-        row = [ 'Path', 'Valore', 'Valore procapite' ]
-        csv_writer.writerow(row)
-
-        # emit preventivo content
-        _list = []
-        tree.emit_as_list(_list, ancestors_separator="/")
-        csv_writer.writerows(_list)
