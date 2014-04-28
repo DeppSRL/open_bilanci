@@ -24,7 +24,7 @@ class Command(BaseCommand):
                     help='Set the dry-run command mode: nothing is written on db'),
         make_option('--api-domain',
                     dest='apidomain',
-                    default='api3.staging.deppsviluppo.org',
+                    default='api3.openpolis.it',
                     help='The domain of the API. Defaults to api3.staging.deppsviluppo.org'),
         make_option('--auth',
                     dest='auth',

@@ -154,11 +154,6 @@ class Command(BaseCommand):
             if 'minint-city-id' in identifier:
                 city_id = int(value)
 
-        if macroregion_id and region_id and province_id and city_id:
-            defaults['cod_finloc'] = "{0:d}{1:02d}{2:03d}{3:04d}".format(
-                macroregion_id, region_id, province_id, city_id
-            )
-
 
         # geometry features
         if self.import_geom:
@@ -187,8 +182,6 @@ class Command(BaseCommand):
             t.denominazione = denominazione
             t.territorio = tipo_territorio
             t.abitanti = abitanti
-            if 'cod_finloc' in defaults:
-                t.cod_finloc = defaults['cod_finloc']
             if 'geom' in defaults:
                 t.geom = defaults['geom']
             if 'prov' in defaults:
