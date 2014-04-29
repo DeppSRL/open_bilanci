@@ -269,3 +269,43 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
                     ))
 
         return ret
+
+
+class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
+    """
+    (consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-entrate-extratributarie) :
+    (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
+    """
+    slug = 'velocita-gestione-spese-correnti'
+    label = u"Velocità di gestione delle spese correnti"
+    used_voci_slugs = {
+        'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'ecex': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'eait': 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'eaex': 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        ecit = self.get_val(data_dict, city, year, 'ecit')
+        ecex = self.get_val(data_dict, city, year, 'ecex')
+        eait = self.get_val(data_dict, city, year, 'eait')
+        eaex = self.get_val(data_dict, city, year, 'eaex')
+        return 100.0 * (ecit + ecex) / (eait + eaex)
+
+
+class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
+    """
+    (consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti /
+     consuntivo-spese-impegni-spese-correnti) * 100
+    """
+    slug = 'velocita-riscossione-entrate-proprie'
+    label = u"Velocità di riscossione delle entrate proprie"
+    used_voci_slugs = {
+        'sp': 'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti',
+        'si': 'consuntivo-spese-impegni-spese-correnti',
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        sp = self.get_val(data_dict, city, year, 'sp')
+        si = self.get_val(data_dict, city, year, 'si')
+        return 100.0 * sp  / si
