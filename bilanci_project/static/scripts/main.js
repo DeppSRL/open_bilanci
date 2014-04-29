@@ -235,8 +235,8 @@ $(document).ready(function(){
         cy = cy || 100;
         radius = radius || 50;
         data = data || [];
-        colors = ['#cccccc', '#cc6633'];
-        overs = ['#cccccc', '#888888'];
+        colors = ['#cc6633', '#cccccc'];
+        overs = ['#888888', '#cccccc'];
 
         var ms = 500,
             r = Raphael(holder),
