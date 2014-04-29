@@ -151,46 +151,45 @@ class Command(BaseCommand):
 
             if values_type == 'voci':
                 for voce in Voce.objects.all():
-                    if voce.is_leaf_node():
-                        self.logger.info(u"cluster: {0}, voce: {1}".format(territorio_cluster, voce))
-                        valori_qs = \
-                            ValoreBilancio.objects.filter(
-                                territorio__cluster=cluster_data[0],
-                                anno__in=years,
+                    self.logger.info(u"cluster: {0}, voce: {1}".format(territorio_cluster, voce))
+                    valori_qs = \
+                        ValoreBilancio.objects.filter(
+                            territorio__cluster=cluster_data[0],
+                            anno__in=years,
+                            voce=voce,
+                        ).values('anno', 'valore').order_by('anno')
+                    valori_dict = dict(
+                        (k, [i['valore'] for i in list(v)])
+                        for k, v in groupby(valori_qs, key=lambda x: x['anno'])
+                    )
+
+                    for year in years:
+                        self.logger.debug(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
+
+
+                        if year not in valori_dict or valori_dict[year] is None:
+                            self.logger.warning(
+                                "No values found for Voce: {0}, year:{1}. Median value not computed ".format(
+                                    voce, year
+                                ))
+                            continue
+
+                        # remove null values
+                        valori = [v for v in valori_dict[year] if v]
+
+                        mediana = numpy.median(valori)
+                        if not math.isnan(mediana):
+                            valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
                                 voce=voce,
-                            ).values('anno', 'valore').order_by('anno')
-                        valori_dict = dict(
-                            (k, [i['valore'] for i in list(v)])
-                            for k, v in groupby(valori_qs, key=lambda x: x['anno'])
-                        )
+                                territorio=territorio_cluster,
+                                anno=year,
+                                defaults={
+                                    'valore': long(mediana)
+                                }
+                            )
 
-                        for year in years:
-                            self.logger.debug(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
-
-
-                            if year not in valori_dict or valori_dict[year] is None:
-                                self.logger.warning(
-                                    "No values found for Voce: {0}, year:{1}. Median value not computed ".format(
-                                        voce, year
-                                    ))
-                                continue
-
-                            # remove null values
-                            valori = [v for v in valori_dict[year] if v]
-
-                            mediana = numpy.median(valori)
-                            if not math.isnan(mediana):
-                                valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
-                                    voce=voce,
-                                    territorio=territorio_cluster,
-                                    anno=year,
-                                    defaults={
-                                        'valore': long(mediana)
-                                    }
-                                )
-
-                                # overwrite existing values
-                                if not is_created and not skip_existing:
-                                    valore_mediano.valore = long(mediana)
-                                    valore_mediano.save()
+                            # overwrite existing values
+                            if not is_created and not skip_existing:
+                                valore_mediano.valore = long(mediana)
+                                valore_mediano.save()
 
