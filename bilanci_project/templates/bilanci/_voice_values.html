@@ -1,7 +1,7 @@
 {% load humanize %}
 
 <p class="h3">
-    {{ absolute_value|intcomma }}{% if absolute_value != None%}&nbsp;&euro;{% endif %}
+    &euro;&nbsp;{{ absolute_value|floatformat:"0"|intcomma }}{% if absolute_value != None%}{% endif %}
 </p>
-<p class="small"><strong>{{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}&nbsp;&euro;{% endif %}</strong> PROCAPITE</p>
+<p class="small"><strong>&euro;&nbsp;{{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}{% endif %}</strong> PROCAPITE</p>
 
