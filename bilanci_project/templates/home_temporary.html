@@ -55,19 +55,20 @@
             <!-- Main panel -->
             <div id="main-content">
                 <div class="container">
-                    <form class="form" role="form">
+                    <form class="form" action=""  method="post">
+                        {% csrf_token %}
                         <div class="row">
                             <div class="col-sm-4">
                                 <label class="sr-only" for="exampleInputEmail2">Nome</label>
-                                <input type="text" class="form-control" id="" placeholder="Nome*">
+                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome*">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="sr-only" for="exampleInputEmail2">Cognome</label>
+                                <input type="text" class="form-control" id="cognome" name="cognome" placeholder="Cognome*">
                             </div>
                             <div class="col-sm-4">
                                 <label class="sr-only" for="exampleInputEmail2">Email</label>
-                                    <input type="email" class="form-control" id="" placeholder="Email*">
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="sr-only" for="exampleInputEmail2">Organizzazione</label>
-                                <input type="text" class="form-control" id="" placeholder="Organizzazione">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Email*">
                             </div>
                         </div>
                         <div class="row">

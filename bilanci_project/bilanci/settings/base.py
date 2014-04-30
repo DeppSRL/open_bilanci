@@ -429,4 +429,10 @@ INDICATOR_COLORS = ['#cc6633','#a51206','#f7b5a1','#8568d8','#1ca368','#78a31c']
 # can be as large as 10
 NEARLY_EQUAL_THRESHOLD = 10
 
+# LOGIN_URL defines the name of the view to be called
+# when an unauthorized user tries to access a passw-protected view
 LOGIN_URL = 'login'
+
+# defines Mailbin server address to push temporary home page form user data
+MAILBIN_SERVER_HOST = 'mailbin.openpolis.it'
+MAILBIN_QUEUE_ADDR = "tcp://{0}:5558".format(MAILBIN_SERVER_HOST)
