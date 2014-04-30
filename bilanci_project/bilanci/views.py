@@ -4,6 +4,7 @@ import os
 from pprint import pprint
 import re
 import json
+import zmq
 from collections import OrderedDict
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,6 +34,43 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
 class HomeTemporaryView(TemplateView):
     template_name = "home_temporary.html"
+
+    def post(self, request, *args, **kwargs):
+        ##
+        # Send form data to the mailbin queue
+        ##
+
+        context = self.get_context_data(**kwargs)
+
+        if not request.POST['cognome'] or not request.POST['nome'] or request.POST['email']:
+            context['has_errors']=True
+
+
+        z_context = zmq.Context()
+        # socket to sending messages to save
+        save_sender = z_context.socket(zmq.PUSH)
+
+        try:
+            save_sender.connect(settings.MAILBIN_QUEUE_ADDR)
+        except Exception, e:
+            print "Error connecting: %s" % e
+
+        data = {
+            'first_name': request.POST['nome'],
+            'last_name': request.POST['cognome'],
+            'email': request.POST['email'],
+            'ip_address': request.META['REMOTE_ADDR'],
+            'user_agent': request.META['HTTP_USER_AGENT'],
+            'service_uri': 'http://www.openbilanci.it/'
+        }
+
+
+        # send message to receiver
+        save_sender.send_json(data)
+        return self.render_to_response(context)
+
+
+
 
 class IndicatorSlugVerifierMixin(object):
 
