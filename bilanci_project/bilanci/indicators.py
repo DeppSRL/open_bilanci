@@ -246,14 +246,14 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
 
 class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
     """
-    (consuntivo-entrate-competenza-imposte-e-tasse + consuntivo-entrate-competenza-entrate-extratributarie) :
+    (consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse + consuntivo-entrate-riscossioni-in-conto-competenza-entrate-extratributarie) :
     (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
     """
     slug = 'velocita-riscossione-entrate-proprie'
     label = u"Velocità di riscossione delle entrate proprie"
     used_voci_slugs = {
-        'ecit': 'consuntivo-entrate-competenza-imposte-e-tasse',
-        'ecex': 'consuntivo-entrate-competenza-entrate-extratributarie',
+        'ecit': 'consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse',
+        'ecex': 'consuntivo-entrate-riscossioni-in-conto-competenza-entrate-extratributarie',
         'eait': 'consuntivo-entrate-accertamenti-imposte-e-tasse',
         'eaex': 'consuntivo-entrate-accertamenti-entrate-extratributarie',
     }
