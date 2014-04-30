@@ -266,7 +266,6 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': REPO_ROOT + "/log/import_logfile",
-            'mode': 'a',
             'formatter': 'standard',
         },
     },
