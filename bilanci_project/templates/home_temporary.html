@@ -55,28 +55,57 @@
             <!-- Main panel -->
             <div id="main-content">
                 <div class="container">
-                    <form class="form" action=""  method="post">
-                        {% csrf_token %}
+                    {% if sent_data %}
                         <div class="row">
-                            <div class="col-sm-4">
-                                <label class="sr-only" for="exampleInputEmail2">Nome</label>
-                                <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome*">
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="sr-only" for="exampleInputEmail2">Cognome</label>
-                                <input type="text" class="form-control" id="cognome" name="cognome" placeholder="Cognome*">
-                            </div>
-                            <div class="col-sm-4">
-                                <label class="sr-only" for="exampleInputEmail2">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="Email*">
+                            <div class="col-md-12">
+                                <div class="alert alert-success">Grazie per aver inviato la tua mail, ti contatteremo al pi&ugrave; presto</div>
                             </div>
                         </div>
+                    {% else %}
+                        {% if has_errors %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="alert alert-danger">Non &egrave; stato possibile inviare la mail, controlla i tuoi dati</div>
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="row">
-                            <div class="col-md-12 text-center">
-                                <button type="submit" class="btn btn-danger">INVIA</button>
+                            <div class="col-md-12">
+                                <form class="form" action=""  method="post">
+                                    {% csrf_token %}
+
+                                    <div class="row" >
+                                        <div class="col-sm-4"><div class="earlybird-error">{{ form.nome.errors.as_text }}</div></div>
+                                        <div class="col-sm-4"><div class="earlybird-error">{{ form.cognome.errors.as_text }}</div></div>
+                                        <div class="col-sm-4"><div class="earlybird-error">{{ form.email.errors.as_text }}</div></div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="nome" name="nome"
+                                                   placeholder="Nome*" value="{{ form.nome.value|default_if_none:"" }}"
+                                                    >
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="cognome" name="cognome"
+                                                   placeholder="Cognome*"  value="{{ form.cognome.value|default_if_none:"" }}"
+                                                    >
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                   placeholder="Email*"  value|default_if_none:""="{{ form.email.value|default_if_none:"" }}">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 text-center">
+                                            <button type="submit" class="btn btn-danger">INVIA</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </form>
+                    {% endif %}
+
                 </div>
 
                 <div class="preview"></div>

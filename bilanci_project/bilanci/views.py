@@ -14,7 +14,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View, L
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
@@ -35,38 +35,45 @@ class HomeView(LoginRequiredMixin, TemplateView):
 class HomeTemporaryView(TemplateView):
     template_name = "home_temporary.html"
 
+    def get_context_data(self, **kwargs):
+        context = super(HomeTemporaryView, self).get_context_data( **kwargs)
+        context['form'] = EarlyBirdForm()
+        return  context
+
     def post(self, request, *args, **kwargs):
         ##
         # Send form data to the mailbin queue
         ##
 
-        context = self.get_context_data(**kwargs)
+        context = self.get_context_data( **kwargs)
 
-        if not request.POST['cognome'] or not request.POST['nome'] or request.POST['email']:
+        context['form']  = form = EarlyBirdForm(self.request.POST)
+
+        if form.is_valid():
+            z_context = zmq.Context()
+            # socket to sending messages to save
+            save_sender = z_context.socket(zmq.PUSH)
+
+            try:
+                save_sender.connect(settings.MAILBIN_QUEUE_ADDR)
+            except Exception, e:
+                print "Error connecting: %s" % e
+
+            data = {
+                'first_name': request.POST['nome'],
+                'last_name': request.POST['cognome'],
+                'email': request.POST['email'],
+                'ip_address': request.META['REMOTE_ADDR'],
+                'user_agent': request.META['HTTP_USER_AGENT'],
+                'service_uri': 'http://www.openbilanci.it/'
+            }
+
+
+            # send message to receiver
+            save_sender.send_json(data)
+            context['sent_data'] = True
+        else:
             context['has_errors']=True
-
-
-        z_context = zmq.Context()
-        # socket to sending messages to save
-        save_sender = z_context.socket(zmq.PUSH)
-
-        try:
-            save_sender.connect(settings.MAILBIN_QUEUE_ADDR)
-        except Exception, e:
-            print "Error connecting: %s" % e
-
-        data = {
-            'first_name': request.POST['nome'],
-            'last_name': request.POST['cognome'],
-            'email': request.POST['email'],
-            'ip_address': request.META['REMOTE_ADDR'],
-            'user_agent': request.META['HTTP_USER_AGENT'],
-            'service_uri': 'http://www.openbilanci.it/'
-        }
-
-
-        # send message to receiver
-        save_sender.send_json(data)
         return self.render_to_response(context)
 
 

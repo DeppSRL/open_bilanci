@@ -50,3 +50,14 @@ class TerritoriComparisonSearchForm(forms.Form):
             }
         )
     )
+
+class EarlyBirdForm(forms.Form):
+    my_default_errors = {
+        'required': 'Campo richiesto',
+        'invalid': 'Attenzione: il valore inserito non &egrave; valido',
+
+    }
+
+    nome = forms.CharField(max_length=200, error_messages=my_default_errors, required=True)
+    cognome = forms.CharField(max_length=200, error_messages=my_default_errors, required=True)
+    email = forms.EmailField(max_length=200, error_messages=my_default_errors, required=True)
