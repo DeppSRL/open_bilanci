@@ -70,8 +70,8 @@ function init_secondary_linechart(event){
                     start: timeline_start_year,
                     end: timeline_end_year,
                     circleRadius: 9,
-                    axisUnit: "MILIONI",
-                    tooltipUnit: "MLN",
+                    axisUnit: "EURO",
+                    tooltipUnit: "EURO",
                     format: "%Y",
                     visible: true
                 },

@@ -288,12 +288,22 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         # gets voce value for the territorio over the period set
         # check nominal or real values in query string
         voce_set = self.get_voce_struct(
-            territorio, voce_bilancio, line_id=1,
+            territorio,
+            voce_bilancio,
+            line_id=1,
             line_color=settings.TERRITORIO_1_COLOR,
-            values_type=self.request.GET.get('values_type', 'real')
+            values_type=self.request.GET.get('values_type', 'real'),
+            per_capita= True
         )
 
-        cluster_mean_set = self.get_voce_struct(cluster, voce_bilancio, line_id=2, line_color=settings.CLUSTER_LINE_COLOR)
+        cluster_mean_set = self.get_voce_struct(
+            cluster,
+            voce_bilancio,
+            line_id=2,
+            line_color=settings.CLUSTER_LINE_COLOR,
+            values_type=self.request.GET.get('values_type', 'real'),
+            per_capita=True
+        )
 
         legend = [
             {
