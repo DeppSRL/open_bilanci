@@ -92,7 +92,7 @@ class Command(BaseCommand):
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
-            self.logger.info("Processing cities: {0}".format(cities))
+            self.logger.info(u"Processing cities: {0}".format(cities))
 
 
         years = options['years']
@@ -158,7 +158,7 @@ class Command(BaseCommand):
 
             dest_doc_id = city
             if dest_doc_id in dest_db and skip_existing:
-                self.logger.info("Skipping city of {}, as already existing".format(city))
+                self.logger.info(u"Skipping city of {}, as already existing".format(city))
                 continue
 
 
@@ -169,7 +169,7 @@ class Command(BaseCommand):
                 self.city = city
                 self.year = year
 
-                self.logger.info("Processing city of {0}, year {1}".format(
+                self.logger.info(u"Processing city of {0}, year {1}".format(
                     city, year
                 ))
 
