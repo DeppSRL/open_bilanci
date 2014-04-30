@@ -246,7 +246,7 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
 
 class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
     """
-    (consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-entrate-extratributarie) :
+    (consuntivo-entrate-competenza-imposte-e-tasse + consuntivo-entrate-competenza-entrate-extratributarie) :
     (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
     """
     slug = 'velocita-gestione-spese-correnti'
