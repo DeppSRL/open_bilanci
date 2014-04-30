@@ -127,10 +127,10 @@ class EntrateBudgetMixin(object):
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx)
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e)
+                self._emit_warning(unicode(e))
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e)
+                self._emit_debug(unicode(e))
                 continue
 
             ret += val
@@ -185,7 +185,7 @@ class SpeseBudgetMixin(object):
                 # handle mapping and sum
                 interventi_matches = self._get_matching_interventi(bc[3], interventi_map)
                 if not interventi_matches:
-                    self._emit_warning("Could not find proper mapping for [{}]".format(
+                    self._emit_warning(u"Could not find proper mapping for [{}]".format(
                         bc[3]
                     ))
 
@@ -193,17 +193,17 @@ class SpeseBudgetMixin(object):
                 # handle mapping and sum
                 interventi_matches = self._get_matching_interventi(bc[4], interventi_map)
                 if not interventi_matches:
-                    self._emit_warning("Could not find proper mapping for [{}]".format(
+                    self._emit_warning(u"Could not find proper mapping for [{}]".format(
                         bc[4]
                     ))
 
             try:
                 val = self._get_value(voce_match, normalized_doc, col_idx=col_idx, interventi_matches=tuple(interventi_matches))
             except (MultipleValueFoundException, SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                self._emit_warning(e)
+                self._emit_warning(unicode(e))
                 continue
             except (TitoloNotFound, VoceNotFound) as e:
-                self._emit_debug(e)
+                self._emit_debug(unicode(e))
                 continue
 
 
