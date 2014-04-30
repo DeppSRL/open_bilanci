@@ -250,10 +250,10 @@ class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
     (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
     """
     slug = 'velocita-gestione-spese-correnti'
-    label = u"Velocità di gestione delle spese correnti"
+    label = u"Velocità di riscossione delle entrate proprie"
     used_voci_slugs = {
-        'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
-        'ecex': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'ecit': 'consuntivo-entrate-competenza-imposte-e-tasse',
+        'ecex': 'consuntivo-entrate-competenza-entrate-extratributarie',
         'eait': 'consuntivo-entrate-accertamenti-imposte-e-tasse',
         'eaex': 'consuntivo-entrate-accertamenti-entrate-extratributarie',
     }
@@ -272,7 +272,7 @@ class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
      consuntivo-spese-impegni-spese-correnti) * 100
     """
     slug = 'velocita-riscossione-entrate-proprie'
-    label = u"Velocità di riscossione delle entrate proprie"
+    label = u"Velocità di gestione delle spese correnti"
     used_voci_slugs = {
         'sp': 'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti',
         'si': 'consuntivo-spese-impegni-spese-correnti',
