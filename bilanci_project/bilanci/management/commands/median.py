@@ -7,6 +7,7 @@ Median values are computed either for Voci and Indicatori,
 as specified in the --type command-line parameter.
 """
 # coding=utf-8
+from collections import OrderedDict
 from itertools import groupby
 
 import logging
@@ -110,6 +111,7 @@ class Command(BaseCommand):
                     self.logger.info(u"cluster: {0}, indicatore: {1}".format(territorio_cluster, indicatore.slug))
                     valori_qs = \
                         ValoreIndicatore.objects.filter(
+                            territorio__territorio='C',
                             territorio__cluster=cluster_data[0],
                             anno__in=years,
                             indicatore=indicatore,
@@ -154,18 +156,23 @@ class Command(BaseCommand):
                     self.logger.info(u"cluster: {0}, voce: {1}".format(territorio_cluster, voce))
                     valori_qs = \
                         ValoreBilancio.objects.filter(
+                            territorio__territorio='C',
                             territorio__cluster=cluster_data[0],
                             anno__in=years,
                             voce=voce,
-                        ).values('anno', 'valore').order_by('anno')
-                    valori_dict = dict(
-                        (k, [i['valore'] for i in list(v)])
-                        for k, v in groupby(valori_qs, key=lambda x: x['anno'])
-                    )
+                        ).values('anno', 'valore', 'valore_procapite').order_by('anno')
+                    grouped_valori = groupby(valori_qs, key=lambda x: x['anno'])
+                    valori_dict = OrderedDict([])
+                    valori_procapite_dict = OrderedDict([])
+                    for y, v in grouped_valori:
+                        valori_dict[y] = []
+                        valori_procapite_dict[y] = []
+                        for i in list(v):
+                            valori_dict[y].append(i['valore'])
+                            valori_procapite_dict[y].append(i['valore_procapite'])
 
                     for year in years:
                         self.logger.debug(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
-
 
                         if year not in valori_dict or valori_dict[year] is None:
                             self.logger.warning(
@@ -176,20 +183,25 @@ class Command(BaseCommand):
 
                         # remove null values
                         valori = [v for v in valori_dict[year] if v]
+                        valori_procapite = [v for v in valori_procapite_dict[year] if v]
+
 
                         mediana = numpy.median(valori)
-                        if not math.isnan(mediana):
+                        mediana_procapite = numpy.median(valori_procapite)
+                        if not math.isnan(mediana) and not math.isnan(mediana_procapite):
                             valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
                                 voce=voce,
                                 territorio=territorio_cluster,
                                 anno=year,
                                 defaults={
-                                    'valore': long(mediana)
+                                    'valore': long(mediana),
+                                    'valore_procapite': float(mediana_procapite)
                                 }
                             )
 
                             # overwrite existing values
                             if not is_created and not skip_existing:
                                 valore_mediano.valore = long(mediana)
+                                valore_mediano.valore_procapite = float(mediana_procapite)
                                 valore_mediano.save()
 
