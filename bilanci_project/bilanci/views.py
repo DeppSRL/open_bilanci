@@ -744,7 +744,7 @@ class BilancioOverView(BilancioView):
         must_redirect = False
         self.territorio = self.get_object()
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
-        self.tipo_bilancio = self.request.GET.get('type')
+        self.tipo_bilancio = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
