@@ -729,6 +729,11 @@ class BilancioView(LoginRequiredMixin, DetailView):
 class BilancioOverView(BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
+    year = None
+    tipo_bilancio = None
+    values_type = None
+    cas_com_type = None
+    fun_int_view = None
 
     def get(self, request, *args, **kwargs):
 
@@ -738,33 +743,58 @@ class BilancioOverView(BilancioView):
 
         must_redirect = False
         self.territorio = self.get_object()
-
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
-        try:
-            best_bilancio = self.territorio.best_bilancio_type(self.year)
-        except Exception:
-            return HttpResponseRedirect(reverse('404'))
-
-        if 'type' in self.request.GET and self.request.GET['type'] == 'consuntivo' and \
-            best_bilancio == 'preventivo':
-            must_redirect = True
-
-        if self.selected_section == 'bilancio':
-            self.tipo_bilancio = best_bilancio
-            if 'type' in self.request.GET and self.request.GET['type'] != self.tipo_bilancio:
-                must_redirect = True
-        else:
-            if not must_redirect:
-                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
-            else:
-                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
-
+        self.tipo_bilancio = self.request.GET.get('type')
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
 
+        # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
         must_redirect = (len(qs.split('&')) < 4) or must_redirect
+
+        ##
+        # based on the type of bilancio and the selected section
+        # the rootnode slug to check for existance is determined
+        ##
+
+        rootnode_slugs = {
+            'preventivo': {
+                'entrate':{
+                    'cassa': 'preventivo-entrate',
+                    'competenza': 'preventivo-entrate'
+                },
+                'spese':{
+                    'cassa': 'preventivo-spese',
+                    'competenza': 'preventivo-spese'
+                },
+
+            },
+            'consuntivo': {
+                'entrate':{
+                    'cassa': 'consuntivo-entrate-cassa',
+                    'competenza': 'consuntivo-entrate-accertamenti'
+                },
+                'spese': {
+                    'cassa':'consuntivo-spese-cassa',
+                    'competenza':'consuntivo-spese-impegni'
+                }
+            }
+        }
+
+        rootnode_slug = rootnode_slugs[self.tipo_bilancio]['entrate'][self.cas_com_type]
+        if self.selected_section != 'bilancio':
+            rootnode_slug = rootnode_slugs[self.tipo_bilancio][self.selected_section][self.cas_com_type]
+
+        # best_bilancio determines based on the slug and the selected year
+        # if that bilancio exists for that year
+        # if it doesn't exist it returns the closest smaller year
+        # in which that slug exists
+
+        best_bilancio = self.territorio.best_bilancio(self.year, rootnode_slug)
+        if best_bilancio != self.year:
+            must_redirect = True
+            self.year = best_bilancio
 
 
         if must_redirect:
@@ -777,9 +807,14 @@ class BilancioOverView(BilancioView):
 
             return HttpResponseRedirect(
                 reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
-                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
-                    self.year, self.tipo_bilancio,
-                    self.values_type, self.cas_com_type))
+                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".\
+                    format(
+                        self.year,
+                        self.tipo_bilancio,
+                        self.values_type,
+                        self.cas_com_type
+                    )
+            )
 
         return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 

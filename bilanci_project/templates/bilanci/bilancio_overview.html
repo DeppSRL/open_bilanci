@@ -29,8 +29,8 @@
             var selector_init_obj ={
                 'selector_default_year':{{ selector_default_year }},
                 'selected_year':{{ selected_year }},
-                'visible_buttons': false,
-                'selected_bilancio_type': null,
+                'visible_buttons': true,
+                'selected_bilancio_type': "{{ selected_bilancio_type }}",
                 'start_year': {{ timeline_start_year }},
                 'end_year': {{ timeline_end_year }},
                 'reference_url': "{% url "bilanci-overview" slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
