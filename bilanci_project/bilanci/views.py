@@ -305,11 +305,30 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             per_capita=True
         )
 
+        voce_line_label = voce_bilancio.denominazione
+
+        # if the voce is a voce used for the main linegraph the label is translated for better comprehension
+
+        voce_slug_to_translate = {
+            'preventivo-entrate': 'Totale entrate previste',
+            'preventivo-spese': 'Totale spese previste',
+            'consuntivo-entrate-cassa': 'Totale entrate incassate',
+            'consuntivo-entrate-accertamenti': 'Totale entrate accertate',
+            'consuntivo-spese-impegni': 'Totale entrate impegnate',
+            'consuntivo-spese-cassa': 'Totale spese pagate'
+
+        }
+
+        if voce_bilancio.slug in voce_slug_to_translate.keys():
+
+            voce_line_label = voce_slug_to_translate[voce_bilancio.slug]
+
+
         legend = [
             {
               "color": settings.TERRITORIO_1_COLOR,
               "id": 1,
-              "label": voce_bilancio.denominazione.upper()
+              "label": voce_line_label.upper()
             },
             {
               "color": settings.CLUSTER_LINE_COLOR,
