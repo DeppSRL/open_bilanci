@@ -1,3 +1,4 @@
+{% load tooltip %}
 <div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
     <div class="scrollbox"  >
         <ul class="nav nav-stacked menu">
@@ -24,9 +25,9 @@
                                         {% endif %}
                                     {% endif %}
                                 {% endif %}
-
                                     >
-                                    <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
+                                    {% tooltip text=parameter.denominazione %}
+                                    {{ parameter.denominazione }}
                                 </a>
                             </li>
 

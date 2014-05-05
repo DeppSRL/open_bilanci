@@ -1926,3 +1926,17 @@ form ul li label {
   font-weight: 300;
   display: inline;
 }
+.section_title {
+  margin-bottom: 10px;
+}
+.section_title .cas_com_box {
+  font-size: 14px;
+  text-align: right;
+}
+.section_title .element {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.section_title img#gear {
+  height: 19px;
+}

@@ -1,3 +1,4 @@
+{% load tooltip %}
 <aside id="sidebar" class="hidden">
     <form id="parameter-list-form"  method="get" >
         <div class="panel panel-default">
@@ -17,7 +18,7 @@
                             <ul class="nav nav-stacked ">
                                 {% for parameter in parameter_list %}
                                 <li>
-                                    <a href="#" class="pin pull-right" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i comuni per questo indicatore.<br><strong class='link'><span class='icon sprite-search-alt'></span> Lorem ipsum</strong>"><span class="icon sprite-info"></span></a>
+                                    {% tooltip link="#" text="vai alla classifica di tutti i comuni per questo indicatore.<br><strong class='link'><span class='icon sprite-search-alt'></span> Lorem ipsum</strong>" %}
                                     <input type="checkbox" value="{{ parameter.slug }}" name="slug" id="{{ parameter.slug }}"
                                             {% if parameter.slug in selected_parameters %}
                                                 checked="checked"

@@ -8,9 +8,6 @@
 
 
 {% block bilanci_accordion %}
-{#    <header class="clearfix">#}
-{#        <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>#}
-{#    </header>#}
 
     {% if fun_int_current_view == 'interventi' %}
         {% include 'bilanci/_accordion_spese_interventi.html' %}
