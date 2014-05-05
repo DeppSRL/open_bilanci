@@ -398,6 +398,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     serie_start_year = settings.TIMELINE_START_DATE.year
     serie_end_year = settings.TIMELINE_END_DATE.year
     territorio = None
+    values_type = None
+    cas_com_type = None
 
     def get(self, request, *args, **kwargs):
         self.values_type = self.request.GET.get('values_type', 'real')
@@ -584,6 +586,15 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data['widget3']=composition_data['widget1']
 
         context['composition_data']=json.dumps(composition_data)
+
+        context['main_bilancio_type']=main_bilancio_type
+        context['main_bilancio_year']=main_bilancio_year
+
+        context['comparison_bilancio_type']=comparison_bilancio_type
+        context['comparison_bilancio_year']=comparison_bilancio_year
+
+        context['cas_com_type']=self.cas_com_type
+        context['values_type']=self.values_type
 
         return context
 
@@ -958,8 +969,15 @@ class BilancioDetailView(BilancioOverView):
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
 
         context['query_string'] = query_string
-
         context['year'] = self.year
+        context['bilancio_type'] = self.tipo_bilancio
+
+        if self.tipo_bilancio == 'preventivo':
+            context['bilancio_type_title'] = 'preventivi'
+        else:
+            context['bilancio_type_title'] = 'consuntivi'
+
+
 
         return context
 

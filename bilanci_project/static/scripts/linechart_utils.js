@@ -55,7 +55,7 @@ function init_secondary_linechart(event){
 
     var btn = $( this );
     var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
-    var chart_td = chart_container.find('td');
+    var chart_td = chart_container.find('td div.graph-box');
     var voce_slug = btn.attr('href').substring(1);
 
     if (chart_td.find('div').length == 0) {

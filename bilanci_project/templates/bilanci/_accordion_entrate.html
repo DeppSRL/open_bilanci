@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load voice_values %}
 {% load repeat %}
+{% load section_title %}
 
 
 <!-- Main table -->
@@ -43,6 +44,16 @@
 
                     <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
                         <td colspan="3" class="col-sm-12 details" style="border: 0">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {#  secondary graph title #}
+                                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title cas_com_type=cas_com_type values_type=values_type  %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                {#  secondary graph  #}
+                                <div class="col-md-12 graph-box"></div>
+                            </div>
                         </td>
                     </tr>
 

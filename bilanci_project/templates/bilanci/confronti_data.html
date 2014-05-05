@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load confronti_helpbox %}
 {% load confronti_parameter_list %}
+{% load section_title %}
 
 {% block page_title %}
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter.denominazione }}
@@ -61,12 +62,10 @@
     <div id="results" class="row">
         <div class="col-md-12">
             <div class="panel panel-default panel-nobg">
-                <div class="panel-heading clearfix">
-                    <h3 class="panel-title">{{ parameter_type }}</h3>
-                    <p> {{ parameter_type }}<span class="sep">›</span> {{ parameter.denominazione|upper }}</p>
-                </div>
                 <div class="panel-body">
                     <div class='col-md-12'>
+                        {% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter.denominazione   %}
+
                         {% include 'commons/_lines_chart_over_the_years.html' %}
                     </div>
                 </div>
