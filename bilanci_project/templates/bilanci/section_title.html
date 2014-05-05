@@ -2,7 +2,7 @@
 
 {%spaceless %}
 <div class="row">
-    <div class="{% if cas_com_type and values_type %}col-sm-8{% else %}col-sm-12{% endif %}">
+    <div class="{% if cas_com_type and values_type %}col-sm-6{% else %}col-sm-12{% endif %}">
 
         <strong>{{ bold_text|default_if_none:''|upper }} {{ main_bilancio_type|default_if_none:''|upper }} {{ main_bilancio_year|default_if_none:'' }}
                 {{ secondary_bold_text|default_if_none:''|upper }}
@@ -20,9 +20,21 @@
 
     {% if cas_com_type and values_type %}
 
-        <div class="col-sm-4">
-            <img src="{% static 'img/section_title_gear.png' %}"/>{{ cas_com_type|default_if_none:''|upper }} VALORI {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
-        </div>
+        {% if funzioni_interventi %}
+
+            <div class="col-sm-5">
+                <img src="{% static 'img/section_title_gear.png' %}"/>{{ cas_com_type|default_if_none:''|upper }} VALORI {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
+            </div>
+            <div class="col-sm-1">
+                <header class="clearfix">
+                    <a href="{{ fun_int_url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_label }}</a>
+                </header>
+            </div>
+        {% else %}
+            <div class="col-sm-6">
+                <img src="{% static 'img/section_title_gear.png' %}"/>{{ cas_com_type|default_if_none:''|upper }} VALORI {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
+            </div>
+        {% endif %}
 
     {% endif %}
 

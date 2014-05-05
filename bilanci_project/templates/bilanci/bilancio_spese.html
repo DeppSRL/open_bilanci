@@ -3,14 +3,14 @@
 {% load section_title %}
 
 {% block content_header %}
-    {% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year cas_com_type=cas_com_type values_type=values_type  %}
+    {% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year cas_com_type=cas_com_type values_type=values_type funzioni_interventi=True fun_int_url=fun_int_switch.url fun_int_label=fun_int_switch.label %}
 {% endblock %}
 
 
 {% block bilanci_accordion %}
-    <header class="clearfix">
-        <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>
-    </header>
+{#    <header class="clearfix">#}
+{#        <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>#}
+{#    </header>#}
 
     {% if fun_int_current_view == 'interventi' %}
         {% include 'bilanci/_accordion_spese_interventi.html' %}
