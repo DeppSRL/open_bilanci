@@ -803,6 +803,11 @@ class BilancioOverView(BilancioView):
         # in which that slug exists
 
         best_bilancio = self.territorio.best_bilancio(self.year, rootnode_slug)
+
+        # if best_bilancio is None -> there is no bilancio in the db to show for the selected territorio
+        if not best_bilancio:
+            return HttpResponseRedirect(reverse('404'))
+
         if best_bilancio != self.year:
             must_redirect = True
             self.year = best_bilancio

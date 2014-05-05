@@ -160,6 +160,9 @@ class Territorio(models.Model):
         year = int(year_str)
         available_years = self.valorebilancio_set.filter(voce__slug=slug).values_list('anno', flat=True).order_by('anno')
 
+        if not available_years:
+            return None
+
         best_year = available_years[0]
         year_differences = year-best_year
 
