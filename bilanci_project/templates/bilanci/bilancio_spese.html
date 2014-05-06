@@ -1,9 +1,25 @@
 {% extends "bilanci/bilancio_partial.html" %}
 {% load humanize %}
 {% load section_title %}
+{% load section_values_type %}
 
 {% block content_header %}
-    {% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year cas_com_type=cas_com_type values_type=values_type funzioni_interventi=True fun_int_url=fun_int_switch.url fun_int_label=fun_int_switch.label %}
+
+    <div class="row">
+        <div class="col-md-5 section_title" >
+            {% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}
+        </div>
+        <div class="col-md-4 section_title" >
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+        </div>
+
+        {#        switch funzioni interventi #}
+        <div class="col-md-3 section_title" >
+
+            <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>
+
+        </div>
+    </div>
 {% endblock %}
 
 

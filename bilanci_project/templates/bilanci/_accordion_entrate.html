@@ -3,6 +3,7 @@
 {% load voice_values %}
 {% load repeat %}
 {% load section_title %}
+{% load section_values_type %}
 
 
 <!-- Main table -->
@@ -47,7 +48,14 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     {#  secondary graph title #}
-                                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title cas_com_type=cas_com_type values_type=values_type per_capita=True  %}
+                                    <div class="row">
+                                        <div class="col-md-8 section_title" style="">
+                                            {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                                        </div>
+                                        <div class="col-md-4 section_title" style="">
+                                            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">

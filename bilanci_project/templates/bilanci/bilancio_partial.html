@@ -1,6 +1,7 @@
 {%  extends "bilanci/bilancio_base.html" %}
 {% load staticfiles %}
 {% load section_title %}
+{% load section_values_type %}
 
 {% block page_title %}
     {{ selected_section|title }} del bilancio {{ selected_bilancio_type }} per il Comune di {{ territorio }}, anno: {{ year }}
@@ -20,12 +21,24 @@
 
     <!-- Tab panes -->
     <div class="tab-content">
+        {% comment %}
         <div class="tab-pane fade in" id="composizione">
             composition widget
         </div>
+        {% endcomment %}
 
         <div class="tab-pane fade in active" id="dettaglio">
-            {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title cas_com_type=cas_com_type values_type=values_type per_capita=True %}
+
+            <div class="row">
+                <div class="col-md-8 section_title" style="">
+                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title %}
+                </div>
+                <div class="col-md-4 section_title" style="">
+                    {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True%}
+                </div>
+            </div>
+
+
             {% include 'commons/_lines_chart_over_the_years.html' %}
 
             <hr class="no-border">
