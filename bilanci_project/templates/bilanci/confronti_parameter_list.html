@@ -1,4 +1,5 @@
 {% load tooltip %}
+
 <div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
     <div class="scrollbox"  >
         <ul class="nav nav-stacked menu">
@@ -11,24 +12,33 @@
                                     class="active"
                                 {% endif %}
                                     >
-                                <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
+                                <div class="row">
+                                    <div class="col-sm-10">
+                                        <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
 
-                                {# initialize the url for parameter list menu   #}
-                                {% if parameter_list_type == 'indicatori' %}
-                                    href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                                    {% else %}
-                                    {% if parameter_list_type == 'entrate' %}
-                                        href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                                        {% else %}
-                                        {% if parameter_list_type == 'spese' %}
-                                            href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                                        {% endif %}
-                                    {% endif %}
-                                {% endif %}
-                                    >
-                                    {% tooltip text=parameter.denominazione %}
-                                    {{ parameter.denominazione }}
-                                </a>
+                                            {# initialize the url for parameter list menu   #}
+                                            {% if parameter_list_type == 'indicatori' %}
+                                                href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                                {% else %}
+                                                {% if parameter_list_type == 'entrate' %}
+                                                    href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                                    {% else %}
+                                                    {% if parameter_list_type == 'spese' %}
+                                                        href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                                >
+                                            {{ parameter.denominazione }}
+
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        {% tooltip text=parameter.denominazione %}
+                                    </div>
+
+                                </div>
+
                             </li>
 
                         {% endfor %}

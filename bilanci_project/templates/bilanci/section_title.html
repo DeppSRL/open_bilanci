@@ -40,7 +40,7 @@
                 {% tooltip text=cas_com_type %}
             </span>
             <span class="element">
-                VALORI {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
+                VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
             </span>
             <span class="element">
                 {% tooltip text=values_type %}

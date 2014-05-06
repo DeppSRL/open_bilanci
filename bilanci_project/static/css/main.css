@@ -1937,6 +1937,8 @@ form ul li label {
   margin-left: 2px;
   margin-right: 2px;
 }
-.section_title img#gear {
+.section_title .element img#gear {
+  width: auto!important;
   height: 19px;
+  margin-bottom: 0;
 }
