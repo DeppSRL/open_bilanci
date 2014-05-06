@@ -1940,5 +1940,18 @@ form ul li label {
 .section_title .element img#gear {
   width: auto!important;
   height: 19px;
-  margin-bottom: 0;
+  margin-bottom: 0px;
+}
+#main-content .scrollbox {
+  height: 250px;
+}
+#sidebar .menu li {
+  margin-top: 2px;
+  margin-bottom: 3px;
+}
+#sidebar .menu .mytooltip {
+  float: right;
+  margin-right: 2px;
+  z-index: 0;
+  width: 8px;
 }
