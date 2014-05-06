@@ -856,6 +856,19 @@ class BilancioOverView(BilancioView):
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
 
+        # identifies the bilancio for comparison
+
+        comparison_bilancio_type = None
+        main_bilancio_yr = int(self.year)
+        if self.tipo_bilancio == 'preventivo':
+            comparison_bilancio_type = 'consuntivo'
+            comparison_bilancio_year = main_bilancio_yr-1
+        else:
+            comparison_bilancio_type = 'preventivo'
+            comparison_bilancio_year = main_bilancio_yr
+
+        context['comparison_bilancio_type']=comparison_bilancio_type
+        context['comparison_bilancio_year']=comparison_bilancio_year
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),

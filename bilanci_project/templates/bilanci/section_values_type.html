@@ -1,0 +1,24 @@
+{% load staticfiles %}
+{% load tooltip %}
+{# displays info about cas/com and about values type  #}
+<div class="cas_com_box">
+    <span class="values_type">
+        <img id="gear" src="{% static 'img/section_title_gear.png' %}"/>
+    </span>
+    <span class="values_type">
+        {{ cas_com_type|default_if_none:''|upper }}
+    </span>
+    <div class="values_type">
+        {% if tooltip %}
+            {% tooltip text=cas_com_type %}
+        {% endif %}
+    </div>
+    <span class="values_type">
+        VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
+    </span>
+    <div class="values_type">
+        {% if tooltip %}
+            {% tooltip text=values_type %}
+        {% endif %}
+    </div>
+</div>

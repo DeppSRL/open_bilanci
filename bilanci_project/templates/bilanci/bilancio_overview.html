@@ -1,5 +1,7 @@
 {%  extends "bilanci/bilancio_base.html" %}
 {% load staticfiles %}
+{% load section_title %}
+{% load section_values_type %}
 
 
 {% block page_title %}
@@ -9,8 +11,18 @@
 
 {% block bilanci_content %}
 
+    <div class="row">
+        <div class="col-md-7 col-md-offset-1 section_title" style="">
+            {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+        </div>
+        <div class="col-md-3 section_title" style="">
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+        </div>
+    </div>
+
+
     <div class="tab-content composition-widget-container">
-        <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;;"
+        <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
                 src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
     </div>
 
