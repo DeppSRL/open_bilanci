@@ -82,6 +82,7 @@
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
 
 
     <script type="text/javascript">
@@ -99,6 +100,8 @@
             if($('#push-menu').length){
                 $("#push-menu").on("click", function(){ linechart.resize();});
             }
+
+            init_parameter_menu();
 
         });
 

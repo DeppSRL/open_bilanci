@@ -1,28 +1,30 @@
-<ul class="nav nav-stacked menu">
-    <li class="active">
-        <span class="icon sprite-autonomia-finanziaria"></span> {{ parameter_list_type|upper }}
-        <div class="scrollbox">
-            <ul class="nav nav-stacked" id="parameter_list_{{ parameter_list_type }}">
-                {% for parameter in parameter_list %}
-                    <li
-                        {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
-                            class="active"
-                        {% endif %}
-                            >
-                        <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
+<div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
+    <div class="scrollbox"  >
+        <ul class="nav nav-stacked menu">
+            <li class="active">
+                <div class="">
+                    <ul class="nav nav-stacked confronti_parameter_list" id="parameter_list_{{ parameter_list_type }}">
+                        {% for parameter in parameter_list %}
+                            <li
+                                {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
+                                    class="active"
+                                {% endif %}
+                                    >
+                                <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
 
-                            {# initialize the url for parameter list menu   #}
-                            href="{% url 'classifiche-list' parameter_type=parameter_list_type parameter_slug=parameter.slug anno=selected_year %}"
+                                    {# initialize the url for parameter list menu   #}
+                                    href="{% url 'classifiche-list' parameter_type=parameter_list_type parameter_slug=parameter.slug anno=selected_year %}"
 
-                            >
-                                <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
-                        </a>
-                    </li>
+                                    >
+                                        <span class="icon sprite-info pull-right"></span> {{ parameter.denominazione }}
+                                </a>
+                            </li>
 
-                {% endfor %}
+                        {% endfor %}
 
-            </ul>
-        </div>
-    </li>
-</ul>
-</ul>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

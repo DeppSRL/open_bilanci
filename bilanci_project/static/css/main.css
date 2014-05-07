@@ -1961,3 +1961,6 @@ form ul li label {
 .confronti_parameter_list a:visited {
   color: #2a3036;
 }
+#sidebar .menu li.active > a {
+  font-weight: bold;
+}
