@@ -85,7 +85,10 @@
                                             {% for valore_obj in valori_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
-                                                        <span class="h2">{{ valore_obj.valore|intcomma }}</span>
+                                                        <span class="h2">
+                                                            {{ valore_obj.valore|floatformat:2 }}
+                                                            {% if selected_par_type == 'indicatori' %}%{% else %}Euro{% endif %}
+                                                        </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
                                                         <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio }}</a></h4>

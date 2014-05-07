@@ -1120,11 +1120,16 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # enrich the Queryset in object_list with Political context data
         valori_list = []
         for valoreObj in self.object_list:
+            valore_template = None
+            if self.parameter_type =='indicatori':
+                valore_template = valoreObj.valore
+            else:
+                valore_template = valoreObj.valore_procapite
+
             valori_list.append(
                 {
                 'territorio': valoreObj.territorio,
-                'valore': valoreObj.valore,
-                'valore_procapite': valoreObj.valore_procapite,
+                'valore': valore_template,
                 'incarichi_attivi': Incarico.get_incarichi_attivi(valoreObj.territorio, self.anno),
                 }
             )
