@@ -1,0 +1,96 @@
+<aside id="filters" class="col-md-4">
+    <form>
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <div class="pull-right">Rimuovi tutti <a href="#"><span class="icon sprite-delete"></span></a></div>
+            <h3 class="panel-title">FILTRA</h3>
+        </div>
+        <div class="panel-body">
+            <div class="enabled">
+                <p class="h4">REGIONE</p>
+                <ul class="list-inline">
+                    <li>
+                        Regione 1
+                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                    </li>
+                    <li>
+                        Regione 2
+                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                    </li>
+                    <li>
+                        Regione 3
+                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                    </li>
+                </ul>
+
+                <p class="h4">DIMENSI0NE</p>
+                <ul class="list-inline">
+                    <li>
+                        Centri Piccolissimi
+                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                    </li>
+                </ul>
+
+                <p class="h4">CLASSE</p>
+                <ul class="list-inline">
+                    <li>
+                        Classe 1
+                        <a href="#"><span class="icon sprite-delete-small"></span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER REGIONE</li>
+            {% for regione in regioni_list %}
+                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ regione.denominazione }}</li>
+            {% endfor %}
+
+        </ul>
+
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER CLUSTER</li>
+            {% for cluster in cluster_list %}
+                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ cluster.denominazione }}</li>
+            {% endfor %}
+        </ul>
+
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER CLASSE</li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value="" checked="checked"> I
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> II
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> III
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> IV
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> V
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> VI
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+    </form>
+</aside> <!-- /#filters -->

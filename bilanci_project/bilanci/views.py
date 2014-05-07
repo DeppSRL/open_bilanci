@@ -1124,6 +1124,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                 {
                 'territorio': valoreObj.territorio,
                 'valore': valoreObj.valore,
+                'valore_procapite': valoreObj.valore_procapite,
                 'incarichi_attivi': Incarico.get_incarichi_attivi(valoreObj.territorio, self.anno),
                 }
             )
