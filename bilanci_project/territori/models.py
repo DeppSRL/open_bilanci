@@ -57,15 +57,15 @@ class Territorio(models.Model):
         )
 
     CLUSTER = Choices(
-        (u'1',u"i_piu_piccoli", u'I più piccoli'),
-        (u'2', u"molto_piccoli", u'Molto piccoli'),
-        (u'3', u"piccoli_1", u'Piccoli 1'),
-        (u'4', u"piccoli_2", u'Piccoli 2'),
-        (u'5', u"medio_piccoli", u'Medio piccoli'),
-        (u'6', u"medi", u'Medi'),
-        (u'7', u"grandi", u'Grandi'),
-        (u'8', u"molto_grandi", u'Molto grandi'),
-        (u'9', u"i_piu_grandi", u'I più grandi'),
+        (u'1',u"0_500", u'Fino a 500 abitanti'),
+        (u'2', u"501_1000", u'Da 501 a 1.000 abitanti'),
+        (u'3', u"1001_3000", u'Da 1.001 a 3.000 abitanti'),
+        (u'4', u"3001_5000", u'Da 3.001 a 5.000 abitanti'),
+        (u'5', u"5001_10000", u'Da 5.001 a 10.000 abitanti'),
+        (u'6', u"10001_50000", u'Da 10.001 a 50.000 abitanti'),
+        (u'7', u"50001_200000", u'Da 50.001 a 200.000 abitanti'),
+        (u'8', u"200001_500000", u'Da 200.001 a 500.000 abitanti'),
+        (u'9', u"500001_", u'Oltre i 500.000 abitanti'),
         )
 
     # codice sito Finanza Locale

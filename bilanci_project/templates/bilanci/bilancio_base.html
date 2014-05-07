@@ -26,15 +26,12 @@
         <h1 class="panel-title">{{territorio.denominazione}}</h1>
         <p class="details">
             <span class="location">
-
                 {{ territorio.prov|default:"" }},
-
-
-                {{ territorio.regione|default_if_none:""|title }} </span>
-            <span class="category"><span class="glyphicon glyphicon-record"></span>
-                {{ territorio.get_cluster_display }}
+                {{ territorio.regione|default_if_none:""|title }}
+            </span>
+            <span style="padding-left: 6px;">
                 {% if comune_context.bil_popolazione_residente %}
-                    , {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                    {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
                 {% endif %}
             </span>
         </p>
