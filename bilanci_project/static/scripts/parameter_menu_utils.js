@@ -8,15 +8,21 @@ function escapeRegExp(str) {
 }
 
 function init_parameter_menu(site_section){
-    //initialize side menu: default value: the one present in the url address
-    var current_address = window.location.pathname ;
-    var small_re = /([\w]+)?/;
+    //initialize side menu.
+    // default selected value: the one present in the url address
+
+    var parameter_type=null;
     var dropdown_id = '#'+site_section+'-dropdown';
 
     //if site_section is 'classifiche' the par type is whatever comes after classifiche in the page url:
     //given the url : classifiche/indicatori/foo -> par_type = indicatori
-    var pattern = new RegExp(site_section + small_re );
-    var parameter_type=pattern.exec(current_address)[1];
+    var address_split = window.location.pathname.split('/');
+
+    if(site_section == 'classifiche')
+        parameter_type = address_split[2];
+    else
+        parameter_type = address_split[4];
+
     var par_type_id = '#pl-'+parameter_type;
 
     // on module load is selected the type of parameter present in the page url

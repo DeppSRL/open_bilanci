@@ -45,7 +45,7 @@ form ul li label{
   padding-bottom: 20px;
 
 }
-select#confronti-dropdown{
+select.parameter-dropdown{
   width: 100%;
   padding:3px;
   background-color: #fff;
@@ -87,18 +87,38 @@ display: inline;
   height: 250px;
 }
 
-#sidebar .menu{
+#sidebar {
 
-  li{
-    margin-top: 2px;
-    margin-bottom: 3px;
+  .dropdown > .separator {
+    height: 1px;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: black;
+    margin-bottom:9px;
+    margin-top:20px;
   }
 
-  .mytooltip{
-    float: right;
-    margin-right: 2px;
-    z-index: 0;
-    width: 8px;
+  ul.menu{
+    border: 0;
+
+    li{
+      font-size: 14px;
+      border: 0;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+    //parameter list menu active voice
+    li.active > div.row > div > a{
+      font-weight: bold;
+    }
+
+    .mytooltip{
+      float: right;
+      margin-right: 2px;
+      z-index: 0;
+      width: 8px;
+    }
+
   }
 
 }
@@ -108,8 +128,3 @@ display: inline;
   a:visited { color: #2a3036;}
 }
 
-//paramter list menu active voice
-#sidebar .menu li.active > a{
-  font-weight: bold;
-
-}

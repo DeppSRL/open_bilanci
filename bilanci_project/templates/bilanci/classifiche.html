@@ -241,13 +241,14 @@
                                 Seleziona
                             </h3>
                             <div class="dropdown" >
-                                <div style="margin-bottom: 20px;">
-                                    <select id="classifiche-dropdown">
-                                        <option value="indicatori">INDICATORI</option>
-                                        <option value="entrate">ENTRATE</option>
-                                        <option value="spese">SPESE</option>
-                                    </select>
-                                </div>
+
+                                <select id="classifiche-dropdown" class="parameter-dropdown">
+                                    <option value="indicatori">INDICATORI</option>
+                                    <option value="entrate">ENTRATE</option>
+                                    <option value="spese">SPESE</option>
+                                </select>
+                                <div class="separator"></div>
+
                                 {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
                                 {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
                                 {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}

@@ -1912,7 +1912,7 @@ form ul li label {
   margin-bottom: 0;
   padding-bottom: 20px;
 }
-select#confronti-dropdown {
+select.parameter-dropdown {
   width: 100%;
   padding: 3px;
   background-color: #fff;
@@ -1945,11 +1945,27 @@ form ul li label {
 #main-content .scrollbox {
   height: 250px;
 }
-#sidebar .menu li {
-  margin-top: 2px;
-  margin-bottom: 3px;
+#sidebar .dropdown > .separator {
+  height: 1px;
+  border-style: solid;
+  border-width: 0 0 1px 0;
+  border-color: black;
+  margin-bottom: 9px;
+  margin-top: 20px;
 }
-#sidebar .menu .mytooltip {
+#sidebar ul.menu {
+  border: 0;
+}
+#sidebar ul.menu li {
+  font-size: 14px;
+  border: 0;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+#sidebar ul.menu li.active > div.row > div > a {
+  font-weight: bold;
+}
+#sidebar ul.menu .mytooltip {
   float: right;
   margin-right: 2px;
   z-index: 0;
@@ -1960,7 +1976,4 @@ form ul li label {
 }
 .confronti_parameter_list a:visited {
   color: #2a3036;
-}
-#sidebar .menu li.active > a {
-  font-weight: bold;
 }
