@@ -305,11 +305,30 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             per_capita=True
         )
 
+        voce_line_label = voce_bilancio.denominazione
+
+        # if the voce is a voce used for the main linegraph the label is translated for better comprehension
+
+        voce_slug_to_translate = {
+            'preventivo-entrate': 'Totale entrate previste',
+            'preventivo-spese': 'Totale spese previste',
+            'consuntivo-entrate-cassa': 'Totale entrate incassate',
+            'consuntivo-entrate-accertamenti': 'Totale entrate accertate',
+            'consuntivo-spese-impegni': 'Totale entrate impegnate',
+            'consuntivo-spese-cassa': 'Totale spese pagate'
+
+        }
+
+        if voce_bilancio.slug in voce_slug_to_translate.keys():
+
+            voce_line_label = voce_slug_to_translate[voce_bilancio.slug]
+
+
         legend = [
             {
               "color": settings.TERRITORIO_1_COLOR,
               "id": 1,
-              "label": voce_bilancio.denominazione.upper()
+              "label": voce_line_label.upper()
             },
             {
               "color": settings.CLUSTER_LINE_COLOR,
@@ -379,6 +398,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     serie_start_year = settings.TIMELINE_START_DATE.year
     serie_end_year = settings.TIMELINE_END_DATE.year
     territorio = None
+    values_type = None
+    cas_com_type = None
 
     def get(self, request, *args, **kwargs):
         self.values_type = self.request.GET.get('values_type', 'real')
@@ -566,6 +587,15 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         context['composition_data']=json.dumps(composition_data)
 
+        context['main_bilancio_type']=main_bilancio_type
+        context['main_bilancio_year']=main_bilancio_year
+
+        context['comparison_bilancio_type']=comparison_bilancio_type
+        context['comparison_bilancio_year']=comparison_bilancio_year
+
+        context['cas_com_type']=self.cas_com_type
+        context['values_type']=self.values_type
+
         return context
 
 
@@ -710,6 +740,11 @@ class BilancioView(LoginRequiredMixin, DetailView):
 class BilancioOverView(BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
+    year = None
+    tipo_bilancio = None
+    values_type = None
+    cas_com_type = None
+    fun_int_view = None
 
     def get(self, request, *args, **kwargs):
 
@@ -719,33 +754,63 @@ class BilancioOverView(BilancioView):
 
         must_redirect = False
         self.territorio = self.get_object()
-
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
-        try:
-            best_bilancio = self.territorio.best_bilancio_type(self.year)
-        except Exception:
-            return HttpResponseRedirect(reverse('404'))
-
-        if 'type' in self.request.GET and self.request.GET['type'] == 'consuntivo' and \
-            best_bilancio == 'preventivo':
-            must_redirect = True
-
-        if self.selected_section == 'bilancio':
-            self.tipo_bilancio = best_bilancio
-            if 'type' in self.request.GET and self.request.GET['type'] != self.tipo_bilancio:
-                must_redirect = True
-        else:
-            if not must_redirect:
-                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
-            else:
-                self.tipo_bilancio = self.request.GET.get('type', best_bilancio)
-
+        self.tipo_bilancio = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
 
+        # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
         must_redirect = (len(qs.split('&')) < 4) or must_redirect
+
+        ##
+        # based on the type of bilancio and the selected section
+        # the rootnode slug to check for existance is determined
+        ##
+
+        rootnode_slugs = {
+            'preventivo': {
+                'entrate':{
+                    'cassa': 'preventivo-entrate',
+                    'competenza': 'preventivo-entrate'
+                },
+                'spese':{
+                    'cassa': 'preventivo-spese',
+                    'competenza': 'preventivo-spese'
+                },
+
+            },
+            'consuntivo': {
+                'entrate':{
+                    'cassa': 'consuntivo-entrate-cassa',
+                    'competenza': 'consuntivo-entrate-accertamenti'
+                },
+                'spese': {
+                    'cassa':'consuntivo-spese-cassa',
+                    'competenza':'consuntivo-spese-impegni'
+                }
+            }
+        }
+
+        rootnode_slug = rootnode_slugs[self.tipo_bilancio]['entrate'][self.cas_com_type]
+        if self.selected_section != 'bilancio':
+            rootnode_slug = rootnode_slugs[self.tipo_bilancio][self.selected_section][self.cas_com_type]
+
+        # best_bilancio determines based on the slug and the selected year
+        # if that bilancio exists for that year
+        # if it doesn't exist it returns the closest smaller year
+        # in which that slug exists
+
+        best_bilancio = self.territorio.best_bilancio(self.year, rootnode_slug)
+
+        # if best_bilancio is None -> there is no bilancio in the db to show for the selected territorio
+        if not best_bilancio:
+            return HttpResponseRedirect(reverse('404'))
+
+        if best_bilancio != self.year:
+            must_redirect = True
+            self.year = best_bilancio
 
 
         if must_redirect:
@@ -758,9 +823,14 @@ class BilancioOverView(BilancioView):
 
             return HttpResponseRedirect(
                 reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
-                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
-                    self.year, self.tipo_bilancio,
-                    self.values_type, self.cas_com_type))
+                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".\
+                    format(
+                        self.year,
+                        self.tipo_bilancio,
+                        self.values_type,
+                        self.cas_com_type
+                    )
+            )
 
         return super(BilancioOverView, self).get(self, request, *args, **kwargs)
 
@@ -786,6 +856,19 @@ class BilancioOverView(BilancioView):
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
 
+        # identifies the bilancio for comparison
+
+        comparison_bilancio_type = None
+        main_bilancio_yr = int(self.year)
+        if self.tipo_bilancio == 'preventivo':
+            comparison_bilancio_type = 'consuntivo'
+            comparison_bilancio_year = main_bilancio_yr-1
+        else:
+            comparison_bilancio_type = 'preventivo'
+            comparison_bilancio_year = main_bilancio_yr
+
+        context['comparison_bilancio_type']=comparison_bilancio_type
+        context['comparison_bilancio_year']=comparison_bilancio_year
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
@@ -904,8 +987,15 @@ class BilancioDetailView(BilancioOverView):
         context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
 
         context['query_string'] = query_string
-
         context['year'] = self.year
+        context['bilancio_type'] = self.tipo_bilancio
+
+        if self.tipo_bilancio == 'preventivo':
+            context['bilancio_type_title'] = 'preventivi'
+        else:
+            context['bilancio_type_title'] = 'consuntivi'
+
+
 
         return context
 

@@ -153,22 +153,31 @@ class Territorio(models.Model):
 
         return contesto
 
-    def best_bilancio_type(self, year):
-        """
-        Return consuntivo, as first choice, if available,
-        else preventivo, as second choice-
+    def best_bilancio(self, year_str, slug):
 
-        Return None if nothing's available (no-data).
-        """
-        available_types = self.valorebilancio_set.all().values_list('voce__slug', flat=True).filter(
-            anno=year, voce__slug__in=('preventivo-entrate', 'consuntivo-entrate'))
+        # checks if the voice with the specified slug exists for a specific year,
+        # if not return the closest previous year in which that voce was available
+        year = int(year_str)
+        available_years = self.valorebilancio_set.filter(voce__slug=slug).values_list('anno', flat=True).order_by('anno')
 
-        if 'consuntivo-entrate' in available_types:
-            return 'consuntivo'
-        elif 'preventivo-entrate' in available_types:
-            return 'preventivo'
+        if not available_years:
+            return None
+
+        best_year = available_years[0]
+        year_differences = year-best_year
+
+        if year in available_years:
+            return year_str
         else:
-            raise Exception()
+
+            for considered_year in available_years:
+                if year-considered_year < year_differences and year-considered_year > 0:
+                    year_differences = year-considered_year
+                    best_year = considered_year
+
+
+            return str(best_year)
+
 
     def nearest_valid_population(self, year):
         """

@@ -424,7 +424,13 @@ TERRITORIO_2_COLOR = '#a51206'
 CLUSTER_LINE_COLOR = '#f7b5a1'
 
 DEFAULT_INDICATOR_SLUG = 'autonomia-finanziaria'
-INDICATOR_COLORS = ['#cc6633','#a51206','#f7b5a1','#8568d8','#1ca368','#78a31c']
+INDICATOR_COLORS = ['#cc6633',
+                    '#f7da94',
+                    '#913d6a',
+                    '#999924',
+                    '#993527',
+                    '#c3a150',
+                    '#666c14']
 
 # euros range to define two sums equal
 # due to round of floats to integers,

@@ -2,6 +2,7 @@
 {% load humanize %}
 {% load staticfiles %}
 {% load bilancio_indicatori_parameter_list %}
+{% load section_title %}
 
 {% block page_title %}
     Indicatori del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
@@ -26,6 +27,7 @@
 
 {% block bilanci_content %}
     <div class="tab-pane fade in" id="dettaglio">
+        {% section_title bold_text="ANDAMENTO NEL TEMPO"   %}
 
         <div id="indicatori-selezionati">
             {% include 'commons/_lines_chart_over_the_years.html' %}
@@ -53,7 +55,7 @@
         function feed_main_linechart(){
             d3.json("{% url 'incarichi-indicatori-json' territorio_opid=territorio_opid %}{{ selected_indicators_qstring|safe }}",
                     function (i) {
-                linechart.data(i)
+                linechart.data(i);
             });
 
         }

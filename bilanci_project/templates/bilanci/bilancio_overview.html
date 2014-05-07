@@ -1,5 +1,8 @@
 {%  extends "bilanci/bilancio_base.html" %}
 {% load staticfiles %}
+{% load section_title %}
+{% load section_values_type %}
+
 
 {% block page_title %}
     Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno: {{ year }}
@@ -7,9 +10,32 @@
 
 
 {% block bilanci_content %}
+    <div class="row" xmlns="http://www.w3.org/1999/html">
+        <div class="col-md-11 " style="margin-left: 30px; padding-right: 70px;">
+            {% include 'commons/_lines_chart_over_the_years.html' %}
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-7 col-md-offset-1 section_title" style="">
+            {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+        </div>
+        <div class="col-md-3 section_title" style="">
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+        </div>
+    </div>
+
+    <div class="row" >
+        <div class="col-md-10 col-md-offset-1 ">
+            Come si suddividono le entrate e le spese? Quali sono le priorità di chi amministra il Comune?<br/>
+            In verde <span style="font-weight: bold; color:#7d8e17"> GLI AUMENTI</span>, in rosso <span style="font-weight: bold; color:#9b2d1b">I TAGLI</span>.
+        </div>
+    </div>
+
 
     <div class="tab-content composition-widget-container">
-        <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;;"
+        <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
                 src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
     </div>
 
@@ -29,8 +55,8 @@
             var selector_init_obj ={
                 'selector_default_year':{{ selector_default_year }},
                 'selected_year':{{ selected_year }},
-                'visible_buttons': false,
-                'selected_bilancio_type': null,
+                'visible_buttons': true,
+                'selected_bilancio_type': "{{ selected_bilancio_type }}",
                 'start_year': {{ timeline_start_year }},
                 'end_year': {{ timeline_end_year }},
                 'reference_url': "{% url "bilanci-overview" slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
@@ -38,8 +64,21 @@
 
 
             init_selector(selector_init_obj);
-
+            {#  starts sindaci timeline           #}
+            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"EURO","EURO", false);
+            feed_main_linechart();
             });
+
+        function feed_main_linechart(){
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}" +
+                    "?values_type={{ values_type }}",
+                    function (i) {
+                linechart.data(i)
+                {#  selectes the considered yr in the sindaci timeline   #}
+                linechart.year({{ selected_year }});
+            });
+
+        }
 
 
     </script>

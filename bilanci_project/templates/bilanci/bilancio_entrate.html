@@ -1,13 +1,20 @@
 {% extends "bilanci/bilancio_partial.html" %}
 {% load humanize %}
+{% load section_title %}
+{% load section_values_type %}
+
+{% block content_header %}
+    <div class="row">
+        <div class="col-md-8 section_title" style="">
+            {% section_title bold_text="DETTAGLIO ENTRATE" main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}
+        </div>
+        <div class="col-md-4 section_title" style="">
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+        </div>
+    </div>
+{% endblock %}
 
 {% block bilanci_accordion %}
-    <!-- Default panel contents -->
-    <header class="clearfix">
-        <h3>DETTAGLIO {{ selected_section|upper }} {{ year }}</h3>
-    </header>
-    <p>Una breve descrizione del contenuto ...</p>
-
     {% include 'bilanci/_accordion_entrate.html' %}
 {%  endblock bilanci_accordion %}
 

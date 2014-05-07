@@ -9,7 +9,7 @@
 var linechart = null;
 var secondary_linechart = null;
 
-function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, tooltipUnit){
+function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, tooltipUnit, linechart_visible){
 
     "use strict";
     linechart = visup.linechart(".timeline-multiline");
@@ -17,6 +17,7 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
     // sets default values for Y axis value unit and tooltip value unit
     axisUnit = typeof axisUnit !== 'undefined' ? axisUnit : 'MILIONI';
     tooltipUnit = typeof tooltipUnit !== 'undefined' ? tooltipUnit : 'MLN';
+    linechart_visible = typeof linechart_visible !== 'undefined' ? linechart_visible : true;
 
     linechart.options({
         timeline: {
@@ -34,7 +35,7 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
             axisUnit: axisUnit,
             tooltipUnit: tooltipUnit,
             format: "%Y",
-            visible: true
+            visible: linechart_visible
         },
         legend: {
             rowItems: 2
@@ -55,7 +56,7 @@ function init_secondary_linechart(event){
 
     var btn = $( this );
     var chart_container = $('tr#trend-chart-container-' + btn.attr('id').split('-').pop());
-    var chart_td = chart_container.find('td');
+    var chart_td = chart_container.find('td div.graph-box');
     var voce_slug = btn.attr('href').substring(1);
 
     if (chart_td.find('div').length == 0) {
