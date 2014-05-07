@@ -200,12 +200,14 @@ THIRD_PARTY_APPS = (
     'treeadmin',
     'mptt',
     'front',
+    'tinymce',
 )
 
 # Apps specific for this project go here.
 LOCAL_APPS = (
     'bilanci',
     'territori',
+    'idioticon',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

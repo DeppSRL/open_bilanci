@@ -69,6 +69,7 @@ urlpatterns = patterns('',
     url(r'^select2/', include('django_select2.urls')),
 
     url(r'^front-edit/', include('front.urls')),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
