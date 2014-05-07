@@ -8,18 +8,6 @@ a[rel=info-popover]:hover i {
 a[rel=info-popover]:hover {
   text-decoration: none;
 }
-.popover.left {
-  margin-left: -1px;
-}
-.popover.left .arrow {
-  border-left: 5px solid #999999 !important;
-}
-.popover.right {
-  margin-left: 1px;
-}
-.popover.right .arrow {
-  border-right: 5px solid #999999 !important;
-}
 .popover .popover-inner {
   border: 1px solid #999999 !important;
   padding: 0!important;
@@ -28,7 +16,9 @@ a[rel=info-popover]:hover {
 .popover .popover-title {
   margin: 2px;
   background-color: #f4f477;
+  font-weight: bold;
 }
-aside hr {
-  border: 1px solid white;
+
+.popover .popover-content {
+    font-weight: normal;
 }
