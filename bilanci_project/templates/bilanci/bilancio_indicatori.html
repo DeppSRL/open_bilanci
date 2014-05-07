@@ -55,7 +55,7 @@
         function feed_main_linechart(){
             d3.json("{% url 'incarichi-indicatori-json' territorio_opid=territorio_opid %}{{ selected_indicators_qstring|safe }}",
                     function (i) {
-                linechart.data(i)
+                linechart.data(i);
             });
 
         }
