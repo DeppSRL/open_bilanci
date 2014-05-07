@@ -61,7 +61,7 @@ class Territorio(models.Model):
         (u'2', u"501_1000", u'Da 501 a 1.000 abitanti'),
         (u'3', u"1001_3000", u'Da 1.001 a 3.000 abitanti'),
         (u'4', u"3001_5000", u'Da 3.001 a 5.000 abitanti'),
-        (u'5', u"5001_10000", u'Da 5001 a 10.000 abitanti'),
+        (u'5', u"5001_10000", u'Da 5.001 a 10.000 abitanti'),
         (u'6', u"10001_50000", u'Da 10.001 a 50.000 abitanti'),
         (u'7', u"50001_200000", u'Da 50.001 a 200.000 abitanti'),
         (u'8', u"200001_500000", u'Da 200.001 a 500.000 abitanti'),
