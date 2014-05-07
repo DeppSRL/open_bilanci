@@ -12,5 +12,9 @@
             $(this).parents('form:first').submit();
         });
 
+        // enable popovers
+        $('a[rel=info-popover]').popover();
+
+
     });
 }(jQuery);

@@ -1,4 +1,5 @@
 {%  extends "base.html" %}
+{% load popover_info %}
 
 {% block page_title %}
     Home page
@@ -8,7 +9,7 @@
 {% block content %}
     <div style="height: 200px">
         <div style="margin-top: 200px; text-align: center; font-weight: bold;">
-            This is the HOMEPAGE!
+            This is the HOMEPAGE {% popover_info 'home' %}
         </div>
     </div>
 {% endblock %}
