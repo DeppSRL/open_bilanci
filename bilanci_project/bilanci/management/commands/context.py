@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 from optparse import make_option
+import re
 
 from django.conf import settings
 from django.core.management import BaseCommand
@@ -221,15 +222,22 @@ class Command(BaseCommand):
                 self.logger.error("{0}".format(missing_city))
 
 
-def clean_data(data):
-    c_data = data[0]
-    if c_data:
-        if c_data == "N.C.":
+def clean_data(data_list):
+    data = data_list[0]
+    if data:
+        if data == "N.C.":
             return None
         else:
 
+
+            # removes the decimals, if any
+            regex = re.compile("^.+,([\d]{2})$")
+            matches = regex.findall(data)
+            if len(matches) > 0:
+                data = data[:-3]
+
             # removes the thousand-delimiter point and the comma and converts to int
-            ret =  int(c_data.replace(".","").replace(",","."))
+            ret =  int(data.replace(".","").replace(",",""))
 
             if ret > 10 * 1000 * 1000:
                 return None
