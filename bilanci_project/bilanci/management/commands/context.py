@@ -198,7 +198,7 @@ class Command(BaseCommand):
                                     if contesto_key in contesto_couch:
                                         value = clean_data(contesto_couch[contesto_key])
                                         setattr(contesto_pg, contesto_value, value)
-                                        self.logger.debug(u"    key: {0}, value:{1}".format(contesto_key, value))
+                                        self.logger.debug(u"    key: {0}, value:{1}, clean value:{2}".format(contesto_key,contesto_couch[contesto_key], value))
 
 
                                 contesto_pg.territorio = territorio
@@ -211,7 +211,7 @@ class Command(BaseCommand):
                         else:
                             self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembre[-]notizie-varie' not found for id:{0}, skipping". format(bilancio_id))
                     else:
-                        self.logger.warning(u"Quadro '01' not found for id:{0}, skipping".format(bilancio_id))
+                        self.logger.warning(u"Quadro '01' Consuntivo not found for id:{0}, skipping".format(bilancio_id))
 
                 else:
                     self.logger.warning(u"Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
