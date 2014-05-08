@@ -114,6 +114,7 @@ class Command(BaseCommand):
                 population_tuple = territorio.nearest_valid_population(year)
                 if population_tuple is not None:
                     popolazione = population_tuple[1]
+                    self.logger.debug(u"City:{0},year:{1},population:{2}".format(territorio,year, popolazione))
                 else:
                     self.logger.error(u"Cannot find valid population data for city:{0}, year:{1}".format(territorio,year))
                     missing_territories.append((city,year))
@@ -122,7 +123,6 @@ class Command(BaseCommand):
                 for valore_obj in valore_yearset:
 
                     valore_obj.valore_procapite = valore_obj.valore*1.0/popolazione*1.0
-                    self.logger.debug(u"Voce: {0}, Value:{1}".format(valore_obj.voce.slug,valore_obj.valore_procapite))
 
                     if not dryrun:
                         valore_obj.save()
