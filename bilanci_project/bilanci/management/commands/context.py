@@ -181,12 +181,16 @@ class Command(BaseCommand):
 
                                 contesto_keys = {
                                     "popolazione residente (ab.)":"bil_popolazione_residente",
-                                    "nuclei familiari (n)":"bil_nuclei_familiari",
-                                    "superficie urbana (ha)":"bil_superficie_urbana",
-                                    "superficie totale del comune (ha)":"bil_superficie_totale",
-                                    "lunghezza delle strade esterne (km)":"bil_strade_esterne",
-                                    "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
-                                    "di cui: in territorio montano (km)":"bil_strade_montane",
+
+                                    # note: the following keys will not be stored in the db because
+                                    # the number format is not constant through the years
+                                    #
+                                    # "nuclei familiari (n)":"bil_nuclei_familiari",
+                                    # "superficie urbana (ha)":"bil_superficie_urbana",
+                                    # "superficie totale del comune (ha)":"bil_superficie_totale",
+                                    # "lunghezza delle strade esterne (km)":"bil_strade_esterne",
+                                    # "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
+                                    # "di cui: in territorio montano (km)":"bil_strade_montane",
                                     }
 
                                 for contesto_key, contesto_value in contesto_keys.iteritems():
@@ -223,12 +227,9 @@ def clean_data(data):
         if c_data == "N.C.":
             return None
         else:
-            # if the number contains a comma, it strips the decimal values
-            if c_data.find(",") != -1:
-                c_data = c_data[:c_data.find(",")]
 
-            # removes the thousand-delimiter point and converts to int
-            ret =  int(c_data.replace(".",""))
+            # removes the thousand-delimiter point and the comma and converts to int
+            ret =  int(c_data.replace(".","").replace(",","."))
 
             if ret > 10 * 1000 * 1000:
                 return None
