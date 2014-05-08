@@ -1118,7 +1118,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # the comparison set on which the variation will be computed
 
         if self.parameter_type == 'indicatori':
-            self.queryset =  ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore').select_related('territorio')
+            self.queryset =  ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore').select_related('territorio')[:self.paginate_by]
 
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = self.queryset.values_list('territorio',flat=True)
@@ -1126,7 +1126,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             comparison_set = ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = self.anno_int-1).\
                 values('valore','territorio__pk').order_by('-valore')
         else:
-            self.queryset =  ValoreBilancio.objects.filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).order_by('-valore_procapite').select_related('territorio')
+            self.queryset =  ValoreBilancio.objects.filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).order_by('-valore_procapite').select_related('territorio')[:self.paginate_by]
 
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = self.queryset.values_list('territorio',flat=True)
