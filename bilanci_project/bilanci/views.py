@@ -1160,10 +1160,14 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
-                variazione = valore_template - self.comparison_regroup[valoreObj.territorio.pk]['valore']
+                comparison_value = self.comparison_regroup.get(valoreObj.territorio.pk,None).get('valore',None)
+                if comparison_value is not None:
+                    variazione = valore_template - comparison_value
             else:
                 valore_template = valoreObj.valore_procapite
-                variazione = valore_template - self.comparison_regroup[valoreObj.territorio.pk]['valore_procapite']
+                comparison_value = self.comparison_regroup.get(valoreObj.territorio.pk,None).get('valore_procapite',None)
+                if comparison_value is not None:
+                    variazione = valore_template - comparison_value
 
             if valoreObj.territorio.pk in self.incarichi_regroup.keys():
                 incarichi = self.incarichi_regroup[valoreObj.territorio.pk]
