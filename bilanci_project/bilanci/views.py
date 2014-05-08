@@ -1156,6 +1156,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         variazione = 0
         for valoreObj in self.queryset:
             valore_template = None
+            incarichi = []
 
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
@@ -1164,6 +1165,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                 valore_template = valoreObj.valore_procapite
                 variazione = valore_template - self.comparison_regroup[valoreObj.territorio.pk]['valore_procapite']
 
+            if valoreObj.territorio.pk in self.incarichi_regroup.keys():
+                incarichi = self.incarichi_regroup[valoreObj.territorio.pk]
+
             territorio_dict = {
                 'territorio':{
                     'denominazione': valoreObj.territorio.denominazione,
@@ -1171,14 +1175,14 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                     'regione': valoreObj.territorio.regione,
                     },
                 'valore': valore_template,
-                'incarichi_attivi': self.incarichi_regroup[valoreObj.territorio.pk],
+                'incarichi_attivi': incarichi,
                 'variazione':variazione
                 }
 
             valori_list.append( territorio_dict )
 
         context['valori_list'] = valori_list
-        
+
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
