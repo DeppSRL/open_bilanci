@@ -122,6 +122,7 @@ class Command(BaseCommand):
                 for valore_obj in valore_yearset:
 
                     valore_obj.valore_procapite = valore_obj.valore*1.0/popolazione*1.0
+                    self.logger.debug(u"Voce: {0}, Value:{1}".format(valore_obj.voce.slug,valore_obj.valore_procapite))
 
                     if not dryrun:
                         valore_obj.save()
