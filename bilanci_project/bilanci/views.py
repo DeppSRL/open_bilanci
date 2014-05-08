@@ -848,7 +848,7 @@ class BilancioOverView(BilancioView):
 
         context['selected_section']=self.selected_section
         # get Comune context data from db
-        context['comune_context'] = Contesto.get_context(self.year, self.territorio)
+        context['comune_context'] = Contesto.get_context(int(self.year), self.territorio)
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
         context['selected_year'] = self.year
@@ -914,7 +914,7 @@ class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifi
         # get Comune context data from db
         year = settings.SELECTOR_DEFAULT_YEAR
 
-        context['comune_context'] = Contesto.get_context(year,self.territorio)
+        context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
 
         context['menu_voices'] = OrderedDict([

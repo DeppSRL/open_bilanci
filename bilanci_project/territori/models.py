@@ -234,8 +234,6 @@ class Territorio(models.Model):
         return unicode(self.denominazione)
 
 
-
-
     class Meta:
         verbose_name = u'Località'
         verbose_name_plural = u'Località'
@@ -264,12 +262,11 @@ class Contesto(models.Model):
     istat_femmine = models.IntegerField(null=True, default=None, blank=True)
 
     @staticmethod
-    def get_context(anno_str, territorio):
+    def get_context(anno, territorio):
         """
         get territorio context record from Territorio, starting from year
         if a record for the chosen year is not found, the previous year is taken
         """
-        anno = int(anno_str)
         comune_context = None
 
         while comune_context is None and anno >= settings.START_YEAR:
@@ -282,8 +279,6 @@ class Contesto(models.Model):
                 anno -= 1
 
         return comune_context
-
-
 
 
     def __unicode__(self):
