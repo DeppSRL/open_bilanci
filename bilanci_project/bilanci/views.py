@@ -1,7 +1,6 @@
 from itertools import groupby
 from operator import itemgetter
 import os
-from pprint import pprint
 import re
 import json
 import zmq
@@ -759,6 +758,7 @@ class BilancioOverView(BilancioView):
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
+        int_year = int(self.year)
 
         # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
@@ -802,15 +802,15 @@ class BilancioOverView(BilancioView):
         # if it doesn't exist it returns the closest smaller year
         # in which that slug exists
 
-        best_bilancio = self.territorio.best_bilancio(self.year, rootnode_slug)
+        best_bilancio_year = str(self.territorio.best_year_voce(int_year, rootnode_slug))
 
         # if best_bilancio is None -> there is no bilancio in the db to show for the selected territorio
-        if not best_bilancio:
+        if not best_bilancio_year:
             return HttpResponseRedirect(reverse('404'))
 
-        if best_bilancio != self.year:
+        if best_bilancio_year != self.year:
             must_redirect = True
-            self.year = best_bilancio
+            self.year = best_bilancio_year
 
 
         if must_redirect:
@@ -1083,10 +1083,15 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 20
+    paginate_by = 50
+    queryset = None
     parameter_type = None
     parameter = None
     anno = None
+    anno_int = None
+    territori_set = None
+    comparison_regroup = None
+    incarichi_regroup = None
 
     def get(self, request, *args, **kwargs):
 
@@ -1095,6 +1100,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         self.parameter_type = kwargs['parameter_type']
         self.anno = kwargs['anno']
+        self.anno_int = int(self.anno)
         parameter_slug = kwargs['parameter_slug']
 
         if self.parameter_type == 'indicatori':
@@ -1108,33 +1114,71 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
 
+        # construct the queryset based on the type of parameter (voce/indicatore) and
+        # the comparison set on which the variation will be computed
+
         if self.parameter_type == 'indicatori':
-            return ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore')
+            self.queryset =  ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore').select_related('territorio')
+
+            # gets the Territori interested in the specific page that will be rendered
+            self.territori_set = self.queryset.values_list('territorio',flat=True)
+
+            comparison_set = ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = self.anno_int-1).\
+                values('valore','territorio__pk').order_by('-valore')
         else:
-            return ValoreBilancio.objects.filter(voce = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore')
+            self.queryset =  ValoreBilancio.objects.filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).order_by('-valore_procapite').select_related('territorio')
+
+            # gets the Territori interested in the specific page that will be rendered
+            self.territori_set = self.queryset.values_list('territorio',flat=True)
+
+            comparison_set = ValoreBilancio.objects.filter(voce = self.parameter, territorio__in = self.territori_set, anno = self.anno_int-1).\
+                values('valore_procapite','territorio__pk').order_by('-valore_procapite')
+
+        self.queryset = self.queryset[:self.paginate_by]
+
+        # regroups incarichi politici based on territorio
+        incarichi_set = Incarico.get_incarichi_attivi_set(self.territori_set, self.anno).select_related('territorio')
+        incarichi_territorio_keygen = lambda x: x.territorio.pk
+        self.incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
+
+        # regroups comparison values based on territorio
+        regroup_territorio_keygen = lambda x: x['territorio__pk']
+        self.comparison_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_set, key=regroup_territorio_keygen))
+
+        return self.queryset
 
     def get_context_data(self, **kwargs):
 
         context = super(ClassificheListView, self).get_context_data( **kwargs)
 
-        # enrich the Queryset in object_list with Political context data
+        # enrich the Queryset in object_list with Political context data and variation value
         valori_list = []
-        for valoreObj in self.object_list:
+        variazione = 0
+        for valoreObj in self.queryset:
             valore_template = None
+
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
+                variazione = valore_template - self.comparison_regroup[valoreObj.territorio.pk]['valore']
             else:
                 valore_template = valoreObj.valore_procapite
+                variazione = valore_template - self.comparison_regroup[valoreObj.territorio.pk]['valore_procapite']
 
-            valori_list.append(
-                {
-                'territorio': valoreObj.territorio,
+            territorio_dict = {
+                'territorio':{
+                    'denominazione': valoreObj.territorio.denominazione,
+                    'prov': valoreObj.territorio.prov,
+                    'regione': valoreObj.territorio.regione,
+                    },
                 'valore': valore_template,
-                'incarichi_attivi': Incarico.get_incarichi_attivi(valoreObj.territorio, self.anno),
+                'incarichi_attivi': self.incarichi_regroup[valoreObj.territorio.pk],
+                'variazione':variazione
                 }
-            )
+
+            valori_list.append( territorio_dict )
 
         context['valori_list'] = valori_list
+        
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter

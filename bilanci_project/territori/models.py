@@ -153,11 +153,10 @@ class Territorio(models.Model):
 
         return contesto
 
-    def best_bilancio(self, year_str, slug):
+    def best_year_voce(self, year, slug):
 
         # checks if the voice with the specified slug exists for a specific year,
         # if not return the closest previous year in which that voce was available
-        year = int(year_str)
         available_years = self.valorebilancio_set.filter(voce__slug=slug).values_list('anno', flat=True).order_by('anno')
 
         if not available_years:
@@ -167,7 +166,7 @@ class Territorio(models.Model):
         year_differences = year-best_year
 
         if year in available_years:
-            return year_str
+            return year
         else:
 
             for considered_year in available_years:
@@ -175,8 +174,30 @@ class Territorio(models.Model):
                     year_differences = year-considered_year
                     best_year = considered_year
 
+            return best_year
 
-            return str(best_year)
+    def best_year_indicatore(self, year, slug):
+
+        # checks if the Indicatore with the specified slug exists for a specific year,
+        # if not return the closest previous year in which that Indicatore was available
+        available_years = self.valoreindicatore_set.filter(indicatore__slug=slug).values_list('anno', flat=True).order_by('anno')
+
+        if not available_years:
+            return None
+
+        best_year = available_years[0]
+        year_differences = year-best_year
+
+        if year in available_years:
+            return year
+        else:
+
+            for considered_year in available_years:
+                if year-considered_year < year_differences and year-considered_year > 0:
+                    year_differences = year-considered_year
+                    best_year = considered_year
+
+            return best_year
 
 
     def nearest_valid_population(self, year):
@@ -311,6 +332,19 @@ class Incarico(models.Model):
                 data_inizio__lte = dec_31_date,
                 data_fine__gte = jan_1_date,
                 )
+
+    @staticmethod
+    def get_incarichi_attivi_set(territorio_set, anno):
+        date_fmt = '%Y-%m-%d'
+        jan_1_date = datetime.strptime(str(anno)+"-01-01", date_fmt).date()
+        dec_31_date = datetime.strptime(str(anno)+"-12-31", date_fmt).date()
+
+        return Incarico.objects.\
+                filter(territorio__in=territorio_set,
+                data_inizio__lte = dec_31_date,
+                data_fine__gte = jan_1_date,
+                )
+
 
 
     def __unicode__(self):
