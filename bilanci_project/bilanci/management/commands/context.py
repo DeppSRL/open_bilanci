@@ -324,6 +324,7 @@ class Command(BaseCommand):
         if len(recalculate_percapita_cities)>0:
             self.logger.error(u"Following cities had at least one wrong context data and percapita should be recalculated with this command:")
             for missing_city in recalculate_percapita_cities:
-                percapita_cmd_string+=missing_city.denominazione.lower()+","
+                numeric_codfinloc = missing_city.cod_finloc.split("--")[1]
+                percapita_cmd_string+=numeric_codfinloc+","
 
             self.logger.error(percapita_cmd_string[:-1])
