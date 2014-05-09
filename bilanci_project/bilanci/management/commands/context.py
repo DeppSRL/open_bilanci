@@ -94,6 +94,7 @@ class Command(BaseCommand):
         value_set = []
         value_dict = {}
         results = []
+        high_variance_set = False
 
         titoli_possibile_names = [
             "quadro-1-dati-generali-al-31-dicembrenotizie-varie",
@@ -145,13 +146,21 @@ class Command(BaseCommand):
         variance = numpy.var(value_set)
 
         # Coherence check on values.
-        # if the value is in line with the values in the serie then it's accepted and it will be saved,
-        # otherwise the value is discarded
+        # if the fraction between sigma and mean exceeds the constant then all the values out of the
+        # gaussian distr. will be discarded. Otherwise all values are taken
+        
+        if math.sqrt(variance)/mean > 0.1:
+            high_variance_set = True
+
         for anno, value in value_dict.iteritems():
-            if pow((value-mean),2) < variance*8:
-                results.append((anno, value))
+
+            if high_variance_set:
+                if pow((value-mean),2) < variance:
+                    results.append((anno, value))
+                else:
+                    results.append((anno, None))
             else:
-                results.append((anno, None))
+                results.append((anno, value))
 
         return results
 
