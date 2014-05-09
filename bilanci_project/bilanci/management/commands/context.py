@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 from optparse import make_option
+from pprint import pprint
 import re
 import numpy
 import math
@@ -120,8 +121,14 @@ class Command(BaseCommand):
                             [titolo_name]["data"]
 
                         if key_name in contesto_couch:
-                            value_set.append(self.clean_data(contesto_couch[key_name][0]))
-                            value_dict[int(bilancio_id[0:4])] = self.clean_data(contesto_couch[key_name][0])
+                            clean_data = self.clean_data(contesto_couch[key_name][0])
+
+                            # clean_data is None if the contesto_data is = "N.C", so I set it for deletion
+                            if clean_data is None:
+                                results.append((bilancio_id[0:4],None))
+                            else:
+                                value_set.append(clean_data)
+                                value_dict[int(bilancio_id[0:4])] = self.clean_data(contesto_couch[key_name][0])
                     else:
                         self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembre[-]notizie-varie' not found for id:{0}, skipping". format(bilancio_id))
                 else:
@@ -131,7 +138,7 @@ class Command(BaseCommand):
                     self.logger.warning(u"Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
 
         if len(value_set) == 0:
-            self.logger.warning("Cannot find data about {0} for city:{1} during the years:{2}".format(key_name, territorio, years))
+            self.logger.warning(u"Cannot find data about {0} for city:{1} during the years:{2}".format(key_name, territorio, years))
             return
 
         mean = numpy.mean(value_set)
