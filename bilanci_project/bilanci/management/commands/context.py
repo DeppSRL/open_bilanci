@@ -148,7 +148,7 @@ class Command(BaseCommand):
         # if the value is in line with the values in the serie then it's accepted and it will be saved,
         # otherwise the value is discarded
         for anno, value in value_dict.iteritems():
-            if pow((value-mean),2) < variance*4:
+            if pow((value-mean),2) < variance*8:
                 results.append((anno, value))
             else:
                 results.append((anno, None))
