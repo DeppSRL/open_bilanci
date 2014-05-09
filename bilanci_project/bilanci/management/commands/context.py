@@ -241,6 +241,7 @@ class Command(BaseCommand):
 
         # set contesto and filter out missing territories
         missing_territories = []
+        recalculate_percapita_cities = []
 
         for city in cities:
 
@@ -284,6 +285,10 @@ class Command(BaseCommand):
                         anno = year,
                         territorio = territorio,
                     ).delete()
+                    
+                    
+                    if territorio not in recalculate_percapita_cities:
+                        recalculate_percapita_cities.append(territorio)
                     continue
 
 
@@ -315,3 +320,10 @@ class Command(BaseCommand):
             for missing_city in missing_territories:
                 self.logger.error("{0}".format(missing_city))
 
+        percapita_cmd_string = u"python manage.py percapita -v2 --years={0} --cities=".format(options['years'])
+        if len(recalculate_percapita_cities)>0:
+            self.logger.error(u"Following cities had at least one wrong context data and percapita should be recalculated with this command:")
+            for missing_city in recalculate_percapita_cities:
+                percapita_cmd_string+=missing_city.denominazione.lower()+","
+
+            self.logger.error(percapita_cmd_string[:-1])
