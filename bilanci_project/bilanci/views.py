@@ -1092,7 +1092,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 5
+    paginate_by = 25
     queryset = None
     parameter_type = None
     parameter = None
@@ -1143,7 +1143,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).order_by('-valore').\
+                                filter(indicatore = self.parameter, territorio__in = list(self.territori_set), anno = comparison_year).order_by('-valore').\
                                 values('valore','territorio__pk','territorio__denominazione')
         else:
 
@@ -1157,7 +1157,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreBilancio.objects.\
-                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).order_by('-valore_procapite').\
+                                filter(voce = self.parameter, territorio__in = list(self.territori_set), anno = comparison_year).\
                                 values('valore_procapite','territorio__pk','territorio__denominazione')
 
         self.queryset = self.queryset[:self.paginate_by]
@@ -1228,10 +1228,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
-
-        # debug
-        context['comparison_regroup']=self.comparison_regroup
-        context['incarichi_regroup']=self.incarichi_regroup
 
         return context
 
