@@ -736,6 +736,15 @@ class BilancioView(LoginRequiredMixin, DetailView):
         return context
 
 
+class BilancioNotFoundView(LoginRequiredMixin, TemplateView):
+
+    ##
+    # show a page when a Comune doesnt have any bilancio
+    ##
+
+    template_name = "bilanci/bilancio_not_found.html"
+
+
 class BilancioOverView(BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
@@ -802,15 +811,15 @@ class BilancioOverView(BilancioView):
         # if it doesn't exist it returns the closest smaller year
         # in which that slug exists
 
-        best_bilancio_year = str(self.territorio.best_year_voce(int_year, rootnode_slug))
+        best_bilancio_year = self.territorio.best_year_voce(int_year, rootnode_slug)
 
         # if best_bilancio is None -> there is no bilancio in the db to show for the selected territorio
         if not best_bilancio_year:
-            return HttpResponseRedirect(reverse('404'))
+            return HttpResponseRedirect(reverse('bilancio-not-found'))
 
-        if best_bilancio_year != self.year:
+        if str(best_bilancio_year) != self.year:
             must_redirect = True
-            self.year = best_bilancio_year
+            self.year = str(best_bilancio_year)
 
 
         if must_redirect:

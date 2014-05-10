@@ -4,9 +4,9 @@ from django_select2.fields import AutoModelSelect2Field
 
 class TerritoriChoices(AutoModelSelect2Field):
 
-
     queryset = Territorio.objects.\
                 filter(territorio=Territorio.TERRITORIO.C).\
+                exclude( valorebilancio__isnull=True).\
                 order_by('-cluster', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
@@ -17,9 +17,9 @@ class TerritoriChoices(AutoModelSelect2Field):
 
 class TerritoriClusterChoices(AutoModelSelect2Field):
 
-    queryset = Territorio.objects.\
-                filter(territorio=Territorio.TERRITORIO.C).\
-                order_by('-cluster', 'denominazione')
+    queryset =  Territorio.objects.filter(territorio = Territorio.TERRITORIO.C).\
+                    exclude( valorebilancio__isnull=True).\
+                    order_by('-cluster', 'denominazione')
 
     search_fields = ['denominazione__icontains', ]
 
