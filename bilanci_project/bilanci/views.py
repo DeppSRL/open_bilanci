@@ -1092,7 +1092,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 20
+    paginate_by = 5
     queryset = None
     parameter_type = None
     parameter = None
@@ -1138,7 +1138,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 order_by('-valore').select_related('territorio')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = self.queryset.order_by('-valore').values_list('territorio',flat=True)
+            self.territori_set = ValoreIndicatore.objects.\
+                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).\
+                                order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreIndicatore.objects.\
                                 filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
@@ -1147,14 +1149,16 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
             self.queryset =  ValoreBilancio.objects.\
                                 filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore_procapite').select_related('territorio')
+                                order_by('-valore_procapite')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = self.queryset.order_by('-valore').values_list('territorio',flat=True)
+            self.territori_set = ValoreBilancio.objects.\
+                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
+                                order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreBilancio.objects.\
-                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
-                values('valore_procapite','territorio__pk','territorio__denominazione').order_by('-valore_procapite')
+                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
+                                values('valore_procapite','territorio__pk','territorio__denominazione').order_by('-valore_procapite')
 
         self.queryset = self.queryset[:self.paginate_by]
 
@@ -1225,10 +1229,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
 
-        # DEBUG
-        context['comparison_regroup']= self.comparison_regroup
-        context['incarichi_regroup']= self.incarichi_regroup
-
+        # debug
+        # context['comparison_regroup']=self.comparison_regroup
+        # context['incarichi_regroup']=self.incarichi_regroup
 
         return context
 
