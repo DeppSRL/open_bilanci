@@ -1143,8 +1143,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
-                                values('valore','territorio__pk','territorio__denominazione').order_by('-valore')
+                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).order_by('-valore').\
+                                values('valore','territorio__pk','territorio__denominazione')
         else:
 
             self.queryset =  ValoreBilancio.objects.\
@@ -1157,8 +1157,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by]
 
             comparison_set = ValoreBilancio.objects.\
-                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
-                                values('valore_procapite','territorio__pk','territorio__denominazione').order_by('-valore_procapite')
+                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).order_by('-valore_procapite').\
+                                values('valore_procapite','territorio__pk','territorio__denominazione')
 
         self.queryset = self.queryset[:self.paginate_by]
 
