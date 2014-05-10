@@ -1120,6 +1120,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         self.anno = kwargs['anno']
         self.anno_int = int(self.anno)
 
+        # if anno is out of range -> redirects to the latest yr for classifiche
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
@@ -1129,22 +1130,32 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         # construct the queryset based on the type of parameter (voce/indicatore) and
         # the comparison set on which the variation will be computed
+        comparison_year = self.anno_int - 1
 
         if self.parameter_type == 'indicatori':
-            self.queryset =  ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).order_by('-valore').select_related('territorio')[:self.paginate_by]
+            self.queryset =  ValoreIndicatore.objects.\
+                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).\
+                                order_by('-valore').select_related('territorio')[:self.paginate_by]
 
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = self.queryset.values_list('territorio',flat=True)
 
-            comparison_set = ValoreIndicatore.objects.filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = self.anno_int-1).\
-                values('valore','territorio__pk').order_by('-valore')
+
+
+            comparison_set = ValoreIndicatore.objects.\
+                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
+                                values('valore','territorio__pk').order_by('-valore')
         else:
-            self.queryset =  ValoreBilancio.objects.filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).order_by('-valore_procapite').select_related('territorio')[:self.paginate_by]
+
+            self.queryset =  ValoreBilancio.objects.\
+                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
+                                order_by('-valore_procapite').select_related('territorio')[:self.paginate_by]
 
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = self.queryset.values_list('territorio',flat=True)
 
-            comparison_set = ValoreBilancio.objects.filter(voce = self.parameter, territorio__in = self.territori_set, anno = self.anno_int-1).\
+            comparison_set = ValoreBilancio.objects.\
+                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
                 values('valore_procapite','territorio__pk').order_by('-valore_procapite')
 
         self.queryset = self.queryset[:self.paginate_by]
