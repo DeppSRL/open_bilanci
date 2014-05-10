@@ -1140,11 +1140,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = self.queryset.values_list('territorio',flat=True)
 
-
-
             comparison_set = ValoreIndicatore.objects.\
                                 filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
-                                values('valore','territorio__pk').order_by('-valore')
+                                values('valore','territorio__pk','territorio__denominazione').order_by('-valore')
         else:
 
             self.queryset =  ValoreBilancio.objects.\
@@ -1156,7 +1154,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
             comparison_set = ValoreBilancio.objects.\
                 filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
-                values('valore_procapite','territorio__pk').order_by('-valore_procapite')
+                values('valore_procapite','territorio__pk','territorio__denominazione').order_by('-valore_procapite')
 
         self.queryset = self.queryset[:self.paginate_by]
 
