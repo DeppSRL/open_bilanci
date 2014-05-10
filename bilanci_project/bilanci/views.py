@@ -1163,7 +1163,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         self.queryset = self.queryset[:self.paginate_by]
 
         # regroups incarichi politici based on territorio
-        incarichi_set = Incarico.get_incarichi_attivi_set(self.territori_set, self.anno).select_related('territorio')
+        incarichi_set = Incarico.get_incarichi_attivi_set(list(self.territori_set), self.anno).select_related('territorio')
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         self.incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
