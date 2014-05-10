@@ -1134,36 +1134,37 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         if self.parameter_type == 'indicatori':
             self.queryset =  ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).\
+                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
                                 order_by('-valore').select_related('territorio')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by]
+            self.territori_set = list(ValoreIndicatore.objects.\
+                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
+                                order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by])
 
-            comparison_set = ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__in = list(self.territori_set), anno = comparison_year).order_by('-valore').\
-                                values('valore','territorio__pk','territorio__denominazione')
+            comparison_set = list(ValoreIndicatore.objects.\
+                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+                                values('valore','territorio__pk','territorio__denominazione'))
         else:
 
             self.queryset =  ValoreBilancio.objects.\
-                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
+                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
                                 order_by('-valore_procapite')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = ValoreBilancio.objects.\
+            self.territori_set = list(ValoreBilancio.objects.\
                                 filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by]
+                                order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by])
 
-            comparison_set = ValoreBilancio.objects.\
-                                filter(voce = self.parameter, territorio__in = list(self.territori_set), anno = comparison_year).\
-                                values('valore_procapite','territorio__pk','territorio__denominazione')
+            comparison_set = list(ValoreBilancio.objects.\
+                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+                                values('valore_procapite','territorio__pk','territorio__denominazione'))
 
         self.queryset = self.queryset[:self.paginate_by]
 
         # regroups incarichi politici based on territorio
-        incarichi_set = Incarico.get_incarichi_attivi_set(list(self.territori_set), self.anno).select_related('territorio')
+
+        incarichi_set = Incarico.get_incarichi_attivi_set(self.territori_set, self.anno).select_related('territorio')
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         self.incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
