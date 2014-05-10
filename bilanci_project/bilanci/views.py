@@ -1092,7 +1092,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 10
+    paginate_by = 15
     queryset = None
     parameter_type = None
     parameter = None
@@ -1160,8 +1160,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
                                 values('valore_procapite','territorio__pk','territorio__denominazione'))
 
-        self.queryset = self.queryset[:self.paginate_by]
-
         # regroups incarichi politici based on territorio
 
         incarichi_set = Incarico.get_incarichi_attivi_set(self.territori_set, self.anno).select_related('territorio')
@@ -1176,14 +1174,13 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
 
-        context = super(ClassificheListView, self).get_context_data( **kwargs)
-
         # enrich the Queryset in object_list with Political context data and variation value
-        valori_list = []
+        object_list = []
         variazione = 0
         for valoreObj in self.queryset:
             valore_template = None
             incarichi = []
+            comparison_value=0
 
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
@@ -1210,9 +1207,10 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                 'variazione':variazione
                 }
 
-            valori_list.append( territorio_dict )
+            object_list.append( territorio_dict )
 
-        context['valori_list'] = valori_list
+        context = super(ClassificheListView, self).get_context_data( object_list = object_list, **kwargs)
+        # context['object_list'] = object_list
 
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type

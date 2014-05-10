@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load classifiche_parameter_list %}
 {% load classifiche_incarichi_politici %}
-
+{% load digg_paginator %}
 {% block content %}
 
     <div class="panel-heading">
@@ -26,9 +26,14 @@
                     <div class="col-md-8">
                         <div class="panel panel-default">
                             <div class="panel-heading clearfix">
-                                <h3 class="panel-title pull-left">
-                                    {{ valori_list.count }} COMUNI
-                                </h3>
+                                <h4 class="panel-title pull-left">
+                                    {{ selected_par_type|upper }}
+                                </h4>
+                                <h4 class="panel-title pull-left">
+                                    {{ selected_parameter.denominazione|upper }}
+                                </h4>
+
+
                                 {% comment %}
                                 <form role="search" class="form-inline pull-left">
                                     <div class="form-group search">
@@ -42,20 +47,26 @@
                                 {% endcomment %}
                             </div>
                             <div class="panel-body">
-                                <h4>{{ selected_par_type|upper }}</h4>
-                                <p class="small">
-                                    <span>{{ selected_parameter.denominazione|upper }}</span>
+                                <p class="small" style="font-weight: bold;">
+                                    {{ object_list.count }} N COMUNI
                                 </p>
                                 <div class="pagination-wrapper clearfix">
-                                    <ul>
-                                        <li><a href="#"><span class="icon sprite-arrow-left"></span></a></li>
-                                        <li class="active"><a href="#">1</a></li>
-                                        <li><a href="#">2</a></li>
-                                        <li><a href="#">3</a></li>
-                                        <li><span>...</span></li>
-                                        <li><a href="#">15</a></li>
-                                        <li class="more"><a href="#"><span class="icon sprite-arrow-right"></span></a></li>
-                                    </ul>
+                                    {% digg_paginator %}
+{##}
+{##}
+{#                                    <ul>#}
+{#                                        <li><a href="#"><span class="icon sprite-arrow-left"></span></a></li>#}
+{#                                        <li class="active"><a href="#">1</a></li>#}
+{#                                        <li><a href="#">2</a></li>#}
+{#                                        <li><a href="#">3</a></li>#}
+{#                                        <li><span>...</span></li>#}
+{#                                        <li><a href="#">15</a></li>#}
+{#                                        <li class="more"><a href="#"><span class="icon sprite-arrow-right"></span></a></li>#}
+{##}
+{##}
+{#                                    </ul>#}
+
+
                                     {% comment %}
                                     <div  class="pull-right">
                                         <div class="dropdown pull-left">
@@ -80,14 +91,16 @@
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <tbody>
-
-                                        {% if valori_list %}
-                                            {% for valore_obj in valori_list %}
+                                        {% if object_list %}
+                                            {% for valore_obj in object_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">
-                                                            {{ valore_obj.valore|floatformat:2 }}
-                                                            {% if selected_par_type == 'indicatori' %}%{% else %}Euro{% endif %}
+                                                            {% if selected_par_type == 'indicatori' %}
+                                                                {{ valore_obj.valore|floatformat:2 }}&nbsp;%
+                                                            {% else %}
+                                                                &euro;&nbsp;{{ valore_obj.valore|floatformat:2 }}
+                                                            {% endif %}
                                                         </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
@@ -117,10 +130,10 @@
                                                 </tr>
                                              {% endfor %}
                                         {% endif %}
-
                                     </tbody>
                                 </table>
                             </div>
+
                         </div>  <!-- /panel panel-default -->
                     </div> <!-- /col-md8 -->
 
@@ -130,13 +143,10 @@
 
                 </div> <!-- /results row -->
 
-
                 {% block results %}
 
                 {% endblock %}
             </div>
-
-
 
             {# menu handle is hidden on pageload   #}
             <div id="side-controls" style="display: block; left: -50px; top: 343px;">
@@ -227,6 +237,7 @@
     <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/digg_paginator.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}
 {% endblock %}

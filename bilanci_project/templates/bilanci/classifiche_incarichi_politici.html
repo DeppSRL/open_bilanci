@@ -9,13 +9,16 @@
             {% endif %}
         </figure>
         <div class="media-body">
-            <p class="h4"><a href="#">
-                {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}</a></p>
+            <p class="h4" style="font-weight: bold;">
+{#                <a href="#">#}
+                    {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}
+{#                </a>#}
+            </p>
 
             {% if valore_obj.incarichi_attivi.0.party_name %}
-                <p class="small">{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
+                <p >{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
             {% elif incarichi_attivi.0.party_acronym %}
-                <p class="small">{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
+                <p >{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
             {% endif %}
 
         </div>
