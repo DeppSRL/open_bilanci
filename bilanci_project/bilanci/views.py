@@ -1230,8 +1230,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
 
         # debug
-        # context['comparison_regroup']=self.comparison_regroup
-        # context['incarichi_regroup']=self.incarichi_regroup
+        context['comparison_regroup']=self.comparison_regroup
+        context['incarichi_regroup']=self.incarichi_regroup
 
         return context
 
