@@ -1092,7 +1092,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
 class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 25
+    paginate_by = 10
     queryset = None
     parameter_type = None
     parameter = None
