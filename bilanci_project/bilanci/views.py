@@ -1135,10 +1135,10 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if self.parameter_type == 'indicatori':
             self.queryset =  ValoreIndicatore.objects.\
                                 filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore').select_related('territorio')[:self.paginate_by]
+                                order_by('-valore').select_related('territorio')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = self.queryset.values_list('territorio',flat=True)
+            self.territori_set = self.queryset.order_by('-valore').values_list('territorio',flat=True)
 
             comparison_set = ValoreIndicatore.objects.\
                                 filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
@@ -1147,10 +1147,10 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
             self.queryset =  ValoreBilancio.objects.\
                                 filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore_procapite').select_related('territorio')[:self.paginate_by]
+                                order_by('-valore_procapite').select_related('territorio')
 
             # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = self.queryset.values_list('territorio',flat=True)
+            self.territori_set = self.queryset.order_by('-valore').values_list('territorio',flat=True)
 
             comparison_set = ValoreBilancio.objects.\
                 filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).\
