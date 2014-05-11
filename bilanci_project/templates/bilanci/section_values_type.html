@@ -2,9 +2,11 @@
 {% load tooltip %}
 {# displays info about cas/com and about values type  #}
 <div class="cas_com_box">
-    <span class="values_type">
-        <img id="gear" src="{% static 'img/section_title_gear.png' %}"/>
-    </span>
+    {% if not hide_icon %}
+        <span class="values_type">
+            <img id="gear" src="{% static 'img/section_title_gear.png' %}"/>
+        </span>
+    {% endif %}
     <span class="values_type">
         {{ cas_com_type|default_if_none:''|upper }}
     </span>

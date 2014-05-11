@@ -48,15 +48,18 @@
                                         </h4>
                                     </div>
                                 </div>
-                                {# values type #}
-                                <div class="row">
-                                    <div class="col-md-5 section_title" style="">
-                                        {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+
+                                {% if selected_par_type != 'indicatori' %}
+                                    {# values type #}
+                                    <div class="row">
+                                        <div class="col-md-5 section_title" style="">
+                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+                                        </div>
+                                        <div class="col-md-7 section_title" style="padding:0;">
+                                            {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True hide_icon=True%}
+                                        </div>
                                     </div>
-                                    <div class="col-md-7 section_title" style="padding:0;">
-                                        {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True%}
-                                    </div>
-                                </div>
+                                {% endif %}
 
                                 {% comment %}
                                 <form role="search" class="form-inline pull-left">
