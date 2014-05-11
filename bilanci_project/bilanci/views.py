@@ -1127,13 +1127,28 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
+        # catch session variables if any
+        if len(self.request.session['selected_regioni']):
+            self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
+        if len(self.request.session['selected_cluster']):
+            self.selected_cluster = self.request.session['selected_cluster']
+
+
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 
         # gets POST parameters and lets the get method create the queryset
-        self.selected_regioni = [int(k) for k in self.request.POST.getlist('regione[]') ]
-        self.selected_cluster = self.request.POST.getlist('cluster[]')
+
+        if len(self.request.POST.getlist('regione[]')):
+            self.selected_regioni = [int(k) for k in self.request.POST.getlist('regione[]') ]
+
+        if len(self.request.POST.getlist('cluster[]')):
+            self.selected_cluster = self.request.POST.getlist('cluster[]')
+
+        # sets session vars about what the user has selected
+        self.request.session['selected_regioni'] = self.selected_regioni
+        self.request.session['selected_cluster'] = self.selected_cluster
 
         return self.get(request, *args, **kwargs)
 
@@ -1168,12 +1183,14 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if len(self.selected_cluster):
             territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
 
+
         self.queryset =  base_queryset.\
                         filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
 
 
         self.queryset_territori = list(self.queryset.\
                                 values_list('territorio',flat=True)[:self.paginate_by])
+
 
         # create comparison set to calculate variation from last yr
         if self.parameter_type == 'indicatori':
@@ -1255,7 +1272,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         context['selected_parameter'] = self.parameter
         context['selected_regioni'] = self.selected_regioni if len(self.selected_regioni)>0 else all_regions
         context['selected_cluster'] = self.selected_cluster if len(self.selected_cluster)>0 else all_clusters
-        print len(self.selected_regioni), len(self.selected_cluster)
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
