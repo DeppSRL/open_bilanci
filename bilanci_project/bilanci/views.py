@@ -1172,8 +1172,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                         filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
 
 
-        self.queryset_territori = list(base_queryset.\
-                                filter(territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
+        self.queryset_territori = list(self.queryset.\
                                 values_list('territorio',flat=True)[:self.paginate_by])
 
         # create comparison set to calculate variation from last yr
