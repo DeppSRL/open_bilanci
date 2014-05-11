@@ -1,6 +1,8 @@
 <ul id="pagination-digg">
     {% spaceless %}
-
+            <li>
+                <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page=1">|<</a>
+            </li>
             <li>
                 {% if has_previous %}
                     <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ previous }}">&laquo; Prec</a>
@@ -28,6 +30,9 @@
                     {% else %}
                     <a >Succ &raquo;</a>
                 {% endif %}
+            </li>
+            <li>
+                <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ pages }}">>|</a>
             </li>
 
     {% endspaceless %}

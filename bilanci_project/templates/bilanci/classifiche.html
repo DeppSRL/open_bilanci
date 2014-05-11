@@ -48,24 +48,10 @@
                             </div>
                             <div class="panel-body">
                                 <p class="small" style="font-weight: bold;">
-                                    {{ object_list.count }} N COMUNI
+                                    {{ n_comuni }} COMUNI
                                 </p>
                                 <div class="pagination-wrapper clearfix">
                                     {% digg_paginator %}
-{##}
-{##}
-{#                                    <ul>#}
-{#                                        <li><a href="#"><span class="icon sprite-arrow-left"></span></a></li>#}
-{#                                        <li class="active"><a href="#">1</a></li>#}
-{#                                        <li><a href="#">2</a></li>#}
-{#                                        <li><a href="#">3</a></li>#}
-{#                                        <li><span>...</span></li>#}
-{#                                        <li><a href="#">15</a></li>#}
-{#                                        <li class="more"><a href="#"><span class="icon sprite-arrow-right"></span></a></li>#}
-{##}
-{##}
-{#                                    </ul>#}
-
 
                                     {% comment %}
                                     <div  class="pull-right">
@@ -113,7 +99,7 @@
 
                                                     </td>
                                                     <td class="col-sm-1 pos">
-                                                        <span class="h3">{{ forloop.counter }}°</span>
+                                                        <span class="h3">{{ valore_obj.position }}°</span>
                                                     </td>
 
                                                     <td class="col-sm-1 trend">
@@ -133,6 +119,15 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                        {% spaceless %}
+                            <div class="panel-body" style="padding-top: 0;">
+                                <div class="pagination-wrapper clearfix">
+                                    {% digg_paginator %}
+                                </div>
+                            </div>
+                        {% endspaceless %}
+
 
                         </div>  <!-- /panel panel-default -->
                     </div> <!-- /col-md8 -->

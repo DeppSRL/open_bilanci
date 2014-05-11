@@ -27,7 +27,7 @@ def digg_paginator(context):
 
     paginator = context['paginator']
     page_obj = context['page_obj']
-    pages = paginator.num_pages-1
+    pages = paginator.num_pages
     page = page_obj.number
     in_leading_range = in_trailing_range = False
     pages_outside_leading_range = pages_outside_trailing_range = range(0)
@@ -59,16 +59,19 @@ def digg_paginator(context):
     if page > 1:
         previous =page_obj.previous_page_number()
 
+    next = page
+    if page < pages:
+        next = page_obj.next_page_number(),
+
     has_next = True
     if page >= pages:
         has_next=False
 
-    print page, pages, page_obj.has_next()
     return {
         'pages': pages,
         'page': page,
         'previous': previous,
-        'next': page_obj.next_page_number(),
+        'next': next,
         'has_previous': page_obj.has_previous(),
         'has_next': has_next,
         'page_range': page_range,

@@ -1093,6 +1093,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = 15
+    n_comuni = None
     queryset = None
     parameter_type = None
     parameter = None
@@ -1137,6 +1138,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                                 filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
                                 order_by('-valore').select_related('territorio')
 
+            self.n_comuni = self.queryset.count()
+
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = list(ValoreIndicatore.objects.\
                                 filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
@@ -1150,6 +1153,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             self.queryset =  ValoreBilancio.objects.\
                                 filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
                                 order_by('-valore_procapite')
+
+            self.n_comuni = self.queryset.count()
 
             # gets the Territori interested in the specific page that will be rendered
             self.territori_set = list(ValoreBilancio.objects.\
@@ -1177,6 +1182,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
         variazione = 0
+        position = 1
         for valoreObj in self.queryset:
             valore_template = None
             incarichi = []
@@ -1204,8 +1210,11 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                     },
                 'valore': valore_template,
                 'incarichi_attivi': incarichi,
-                'variazione':variazione
+                'variazione':variazione,
+                'position': position
                 }
+
+            position+=1
 
             object_list.append( territorio_dict )
 
@@ -1227,6 +1236,10 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
+        context['n_comuni'] = self.n_comuni
+
+        # page_number = (1+context['page_obj'].number * self.paginate_by)+1
+        # context['positions'] = range(page_number, page_number+self.paginate_by-1)
 
         return context
 
