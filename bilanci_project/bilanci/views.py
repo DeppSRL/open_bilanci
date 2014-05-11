@@ -1227,7 +1227,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
 
             if comparison_value is not None:
-                    variazione = valore_template - comparison_value
+                variazione = valore_template - comparison_value
 
             if valoreObj.territorio.pk in self.incarichi_regroup.keys():
                 incarichi = self.incarichi_regroup[valoreObj.territorio.pk]
