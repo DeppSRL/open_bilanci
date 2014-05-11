@@ -1207,6 +1207,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                     'denominazione': valoreObj.territorio.denominazione,
                     'prov': valoreObj.territorio.prov,
                     'regione': valoreObj.territorio.regione,
+                    'pk': valoreObj.territorio.pk,
                     },
                 'valore': valore_template,
                 'incarichi_attivi': incarichi,

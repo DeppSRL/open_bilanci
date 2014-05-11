@@ -90,10 +90,11 @@
                                                         </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>
+{#                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>#}
+                                                        <h4><a >{{ valore_obj.territorio.denominazione }}</a></h4>
                                                         <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
-                                                        <div class="media">
+                                                        <div class="media" style="font-size: 13px;">
                                                             {% classifiche_incarichi_politici valore_obj %}
                                                         </div>
 
