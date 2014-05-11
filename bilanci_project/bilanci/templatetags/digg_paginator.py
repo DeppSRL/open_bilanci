@@ -59,9 +59,11 @@ def digg_paginator(context):
     if page > 1:
         previous =page_obj.previous_page_number()
 
+
     next = page
     if page < pages:
-        next = page_obj.next_page_number(),
+        next = page_obj.next_page_number()
+
 
     has_next = True
     if page >= pages:

@@ -1181,22 +1181,24 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
-        variazione = 0
+
         position = 1
         for valoreObj in self.queryset:
             valore_template = None
             incarichi = []
             comparison_value=0
+            variazione = 0
 
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
                 comparison_value = self.comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
-                if comparison_value is not None:
-                    variazione = valore_template - comparison_value
+
             else:
                 valore_template = valoreObj.valore_procapite
                 comparison_value = self.comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
-                if comparison_value is not None:
+
+
+            if comparison_value is not None:
                     variazione = valore_template - comparison_value
 
             if valoreObj.territorio.pk in self.incarichi_regroup.keys():
