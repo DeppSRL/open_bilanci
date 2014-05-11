@@ -1098,7 +1098,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
     parameter = None
     anno = None
     anno_int = None
-    territori_set = None
+    queryset_territori = None
     comparison_regroup = None
     incarichi_regroup = None
     selected_regioni = []
@@ -1154,25 +1154,25 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # Filters on regioni / cluster
         ##
 
-        # initial territori_set is the complete list of comuni
-        territori_set = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
+        # initial territori_baseset is the complete list of comuni
+        territori_baseset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
 
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
             selected_regioni_names = list(Territorio.objects.\
                 filter(pk__in=self.selected_regioni, territorio=Territorio.TERRITORIO.R).values_list('denominazione',flat=True))
 
-            territori_set = territori_set.filter(regione__in=selected_regioni_names)
+            territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
 
 
         if len(self.selected_cluster):
-            territori_set = territori_set.filter(cluster__in=self.selected_cluster)
+            territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
 
         self.queryset =  base_queryset.\
-                        filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_set).select_related('territorio')
+                        filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
 
 
-        self.territori_set = list(base_queryset.\
+        self.queryset_territori = list(base_queryset.\
                                 filter(territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
                                 values_list('territorio',flat=True)[:self.paginate_by])
 
@@ -1180,19 +1180,19 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if self.parameter_type == 'indicatori':
 
             comparison_set = list(base_queryset.\
-                                filter(territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+                                filter(territorio__in = self.queryset_territori, anno = comparison_year).select_related('territorio').\
                                 values('valore','territorio__pk','territorio__denominazione'))
         else:
 
             comparison_set = list(base_queryset.\
-                                filter(territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+                                filter(territorio__in = self.queryset_territori, anno = comparison_year).select_related('territorio').\
                                 values('valore_procapite','territorio__pk','territorio__denominazione'))
 
         self.n_comuni = self.queryset.count()
 
         # regroups incarichi politici based on territorio
 
-        incarichi_set = Incarico.get_incarichi_attivi_set(self.territori_set, self.anno).select_related('territorio')
+        incarichi_set = Incarico.get_incarichi_attivi_set(self.queryset_territori, self.anno).select_related('territorio')
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         self.incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
