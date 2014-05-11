@@ -34,7 +34,7 @@
                                     <div class="col-md-12">
                                         <h4 class="panel-title pull-left">
                                             {% if selected_par_type == 'indicatori' %}
-                                                INDICATORI
+                                                INDICATORE
                                             {% else %}
                                                 {{ selected_par_type|upper }}
                                             {% endif %}
@@ -107,7 +107,7 @@
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
-                                                                {{ valore_obj.valore|floatformat:2 }}&nbsp;%
+                                                                {{ valore_obj.valore|floatformat:2 }}%
                                                             {% else %}
                                                                 &euro;&nbsp;{{ valore_obj.valore|floatformat:2 }}
                                                             {% endif %}
