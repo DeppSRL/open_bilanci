@@ -4,6 +4,8 @@
 {% load classifiche_parameter_list %}
 {% load classifiche_incarichi_politici %}
 {% load digg_paginator %}
+{% load section_title %}
+{% load section_values_type %}
 {% block content %}
 
     <div class="panel-heading">
@@ -26,13 +28,35 @@
                     <div class="col-md-8">
                         <div class="panel panel-default">
                             <div class="panel-heading clearfix">
-                                <h4 class="panel-title pull-left">
-                                    {{ selected_par_type|upper }}
-                                </h4>
-                                <h4 class="panel-title pull-left">
-                                    {{ selected_parameter.denominazione|upper }}
-                                </h4>
 
+                                {# parameter name / type #}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="panel-title pull-left">
+                                            {% if selected_par_type == 'indicatori' %}
+                                                INDICATORI
+                                            {% else %}
+                                                {{ selected_par_type|upper }}
+                                            {% endif %}
+                                        </h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="pull-left">
+                                            {{ selected_parameter.denominazione|upper }}
+                                        </h4>
+                                    </div>
+                                </div>
+                                {# values type #}
+                                <div class="row">
+                                    <div class="col-md-5 section_title" style="">
+                                        {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+                                    </div>
+                                    <div class="col-md-7 section_title" style="padding:0;">
+                                        {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True%}
+                                    </div>
+                                </div>
 
                                 {% comment %}
                                 <form role="search" class="form-inline pull-left">
