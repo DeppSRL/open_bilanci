@@ -1977,3 +1977,6 @@ form ul li label {
 .confronti_parameter_list a:visited {
   color: #2a3036;
 }
+#results .panel-default .pagination-wrapper > ul > li > a {
+  padding: 2px 9px;
+}
