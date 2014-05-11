@@ -1094,7 +1094,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
     template_name = 'bilanci/classifiche.html'
     paginate_by = 15
     n_comuni = None
-    queryset = None
     parameter_type = None
     parameter = None
     anno = None
@@ -1102,6 +1101,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
     territori_set = None
     comparison_regroup = None
     incarichi_regroup = None
+    selected_regioni = []
+    selected_cluster = []
+
 
     def get(self, request, *args, **kwargs):
 
@@ -1127,6 +1129,14 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+
+        # gets POST parameters and lets the get method create the queryset
+        self.selected_regioni = [int(k) for k in self.request.POST.getlist('regione[]') ]
+        self.selected_cluster = self.request.POST.getlist('cluster[]')
+
+        return self.get(request, *args, **kwargs)
+
     def get_queryset(self):
 
         # construct the queryset based on the type of parameter (voce/indicatore) and
@@ -1134,36 +1144,51 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         comparison_year = self.anno_int - 1
 
         if self.parameter_type == 'indicatori':
-            self.queryset =  ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
-                                order_by('-valore').select_related('territorio')
+            base_queryset = ValoreIndicatore.objects.filter(indicatore = self.parameter).order_by('-valore')
 
-            self.n_comuni = self.queryset.count()
+        else:
+            base_queryset = ValoreBilancio.objects.filter(voce = self.parameter).order_by('-valore_procapite')
 
-            # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = list(ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
-                                order_by('-valore').values_list('territorio',flat=True)[:self.paginate_by])
 
-            comparison_set = list(ValoreIndicatore.objects.\
-                                filter(indicatore = self.parameter, territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+        ##
+        # Filters on regioni / cluster
+        ##
+
+        # initial territori_set is the complete list of comuni
+        territori_set = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
+
+        if len(self.selected_regioni):
+            # this passege is necessary because in the regione field of territorio there is the name of the region
+            selected_regioni_names = list(Territorio.objects.\
+                filter(pk__in=self.selected_regioni, territorio=Territorio.TERRITORIO.R).values_list('denominazione',flat=True))
+
+            territori_set = territori_set.filter(regione__in=selected_regioni_names)
+
+
+        if len(self.selected_cluster):
+            territori_set = territori_set.filter(cluster__in=self.selected_cluster)
+
+        self.queryset =  base_queryset.\
+                        filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_set).select_related('territorio')
+
+
+        self.territori_set = list(base_queryset.\
+                                filter(territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
+                                values_list('territorio',flat=True)[:self.paginate_by])
+
+        # create comparison set to calculate variation from last yr
+        if self.parameter_type == 'indicatori':
+
+            comparison_set = list(base_queryset.\
+                                filter(territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
                                 values('valore','territorio__pk','territorio__denominazione'))
         else:
 
-            self.queryset =  ValoreBilancio.objects.\
-                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).select_related('territorio').\
-                                order_by('-valore_procapite')
-
-            self.n_comuni = self.queryset.count()
-
-            # gets the Territori interested in the specific page that will be rendered
-            self.territori_set = list(ValoreBilancio.objects.\
-                                filter(voce = self.parameter,territorio__territorio = 'C', anno = self.anno).\
-                                order_by('-valore_procapite').values_list('territorio',flat=True)[:self.paginate_by])
-
-            comparison_set = list(ValoreBilancio.objects.\
-                                filter(voce = self.parameter, territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
+            comparison_set = list(base_queryset.\
+                                filter(territorio__in = self.territori_set, anno = comparison_year).select_related('territorio').\
                                 values('valore_procapite','territorio__pk','territorio__denominazione'))
+
+        self.n_comuni = self.queryset.count()
 
         # regroups incarichi politici based on territorio
 
@@ -1181,8 +1206,11 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
-
         position = 1
+        all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
+        all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).values_list('cluster',flat=True)
+
+
         for valoreObj in self.queryset:
             valore_template = None
             incarichi = []
@@ -1222,11 +1250,13 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             object_list.append( territorio_dict )
 
         context = super(ClassificheListView, self).get_context_data( object_list = object_list, **kwargs)
-        # context['object_list'] = object_list
 
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
+        context['selected_regioni'] = self.selected_regioni if len(self.selected_regioni)>0 else all_regions
+        context['selected_cluster'] = self.selected_cluster if len(self.selected_cluster)>0 else all_clusters
+        print len(self.selected_regioni), len(self.selected_cluster)
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
@@ -1241,8 +1271,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
         context['n_comuni'] = self.n_comuni
 
-        # page_number = (1+context['page_obj'].number * self.paginate_by)+1
-        # context['positions'] = range(page_number, page_number+self.paginate_by-1)
 
         return context
 
