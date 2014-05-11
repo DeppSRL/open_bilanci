@@ -1128,9 +1128,9 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
         # catch session variables if any
-        if len(self.request.session['selected_regioni']):
+        if len(self.request.session.get('selected_regioni',[])):
             self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
-        if len(self.request.session['selected_cluster']):
+        if len(self.request.session.get('selected_cluster',[])):
             self.selected_cluster = self.request.session['selected_cluster']
 
 
