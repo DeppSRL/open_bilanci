@@ -149,7 +149,9 @@ class Command(BaseCommand):
                             # overwrite existing values
                             if not is_created and not skip_existing:
                                 valore_mediano.valore = mediana
-                                valore_mediano.save()
+
+                                if dryrun:
+                                    valore_mediano.save()
 
             if values_type == 'voci':
                 for voce in Voce.objects.all():
@@ -203,5 +205,7 @@ class Command(BaseCommand):
                             if not is_created and not skip_existing:
                                 valore_mediano.valore = long(mediana)
                                 valore_mediano.valore_procapite = float(mediana_procapite)
-                                valore_mediano.save()
+                                
+                                if dryrun:
+                                    valore_mediano.save()
 
