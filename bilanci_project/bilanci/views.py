@@ -4,7 +4,7 @@ import os
 import re
 import json
 import zmq
-import urllib
+import requests
 from collections import OrderedDict
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -16,6 +16,7 @@ from django.utils.decorators import method_decorator
 from django.conf import settings
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
+from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
 
@@ -1322,7 +1323,23 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         regioni_list.extend([str(r) for r in self.selected_regioni])
         cluster_list=['',]
         cluster_list.extend(self.selected_cluster)
-        context['share_url'] = self.request.build_absolute_uri()+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+        long_url = self.request.build_absolute_uri()+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+
+        # checks if short url is already in the db, otherwise asks to google to shorten the url
+        try:
+            short_url = ShortUrl.objects.get(long_url = long_url)
+        except ObjectDoesNotExist:
+
+            payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
+            headers = { 'content-type': 'application/json' }
+            short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+            if short_url_req.status_code == requests.codes.ok:
+                short_url = short_url_req.json().get('id')
+                su = ShortUrl()
+                su.short_url = short_url
+                su.save()
+
+        context['share_url'] = short_url
 
         return context
 
