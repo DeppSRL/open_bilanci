@@ -1322,7 +1322,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         regioni_list.extend([str(r) for r in self.selected_regioni])
         cluster_list=['',]
         cluster_list.extend(self.selected_cluster)
-        context['share_url'] = self.anno +'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+        context['share_url'] = self.request.build_absolute_uri()+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
 
         return context
 
