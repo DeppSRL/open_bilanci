@@ -1145,7 +1145,10 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         page = self.request.GET.getlist('page')
         if len(page):
-            self.kwargs['page'] = int(page[0])
+            try:
+                self.kwargs['page'] = int(page[0])
+            except ValueError:
+                pass
 
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
