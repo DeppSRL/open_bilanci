@@ -4,6 +4,7 @@ import os
 import re
 import json
 import zmq
+import urllib
 from collections import OrderedDict
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -1132,12 +1133,26 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             self.selected_cluster = self.request.session['selected_cluster']
 
 
+        selected_regioni_get = [int(k) for k in self.request.GET.getlist('regione')]
+        if len(selected_regioni_get):
+            self.selected_regioni = selected_regioni_get
+
+
+        selected_cluster_get = self.request.GET.getlist('cluster')
+        if len(selected_cluster_get):
+            self.selected_cluster = selected_cluster_get
+
+        page = self.request.GET.getlist('page')
+        if len(page):
+            self.kwargs['page'] = int(page[0])
+
+        print selected_cluster_get, selected_regioni_get
+
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 
         # catches POST params and passes the execution to get method
-
         # if the params passed in POST are different then the parameter already set, then the page number return to 1
         selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
         selected_cluster_post = self.request.POST.getlist('cluster[]')
@@ -1301,6 +1316,13 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
+
+        # creates url for share button
+        regioni_list=['',]
+        regioni_list.extend([str(r) for r in self.selected_regioni])
+        cluster_list=['',]
+        cluster_list.extend(self.selected_cluster)
+        context['share_url'] = self.anno +'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
 
         return context
 
