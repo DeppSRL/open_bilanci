@@ -1101,6 +1101,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
     queryset_territori = None
     comparison_regroup = None
     incarichi_regroup = None
+    reset_pages = False
     selected_regioni = []
     selected_cluster = []
 
@@ -1127,7 +1128,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-        # catch session variables if any
+        # catches session variables if any
         if len(self.request.session.get('selected_regioni',[])):
             self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
         if len(self.request.session.get('selected_cluster',[])):
@@ -1138,17 +1139,29 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
     def post(self, request, *args, **kwargs):
 
-        # gets POST parameters and lets the get method create the queryset
+        # catches POST params and passes the execution to get method
 
-        if len(self.request.POST.getlist('regione[]')):
-            self.selected_regioni = [int(k) for k in self.request.POST.getlist('regione[]') ]
+        # if the params passed in POST are different then the parameter already set, then the page number return to 1
+        selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
+        selected_cluster_post = self.request.POST.getlist('cluster[]')
 
-        if len(self.request.POST.getlist('cluster[]')):
-            self.selected_cluster = self.request.POST.getlist('cluster[]')
+        if len(selected_regione_post):
+            if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
+                self.selected_regioni = selected_regione_post
+                self.reset_pages = True
+
+        if len(selected_cluster_post):
+            if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
+                self.selected_cluster = self.request.POST.getlist('cluster[]')
+                self.reset_pages = True
 
         # sets session vars about what the user has selected
         self.request.session['selected_regioni'] = self.selected_regioni
         self.request.session['selected_cluster'] = self.selected_cluster
+
+        # if the parameters have changed, redirects to page 1 for the new set
+        if self.reset_pages:
+            return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
 
         return self.get(request, *args, **kwargs)
 

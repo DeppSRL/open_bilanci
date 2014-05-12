@@ -74,31 +74,38 @@
                                 {% endcomment %}
                             </div>
                             <div class="panel-body">
-                                <p class="small" style="font-weight: bold;">
-                                    {{ n_comuni }} COMUNI
-                                </p>
-                                <div class="pagination-wrapper clearfix">
-                                    {% digg_paginator %}
+                                {% if n_comuni > 0 %}
+                                    <p class="small" style="font-weight: bold;">
+                                        {{ n_comuni }} COMUNI
+                                    </p>
 
-                                    {% comment %}
-                                    <div  class="pull-right">
-                                        <div class="dropdown pull-left">
-                                            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                                                RISULTATI: <span>10</span>
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">10</a></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">20</a></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">50</a></li>
-                                                <li role="presentation" class="divider"></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Tutti</a></li>
-                                            </ul>
+
+                                    <div class="pagination-wrapper clearfix">
+                                        {% digg_paginator %}
+
+                                        {% comment %}
+                                        <div  class="pull-right">
+                                            <div class="dropdown pull-left">
+                                                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                                                    RISULTATI: <span>10</span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">10</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">20</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">50</a></li>
+                                                    <li role="presentation" class="divider"></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Tutti</a></li>
+                                                </ul>
+                                            </div>
+                                            <a href="#" class="refresh"><span class="icon sprite-refresh"></span></a>
                                         </div>
-                                        <a href="#" class="refresh"><span class="icon sprite-refresh"></span></a>
+                                        {% endcomment %}
                                     </div>
-                                    {% endcomment %}
-                                </div>
+                                {% else %}
+                                    <p>Spiacenti, non sono presenti Comuni per le categorie selezionate</p>
+                                {% endif %}
+
                             </div>
 
                             <div class="table-responsive">
@@ -151,13 +158,15 @@
                                 </table>
                             </div>
 
-                        {% spaceless %}
-                            <div class="panel-body" style="padding-top: 0;">
-                                <div class="pagination-wrapper clearfix">
-                                    {% digg_paginator %}
+                        {% if n_comuni > 0 %}
+                            {% spaceless %}
+                                <div class="panel-body" style="padding-top: 0;">
+                                    <div class="pagination-wrapper clearfix">
+                                        {% digg_paginator %}
+                                    </div>
                                 </div>
-                            </div>
-                        {% endspaceless %}
+                            {% endspaceless %}
+                        {% endif %}
 
 
                         </div>  <!-- /panel panel-default -->
