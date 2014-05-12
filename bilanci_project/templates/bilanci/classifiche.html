@@ -6,6 +6,8 @@
 {% load digg_paginator %}
 {% load section_title %}
 {% load section_values_type %}
+{% load italianize %}
+
 {% block content %}
 
     <div class="panel-heading">
@@ -117,9 +119,9 @@
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
-                                                                {{ valore_obj.valore|floatformat:2 }}%
+                                                                {{ valore_obj.valore|italianize }}%
                                                             {% else %}
-                                                                &euro;&nbsp;{{ valore_obj.valore|floatformat:2 }}
+                                                                &euro;&nbsp;{{ valore_obj.valore|italianize }}
                                                             {% endif %}
                                                         </span>
                                                     </td>
