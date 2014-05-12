@@ -1147,7 +1147,6 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         if len(page):
             self.kwargs['page'] = int(page[0])
 
-        print selected_cluster_get, selected_regioni_get
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
@@ -1323,13 +1322,18 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         regioni_list.extend([str(r) for r in self.selected_regioni])
         cluster_list=['',]
         cluster_list.extend(self.selected_cluster)
-        long_url = self.request.build_absolute_uri()+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+        # gets current page url
+        long_url = self.request.build_absolute_uri(
+            reverse('classifiche-list', kwargs={'anno':self.anno,'parameter_type':self.parameter_type, 'parameter_slug':self.parameter.slug})
+            )+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+
 
         # checks if short url is already in the db, otherwise asks to google to shorten the url
-        
+
         short_url_obj=None
         try:
             short_url_obj = ShortUrl.objects.get(long_url = long_url)
+
         except ObjectDoesNotExist:
 
             payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
@@ -1342,7 +1346,8 @@ class ClassificheListView(LoginRequiredMixin, ListView):
                 short_url_obj.long_url = long_url
                 short_url_obj.save()
 
-        context['share_url'] = short_url_obj.short_url
+        if short_url_obj:
+            context['share_url'] = short_url_obj.short_url
 
         return context
 
