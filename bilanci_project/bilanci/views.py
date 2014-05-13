@@ -32,6 +32,8 @@ class LoginRequiredMixin(object):
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
+class HomeReleaseView(LoginRequiredMixin, TemplateView):
+    template_name = "home_release.html"
 
 class HomeTemporaryView(TemplateView):
     template_name = "home_temporary.html"
@@ -567,24 +569,24 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         composition_data['entrate'] = self.create_composition_data(main_bilancio_year, entrate_slug[main_bilancio_type],comparison_bilancio_year, entrate_slug[comparison_bilancio_type])
         composition_data['spese'] = self.create_composition_data(main_bilancio_year,spese_slug[main_bilancio_type] , comparison_bilancio_year, spese_slug[comparison_bilancio_type])
-        #
-        # composition_data['widget1']=\
-        #     {
-        #     "label": "Indicatore",
-        #     "series": [
-        #         [2008,0.07306034071370959],
-        #         [2009, 0.1824505201075226 ],
-        #         [2010,0.9171787116210908],
-        #         [2011,None],
-        #         [2012,0.4342076904140413]
-        #     ],
-        #     "variation": -10,
-        #     "sublabel1": "Propensione all'investimento",
-        #     "sublabel2": "Rispetto a preventivo 2010",
-        #     "sublabel3": "Andamento 2008-2012"
-        #   }
-        # composition_data['widget2']=composition_data['widget1']
-        # composition_data['widget3']=composition_data['widget1']
+
+        composition_data['widget1']=\
+            {
+            "label": "Indicatore",
+            "series": [
+                [2008,0.07306034071370959],
+                [2009, 0.1824505201075226 ],
+                [2010,0.9171787116210908],
+                [2011,None],
+                [2012,0.4342076904140413]
+            ],
+            "variation": -10,
+            "sublabel1": "Propensione all'investimento",
+            "sublabel2": "Rispetto a preventivo 2010",
+            "sublabel3": "Andamento 2008-2012"
+          }
+        composition_data['widget2']=composition_data['widget1']
+        composition_data['widget3']=composition_data['widget1']
 
         context['composition_data']=json.dumps(composition_data)
 
