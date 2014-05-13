@@ -612,8 +612,20 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "variation": None,
                     "variationAbs": 1.0
             }
-            widget2 = widget1
-            widget3 = widget1
+
+        else:
+            widget1={"type": "bar",
+                    "showHelp": True,
+                    "label": "Lorem ipsum",
+                    "sublabel2": "SUL consuntivo {0}".format(9999),
+                    "sublabel1": "Lorem ipsum",
+                    "value":0,
+                    "procapite":0,
+                    "variation":None, 
+                    "variationAbs":0
+            }
+        widget2 = widget1
+        widget3 = widget1
 
 
         composition_data['widget1']=widget1
