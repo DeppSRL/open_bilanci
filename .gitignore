@@ -40,7 +40,7 @@ scraper_project/scraper/settings.py
 
 /docs/_build/
 dati/
-static/
+/static/
 deploy_config
 open_data/
 bilanci_project/data/csv
