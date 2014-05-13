@@ -403,6 +403,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     territorio = None
     values_type = None
     cas_com_type = None
+    main_gdp_deflator = comp_gdb_deflator = None
 
 
     def get(self, request, *args, **kwargs):
@@ -424,13 +425,13 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             anno__gte=self.serie_start_year,
             anno__lte=self.serie_end_year,
             territorio=self.territorio
-            ).values('voce__denominazione','voce__level','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+            ).values('voce__denominazione','voce__level','anno','valore','valore_procapite','voce__slug').order_by('voce__denominazione','anno')
 
         comp_values = ValoreBilancio.objects.filter(
             voce__in=comparison_nodes,
             anno = comp_bilancio_year,
             territorio=self.territorio
-        ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite').order_by('voce__denominazione','anno')
+        ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite','voce__slug').order_by('voce__denominazione','anno')
 
         if len(comp_values) == 0:
             comp_not_available = True
@@ -457,12 +458,24 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comp_values, key=comparison_keygen))
 
         # assign correct GDP deflators (1 is assigned to nominal values)
-        if self.values_type == 'real':
-            main_gdp_deflator = settings.GDP_DEFLATORS[int(main_bilancio_year)]
-            comparison_gdp_deflator = settings.GDP_DEFLATORS[int(comp_bilancio_year)]
-        else:
-            main_gdp_deflator = 1.0
-            comparison_gdp_deflator = 1.0
+
+
+        def calculate_variation(main_val, comp_val, main_year, comp_year, ):
+
+            deflated_main_val = main_val
+            deflated_comp_val = comp_val
+            if self.values_type == 'real':
+                deflated_main_val = float(main_val) * self.main_gdp_deflator
+                deflated_comp_val = float(comp_val) * self.comp_gdb_deflator
+
+            if deflated_comp_val != 0:
+                # sets 2 digit precision for variation after decimal point
+                return round(((main_val-deflated_comp_val)/ deflated_comp_val)*100.0,2)
+            else:
+                # value passes from 0 to N:
+                # variation would be infinite so variation is set as null
+                return None
+
 
         # creates the data struct
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
@@ -480,26 +493,21 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                 value_dict['series'].append([single_value['anno'], single_value['valore']])
 
                 if single_value['anno'] == main_bilancio_year:
-                    value_dict['value'] = round(single_value['valore'] * main_gdp_deflator,0)
-                    value_dict['procapite'] = single_value['valore_procapite'] * main_gdp_deflator
-
+                    value_dict['value'] = round(single_value['valore'] * self.main_gdp_deflator,0)
+                    value_dict['procapite'] = single_value['valore_procapite'] * self.main_gdp_deflator
 
                     #calculate the % of variation between main_bilancio and comparison bilancio
 
                     variation = 0
                     if comparison_not_available is False:
-                        comparison_value = float(comparison_values_regroup[main_value_denominazione]['valore']) * comparison_gdp_deflator
-                        if comparison_value != 0:
-                            single_value = float(single_value['valore']) * main_gdp_deflator
-                            variation = ((single_value-comparison_value)/ comparison_value)*100.0
-                        else:
-                            # value passes from 0 to N:
-                            # variation would be infinite so variation is set as null
-                            variation = None
+                        variation = calculate_variation(
+                            single_value['valore'],
+                            comparison_values_regroup[main_value_denominazione]['valore'],
+                            main_bilancio_year,
+                            comp_bilancio_year
+                        )
 
-                    # sets 2 digit precision for variation after decimal point
-
-                    value_dict['variation'] = round(variation,2)
+                    value_dict['variation'] = variation
 
 
             composition_data.append(value_dict)
@@ -568,6 +576,9 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             comp_bilancio_type = 'preventivo'
             comp_bilancio_year = main_bilancio_year
 
+        self.main_gdp_deflator = settings.GDP_DEFLATORS[int(main_bilancio_year)]
+        self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(comp_bilancio_year)]
+
         e_main_values, e_comp_values, e_comp_not_available, e_main_rootnode_level, e_comp_rootnode_level =\
             self.get_data_set(entrate_slug[main_bilancio_type],entrate_slug[comp_bilancio_type], comp_bilancio_year )
         s_main_values, s_comp_values, s_comp_not_available, s_main_rootnode_level, s_comp_rootnode_level =\
@@ -579,28 +590,30 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         if main_bilancio_type == 'preventivo':
             pslugs = ['preventivo-entrate', 'preventivo-spese']
+            pyears = [main_bilancio_year, comp_bilancio_year]
+
             pdata = list(ValoreBilancio.objects.\
-                filter(anno=main_bilancio_year, territorio=self.territorio, voce__slug__in=pslugs,).\
-                values('voce__slug','valore','valore_procapite'))
+                filter(anno__in=pyears, territorio=self.territorio, voce__slug__in=pslugs,).\
+                values('voce__slug','valore','anno','valore_procapite'))
 
 
-            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: x['voce__slug']))
+            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: (x['voce__slug'],x['anno'])))
+
+            variation = 1
 
             widget1 = {
                     "type": "bar",
-                    "showHelp": False,
+                    "showHelp": True,
                     "label": "Entrate - Totale",
                     "sublabel2": "SUL consuntivo {0}".format(comp_bilancio_year),
                     "sublabel1": "Totale Riscossioni",
-                    "value": p_regroup['preventivo-entrate']['valore'],
-                    "procapite": p_regroup['preventivo-entrate']['valore_procapite'],
+                    "value": p_regroup[('preventivo-entrate',main_bilancio_year)]['valore'],
+                    "procapite": p_regroup[('preventivo-entrate',main_bilancio_year)]['valore_procapite'],
                     "variation": None,
-                    "variationAbs": 1.0 }
+                    "variationAbs": 1.0
+            }
             widget2 = widget1
             widget3 = widget1
-
-            pass
-
 
 
         composition_data['widget1']=widget1
