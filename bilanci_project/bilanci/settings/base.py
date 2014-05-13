@@ -418,7 +418,7 @@ SELECTOR_DEFAULT_YEAR = 2013
 SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
 
 # expiration time for a data in a session (seconds)
-SESSION_COOKIE_AGE = 3600
+SESSION_COOKIE_AGE = 7200
 SESSION_SAVE_EVERY_REQUEST = True
 
 # define lines color of the SINDACO marker on the timeline

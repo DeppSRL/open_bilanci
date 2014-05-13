@@ -404,30 +404,20 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     values_type = None
     cas_com_type = None
 
+
     def get(self, request, *args, **kwargs):
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         return super(BilancioCompositionWidgetView, self).get(self, request, *args, **kwargs)
 
 
-    def create_composition_data(self, main_bilancio_year, main_bilancio_slug, comparison_bilancio_year, comparison_bilancio_slug):
-
-        composition_data = []
-
-        ##
-        # Create composition data retrieves the data needed to feed the composition widget:
-        # * gets the complete set of values during the years
-        #   for main_bilancio_slug which is the root node of preventivo/consuntivo entrate/spese
-        # * gets the value for the comparison bilancio for a specific year
-        # * loops over the results to create the data struct to be returned
-        ##
-        totale_label = 'Totale'
-        comparison_not_available = False
+    def get_data_set(self, main_bilancio_slug, comp_bilancio_slug, comp_bilancio_year):
+        comp_not_available = False
         main_rootnode = Voce.objects.get(slug=main_bilancio_slug)
         main_nodes = main_rootnode.get_descendants(include_self=True).filter(level__lte=main_rootnode.level+1)
 
-        comparison_rootnode = Voce.objects.get(slug=comparison_bilancio_slug)
-        comparison_nodes = comparison_rootnode.get_descendants(include_self=True).filter(level__lte=comparison_rootnode.level+1)
+        comp_rootnode = Voce.objects.get(slug=comp_bilancio_slug)
+        comparison_nodes = comp_rootnode.get_descendants(include_self=True).filter(level__lte=comp_rootnode.level+1)
 
         main_values = ValoreBilancio.objects.filter(
             voce__in= main_nodes,
@@ -436,33 +426,46 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             territorio=self.territorio
             ).values('voce__denominazione','voce__level','anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-        comparison_values = ValoreBilancio.objects.filter(
+        comp_values = ValoreBilancio.objects.filter(
             voce__in=comparison_nodes,
-            anno = comparison_bilancio_year,
+            anno = comp_bilancio_year,
             territorio=self.territorio
         ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite').order_by('voce__denominazione','anno')
 
-        if len(comparison_values) == 0:
-            comparison_not_available = True
+        if len(comp_values) == 0:
+            comp_not_available = True
+
+        return main_values, comp_values, comp_not_available, main_rootnode.level, comp_rootnode.level
+
+
+
+    def compose_widget_data(self, main_values, comp_values, main_bilancio_year, comp_bilancio_year, main_rootnode_level, comp_rootnode_level, comparison_not_available):
+
+        composition_data = []
+        totale_label = "Total"
+        ##
+        # compose_widget_data
+        # loops over the results to create the data struct to be returned
+        ##
 
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
 
-        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
+        main_keygen = lambda x: totale_label if x['voce__level'] == main_rootnode_level else x['voce__denominazione'].strip()
         main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        comparison_keygen = lambda x: totale_label if x['voce__level'] == comparison_rootnode.level else x['voce__denominazione'].strip()
-        comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_values, key=comparison_keygen))
+        comparison_keygen = lambda x: totale_label if x['voce__level'] == comp_rootnode_level else x['voce__denominazione'].strip()
+        comparison_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comp_values, key=comparison_keygen))
 
         # assign correct GDP deflators (1 is assigned to nominal values)
         if self.values_type == 'real':
             main_gdp_deflator = settings.GDP_DEFLATORS[int(main_bilancio_year)]
-            comparison_gdp_deflator = settings.GDP_DEFLATORS[int(comparison_bilancio_year)]
+            comparison_gdp_deflator = settings.GDP_DEFLATORS[int(comp_bilancio_year)]
         else:
             main_gdp_deflator = 1.0
             comparison_gdp_deflator = 1.0
 
-        # insert all the children values in the data struct
+        # creates the data struct
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # creates value dict
@@ -492,8 +495,9 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                             single_value = float(single_value['valore']) * main_gdp_deflator
                             variation = ((single_value-comparison_value)/ comparison_value)*100.0
                         else:
-                            # todo: what to do when a value passes from 0 to N?
-                            variation = 999.0
+                            # value passes from 0 to N:
+                            # variation would be infinite so variation is set as null
+                            variation = None
 
                     # sets 2 digit precision for variation after decimal point
 
@@ -519,32 +523,31 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         # composition data is the data struct to be passed to the context
         composition_data = {'hover': True, 'showLabels':False}
 
-        if self.cas_com_type == 'competenza':
-            entrate_consuntivo_slug = 'consuntivo-entrate-accertamenti'
-            spese_consuntivo_slug = 'consuntivo-spese-impegni-spese-correnti-funzioni'
-        else:
-            entrate_consuntivo_slug = 'consuntivo-entrate-cassa'
-            spese_consuntivo_slug = 'consuntivo-spese-cassa-spese-correnti-funzioni'
-
+        consuntivo_slugs = {
+            'entrate':{
+                'cassa': 'consuntivo-entrate-cassa',
+                'competenza': 'consuntivo-entrate-accertamenti',
+            },
+            'spese':{
+                'cassa': 'consuntivo-spese-cassa-spese-correnti-funzioni',
+                'competenza': 'consuntivo-spese-impegni-spese-correnti-funzioni',
+            }
+        }
 
         entrate_slug = {
             'preventivo': 'preventivo-entrate',
-            'consuntivo': entrate_consuntivo_slug,
+            'consuntivo': consuntivo_slugs['entrate'][self.cas_com_type]
         }
 
         spese_slug = {
             'preventivo': 'preventivo-spese-spese-correnti-funzioni',
-            'consuntivo': spese_consuntivo_slug,
+            'consuntivo': consuntivo_slugs['spese'][self.cas_com_type]
         }
 
 
         if widget_type == 'overview':
             self.template_name = 'bilanci/composizione_bilancio.html'
 
-        #     debug: only for visup testing
-        elif widget_type =='overview_new':
-            self.template_name = 'bilanci/composizione_bilancio_new.html'
-        #  / debug
         else:
             self.template_name = 'bilanci/composizione_entrate_uscite.html'
 
@@ -558,17 +561,21 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         # identifies the bilancio for comparison
 
-        comparison_bilancio_type = None
+        comp_bilancio_type = None
         if main_bilancio_type == 'preventivo':
-            comparison_bilancio_type = 'consuntivo'
-            comparison_bilancio_year = main_bilancio_year-1
+            comp_bilancio_type = 'consuntivo'
+            comp_bilancio_year = main_bilancio_year-1
         else:
-            comparison_bilancio_type = 'preventivo'
-            comparison_bilancio_year = main_bilancio_year
+            comp_bilancio_type = 'preventivo'
+            comp_bilancio_year = main_bilancio_year
 
+        e_main_values, e_comp_values, e_comp_not_available, e_main_rootnode_level, e_comp_rootnode_level =\
+            self.get_data_set(entrate_slug[main_bilancio_type],entrate_slug[comp_bilancio_type], comp_bilancio_year )
+        s_main_values, s_comp_values, s_comp_not_available, s_main_rootnode_level, s_comp_rootnode_level =\
+            self.get_data_set(spese_slug[main_bilancio_type],spese_slug[comp_bilancio_type], comp_bilancio_year )
 
-        composition_data['entrate'] = self.create_composition_data(main_bilancio_year, entrate_slug[main_bilancio_type],comparison_bilancio_year, entrate_slug[comparison_bilancio_type])
-        composition_data['spese'] = self.create_composition_data(main_bilancio_year,spese_slug[main_bilancio_type] , comparison_bilancio_year, spese_slug[comparison_bilancio_type])
+        composition_data['entrate'] = self.compose_widget_data(e_main_values, e_comp_values, main_bilancio_year,comp_bilancio_year,e_main_rootnode_level, e_comp_rootnode_level, e_comp_not_available)
+        composition_data['spese'] = self.compose_widget_data(s_main_values, s_comp_values, main_bilancio_year,comp_bilancio_year,s_main_rootnode_level, s_comp_rootnode_level, s_comp_not_available)
 
         composition_data['widget1']=\
             {
@@ -593,8 +600,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         context['main_bilancio_type']=main_bilancio_type
         context['main_bilancio_year']=main_bilancio_year
 
-        context['comparison_bilancio_type']=comparison_bilancio_type
-        context['comparison_bilancio_year']=comparison_bilancio_year
+        context['comparison_bilancio_type']=comp_bilancio_type
+        context['comparison_bilancio_year']=comp_bilancio_year
 
         context['cas_com_type']=self.cas_com_type
         context['values_type']=self.values_type
