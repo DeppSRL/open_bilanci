@@ -440,7 +440,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
 
     def compose_widget_data(self, main_values, comp_values, main_bilancio_year, comp_bilancio_year, main_rootnode_level, comp_rootnode_level, comparison_not_available):
-
         composition_data = []
         totale_label = "Total"
         ##
@@ -480,9 +479,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
                 value_dict['series'].append([single_value['anno'], single_value['valore']])
 
-
                 if single_value['anno'] == main_bilancio_year:
-                    value_dict['value'] = single_value['valore'] * main_gdp_deflator
+                    value_dict['value'] = round(single_value['valore'] * main_gdp_deflator,0)
                     value_dict['procapite'] = single_value['valore_procapite'] * main_gdp_deflator
 
 
@@ -511,6 +509,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
 
+        widget1 = widget2 = widget3 = None
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
 
         ##
@@ -577,23 +576,36 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data['entrate'] = self.compose_widget_data(e_main_values, e_comp_values, main_bilancio_year,comp_bilancio_year,e_main_rootnode_level, e_comp_rootnode_level, e_comp_not_available)
         composition_data['spese'] = self.compose_widget_data(s_main_values, s_comp_values, main_bilancio_year,comp_bilancio_year,s_main_rootnode_level, s_comp_rootnode_level, s_comp_not_available)
 
-        composition_data['widget1']=\
-            {
-            "label": "Indicatore",
-            "series": [
-                [2008,0.07306034071370959],
-                [2009, 0.1824505201075226 ],
-                [2010,0.9171787116210908],
-                [2011,None],
-                [2012,0.4342076904140413]
-            ],
-            "variation": -10,
-            "sublabel1": "Propensione all'investimento",
-            "sublabel2": "Rispetto a preventivo 2010",
-            "sublabel3": "Andamento 2008-2012"
-          }
-        composition_data['widget2']=composition_data['widget1']
-        composition_data['widget3']=composition_data['widget1']
+
+        if main_bilancio_type == 'preventivo':
+            pslugs = ['preventivo-entrate', 'preventivo-spese']
+            pdata = list(ValoreBilancio.objects.\
+                filter(anno=main_bilancio_year, territorio=self.territorio, voce__slug__in=pslugs,).\
+                values('voce__slug','valore','valore_procapite'))
+
+
+            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: x['voce__slug']))
+
+            widget1 = {
+                    "type": "bar",
+                    "showHelp": False,
+                    "label": "Entrate - Totale",
+                    "sublabel2": "SUL consuntivo {0}".format(comp_bilancio_year),
+                    "sublabel1": "Totale Riscossioni",
+                    "value": p_regroup['preventivo-entrate']['valore'],
+                    "procapite": p_regroup['preventivo-entrate']['valore_procapite'],
+                    "variation": None,
+                    "variationAbs": 1.0 }
+            widget2 = widget1
+            widget3 = widget1
+
+            pass
+
+
+
+        composition_data['widget1']=widget1
+        composition_data['widget2']=widget2
+        composition_data['widget3']=widget3
 
         context['composition_data']=json.dumps(composition_data)
 
