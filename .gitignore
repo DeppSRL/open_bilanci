@@ -37,9 +37,10 @@ couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 scraper_project/scraper/settings.py
-
+deploy_config/
 /docs/_build/
 dati/
+<<<<<<< HEAD
 /static/
 deploy_config
 open_data/
