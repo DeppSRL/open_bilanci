@@ -1,11 +1,9 @@
 {% load section_title %}
 {% load section_values_type %}
 {% load staticfiles %}
-
-
 <!DOCTYPE html>
 <!-- saved from url=(0072)http://databoard-3529.herokuapp.com/dashboards/depp-openbilanci-bilancio -->
-<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" style=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\:form{display:block;}</style>
+<html>
 
 <title>Open bilanci</title>
 
@@ -15,228 +13,240 @@
 <link href="{% static 'css/visup/font-awesome.css' %}" media="all" rel="stylesheet">
 
 
-{% verbatim %}
+
 <script>
-  $(document).ready( function() {
-    visup.bilancio(function(){
-      d3.json("/static/data/vista1.json", function(data){
-        visup.bilancio.data(data);
-        console.log(data);
-        visup.bilancio.on("select", function(d) {
-          console.log(d);
-        });
-      });
-    })
-  });
+    $(document).ready( function() {
+      var load_sample_json = false;
+
+      var data = {{ composition_data|safe }};
+
+      if(load_sample_json == true ){
+          visup.bilancio(function(){
+            d3.json("/static/data/vista1.json", function(data){
+                visup.bilancio.data(data);
+                visup.bilancio.on("select", function(d) {
+                  console.log(d);
+                });
+                });
+            });
+      }
+        else{
+          visup.bilancio.data(data);
+      }
+
+    });
 </script>
-<meta name="chromesniffer" id="chromesniffer_meta" content="{&quot;GoogleFontApi&quot;:-1,&quot;jQuery&quot;:&quot;2.1.0&quot;,&quot;Modernizr&quot;:&quot;2.7.1&quot;,&quot;Underscore.js&quot;:&quot;2.4.1&quot;,&quot;Angular&quot;:&quot;1.2.12&quot;}"><script type="text/javascript" src="chrome-extension://homgcnaoacgigpkkljjjekpignblkeae/detector.js"></script></head>
-<body ng-app="appOB" class="ng-scope">
-<div class="wrap ng-scope" ng-controller="AppControllerBilancio">
-<div class="visup-main visup-graph-compare">
-<div class="visup-graph-left-container">
-<div class="visup-title">Entrate</div>
-<div class="visup-graph-container" style="position: relative;">
-<svg width="100%" height="100%"><g class="visup-chart-container" transform="translate(10,48)"><g class="visup-chart-yAxis"></g><g class="visup-chart-total"><g class="visup-dot visup-dot-total"><circle class="visup-dot-circle" cy="245.96943422215773" cx="150.08449938252824" r="80" style="fill: #ffffff; stroke: #e58d7f;"></circle><text class="visup-dot-text"></text></g></g><g class="visup-chart-sample"><g class="visup-dot-sample"><circle class="visup-dot-circle" cy="534.3686730126273" cx="31.631326987372795" r="29.631326987372795" style="stroke: none;"></circle><text class="visup-dot-text" y="534.3686730126273" x="31.631326987372795">1,00MD</text></g></g><rect class="visup-chart-resethandler" x="0" y="0" width="299" height="491"></rect><g class="visup-chart-layer1"><g class="visup-dot"><circle class="visup-dot-circle" cy="316.93779838432937" cx="175.71789793713756" r="17.29572763460024" style="fill: #b74832; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="200.66481108015614" cx="127.54418243689004" r="21.36234657792947" style="fill: #9b2d1b; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="189.06183497003235" cx="67.70876136260419" r="34.58768762837099" style="fill: #7d8e17; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="203.7540260959149" cx="173.99790931893955" r="20.19398479220363" style="fill: #9fb746; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="261.9734245068536" cx="223.8899052505657" r="49.18056117662108" style="fill: #b74832; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="264.7270180048802" cx="131.9025988475927" r="37.847949712270356" style="fill: #7d8e17; stroke: none;"></circle><text class="visup-dot-text"></text></g></g></g></svg><div class="visup-chart-dotlabels"><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div></div></div>
+{% verbatim %}
+<body ng-app='appOB'>
+<div class='wrap' ng-controller='AppControllerBilancio'>
+<div class='visup-main visup-graph-compare'>
+<div class='visup-graph-left-container'>
+<div class='visup-title'>Entrate</div>
+<div class='visup-graph-container'>
 </div>
-<div class="visup-graph-right-container">
-<div class="visup-title">Spese</div>
-<div class="visup-graph-container" style="position: relative;">
-<svg width="100%" height="100%"><g class="visup-chart-container" transform="translate(10,48)"><g class="visup-chart-yAxis"></g><g class="visup-chart-total"><g class="visup-dot visup-dot-total"><circle class="visup-dot-circle" cy="61.89358658985164" cx="149.66027935211463" r="71.91595058382796" style="fill: #ffffff; stroke: #7d8e17;"></circle><text class="visup-dot-text"></text></g></g><g class="visup-chart-sample visup-hidden"><g class="visup-dot-sample"><circle class="visup-dot-circle" cy="534.3686730126273" cx="31.631326987372795" r="29.631326987372795" style="stroke: none;"></circle><text class="visup-dot-text" y="534.3686730126273" x="31.631326987372795">1,00MD</text></g></g><rect class="visup-chart-resethandler" x="0" y="0" width="299" height="491"></rect><g class="visup-chart-layer1"><g class="visup-dot"><circle class="visup-dot-circle" cy="195.68987295418316" cx="115.40953732277514" r="27.51884382402701" style="fill: #e58d7f; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="159.71704633464023" cx="136.74726171909722" r="8" style="fill: #b74832; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="147.4563765378687" cx="186.97667681408598" r="8" style="fill: #9b2d1b; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="189.32431432282922" cx="190.5654776980662" r="28.57360536814499" style="fill: #b74832; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="137.21140051348186" cx="106.87226547182864" r="17.97666811116728" style="fill: #cadd7a; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="57.310553805667105" cx="116.35016499975748" r="24.80663589700031" style="fill: #9fb746; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="13.210543522970228" cx="194.50041240721637" r="43.4484862676163" style="fill: #7d8e17; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="52.42824229317207" cx="153.89987417094449" r="8" style="fill: #9fb746; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="176.41126446666541" cx="151.04816748192826" r="8" style="fill: #b74832; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="103.77513197105048" cx="133.87098024538207" r="19.85155568262061" style="fill: #cadd7a; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="133.1763678325433" cx="148.52676547119617" r="8" style="fill: #9b2d1b; stroke: none;"></circle><text class="visup-dot-text"></text></g><g class="visup-dot"><circle class="visup-dot-circle" cy="152.90692266572418" cx="163.0756851210421" r="11.514604973420106" style="fill: #cadd7a; stroke: none;"></circle><text class="visup-dot-text"></text></g></g></g></svg><div class="visup-chart-dotlabels"><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div><div class="visup-dot-label layer1 half visup-hidden"></div></div></div>
 </div>
-<div class="visup-labels">
-<div class="visup-label visup-label-1">
+<div class='visup-graph-right-container'>
+<div class='visup-title'>Spese</div>
+<div class='visup-graph-container'>
+</div>
+</div>
+<div class='visup-labels'>
+<div class='visup-label visup-label-1'>
 Aumenti oltre il 25%
-<div class="h-divider"></div>
+<div class='h-divider'></div>
 </div>
-<div class="visup-label visup-label-2">
+<div class='visup-label visup-label-2'>
 Valori stabili
-<div class="h-divider"></div>
+<div class='h-divider'></div>
 </div>
-<div class="visup-label visup-label-3">
-<div class="h-divider"></div>
-<div class="label">Tagli oltre il 25%</div>
+<div class='visup-label visup-label-3'>
+<div class='h-divider'></div>
+<div class='label'>Tagli oltre il 25%</div>
 </div>
-<div class="v-divider"></div>
+<div class='v-divider'></div>
 </div>
-<div class="visup-legend">
-<img alt="Legend" src="/static/img/visup/legend.png">
+<div class='visup-legend'>
+<img alt="Legend" src="/static/img/visup/legend.png" />
 </div>
-<div class="visup-graph-toolip" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-graph-toggle ng-binding" ng-class="showLabels ? &#39;active&#39; : &#39;&#39;">Mostra</div>
+<div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
+<div class='visup-graph-toggle' ng-class="showLabels ? 'active' : ''">{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
 </div>
-<div class="visup-sidebar visup-sidebar1">
-<div class="visup-widget widget1">
-<div class="visup-widget-help" ng-show="widget1.showHelp" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-description">
-<div class="visup-title ng-binding" ng-class="widget1.type != &#39;surplus&#39; ? &#39;as-subtitle&#39; : &#39;&#39;" ng-show="widget1.label">Avanzo/disavanzo</div>
-<div class="visup-subtitle ng-binding" ng-class="widget1.type != &#39;surplus&#39; ? &#39;as-title&#39; : &#39;&#39;" ng-show="widget1.sublabel1">di cassa</div>
+<div class='visup-sidebar visup-sidebar1'>
+<div class='visup-widget widget1'>
+<div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
+<div class='visup-description'>
+<div class='visup-title' ng-class="widget1.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget1.label'>{{widget1.label}}</div>
+<div class='visup-subtitle' ng-class="widget1.type != 'surplus' ? 'as-title' : ''" ng-show='widget1.sublabel1'>{{widget1.sublabel1}}</div>
 </div>
-<div class="visup-values visup-values-progressbar visup-table ng-hide" ng-show="widget1.type === &#39;bar&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value-2 inline-block vertical-middle ng-binding">n.d.</div>
-<div class="visup-value-3 visup-value-big inline-block vertical-middle">
-<span class="bold ng-binding">n.d.</span>
+<div class='visup-values visup-values-progressbar visup-table' ng-show="widget1.type === 'bar'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value-2 inline-block vertical-middle'>{{widget1.value  ? (widget1.value | numstr)+"€" : "n.d."}}</div>
+<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+<span class='bold'>{{widget1.procapite ? (widget1.procapite | numstr) : "n.d."}}</span>
 procapite
 </div>
-<div class="visup-progress-single ng-hide" ng-show="widget1.variation">
-<div class="visup-progress-bar" ng-class="(widget1.variation &lt; 0) ? &#39;negative&#39; : &#39;&#39; " ng-style="{&#39;width&#39;:(widget1.variationAbs &gt; 2) ? widget1.variationAbs+&#39;%&#39; : &#39;2%&#39;}" style="width: 2%;"></div>
-<div class="visup-progress-middle"></div>
+<div class='visup-progress-single' ng-show='widget1.variation'>
+<div class='visup-progress-bar' ng-class="(widget1.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget1.variationAbs &gt; 2) ? widget1.variationAbs+'%' : '2%'}"></div>
+<div class='visup-progress-middle'></div>
 </div>
-<div class="visup-value-4 inline-block vertical-middle ng-binding ng-hide" ng-show="widget1.variation">
-<span class="bold ng-binding">%</span>
+<div class='visup-value-4 inline-block vertical-middle' ng-show='widget1.variation'>
+<span class='bold'>{{widget1.variation > 0 ? "+"+widget1.variation : widget1.variation}}%</span>
+{{widget1.sublabel2}}
+</div>
+</div>
+</div>
+<div class='visup-values visup-surplus visup-table' ng-show="widget1.type === 'surplus'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value visup-value-5' ng-show='widget1.value1'>
+<div class='visup-year'>{{ widget1.year1 }}</div>
+<div class='visup-value-big'>{{ widget1.value1 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-6' ng-show='widget1.value2'>
+<div class='visup-year bold'>{{ widget1.year2 }}</div>
+<div class='visup-value-big bold visup-colored' ng-class="widget1.value2 &gt;= 0 ? '' : 'negative'">{{ widget1.value2 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-7' ng-show='widget1.value3'>
+<div class='visup-year'>{{ widget1.year3 }}</div>
+<div class='visup-value-big'>{{ widget1.value3 | decimal }} €</div>
+</div>
+</div>
+</div>
+<div class='visup-graph-container visup-spark-1' ng-show="widget1.type === 'spark' &amp;&amp; widget1.series"></div>
+<div class='visup-pie-container visup-pie-1' ng-show="widget1.type === 'pie'"></div>
+<div class='visup-sublabel' ng-show='widget1.sublabel3'>{{widget1.sublabel3}}</div>
+</div>
+<div class='visup-widget widget4 visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
+<div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
+<div class='visup-description'>
+<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget4.entrate.label : widget4.spese.label}}</div>
+<div class='visup-subtitle as-title'>{{selected.label}}</div>
+</div>
+<div class='visup-values'>
+<div class='visup-sublabel'>{{widget4.sublabel2}} {{type === 'ENTRATE' ? widget4.entrate.sublabel : widget4.spese.sublabel}}</div>
+<div class='visup-value-2 inline-block vertical-middle'>{{selected.value  ? (selected.value | numstr)+"€" : "n.d."}}</div>
+<div class='visup-value-3 inline-block vertical-middle'>
+<span class='bold'>{{selected.procapite ? (selected.procapite | numstr) : "n.d."}}</span>
+procapite
+</div>
+<div class='visup-progress-single' ng-show='selected.variation'>
+<div class='visup-progress-bar' ng-class="(selected.variation &lt; 0) ? 'negative' : '' " ng-style="{'background':selected.color, 'width':selected.variationAbs+'%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle' ng-show='selected.variation'>
+<span class='bold'>{{selected.variation > 0 ? "+"+selected.variation : selected.variation}}%</span>
+{{widget4.sublabel3}}
+</div>
+</div>
+<i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
+</div>
+<div class='visup-widget widget2'>
+<div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
+<div class='visup-description'>
+<div class='visup-title' ng-class="widget2.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget2.label'>{{widget2.label}}</div>
+<div class='visup-subtitle' ng-class="widget2.type != 'surplus' ? 'as-title' : ''" ng-show='widget2.sublabel1'>{{widget2.sublabel1}}</div>
+</div>
+<div class='visup-values visup-values-progressbar visup-table' ng-show="widget2.type === 'bar'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value-2 inline-block vertical-middle'>{{widget2.value  ? (widget2.value | numstr)+"€" : "n.d."}}</div>
+<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+<span class='bold'>{{widget2.procapite ? (widget2.procapite | numstr) : "n.d."}}</span>
+procapite
+</div>
+<div class='visup-progress-single' ng-show='widget2.variation'>
+<div class='visup-progress-bar' ng-class="(widget2.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget2.variationAbs &gt; 2) ? widget2.variationAbs+'%' : '2%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle' ng-show='widget2.variation'>
+<span class='bold'>{{widget2.variation > 0 ? "+"+widget2.variation : widget2.variation}}%</span>
+{{widget2.sublabel2}}
+</div>
+</div>
+</div>
+<div class='visup-values visup-surplus visup-table' ng-show="widget2.type === 'surplus'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value visup-value-5' ng-show='widget2.value1'>
+<div class='visup-year'>{{ widget2.year1 }}</div>
+<div class='visup-value-big'>{{ widget2.value1 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-6' ng-show='widget2.value2'>
+<div class='visup-year bold'>{{ widget2.year2 }}</div>
+<div class='visup-value-big bold visup-colored' ng-class="widget2.value2 &gt;= 0 ? '' : 'negative'">{{ widget2.value2 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-7' ng-show='widget2.value3'>
+<div class='visup-year'>{{ widget2.year3 }}</div>
+<div class='visup-value-big'>{{ widget2.value3 | decimal }} €</div>
+</div>
+</div>
+</div>
+<div class='visup-graph-container visup-spark-2' ng-show="widget2.type === 'spark' &amp;&amp; widget2.series"></div>
+<div class='visup-pie-container visup-pie-2' ng-show="widget2.type === 'pie'"></div>
+<div class='visup-label' ng-show='widget2.sublabel3'>{{widget2.sublabel3}}</div>
+</div>
+<div class='visup-widget widget3'>
+<div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
+<div class='visup-description'>
+<div class='visup-title' ng-class="widget3.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget3.label'>{{widget3.label}}</div>
+<div class='visup-subtitle' ng-class="widget3.type != 'surplus' ? 'as-title' : ''" ng-show='widget3.sublabel1'>{{widget3.sublabel1}}</div>
+</div>
+<div class='visup-values visup-values-progressbar visup-table' ng-show="widget3.type === 'bar'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value-2 inline-block vertical-middle'>{{widget3.value  ? (widget3.value | numstr)+"€" : "n.d."}}€</div>
+<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+<span class='bold'>{{widget3.procapite ? (widget3.procapite | numstr) : "n.d."}}</span>
+procapite
+</div>
+<div class='visup-progress-single' ng-show='widget3.variation'>
+<div class='visup-progress-bar' ng-class="(widget3.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget3.variationAbs &gt; 2) ? widget3.variationAbs+'%' : '2%'}"></div>
+<div class='visup-progress-middle'></div>
+</div>
+<div class='visup-value-4 inline-block vertical-middle' ng-show='widget3.variation'>
+<span class='bold'>{{widget3.variation > 0 ? "+"+widget3.variation : widget3.variation}}%</span>
+{{widget3.sublabel2}}
+</div>
+</div>
+</div>
+<div class='visup-values visup-surplus visup-table' ng-show="widget3.type === 'surplus'">
+<div class='visup-table-cell vertical-middle'>
+<div class='visup-value visup-value-5' ng-show='widget3.value1'>
+<div class='visup-year'>{{ widget3.year1 }}</div>
+<div class='visup-value-big'>{{ widget3.value1 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-6' ng-show='widget3.value2'>
+<div class='visup-year bold'>{{ widget3.year2 }}</div>
+<div class='visup-value-big bold visup-colored' ng-class="widget3.value2 &gt;= 0 ? '' : 'negative'">{{ widget3.value2 | decimal }} €</div>
+</div>
+<div class='visup-value visup-value-7' ng-show='widget3.value3'>
+<div class='visup-year'>{{ widget3.year3 }}</div>
+<div class='visup-value-big'>{{ widget3.value3 | decimal }} €</div>
+</div>
+</div>
+</div>
+<div class='visup-graph-container visup-spark-3' ng-show="widget3.type === 'spark' &amp;&amp; widget3.series"></div>
+<div class='visup-pie-container visup-pie-3' ng-show="widget3.type === 'pie'"></div>
+<div class='visup-sublabel' ng-show='widget3.sublabel3'>{{widget3.sublabel3}}</div>
+</div>
+<div class='visup-widget widget5 active-selection active-hover'>
+<div class='visup-description'>
+<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget5.entrate.label : widget5.spese.label}}</div>
+</div>
+<div class='visup-pie-container visup-pie-4'></div>
+<div class='visup-value-2'>{{selected.percent}}%</div>
+</div>
+<div class='visup-widget widget6 active-selection active-hover'>
+<div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
+<div class='visup-description'>
+<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget6.entrate.label : widget6.spese.label}}</div>
+<div class='visup-subtitle as-title'>{{selected.label}}</div>
+</div>
+<div class='visup-graph-container visup-spark-4' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
+<div class='inline-block vertical-middle'>{{(selected.series != null) ? widget6.sublabel3+" "+selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
+</div>
+<div class='visup-credits'>made by VISUP</div>
+</div>
+</div>
+</body>
+</html>
 
-</div>
-</div>
-</div>
-<div class="visup-values visup-surplus visup-table" ng-show="widget1.type === &#39;surplus&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value visup-value-5" ng-show="widget1.value1">
-<div class="visup-year ng-binding">2003</div>
-<div class="visup-value-big ng-binding">+123.142 €</div>
-</div>
-<div class="visup-value visup-value-6" ng-show="widget1.value2">
-<div class="visup-year bold ng-binding">2004</div>
-<div class="visup-value-big bold visup-colored ng-binding negative" ng-class="widget1.value2 &gt;= 0 ? &#39;&#39; : &#39;negative&#39;">-12.422 €</div>
-</div>
-<div class="visup-value visup-value-7" ng-show="widget1.value3">
-<div class="visup-year ng-binding">2005</div>
-<div class="visup-value-big ng-binding">+6.554.422 €</div>
-</div>
-</div>
-</div>
-<div class="visup-graph-container visup-spark-1 ng-hide" ng-show="widget1.type === &#39;spark&#39; &amp;&amp; widget1.series"></div>
-<div class="visup-pie-container visup-pie-1 ng-hide" ng-show="widget1.type === &#39;pie&#39;"></div>
-<div class="visup-sublabel ng-binding ng-hide" ng-show="widget1.sublabel3"></div>
-</div>
-<div class="visup-widget widget4 visup-dot-value active-selection active-hover" ng-style="{&#39;border-color&#39;:selected.color}" style="border-color: rgb(159, 183, 70);">
-<div class="visup-widget-help" ng-show="widget4.showHelp" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-description">
-<div class="visup-title as-subtitle ng-binding">entrate da</div>
-<div class="visup-subtitle as-title ng-binding">Entrate per conto terzi</div>
-</div>
-<div class="visup-values">
-<div class="visup-sublabel ng-binding"> riscossi</div>
-<div class="visup-value-2 inline-block vertical-middle ng-binding">477,6M€</div>
-<div class="visup-value-3 inline-block vertical-middle">
-<span class="bold ng-binding">181,0</span>
-procapite
-</div>
-<div class="visup-progress-single" ng-show="selected.variation">
-<div class="visup-progress-bar" ng-class="(selected.variation &lt; 0) ? &#39;negative&#39; : &#39;&#39; " ng-style="{&#39;background&#39;:selected.color, &#39;width&#39;:selected.variationAbs+&#39;%&#39;}" style="background-color: rgb(159, 183, 70); width: 9.27%; background-position: initial initial; background-repeat: initial initial;"></div>
-<div class="visup-progress-middle"></div>
-</div>
-<div class="visup-value-4 inline-block vertical-middle ng-binding" ng-show="selected.variation">
-<span class="bold ng-binding">+9.27%</span>
-sul preventivo 2011
-</div>
-</div>
-<i class="fa fa-times visup-widget-close" href="" ng-style="{&#39;color&#39;:selected.color}" style="color: rgb(159, 183, 70);"></i>
-</div>
-<div class="visup-widget widget2">
-<div class="visup-widget-help ng-hide" ng-show="widget2.showHelp" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-description">
-<div class="visup-title ng-binding as-subtitle" ng-class="widget2.type != &#39;surplus&#39; ? &#39;as-subtitle&#39; : &#39;&#39;" ng-show="widget2.label">Entrate</div>
-<div class="visup-subtitle ng-binding as-title" ng-class="widget2.type != &#39;surplus&#39; ? &#39;as-title&#39; : &#39;&#39;" ng-show="widget2.sublabel1">Totale Riscossioni</div>
-</div>
-<div class="visup-values visup-values-progressbar visup-table" ng-show="widget2.type === &#39;bar&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value-2 inline-block vertical-middle ng-binding">7,02MD€</div>
-<div class="visup-value-3 visup-value-big inline-block vertical-middle">
-<span class="bold ng-binding">2,66K</span>
-procapite
-</div>
-<div class="visup-progress-single ng-hide" ng-show="widget2.variation">
-<div class="visup-progress-bar" ng-class="(widget2.variation &lt; 0) ? &#39;negative&#39; : &#39;&#39; " ng-style="{&#39;width&#39;:(widget2.variationAbs &gt; 2) ? widget2.variationAbs+&#39;%&#39; : &#39;2%&#39;}" style="width: 2%;"></div>
-<div class="visup-progress-middle"></div>
-</div>
-<div class="visup-value-4 inline-block vertical-middle ng-binding ng-hide" ng-show="widget2.variation">
-<span class="bold ng-binding">%</span>
-SUL preventivo 2010
-</div>
-</div>
-</div>
-<div class="visup-values visup-surplus visup-table ng-hide" ng-show="widget2.type === &#39;surplus&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value visup-value-5 ng-hide" ng-show="widget2.value1">
-<div class="visup-year ng-binding"></div>
-<div class="visup-value-big ng-binding">+0 €</div>
-</div>
-<div class="visup-value visup-value-6 ng-hide" ng-show="widget2.value2">
-<div class="visup-year bold ng-binding"></div>
-<div class="visup-value-big bold visup-colored ng-binding negative" ng-class="widget2.value2 &gt;= 0 ? &#39;&#39; : &#39;negative&#39;">+0 €</div>
-</div>
-<div class="visup-value visup-value-7 ng-hide" ng-show="widget2.value3">
-<div class="visup-year ng-binding"></div>
-<div class="visup-value-big ng-binding">+0 €</div>
-</div>
-</div>
-</div>
-<div class="visup-graph-container visup-spark-2 ng-hide" ng-show="widget2.type === &#39;spark&#39; &amp;&amp; widget2.series"></div>
-<div class="visup-pie-container visup-pie-2 ng-hide" ng-show="widget2.type === &#39;pie&#39;"></div>
-<div class="visup-label ng-binding ng-hide" ng-show="widget2.sublabel3"></div>
-</div>
-<div class="visup-widget widget3">
-<div class="visup-widget-help ng-hide" ng-show="widget3.showHelp" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-description">
-<div class="visup-title ng-binding as-subtitle" ng-class="widget3.type != &#39;surplus&#39; ? &#39;as-subtitle&#39; : &#39;&#39;" ng-show="widget3.label">Spese</div>
-<div class="visup-subtitle ng-binding as-title" ng-class="widget3.type != &#39;surplus&#39; ? &#39;as-title&#39; : &#39;&#39;" ng-show="widget3.sublabel1">Totale Pagamenti</div>
-</div>
-<div class="visup-values visup-values-progressbar visup-table" ng-show="widget3.type === &#39;bar&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value-2 inline-block vertical-middle ng-binding">5,68MD€€</div>
-<div class="visup-value-3 visup-value-big inline-block vertical-middle">
-<span class="bold ng-binding">2,15K</span>
-procapite
-</div>
-<div class="visup-progress-single" ng-show="widget3.variation">
-<div class="visup-progress-bar" ng-class="(widget3.variation &lt; 0) ? &#39;negative&#39; : &#39;&#39; " ng-style="{&#39;width&#39;:(widget3.variationAbs &gt; 2) ? widget3.variationAbs+&#39;%&#39; : &#39;2%&#39;}" style="width: 26.63%;"></div>
-<div class="visup-progress-middle"></div>
-</div>
-<div class="visup-value-4 inline-block vertical-middle ng-binding" ng-show="widget3.variation">
-<span class="bold ng-binding">+26.63%</span>
-SUL preventivo 2010
-</div>
-</div>
-</div>
-<div class="visup-values visup-surplus visup-table ng-hide" ng-show="widget3.type === &#39;surplus&#39;">
-<div class="visup-table-cell vertical-middle">
-<div class="visup-value visup-value-5 ng-hide" ng-show="widget3.value1">
-<div class="visup-year ng-binding"></div>
-<div class="visup-value-big ng-binding">+0 €</div>
-</div>
-<div class="visup-value visup-value-6 ng-hide" ng-show="widget3.value2">
-<div class="visup-year bold ng-binding"></div>
-<div class="visup-value-big bold visup-colored ng-binding negative" ng-class="widget3.value2 &gt;= 0 ? &#39;&#39; : &#39;negative&#39;">+0 €</div>
-</div>
-<div class="visup-value visup-value-7 ng-hide" ng-show="widget3.value3">
-<div class="visup-year ng-binding"></div>
-<div class="visup-value-big ng-binding">+0 €</div>
-</div>
-</div>
-</div>
-<div class="visup-graph-container visup-spark-3 ng-hide" ng-show="widget3.type === &#39;spark&#39; &amp;&amp; widget3.series"></div>
-<div class="visup-pie-container visup-pie-3 ng-hide" ng-show="widget3.type === &#39;pie&#39;"></div>
-<div class="visup-sublabel ng-binding ng-hide" ng-show="widget3.sublabel3"></div>
-</div>
-<div class="visup-widget widget5 active-selection active-hover">
-<div class="visup-description">
-<div class="visup-title as-subtitle ng-binding">Percentuale sul totale delle entrate</div>
-</div>
-<div class="visup-pie-container visup-pie-4" style="position: relative;"><svg width="100%" height="100%"><g class="chart-container" transform="translate(77,45)"><path class="arc" d="M1.3777276496013099e-14,-45A45,45 0 0,1 17.52602198898483,-41.446815960235284L0,0Z" style="fill: #a09d93;"></path><path class="arc" d="M17.52602198898483,-41.446815960235284A45,45 0 1,1 0,-45L0,0Z" style="fill: #ceccc4;"></path></g></svg></div>
-<div class="visup-value-2 ng-binding">6.8%</div>
-</div>
-<div class="visup-widget widget6 active-selection active-hover">
-<div class="visup-widget-help ng-hide" ng-show="widget6.showHelp" style="background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)"></div>
-<div class="visup-description">
-<div class="visup-title as-subtitle ng-binding">andamento entrate da</div>
-<div class="visup-subtitle as-title ng-binding">Entrate per conto terzi</div>
-</div>
-<div class="visup-graph-container visup-spark-4" ng-style="{&#39;visibility&#39;: (selected.series == null) ? &#39;hidden&#39; : &#39;&#39;}" style="position: relative;"><svg width="100%" height="100%"><g class="chart-container" transform="translate(12,25)"><path class="visup-spark-series" d="M0,8.047746562391147L13,23.449571728497677L26,27L39.00000000000001,9.530435120791939L52,11.073008989558543L65,25.091675834218094L78.00000000000001,1.1072191536402691L91.00000000000001,9.634853642574214L104,10.397987076458516L117,0.28240070231565895L130,0"></path><g class="visup-spark-seriespoints-container"><circle class="visup-spark-seriespoint" r="2.5" cy="8.047746562391147" cx="0"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="23.449571728497677" cx="13"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="27" cx="26"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="9.530435120791939" cx="39.00000000000001"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="11.073008989558543" cx="52"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="25.091675834218094" cx="65"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="1.1072191536402691" cx="78.00000000000001"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="9.634853642574214" cx="91.00000000000001"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="10.397987076458516" cx="104"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="0.28240070231565895" cx="117"></circle><circle class="visup-spark-seriespoint" r="2.5" cy="0" cx="130"></circle></g><circle class="visup-spark-marker" r="6" cy="0" cx="130" style="fill: #a09d93;"></circle><line class="visup-spark-markerline" y2="-10" x2="130" y1="0" x1="130" style="stroke: #a09d93;"></line><text class="visup-spark-markertext" y="-15" x="130">2013</text></g></svg></div>
-<div class="inline-block vertical-middle ng-binding">nei bilanci consuntivi 2003-2013</div>
-</div>
-<div class="visup-credits">made by VISUP</div>
-</div>
-</div>
 
 
-</body></html>{% endverbatim %}
+{% endverbatim %}
