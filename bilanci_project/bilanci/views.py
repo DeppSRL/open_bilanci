@@ -547,6 +547,34 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             "sublabel3": "sul {0} {1}".format(self.comp_bilancio_type, self.comp_bilancio_year)
             }
 
+    # compose data dict for widget 5 : 2 box for voce detail
+
+    def compose_widget_5(self,):
+            return {
+            "showHelp": self.show_help,
+
+            "entrate": {
+                "label": "Percentuale sul totale delle entrate"
+            },
+            "spese": {
+                "label": "Percentuale sul totale delle spese"
+                }
+            }
+
+    # compose data dict for widget 6 : 3 box for voce detail
+
+    def compose_widget_6(self,):
+            return {
+            "showHelp": self.show_help,
+            "entrate": {
+                "label": "andamento entrate da"
+            },
+            "spese": {
+                "label": "andamento spese per"
+            },
+            "sublabel3": "nei bilanci {0}".format(self.main_bilancio_type[:-1]+"i")
+            }
+
 
     def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
 
@@ -672,40 +700,19 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "procapite":0,
                     "variation":None,
             }
+
         widget2 = widget1
         widget3 = widget1
 
 
+        # widget data
         composition_data['widget1']=widget1
         composition_data['widget2']=widget2
         composition_data['widget3']=widget3
-
-
         composition_data["widget4"]= self.compose_widget_4()
-
-
-        composition_data["widget5"]= {
-            "showHelp": self.show_help,
-
-            "entrate": {
-                "label": "Percentuale sul totale delle entrate"
-            },
-            "spese": {
-                "label": "Percentuale sul totale delle spese"
-                }
-            }
-
-        composition_data["widget6"]= {
-            "showHelp": self.show_help,
-            "entrate": {
-                "label": "andamento entrate da"
-            },
-            "spese": {
-                "label": "andamento spese per"
-            },
-            "sublabel3": "nei bilanci {0}".format(self.main_bilancio_type[:-1]+"i")
-            }
-
+        composition_data["widget5"]= self.compose_widget_5()
+        composition_data["widget6"]= self.compose_widget_6()
+         # adds data to context
         context['composition_data']=json.dumps(composition_data)
 
         context['main_bilancio_type']=self.main_bilancio_type

@@ -89,18 +89,35 @@
                             <li class="list-group-item label">MOSTRA PER</li>
                             <li class="list-group-item">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="radio" value="cassa"
-                                               {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
-                                               id="cas_com_type_cassa" name="cas_com_type">
-                                        <label for="cas_com_type_cassa">Cassa</label>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="radio" value="competenza"
-                                               {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
-                                               id="cas_com_type_competenza" name="cas_com_type">
-                                        <label for="cas_com_type_competenza">Competenza</label>
-                                    </div>
+
+                                    {# if bilancio_type is preventivo disables cassa/competenza selection menu    #}
+                                    {% if selected_bilancio_type == "preventivo" %}
+
+                                        <div class="col-md-6">
+                                            <input type="radio" value="cassa" id="cas_com_type_cassa" name="cas_com_type" disabled />
+                                            <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="radio" value="competenza" id="cas_com_type_competenza" name="cas_com_type" disabled />
+                                            <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza</label>
+                                        </div>
+
+                                        {% else %}
+
+                                            <div class="col-md-6">
+                                                <input type="radio" value="cassa"
+                                                       {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
+                                                       id="cas_com_type_cassa" name="cas_com_type">
+                                                <label for="cas_com_type_cassa" >Cassa</label>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="radio" value="competenza"
+                                                       {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
+                                                       id="cas_com_type_competenza" name="cas_com_type">
+                                                <label for="cas_com_type_competenza">Competenza</label>
+                                            </div>
+
+                                    {% endif %}
                                 </div>
                             </li>
                         </ul>
