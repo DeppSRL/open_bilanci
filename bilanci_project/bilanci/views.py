@@ -519,6 +519,34 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         return composition_data
 
+    # compose data dict for widget 4 : 1 box for voce detail
+    def compose_widget_4(self):
+
+            e_money_verb = "previsti"
+            s_money_verb = "previsti"
+
+            if self.main_bilancio_type == "consuntivo":
+                if self.cas_com_type == "cassa":
+                    e_money_verb = "riscossi"
+                    s_money_verb = "pagati"
+                else:
+                    e_money_verb = "accertati"
+                    s_money_verb = "impegnati"
+
+
+            return {
+            "showHelp": self.show_help,
+            "entrate": {
+                "label": "entrate da",
+                "sublabel": e_money_verb
+            },
+            "spese": {
+                "label": "spese per",
+                "sublabel": s_money_verb
+            },
+            "sublabel3": "sul {0} {1}".format(self.comp_bilancio_type, self.comp_bilancio_year)
+            }
+
 
     def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
 
@@ -652,39 +680,19 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data['widget2']=widget2
         composition_data['widget3']=widget3
 
-        e_money_verb = "previsti"
-        s_money_verb = "previsti"
 
-        if self.main_bilancio_type == "consuntivo":
-            if self.cas_com_type == "cassa":
-                e_money_verb = "riscossi"
-                s_money_verb = "pagati"
-            else:
-                e_money_verb = "accertati"
-                s_money_verb = "impegnati"
-
-        composition_data["widget4"]= {
-            "showHelp": self.show_help,
-            "entrate": {
-                "label": "entrate da",
-                "sublabel": e_money_verb
-            },
-            "spese": {
-                "label": "spese per",
-                "sublabel": s_money_verb
-            },
-            "sublabel3": "sul {0} {1}".format(self.comp_bilancio_type, self.comp_bilancio_year)
-            }
+        composition_data["widget4"]= self.compose_widget_4()
 
 
         composition_data["widget5"]= {
             "showHelp": self.show_help,
+
             "entrate": {
-            "label": "Percentuale sul totale delle entrate"
+                "label": "Percentuale sul totale delle entrate"
             },
             "spese": {
-            "label": "Percentuale sul totale delle spese"
-            }
+                "label": "Percentuale sul totale delle spese"
+                }
             }
 
         composition_data["widget6"]= {
