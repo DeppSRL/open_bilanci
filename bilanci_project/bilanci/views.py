@@ -418,7 +418,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     # calculates the % variation of main_value compared to comparison_values
     # adjusting the values with gdp deflator if needed
 
-    def calculate_variation(self, main_val, comp_val, main_year, comp_year, ):
+    def calculate_variation(self, main_val, comp_val, ):
 
         deflated_main_val = main_val
         deflated_comp_val = comp_val
@@ -428,7 +428,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         if deflated_comp_val != 0:
             # sets 2 digit precision for variation after decimal point
-            return round(((main_val-deflated_comp_val)/ deflated_comp_val)*100.0,2)
+            return round(((deflated_main_val-deflated_comp_val)/ deflated_comp_val)*100.0,2)
         else:
             # value passes from 0 to N:
             # variation would be infinite so variation is set to null
@@ -508,8 +508,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                         variation = self.calculate_variation(
                             single_value['valore'],
                             comp_values_regroup[main_value_denominazione]['valore'],
-                            self.main_bilancio_year,
-                            self.comp_bilancio_year
                         )
 
                     value_dict['variation'] = variation
@@ -655,43 +653,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data['spese'] = s_widget_data
 
 
-        if self.main_bilancio_type == 'preventivo':
-            pslugs = ['preventivo-entrate', 'preventivo-spese']
-            pyears = [self.main_bilancio_year, self.comp_bilancio_year]
-
-            pdata = list(ValoreBilancio.objects.\
-                filter(anno__in=pyears, territorio=self.territorio, voce__slug__in=pslugs,).\
-                values('voce__slug','valore','anno','valore_procapite'))
-
-
-            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: (x['voce__slug'],x['anno'])))
-
-            variation = 1
-
-            widget1 = {
-                    "type": "bar",
-                    "showHelp": self.show_help,
-                    "label": "Entrate - Totale",
-                    "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
-                    "sublabel1": "Totale Riscossioni",
-                    "value": p_regroup[('preventivo-entrate',self.main_bilancio_year)]['valore'],
-                    "procapite": p_regroup[('preventivo-entrate',self.main_bilancio_year)]['valore_procapite'],
-                    "variation": None,
-            }
-
-            widget2 = {
-                    "type": "bar",
-                    "showHelp": self.show_help,
-                    "label": "Spese - Totale",
-                    "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
-                    # "sublabel1": "Totale Riscossioni",
-                    "value": p_regroup[('preventivo-entrate',self.main_bilancio_year)]['valore'],
-                    "procapite": p_regroup[('preventivo-entrate',self.main_bilancio_year)]['valore_procapite'],
-                    "variation": None,
-            }
-
-        else:
-            widget1={"type": "bar",
+        widget1=\
+            {"type": "bar",
                     "showHelp": self.show_help,
                     "label": "Lorem ipsum",
                     "sublabel2": "SUL consuntivo {0}".format(9999),
@@ -703,6 +666,62 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         widget2 = widget1
         widget3 = widget1
+
+
+        if self.main_bilancio_type == 'preventivo':
+            pslugs = ['preventivo-entrate', 'preventivo-spese']
+            pyears = [self.main_bilancio_year, self.comp_bilancio_year]
+
+            pdata = list(ValoreBilancio.objects.\
+                filter(anno__in=pyears, territorio=self.territorio, voce__slug__in=pslugs,).\
+                values('voce__slug','valore','anno','valore_procapite'))
+
+
+            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: (x['voce__slug'],x['anno'])))
+
+            main_prev_entrate = p_regroup[('preventivo-entrate',self.main_bilancio_year)]
+            comp_prev_entrate = p_regroup[('preventivo-entrate',self.comp_bilancio_year)]
+            main_prev_spese = p_regroup[('preventivo-spese',self.main_bilancio_year)]
+            comp_prev_spese = p_regroup[('preventivo-spese',self.comp_bilancio_year)]
+
+            widget1 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Entrate - Totale",
+                    "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": "",
+                    "value": main_prev_entrate['valore'],
+                    "procapite": main_prev_entrate['valore_procapite'],
+                    "variation": self.calculate_variation(
+                                    main_val=main_prev_entrate['valore'],
+                                    comp_val=comp_prev_entrate['valore'],
+                                      ),
+            }
+
+            widget2 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Spese - Totale",
+                    "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": "",
+                    "value": main_prev_spese['valore'],
+                    "procapite": main_prev_spese['valore_procapite'],
+                    "variation": self.calculate_variation(
+                                    main_val=main_prev_spese['valore'],
+                                    comp_val=comp_prev_spese['valore'],
+                                  ),
+            }
+
+            widget3= {
+                "type": "spark",
+                "showHelp": self.show_help,
+                "label": "Andamento nel tempo delle Entrate",
+                "sublabel1": "",
+                "sublabel3": "Entrate nei Bilanci Preventivi {0}-{1}".format(settings.APP_START_DATE.year, settings.APP_END_DATE.year),
+                "series": [[v['anno'],v['valore']] for v in e_main_regroup[self.totale_label]]
+              }
+
+
 
 
         # widget data
