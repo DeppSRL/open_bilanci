@@ -703,7 +703,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             "spese": {
                 "label": "andamento spese per"
             },
-            "sublabel3": "nei bilanci consuntivi"
+            "sublabel3": "nei bilanci {0}".format(self.main_bilancio_type[:-1]+"i")
             }
 
         context['composition_data']=json.dumps(composition_data)
