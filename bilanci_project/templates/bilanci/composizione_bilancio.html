@@ -12,8 +12,6 @@
 <link href='http://fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
 <link href="{% static 'css/font-awesome.css' %}" media="all" rel="stylesheet">
 
-
-
 <script>
     $(document).ready( function() {
       var load_sample_json = false;
@@ -37,6 +35,9 @@
     });
 </script>
 {% verbatim %}
+
+
+</head>
 <body ng-app='appOB'>
 <div class='wrap' ng-controller='AppControllerBilancio'>
 <div class='visup-main visup-graph-compare'>
@@ -69,7 +70,7 @@ Valori stabili
 <img alt="Legend" src="/static/img/visup/legend.png" />
 </div>
 <div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
-<div class='visup-graph-toggle' ng-class="showLabels ? 'active' : ''">{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
+<div class='visup-graph-toggle' ng-class='{active: (toggleActive &amp;&amp; showLabels), disable: (!toggleActive)}'>{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
 </div>
 <div class='visup-sidebar visup-sidebar1'>
 <div class='visup-widget widget1'>
@@ -246,7 +247,6 @@ procapite
 </div>
 </body>
 </html>
-
-
-
 {% endverbatim %}
+
+
