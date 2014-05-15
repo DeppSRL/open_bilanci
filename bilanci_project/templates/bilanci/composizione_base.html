@@ -11,29 +11,6 @@
 
     {% block load_data_js %}
 
-        <script>
-            $(document).ready( function() {
-              var load_sample_json = true;
-
-              var data = {{ composition_data|safe }};
-
-              if(load_sample_json == true ){
-                  visup.bilancio(function(){
-                    d3.json("/static/data/vista1.json", function(data){
-                        visup.bilancio.data(data);
-                        visup.bilancio.on("select", function(d) {
-                          console.log(d);
-                        });
-                        });
-                    });
-              }
-                else{
-                  visup.bilancio.data(data);
-              }
-
-            });
-        </script>
-
     {% endblock %}
 
 </head>
