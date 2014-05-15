@@ -2475,3 +2475,12 @@ form ul li label {
   color: #cc6633;
   font-weight: bold;
 }
+.select2-choice {
+  height: 40px!important;
+}
+#comparison .form-group .form-control {
+  padding-right: 0px;
+}
+#comparison .form-group .form-control {
+  height: 40px;
+}
