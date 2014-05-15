@@ -403,6 +403,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
     serie_end_year = settings.TIMELINE_END_DATE.year
+    widget_type = None
     main_gdp_deflator = comp_gdb_deflator = None
     main_bilancio_year = main_bilancio_type = None
     comp_bilancio_year = comp_bilancio_type = None
@@ -413,6 +414,22 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+        self.main_bilancio_year = int(kwargs.get('bilancio_year', settings.APP_END_DATE.year ))
+        self.main_bilancio_type = kwargs.get('bilancio_type','consuntivo')
+        territorio_slug = kwargs.get('territorio_slug', None)
+        self.widget_type = kwargs.get('widget_type', 'overview')
+
+        if not territorio_slug:
+            return reverse('404')
+
+        self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
+
+        if self.widget_type == 'overview':
+            self.template_name = 'bilanci/composizione_bilancio.html'
+
+        else:
+            self.template_name = 'bilanci/composizione_entrate_uscite.html'
+
         return super(BilancioCompositionWidgetView, self).get(self, request, *args, **kwargs)
 
     # calculates the % variation of main_value compared to comparison_values
@@ -574,7 +591,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             }
 
 
-    def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
+    def get_context_data(self, **kwargs):
 
         widget1 = widget2 = widget3 = None
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
@@ -611,17 +628,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         }
 
 
-        if widget_type == 'overview':
-            self.template_name = 'bilanci/composizione_bilancio.html'
-
-        else:
-            self.template_name = 'bilanci/composizione_entrate_uscite.html'
-
-        territorio_slug = territorio_slug
-        self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
-
-        self.main_bilancio_year = int(bilancio_year)
-        self.main_bilancio_type = bilancio_type
 
         composition_data['year'] = self.main_bilancio_year
 
