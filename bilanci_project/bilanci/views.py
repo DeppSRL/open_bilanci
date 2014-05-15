@@ -728,73 +728,73 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             except ObjectDoesNotExist:
                 pass
+            else:
+                # widget1
+                # avanzo / disavanzo di cassa / competenza
+                widget1 = {
+                    "type": "surplus",
+                    "showHelp": self.show_help,
+                    "label": "Avanzo/disavanzo",
+                    "sublabel1": "di "+self.cas_com_type,
 
-            # widget1
-            # avanzo / disavanzo di cassa / competenza
-            widget1 = {
-                "type": "surplus",
-                "showHelp": self.show_help,
-                "label": "Avanzo/disavanzo",
-                "sublabel1": "di "+self.cas_com_type,
+                }
 
-            }
+                yrs_to_consider = {
+                    '1':self.main_bilancio_year-1,
+                    '2':self.main_bilancio_year,
+                    '3':self.main_bilancio_year+1
+                }
 
-            yrs_to_consider = {
-                '1':self.main_bilancio_year-1,
-                '2':self.main_bilancio_year,
-                '3':self.main_bilancio_year+1
-            }
+                for k, year in yrs_to_consider.iteritems():
 
-            for k, year in yrs_to_consider.iteritems():
+                    if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
 
-                if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+                        try:
 
-                    try:
+                            entrate = ValoreBilancio.objects.get(anno=year, voce__slug=entrate_slug[self.main_bilancio_type], territorio=self.territorio).valore
+                            spese = ValoreBilancio.objects.get(anno=year, voce__slug=spese_slug[self.main_bilancio_type], territorio=self.territorio).valore
 
-                        entrate = ValoreBilancio.objects.get(anno=year, voce__slug=entrate_slug[self.main_bilancio_type], territorio=self.territorio).valore
-                        spese = ValoreBilancio.objects.get(anno=year, voce__slug=spese_slug[self.main_bilancio_type], territorio=self.territorio).valore
+                            if self.values_type == 'real':
+                                entrate = float(entrate) *settings.GDP_DEFLATORS[year]
+                                spese = float(spese) *settings.GDP_DEFLATORS[year]
 
-                        if self.values_type == 'real':
-                            entrate = float(entrate) *settings.GDP_DEFLATORS[year]
-                            spese = float(spese) *settings.GDP_DEFLATORS[year]
+                        except ObjectDoesNotExist:
+                            continue
+                        else:
 
-                    except ObjectDoesNotExist:
-                        continue
-                    else:
-
-                        widget1['year'+k] = year
-                        widget1['value'+k] = entrate-spese
+                            widget1['year'+k] = year
+                            widget1['value'+k] = entrate-spese
 
 
-            # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
-            e_money_verb, s_money_verb = self.get_money_verb()
-            widget2 = {
-                "type": "bar",
-                "showHelp": self.show_help,
-                "label": "Entrate - Totale",
-                "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
-                "sublabel1": e_money_verb,
-                "value": float(main_consuntivo_entrate.valore)*self.main_gdp_multiplier,
-                "procapite": float(main_consuntivo_entrate.valore_procapite)*self.main_gdp_multiplier,
-                "variation": self.calculate_variation(
-                                main_val=main_consuntivo_entrate.valore,
-                                comp_val=comp_preventivo_entrate.valore,
-                              ),
-            }
+                # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
+                e_money_verb, s_money_verb = self.get_money_verb()
+                widget2 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Entrate - Totale",
+                    "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": e_money_verb,
+                    "value": float(main_consuntivo_entrate.valore)*self.main_gdp_multiplier,
+                    "procapite": float(main_consuntivo_entrate.valore_procapite)*self.main_gdp_multiplier,
+                    "variation": self.calculate_variation(
+                                    main_val=main_consuntivo_entrate.valore,
+                                    comp_val=comp_preventivo_entrate.valore,
+                                  ),
+                }
 
-            widget3 = {
-                "type": "bar",
-                "showHelp": self.show_help,
-                "label": "Spese - Totale",
-                "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
-                "sublabel1": s_money_verb,
-                "value": float(main_consuntivo_spese.valore)*self.main_gdp_multiplier,
-                "procapite": float(main_consuntivo_spese.valore_procapite)*self.main_gdp_multiplier,
-                "variation": self.calculate_variation(
-                                main_val=main_consuntivo_spese.valore,
-                                comp_val=comp_preventivo_spese.valore
-                              ),
-            }
+                widget3 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Spese - Totale",
+                    "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": s_money_verb,
+                    "value": float(main_consuntivo_spese.valore)*self.main_gdp_multiplier,
+                    "procapite": float(main_consuntivo_spese.valore_procapite)*self.main_gdp_multiplier,
+                    "variation": self.calculate_variation(
+                                    main_val=main_consuntivo_spese.valore,
+                                    comp_val=comp_preventivo_spese.valore
+                                  ),
+                }
 
 
 
