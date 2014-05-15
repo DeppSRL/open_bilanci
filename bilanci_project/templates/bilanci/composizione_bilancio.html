@@ -1,252 +1,246 @@
-{% load section_title %}
-{% load section_values_type %}
-{% load staticfiles %}
-<!DOCTYPE html>
-<!-- saved from url=(0072)http://databoard-3529.herokuapp.com/dashboards/depp-openbilanci-bilancio -->
-<html>
+{% extends "bilanci/composizione_base.html" %}
 
-<title>Open bilanci</title>
+{% block load_data_js %}
 
-<script src="{% static 'scripts/visup/visup-application.js' %}"></script>
-<link href="{% static 'css/visup-application.css' %}" media="all" rel="stylesheet">
-<link href='http://fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
-<link href="{% static 'css/font-awesome.css' %}" media="all" rel="stylesheet">
+        <script>
+            $(document).ready( function() {
+              var load_sample_json = false;
 
+              var data = {{ composition_data|safe }};
 
+              if(load_sample_json == true ){
+                  visup.bilancio(function(){
+                    d3.json("/static/data/vista1.json", function(data){
+                        visup.bilancio.data(data);
+                        visup.bilancio.on("select", function(d) {
+                          console.log(d);
+                        });
+                        });
+                    });
+              }
+                else{
+                  visup.bilancio.data(data);
+              }
 
-<script>
-    $(document).ready( function() {
-      var load_sample_json = false;
-
-      var data = {{ composition_data|safe }};
-
-      if(load_sample_json == true ){
-          visup.bilancio(function(){
-            d3.json("/static/data/vista1.json", function(data){
-                visup.bilancio.data(data);
-                visup.bilancio.on("select", function(d) {
-                  console.log(d);
-                });
-                });
             });
-      }
-        else{
-          visup.bilancio.data(data);
-      }
+        </script>
 
-    });
-</script>
-{% verbatim %}
-<body ng-app='appOB'>
-<div class='wrap' ng-controller='AppControllerBilancio'>
-<div class='visup-main visup-graph-compare'>
-<div class='visup-graph-left-container'>
-<div class='visup-title'>Entrate</div>
-<div class='visup-graph-container'>
-</div>
-</div>
-<div class='visup-graph-right-container'>
-<div class='visup-title'>Spese</div>
-<div class='visup-graph-container'>
-</div>
-</div>
-<div class='visup-labels'>
-<div class='visup-label visup-label-1'>
-Aumenti oltre il 25%
-<div class='h-divider'></div>
-</div>
-<div class='visup-label visup-label-2'>
-Valori stabili
-<div class='h-divider'></div>
-</div>
-<div class='visup-label visup-label-3'>
-<div class='h-divider'></div>
-<div class='label'>Tagli oltre il 25%</div>
-</div>
-<div class='v-divider'></div>
-</div>
-<div class='visup-legend'>
-<img alt="Legend" src="/static/img/visup/legend.png" />
-</div>
-<div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
-<div class='visup-graph-toggle' ng-class="showLabels ? 'active' : ''">{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
-</div>
-<div class='visup-sidebar visup-sidebar1'>
-<div class='visup-widget widget1'>
-<div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
-<div class='visup-description'>
-<div class='visup-title' ng-class="widget1.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget1.label'>{{widget1.label}}</div>
-<div class='visup-subtitle' ng-class="widget1.type != 'surplus' ? 'as-title' : ''" ng-show='widget1.sublabel1'>{{widget1.sublabel1}}</div>
-</div>
-<div class='visup-values visup-values-progressbar visup-table' ng-show="widget1.type === 'bar'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value-2 inline-block vertical-middle'>{{widget1.value  ? (widget1.value | numstr)+"€" : "n.d."}}</div>
-<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-<span class='bold'>{{widget1.procapite ? (widget1.procapite | numstr) : "n.d."}}</span>
-procapite
-</div>
-<div class='visup-progress-single' ng-show='widget1.variation'>
-<div class='visup-progress-bar' ng-class="(widget1.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget1.variationAbs &gt; 2) ? widget1.variationAbs+'%' : '2%'}"></div>
-<div class='visup-progress-middle'></div>
-</div>
-<div class='visup-value-4 inline-block vertical-middle' ng-show='widget1.variation'>
-<span class='bold'>{{widget1.variation > 0 ? "+"+widget1.variation : widget1.variation}}%</span>
-{{widget1.sublabel2}}
-</div>
-</div>
-</div>
-<div class='visup-values visup-surplus visup-table' ng-show="widget1.type === 'surplus'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value visup-value-5' ng-show='widget1.value1'>
-<div class='visup-year'>{{ widget1.year1 }}</div>
-<div class='visup-value-big'>{{ widget1.value1 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-6' ng-show='widget1.value2'>
-<div class='visup-year bold'>{{ widget1.year2 }}</div>
-<div class='visup-value-big bold visup-colored' ng-class="widget1.value2 &gt;= 0 ? '' : 'negative'">{{ widget1.value2 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-7' ng-show='widget1.value3'>
-<div class='visup-year'>{{ widget1.year3 }}</div>
-<div class='visup-value-big'>{{ widget1.value3 | decimal }} €</div>
-</div>
-</div>
-</div>
-<div class='visup-graph-container visup-spark-1' ng-show="widget1.type === 'spark' &amp;&amp; widget1.series"></div>
-<div class='visup-pie-container visup-pie-1' ng-show="widget1.type === 'pie'"></div>
-<div class='visup-sublabel' ng-show='widget1.sublabel3'>{{widget1.sublabel3}}</div>
-</div>
-<div class='visup-widget widget4 visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
-<div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
-<div class='visup-description'>
-<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget4.entrate.label : widget4.spese.label}}</div>
-<div class='visup-subtitle as-title'>{{selected.label}}</div>
-</div>
-<div class='visup-values'>
-<div class='visup-sublabel'>{{widget4.sublabel2}} {{type === 'ENTRATE' ? widget4.entrate.sublabel : widget4.spese.sublabel}}</div>
-<div class='visup-value-2 inline-block vertical-middle'>{{selected.value  ? (selected.value | numstr)+"€" : "n.d."}}</div>
-<div class='visup-value-3 inline-block vertical-middle'>
-<span class='bold'>{{selected.procapite ? (selected.procapite | numstr) : "n.d."}}</span>
-procapite
-</div>
-<div class='visup-progress-single' ng-show='selected.variation'>
-<div class='visup-progress-bar' ng-class="(selected.variation &lt; 0) ? 'negative' : '' " ng-style="{'background':selected.color, 'width':selected.variationAbs+'%'}"></div>
-<div class='visup-progress-middle'></div>
-</div>
-<div class='visup-value-4 inline-block vertical-middle' ng-show='selected.variation'>
-<span class='bold'>{{selected.variation > 0 ? "+"+selected.variation : selected.variation}}%</span>
-{{widget4.sublabel3}}
-</div>
-</div>
-<i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
-</div>
-<div class='visup-widget widget2'>
-<div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
-<div class='visup-description'>
-<div class='visup-title' ng-class="widget2.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget2.label'>{{widget2.label}}</div>
-<div class='visup-subtitle' ng-class="widget2.type != 'surplus' ? 'as-title' : ''" ng-show='widget2.sublabel1'>{{widget2.sublabel1}}</div>
-</div>
-<div class='visup-values visup-values-progressbar visup-table' ng-show="widget2.type === 'bar'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value-2 inline-block vertical-middle'>{{widget2.value  ? (widget2.value | numstr)+"€" : "n.d."}}</div>
-<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-<span class='bold'>{{widget2.procapite ? (widget2.procapite | numstr) : "n.d."}}</span>
-procapite
-</div>
-<div class='visup-progress-single' ng-show='widget2.variation'>
-<div class='visup-progress-bar' ng-class="(widget2.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget2.variationAbs &gt; 2) ? widget2.variationAbs+'%' : '2%'}"></div>
-<div class='visup-progress-middle'></div>
-</div>
-<div class='visup-value-4 inline-block vertical-middle' ng-show='widget2.variation'>
-<span class='bold'>{{widget2.variation > 0 ? "+"+widget2.variation : widget2.variation}}%</span>
-{{widget2.sublabel2}}
-</div>
-</div>
-</div>
-<div class='visup-values visup-surplus visup-table' ng-show="widget2.type === 'surplus'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value visup-value-5' ng-show='widget2.value1'>
-<div class='visup-year'>{{ widget2.year1 }}</div>
-<div class='visup-value-big'>{{ widget2.value1 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-6' ng-show='widget2.value2'>
-<div class='visup-year bold'>{{ widget2.year2 }}</div>
-<div class='visup-value-big bold visup-colored' ng-class="widget2.value2 &gt;= 0 ? '' : 'negative'">{{ widget2.value2 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-7' ng-show='widget2.value3'>
-<div class='visup-year'>{{ widget2.year3 }}</div>
-<div class='visup-value-big'>{{ widget2.value3 | decimal }} €</div>
-</div>
-</div>
-</div>
-<div class='visup-graph-container visup-spark-2' ng-show="widget2.type === 'spark' &amp;&amp; widget2.series"></div>
-<div class='visup-pie-container visup-pie-2' ng-show="widget2.type === 'pie'"></div>
-<div class='visup-label' ng-show='widget2.sublabel3'>{{widget2.sublabel3}}</div>
-</div>
-<div class='visup-widget widget3'>
-<div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
-<div class='visup-description'>
-<div class='visup-title' ng-class="widget3.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget3.label'>{{widget3.label}}</div>
-<div class='visup-subtitle' ng-class="widget3.type != 'surplus' ? 'as-title' : ''" ng-show='widget3.sublabel1'>{{widget3.sublabel1}}</div>
-</div>
-<div class='visup-values visup-values-progressbar visup-table' ng-show="widget3.type === 'bar'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value-2 inline-block vertical-middle'>{{widget3.value  ? (widget3.value | numstr)+"€" : "n.d."}}€</div>
-<div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-<span class='bold'>{{widget3.procapite ? (widget3.procapite | numstr) : "n.d."}}</span>
-procapite
-</div>
-<div class='visup-progress-single' ng-show='widget3.variation'>
-<div class='visup-progress-bar' ng-class="(widget3.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget3.variationAbs &gt; 2) ? widget3.variationAbs+'%' : '2%'}"></div>
-<div class='visup-progress-middle'></div>
-</div>
-<div class='visup-value-4 inline-block vertical-middle' ng-show='widget3.variation'>
-<span class='bold'>{{widget3.variation > 0 ? "+"+widget3.variation : widget3.variation}}%</span>
-{{widget3.sublabel2}}
-</div>
-</div>
-</div>
-<div class='visup-values visup-surplus visup-table' ng-show="widget3.type === 'surplus'">
-<div class='visup-table-cell vertical-middle'>
-<div class='visup-value visup-value-5' ng-show='widget3.value1'>
-<div class='visup-year'>{{ widget3.year1 }}</div>
-<div class='visup-value-big'>{{ widget3.value1 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-6' ng-show='widget3.value2'>
-<div class='visup-year bold'>{{ widget3.year2 }}</div>
-<div class='visup-value-big bold visup-colored' ng-class="widget3.value2 &gt;= 0 ? '' : 'negative'">{{ widget3.value2 | decimal }} €</div>
-</div>
-<div class='visup-value visup-value-7' ng-show='widget3.value3'>
-<div class='visup-year'>{{ widget3.year3 }}</div>
-<div class='visup-value-big'>{{ widget3.value3 | decimal }} €</div>
-</div>
-</div>
-</div>
-<div class='visup-graph-container visup-spark-3' ng-show="widget3.type === 'spark' &amp;&amp; widget3.series"></div>
-<div class='visup-pie-container visup-pie-3' ng-show="widget3.type === 'pie'"></div>
-<div class='visup-sublabel' ng-show='widget3.sublabel3'>{{widget3.sublabel3}}</div>
-</div>
-<div class='visup-widget widget5 active-selection active-hover'>
-<div class='visup-description'>
-<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget5.entrate.label : widget5.spese.label}}</div>
-</div>
-<div class='visup-pie-container visup-pie-4'></div>
-<div class='visup-value-2'>{{selected.percent}}%</div>
-</div>
-<div class='visup-widget widget6 active-selection active-hover'>
-<div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-04ed9ea5ec853f050a82464b90a51ea4.png)'></div>
-<div class='visup-description'>
-<div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget6.entrate.label : widget6.spese.label}}</div>
-<div class='visup-subtitle as-title'>{{selected.label}}</div>
-</div>
-<div class='visup-graph-container visup-spark-4' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
-<div class='inline-block vertical-middle'>{{(selected.series != null) ? widget6.sublabel3+" "+selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
-</div>
-<div class='visup-credits'>made by VISUP</div>
-</div>
-</div>
-</body>
-</html>
+    {% endblock %}
 
 
+{% block body %}
+    {% verbatim %}
+        <div class='wrap' ng-controller='AppControllerBilancio'>
+        <div class='visup-main visup-graph-compare'>
+        <div class='visup-graph-left-container'>
+        <div class='visup-title'>Entrate</div>
+        <div class='visup-graph-container'>
+        </div>
+        </div>
+        <div class='visup-graph-right-container'>
+        <div class='visup-title'>Spese</div>
+        <div class='visup-graph-container'>
+        </div>
+        </div>
+        <div class='visup-labels'>
+        <div class='visup-label visup-label-1'>
+        Aumenti oltre il 25%
+        <div class='h-divider'></div>
+        </div>
+        <div class='visup-label visup-label-2'>
+        Valori stabili
+        <div class='h-divider'></div>
+        </div>
+        <div class='visup-label visup-label-3'>
+        <div class='h-divider'></div>
+        <div class='label'>Tagli oltre il 25%</div>
+        </div>
+        <div class='v-divider'></div>
+        </div>
+        <div class='visup-legend'>
+        <img alt="Legend" src="/static/img/visup/legend.png" />
+        </div>
+        <div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-graph-toggle' ng-class='{active: (toggleActive &amp;&amp; showLabels), disable: (!toggleActive)}'>{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
+        </div>
+        <div class='visup-sidebar visup-sidebar1'>
+        <div class='visup-widget widget1'>
+        <div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-description'>
+        <div class='visup-title' ng-class="widget1.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget1.label'>{{widget1.label}}</div>
+        <div class='visup-subtitle' ng-class="widget1.type != 'surplus' ? 'as-title' : ''" ng-show='widget1.sublabel1'>{{widget1.sublabel1}}</div>
+        </div>
+        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget1.type === 'bar'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value-2 inline-block vertical-middle'>{{widget1.value  ? (widget1.value | numstr)+"€" : "n.d."}}</div>
+        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+        <span class='bold'>{{widget1.procapite ? (widget1.procapite | numstr) : "n.d."}}</span>
+        procapite
+        </div>
+        <div class='visup-progress-single' ng-show='widget1.variation'>
+        <div class='visup-progress-bar' ng-class="(widget1.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget1.variationAbs &gt; 2) ? widget1.variationAbs+'%' : '2%'}"></div>
+        <div class='visup-progress-middle'></div>
+        </div>
+        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget1.variation'>
+        <span class='bold'>{{widget1.variation > 0 ? "+"+widget1.variation : widget1.variation}}%</span>
+        {{widget1.sublabel2}}
+        </div>
+        </div>
+        </div>
+        <div class='visup-values visup-surplus visup-table' ng-show="widget1.type === 'surplus'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value visup-value-5' ng-show='widget1.value1'>
+        <div class='visup-year'>{{ widget1.year1 }}</div>
+        <div class='visup-value-big'>{{ widget1.value1 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-6' ng-show='widget1.value2'>
+        <div class='visup-year bold'>{{ widget1.year2 }}</div>
+        <div class='visup-value-big bold visup-colored' ng-class="widget1.value2 &gt;= 0 ? '' : 'negative'">{{ widget1.value2 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-7' ng-show='widget1.value3'>
+        <div class='visup-year'>{{ widget1.year3 }}</div>
+        <div class='visup-value-big'>{{ widget1.value3 | decimal }} €</div>
+        </div>
+        </div>
+        </div>
+        <div class='visup-graph-container visup-spark-1' ng-show="widget1.type === 'spark' &amp;&amp; widget1.series"></div>
+        <div class='visup-pie-container visup-pie-1' ng-show="widget1.type === 'pie'"></div>
+        <div class='visup-sublabel' ng-show='widget1.sublabel3'>{{widget1.sublabel3}}</div>
+        </div>
+        <div class='visup-widget widget4 visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
+        <div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url(""/static/img/visup/icons.png"")'></div>
+        <div class='visup-description'>
+        <div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget4.entrate.label : widget4.spese.label}}</div>
+        <div class='visup-subtitle as-title'>{{selected.label}}</div>
+        </div>
+        <div class='visup-values'>
+        <div class='visup-sublabel'>{{widget4.sublabel2}} {{type === 'ENTRATE' ? widget4.entrate.sublabel : widget4.spese.sublabel}}</div>
+        <div class='visup-value-2 inline-block vertical-middle'>{{selected.value  ? (selected.value | numstr)+"€" : "n.d."}}</div>
+        <div class='visup-value-3 inline-block vertical-middle'>
+        <span class='bold'>{{selected.procapite ? (selected.procapite | numstr) : "n.d."}}</span>
+        procapite
+        </div>
+        <div class='visup-progress-single' ng-show='selected.variation'>
+        <div class='visup-progress-bar' ng-class="(selected.variation &lt; 0) ? 'negative' : '' " ng-style="{'background':selected.color, 'width':selected.variationAbs+'%'}"></div>
+        <div class='visup-progress-middle'></div>
+        </div>
+        <div class='visup-value-4 inline-block vertical-middle' ng-show='selected.variation'>
+        <span class='bold'>{{selected.variation > 0 ? "+"+selected.variation : selected.variation}}%</span>
+        {{widget4.sublabel3}}
+        </div>
+        </div>
+        <i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
+        </div>
+        <div class='visup-widget widget2'>
+        <div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url(""/static/img/visup/icons.png"")'></div>
+        <div class='visup-description'>
+        <div class='visup-title' ng-class="widget2.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget2.label'>{{widget2.label}}</div>
+        <div class='visup-subtitle' ng-class="widget2.type != 'surplus' ? 'as-title' : ''" ng-show='widget2.sublabel1'>{{widget2.sublabel1}}</div>
+        </div>
+        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget2.type === 'bar'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value-2 inline-block vertical-middle'>{{widget2.value  ? (widget2.value | numstr)+"€" : "n.d."}}</div>
+        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+        <span class='bold'>{{widget2.procapite ? (widget2.procapite | numstr) : "n.d."}}</span>
+        procapite
+        </div>
+        <div class='visup-progress-single' ng-show='widget2.variation'>
+        <div class='visup-progress-bar' ng-class="(widget2.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget2.variationAbs &gt; 2) ? widget2.variationAbs+'%' : '2%'}"></div>
+        <div class='visup-progress-middle'></div>
+        </div>
+        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget2.variation'>
+        <span class='bold'>{{widget2.variation > 0 ? "+"+widget2.variation : widget2.variation}}%</span>
+        {{widget2.sublabel2}}
+        </div>
+        </div>
+        </div>
+        <div class='visup-values visup-surplus visup-table' ng-show="widget2.type === 'surplus'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value visup-value-5' ng-show='widget2.value1'>
+        <div class='visup-year'>{{ widget2.year1 }}</div>
+        <div class='visup-value-big'>{{ widget2.value1 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-6' ng-show='widget2.value2'>
+        <div class='visup-year bold'>{{ widget2.year2 }}</div>
+        <div class='visup-value-big bold visup-colored' ng-class="widget2.value2 &gt;= 0 ? '' : 'negative'">{{ widget2.value2 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-7' ng-show='widget2.value3'>
+        <div class='visup-year'>{{ widget2.year3 }}</div>
+        <div class='visup-value-big'>{{ widget2.value3 | decimal }} €</div>
+        </div>
+        </div>
+        </div>
+        <div class='visup-graph-container visup-spark-2' ng-show="widget2.type === 'spark' &amp;&amp; widget2.series"></div>
+        <div class='visup-pie-container visup-pie-2' ng-show="widget2.type === 'pie'"></div>
+        <div class='visup-label' ng-show='widget2.sublabel3'>{{widget2.sublabel3}}</div>
+        </div>
+        <div class='visup-widget widget3'>
+        <div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-description'>
+        <div class='visup-title' ng-class="widget3.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget3.label'>{{widget3.label}}</div>
+        <div class='visup-subtitle' ng-class="widget3.type != 'surplus' ? 'as-title' : ''" ng-show='widget3.sublabel1'>{{widget3.sublabel1}}</div>
+        </div>
+        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget3.type === 'bar'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value-2 inline-block vertical-middle'>{{widget3.value  ? (widget3.value | numstr)+"€" : "n.d."}}€</div>
+        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
+        <span class='bold'>{{widget3.procapite ? (widget3.procapite | numstr) : "n.d."}}</span>
+        procapite
+        </div>
+        <div class='visup-progress-single' ng-show='widget3.variation'>
+        <div class='visup-progress-bar' ng-class="(widget3.variation &lt; 0) ? 'negative' : '' " ng-style="{'width':(widget3.variationAbs &gt; 2) ? widget3.variationAbs+'%' : '2%'}"></div>
+        <div class='visup-progress-middle'></div>
+        </div>
+        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget3.variation'>
+        <span class='bold'>{{widget3.variation > 0 ? "+"+widget3.variation : widget3.variation}}%</span>
+        {{widget3.sublabel2}}
+        </div>
+        </div>
+        </div>
+        <div class='visup-values visup-surplus visup-table' ng-show="widget3.type === 'surplus'">
+        <div class='visup-table-cell vertical-middle'>
+        <div class='visup-value visup-value-5' ng-show='widget3.value1'>
+        <div class='visup-year'>{{ widget3.year1 }}</div>
+        <div class='visup-value-big'>{{ widget3.value1 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-6' ng-show='widget3.value2'>
+        <div class='visup-year bold'>{{ widget3.year2 }}</div>
+        <div class='visup-value-big bold visup-colored' ng-class="widget3.value2 &gt;= 0 ? '' : 'negative'">{{ widget3.value2 | decimal }} €</div>
+        </div>
+        <div class='visup-value visup-value-7' ng-show='widget3.value3'>
+        <div class='visup-year'>{{ widget3.year3 }}</div>
+        <div class='visup-value-big'>{{ widget3.value3 | decimal }} €</div>
+        </div>
+        </div>
+        </div>
+        <div class='visup-graph-container visup-spark-3' ng-show="widget3.type === 'spark' &amp;&amp; widget3.series"></div>
+        <div class='visup-pie-container visup-pie-3' ng-show="widget3.type === 'pie'"></div>
+        <div class='visup-sublabel' ng-show='widget3.sublabel3'>{{widget3.sublabel3}}</div>
+        </div>
+        <div class='visup-widget widget5 active-selection active-hover'>
+        <div class='visup-description'>
+        <div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget5.entrate.label : widget5.spese.label}}</div>
+        </div>
+        <div class='visup-pie-container visup-pie-4'></div>
+        <div class='visup-value-2'>{{selected.percent}}%</div>
+        </div>
+        <div class='visup-widget widget6 active-selection active-hover'>
+        <div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-description'>
+        <div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget6.entrate.label : widget6.spese.label}}</div>
+        <div class='visup-subtitle as-title'>{{selected.label}}</div>
+        </div>
+        <div class='visup-graph-container visup-spark-4' ng-style="{'visibility': (selected.series == null) ? 'hidden' : ''}"></div>
+        <div class='inline-block vertical-middle'>{{(selected.series != null) ? widget6.sublabel3+" "+selected.series[0][0]+"-"+selected.series[selected.series.length-1][0] : " non disponibile"}}</div>
+        </div>
+        <div class='visup-credits'>made by VISUP</div>
+        </div>
+        </div>
 
-{% endverbatim %}
+    {% endverbatim %}
+{% endblock %}
+
+
+
+
+
