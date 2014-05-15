@@ -1,7 +1,7 @@
 /**
  * Main style
  * @author mleone
- * @version 1.5.2
+ * @version 1.5.7
  **/
 
 // variables
@@ -101,10 +101,10 @@ a:visited {
     span {
         font-size: 10px;
     }
-}
 
-.goto-top:hover {
-    border-color: #b9c6c4;
+    &:hover {
+        border-color: #b9c6c4;
+    }
 }
 
 .more-info, .more-info:visited{
@@ -119,16 +119,16 @@ a:visited {
     span {
         font-size: 10px;
     }
-}
 
-.more-info:hover {
-    background-color: @activeColor;
-    border-color: @activeColor;
-    color: #fff;
-}
+    &:hover {
+        background-color: @activeColor;
+        border-color: @activeColor;
+        color: #fff;
+    }
 
-.more-info.close {
-    border-color: #b9c6c4;
+    &.close {
+        border-color: #b9c6c4;
+    }
 }
 
 .tooltip.top .tooltip-arrow {
@@ -143,6 +143,48 @@ a:visited {
 
     .link {
         color: @activeColor;
+    }
+}
+
+.video-modal {
+    iframe {
+        display: block;
+    }
+}
+
+.col-xs-15,
+.col-sm-15,
+.col-md-15,
+.col-lg-15 {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.col-xs-15 {
+    width: 20%;
+    float: left;
+}
+
+@media (min-width: 768px) {
+.col-sm-15 {
+        width: 20%;
+        float: left;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-md-15 {
+        width: 20%;
+        float: left;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-lg-15 {
+        width: 20%;
+        float: left;
     }
 }
 
@@ -184,26 +226,26 @@ a:visited {
                 background: transparent;
                 color: #fff;
                 padding-right: 34px;
-            }
 
-            .form-control:-moz-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
+                &:-moz-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
 
-            .form-control::-moz-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
+                &::-moz-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
 
-            .form-control:-ms-input-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
+                &:-ms-input-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
 
-            .form-control::-webkit-input-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
+                &::-webkit-input-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
             }
 
             .sprite-search {
@@ -273,7 +315,11 @@ a:visited {
 
     position: relative;
     overflow: hidden;
-    padding: 20px;
+    //padding: 20px;
+
+    @media (min-width: 380px) {
+        padding: 20px;
+    }
 
     > .panel-heading {
         padding-bottom: 0;
@@ -451,7 +497,6 @@ a:visited {
     #settings {
         display: block;
         left: 40px;
-        margin-top: 10px;
 
         .panel {
             font-size: 13px;
@@ -484,24 +529,27 @@ a:visited {
                     margin-top: 10px;
                     position: relative;
 
-                    .form-control:-moz-placeholder {
-                        color: @textColor;
-                        font-weight: @light;
-                    }
+                    .form-control {
 
-                    .form-control::-moz-placeholder {
-                        color: @textColor;
-                        font-weight: @light;
-                    }
+                        &:-moz-placeholder {
+                            color: @textColor;
+                            font-weight: @light;
+                        }
 
-                    .form-control:-ms-input-placeholder {
-                        color: @textColor;
-                        font-weight: @light;
-                    }
+                        &::-moz-placeholder {
+                            color: @textColor;
+                            font-weight: @light;
+                        }
 
-                    .form-control::-webkit-input-placeholder {
-                        color: @textColor;
-                        font-weight: @light;
+                        &:-ms-input-placeholder {
+                            color: @textColor;
+                            font-weight: @light;
+                        }
+
+                        &::-webkit-input-placeholder {
+                            color: @textColor;
+                            font-weight: @light;
+                        }
                     }
 
                     .sprite-search-alt {
@@ -1085,6 +1133,59 @@ a:visited {
     }
 }
 
+// balance
+#balance {
+    h3, h4 {
+        font-size: 18px;
+    }
+
+    h4 {
+        margin-top: 20px;
+        font-weight: @normal;
+    }
+
+    .panel-default {
+        border-color: #5E6A77;
+
+        .table {
+            th, td {
+                border-color: #5E6A77;
+            }
+
+            > tbody > tr > td {
+                vertical-align: middle;
+                padding: 4px;
+
+                @media (min-width: 380px) {
+                    padding: 8px;
+                }
+            }
+
+
+
+            td.text {
+                width: 66.6666%;
+
+                > h5 {
+                    margin: 0;
+                    font-weight: @heavy;
+                }
+
+                a {
+                    color: @textColor;
+                }
+
+            }
+
+            td.pos {
+                .h3 {
+                    font-weight: @heavy;
+                }
+            }
+        }
+    }
+}
+
 // overview
 #overview {
     .text-center > small {
@@ -1286,6 +1387,17 @@ a:visited {
 // sidebar
 #sidebar {
 
+    form {
+        display: block;
+        position: relative;
+        width: 100%;
+    }
+
+    #side-menu {
+        position: absolute;
+        width: 100%;
+    }
+
     .panel-default {
         background: @boxBg;
         border-color: @baseColor;
@@ -1425,7 +1537,6 @@ a:visited {
     z-index: 1;
     left: -2px;
     top: 0;
-    margin-top: 10px;
     display: none;
 
     a {
@@ -1457,7 +1568,6 @@ a:visited {
     z-index: 1;
     width: 300px;
     left: -320px;
-    display: none;
 
     .slider-arrow.close {
         opacity: 1;
@@ -1517,11 +1627,17 @@ a:visited {
 
 // footer
 #footer {
-    padding: 60px 15px;
+    color: #fff;
+    padding: 60px 0;
 
     h4, h5 {
         font-weight: @heavy;
         color: #fff;
+    }
+
+    hr {
+        margin-top: 40px;
+        margin-bottom: 40px;
     }
 
     .nav > li > a {
@@ -1547,10 +1663,44 @@ a:visited {
     }
 
     .partners {
-        img {
-            margin: 10px 0;
+        margin-bottom: 20px;
+
+        li {
+            float: left;
+            margin-right: 60px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            a {
+                background: url(../img/loghi.png) no-repeat 0 0;
+                display: inline-block;
+                height: 60px;
+
+                &.ce {
+                    width: 43px;
+                    background-position: 0 0;
+                }
+
+                &.rl {
+                    width: 91px;
+                    background-position: -89px 0;
+                }
+
+                &.por {
+                    width: 58px;
+                    background-position: -229px 0;
+                }
+
+                &.depp {
+                    width: 148px;
+                    background-position: -332px 0;
+                }
+            }
         }
     }
+
 }
 
 // Icons
@@ -1689,7 +1839,6 @@ a:hover .sprite-open-menu { background-position: -286px -590px; width: 20px; hei
 .sprite-close-menu { background-position: -286px -664px; width: 20px; height: 16px;}
 a:hover .sprite-close-menu { background-position: -286px -738px; width: 20px; height: 16px; }
 
-
 .sprite-open-menu-schede { background-position: -285px -948px; width: 30px; height: 30px; }
 .sprite-close-menu-schede { background-position: -285px -1028px; width: 30px; height: 30px; }
 .sprite-open-menu-indicatori { background-position: -285px -1108px; width: 30px; height: 30px; }
@@ -1697,133 +1846,27 @@ a:hover .sprite-close-menu { background-position: -286px -738px; width: 20px; he
 .sprite-open-menu-filtri { background-position: -285px -1268px; width: 30px; height: 30px; }
 .sprite-close-menu-filtri { background-position: -285px -1348px; width: 30px; height: 30px; }
 
-// #splash
-#splash {
+.sprite-classifiche-big { background-position: -285px -1493px; width: 23px; height: 15px; }
+a:hover .sprite-classifiche-big, a.active .sprite-classifiche-big { background-position: -285px -1428px; width: 23px; height: 15px; }
+.sprite-confronti-big { background-position: -285px -1628px; width: 31px; height: 20px; }
+a:hover .sprite-confronti-big, a.active .sprite-confronti-big { background-position: -285px -1558px; width: 31px; height: 20px; }
+.sprite-mappa-big { background-position: -285px -1774px; width: 25px; height: 26px; }
+a:hover .sprite-mappa-big, a.active .sprite-mappa-big { background-position: -285px -1698px; width: 25px; height: 26px; }
 
-    .container-fluid {
-        padding: 10px 0;
-    }
+.sprite-tag { background-position: -285px -1850px; width: 12px; height: 8px; }
+.sprite-calendar { background-position: -285px -1908px; width: 13px; height: 9px; }
 
-    #header {
-        .brand {
-            color: #fff;
-            line-height: 30px;
-            display: inline-block;
+// Splash page
+@import "splash.less";
 
-            small {
-                display: block;
-                font-size: 12px;
-                line-height: 1.42857;
-                text-align: right;
-                color: #fff;
-            }
-        }
-
-        h4 {
-            color: #fff;
-            line-height: 1.4em;
-        }
-    }
-
-    #main-content {
-        padding: 0;
-
-        form {
-            margin: 20px 0 0;
-
-            .row > div {
-                margin-bottom: 20px;
-            }
-
-            .form-control {
-                font-size: 18px;
-            }
-
-            .form-control:-moz-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
-
-            .form-control::-moz-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
-
-            .form-control:-ms-input-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
-
-            .form-control::-webkit-input-placeholder {
-                color: @altTextColor;
-                font-weight: @light;
-            }
-
-            .btn-danger {
-                background-color: #b84a34;
-                border-color: #b84a34;
-                min-width: 180px;
-            }
-        }
-
-        .preview {
-            position: relative;
-            width: 100%;
-            height: 391px;
-            background: url(../img/splash.jpg) no-repeat center center;
-        }
-
-    }
-
-    #footer {
-        color: #fff;
-        padding: 10px 0;
-
-        li {
-
-
-            a {
-                background: url(../img/loghi.png) no-repeat 0 0;
-                display: inline-block;
-                height: 56px;
-            }
-
-            a.ce {
-                width: 43px;
-                background-position: 0 0;
-            }
-
-            a.rl {
-                width: 91px;
-                background-position: -89px 0;
-            }
-
-            a.por {
-                width: 58px;
-                background-position: -229px 0;
-            }
-        }
-    }
-
-
-}
+// Home page
+@import "home.less";
 
 // Media queries
 @media (max-width: 992px) {
     .navbar-main .navbar-header form {
         width: 95px;
     }
-
-    #splash {
-        #main-content {
-            .preview {
-                height: 250px;
-                .background-sizing(1600px, 250px);
-            }
-        }
-
-    }
-
 }
 
 @media (max-width: 768px) {

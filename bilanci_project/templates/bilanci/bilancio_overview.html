@@ -33,6 +33,104 @@
                 src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
     </div>
 
+    <div id="balance" class="row">
+                                <div class="col-md-12">
+                                    <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO CONSUNTIVO 2011</strong><br class="hidden-lg"> A CONFRONTO CON IL PREVENTIVO 2011</h3>
+                                    <h4>ENTRATE</h4>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="panel panel-default">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="col-sm-10 text">
+                                                                <h5><a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">IMPOSTE</a></h5>
+                                                            </td>
+                                                            <td class="col-sm-1 trend">
+                                                                <span class="icon sprite-trend-up-3"></span>
+                                                            </td>
+                                                            <td class="col-sm-1 pos">
+                                                                <span class="h3">+30%</span>
+                                                            </td>
+                                                        </tr>
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="panel panel-default">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="col-sm-10 text">
+                                                                <h5><a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">CONTRIBUTI DALLO STATO</a></h5>
+                                                            </td>
+                                                            <td class="col-sm-1 trend">
+                                                                <span class="icon sprite-trend-down-3"></span>
+                                                            </td>
+                                                            <td class="col-sm-1 pos">
+                                                                <span class="h3">-30%</span>
+                                                            </td>
+                                                        </tr>
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h4>SPESE</h4>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="panel panel-default">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="col-sm-10 text">
+                                                                <h5><a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">IMPOSTE</a></h5>
+                                                            </td>
+                                                            <td class="col-sm-1 trend">
+                                                                <span class="icon sprite-trend-up-3"></span>
+                                                            </td>
+                                                            <td class="col-sm-1 pos">
+                                                                <span class="h3">+30%</span>
+                                                            </td>
+                                                        </tr>
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="panel panel-default">
+                                                <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="col-sm-10 text">
+                                                                <h5><a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">CONTRIBUTI DALLO STATO</a></h5>
+                                                            </td>
+                                                            <td class="col-sm-1 trend">
+                                                                <span class="icon sprite-trend-down-3"></span>
+                                                            </td>
+                                                            <td class="col-sm-1 pos">
+                                                                <span class="h3">-30%</span>
+                                                            </td>
+                                                        </tr>
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div> <!-- /#balance -->
+
 {% endblock %}
 
 {% block extra_js_inner %}
