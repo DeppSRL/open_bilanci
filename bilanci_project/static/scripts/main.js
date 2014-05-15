@@ -21,61 +21,47 @@ $(document).ready(function(){
     // Collapsible table
     function setupCollapsibleTable()
     {
+        var panels_tree = $('.panel-tree');
 
-        var tables   = $results.find( 'table' ),
-            togglers = $results.find( '.collapse-toggle' ),
-            panels   = $results.find( '.collapse' );
-
-        panels.collapse({
-            toggle: false
-        });
-
-        tables.find( '.collapse' ).on( 'hidden.bs.collapse', function(){
-            var panel = $(this);
-            panel.prev().removeClass( 'shown' );
-            $lock.modal( 'hide' );
-        });
-
-        tables.find( '.collapse' ).on( 'shown.bs.collapse', function(){
-            var panel = $(this);
-            var panel_id = panel[0].id;
-
-            panel.siblings( '.shown' ).removeClass( 'shown' );
-            panel.prev().addClass( 'shown' );
-
-            //finds sibling who are already expaneded and changes icon minus to icon plus
-            panel.siblings('.panel-heading').not("#heading-"+panel_id).find('span.sprite-minus')
-                .removeClass( 'sprite-minus' ).addClass( 'sprite-plus' );
-
-            $lock.modal( 'hide' );
-        });
-
-        togglers.on( 'click', function(e) {
-            e.preventDefault();
-            $lock.modal( 'show' );
-
-            var toggler = $(this),
-                target  = $(toggler.attr( 'href' ));
-
-            toggler.closest( 'tr' ).siblings( '.panel-collapse' ).each(function(i, el){
-                if ($(el).attr( 'id' ) !== target.attr( 'id' )) {
-                    $(el).collapse( 'hide' );
-                }
+        // add sub collapse ( first level close its sub-tree)
+        panels_tree.find('> .panel > .panel-collapse')
+            .on('hidden.bs.collapse', function () {
+                $(this).find('.panel-collapse.in').collapse('hide');
             });
 
-            if (target.hasClass( 'in' )) {
-                target.collapse( 'hide' );
-                toggler.find( 'span.icon' )
-                    .removeClass( 'sprite-minus' )
-                    .addClass( 'sprite-plus' );
-            } else {
-                target.collapse( 'show' );
-                toggler.find( 'span.icon' )
-                    .removeClass( 'sprite-plus' )
-                    .addClass( 'sprite-minus' );
-            }
+        // panels toggling
+        panels_tree.find('.panel-collapse')
 
-        });
+            .on('hidden.bs.collapse', function (e) {
+                e.stopPropagation();
+                var heading = $('#heading-' + $(this).attr('id'));
+                // replace minus with plus
+                heading.find('.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+                // remove bold style
+                heading.find('.entry span').css({
+                    'font-weight': 'inherit',
+                    'text-decoration': 'none'
+                });
+
+                // hide secondary line chart button
+                heading.find('.trend-chart-toggle').addClass('hidden');
+
+                // hide graph
+                heading.parent().find('.chart-container.in').collapse('hide');
+
+            }).on('show.bs.collapse', function (e) {
+                e.stopPropagation();
+                var heading = $('#heading-' + $(this).attr('id'));
+                // replace plus with minus
+                heading.find('.entry span').css({
+                    'font-weight': 'bold',
+                    'text-decoration': 'underline'
+                });
+                // add bold style
+                heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
+                // show secondary line chart button
+                heading.find('.trend-chart-toggle').removeClass('hidden');
+            });
 
         $results.find( '.more-info' ).on( 'click', function( e ){
             e.preventDefault();
@@ -90,6 +76,7 @@ $(document).ready(function(){
                 btn.html( btn.data().open );
             }
         });
+
 
     }
 

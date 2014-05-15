@@ -93,8 +93,7 @@
         /**
         * set handlers for secondary trend charts (the ones in the accordion)
         **/
-        $( "#results .trend-chart-toggle" ).on( 'click', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }}, button_on_img:"{% static 'img/secondary_graph_on.png' %}", button_off_img:"{% static 'img/secondary_graph_off.png' %}" }, init_secondary_linechart);
-        $( "#results .trend-chart-toggle" ).on(  "mouseenter mouseleave", { button_on_img:"{% static 'img/secondary_graph_on.png' %}", button_off_img:"{% static 'img/secondary_graph_off.png' %}" }, hover_secondary_toggle);
+        $('#results').find('.chart-container').on('shown.bs.collapse', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
         init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"EURO","EURO");
         feed_main_linechart();
 

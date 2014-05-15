@@ -5,85 +5,83 @@
 {% load section_title %}
 {% load section_values_type %}
 
+<div class="panel-group panel-tree" id="tree-preventivo-entrate">
 
-<!-- Main table -->
-<div class="table-responsive">
-    <table class="table entrate no-hover">
-        <tbody>
+{% recursetree bilancio_tree %}
+    {% if node == bilancio_rootnode %}
+        {{ children }}
+    {% else %}
 
-            {% recursetree bilancio_tree %}
-                {% if node == bilancio_rootnode %}
+    <div class="panel panel-default">
+        <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
+
+            <div class="row">
+                <div class="col-sm-6 entry">
+                    {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                    {% if not node.is_leaf_node %}
+                    <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
+                        <i class="fa fa-fw fa-plus-circle"></i>
+                        <span style="text-transform: uppercase">
+                            {{ node.denominazione|lower|capfirst }}
+                        </span>
+                    </a>
+                    {% else %}
+                    <span style="text-transform: uppercase">
+                        {{ node.denominazione|lower|capfirst }}
+                    </span>
+                    {% endif %}
+
+                </div>
+
+                <div class="col-sm-5 actions">
+                    {% voice_values node.slug budget_values %}
+                </div>
+
+                <div class="col-sm-1">
+                   <a href="#{{ node.slug }}" class="pull-right btn btn-default trend-chart-toggle{% if not node.is_leaf_node %} hidden{% endif %}"
+                      id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}" data-toggle="collapse">
+                       <i class="fa fa-fw fa-signal"></i> Grafico <i class="fa fa-caret-down"></i>
+                       <!--<img class="secondary-graph-toggle" src="{% static 'img/secondary_graph_off.png' %}" />-->
+                   </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
+            <div class="row details">
+                <div class="col-md-12">
+                    {#  secondary graph title #}
+                    <div class="row">
+                        <div class="col-md-8 section_title" style="">
+                            {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                        </div>
+                        <div class="col-md-4 section_title" style="">
+                            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {#  secondary graph  #}
+                <div class="col-md-12 graph-box"></div>
+            </div>
+        </div>
+
+        <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
+            <div class="panel-body">
+
+                {% if not node.is_leaf_node %}
+                <!-- Sub panel level -->
+                <div class="panel-group" id="tree-{{ node.slug }}">
                     {{ children }}
-                {% else %}
-
-                    <tr class="panel-heading" id="heading-{{ node.slug|slugify }}">
-                        <td class="col-sm-5 entry">
-                            {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
-                            {% if not node.is_leaf_node %}
-                            <a class="collapse-toggle" href="#{{ node.slug }}">
-                                <span class="icon sprite-plus"></span></a>
-                            {% else %}
-                                <span class="icon sprite-plus" style="visibility: hidden"></span>
-                            {% endif %}
-                            <span style="text-transform: uppercase">
-                                {{ node.denominazione|lower|capfirst }}
-                            </span>
-                        </td>
-
-                        <td class="col-sm-3 actions">
-                            {% voice_values node.slug budget_values %}
-                        </td>
-
-                        <td class="col-sm-1">
-                           <a href="#{{ node.slug }}" class="pull-right trend-chart-toggle"
-                              id="trend-chart-toggle-{{ node.pk }}">
-                               <img class="secondary-graph-toggle" src="{% static 'img/secondary_graph_off.png' %}" />
-                           </a>
-                        </td>
-
-                    </tr>
-
-                    <tr id="trend-chart-container-{{ node.pk }}" class="hidden">
-                        <td colspan="3" class="col-sm-12 details" style="border: 0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    {#  secondary graph title #}
-                                    <div class="row">
-                                        <div class="col-md-8 section_title" style="">
-                                            {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
-                                        </div>
-                                        <div class="col-md-4 section_title" style="">
-                                            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                {#  secondary graph  #}
-                                <div class="col-md-12 graph-box"></div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="panel-collapse collapse" id="{{ node.slug|slugify }}">
-                        <td colspan="3" class="col-sm-12 details">
-
-                            {% if not node.is_leaf_node %}
-                            <!-- Sub table level 1 -->
-                            <table class="table table-condensed">
-                                <tbody>
-                                    {{ children }}
-                                </tbody>
-                            </table>
-                            {% endif %}
-                        </td>
-                    </tr>
-
+                </div>
                 {% endif %}
+                <!-- Sub panel level -->
 
-
-            {% endrecursetree %}
-
-        </tbody>
-    </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endrecursetree %}
 </div>
