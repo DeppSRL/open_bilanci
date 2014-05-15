@@ -454,3 +454,5 @@ MAILBIN_SERVER_HOST = 'mailbin.openpolis.it'
 MAILBIN_QUEUE_ADDR = "tcp://{0}:5558".format(MAILBIN_SERVER_HOST)
 GOOGLE_SHORTENER_API_KEY = 'AIzaSyAzTAcojoJMKV3eh8XAsE3CP7hpgmms17M'
 GOOGLE_SHORTENER_URL = "https://www.googleapis.com/urlshortener/v1/url"
+
+TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}
