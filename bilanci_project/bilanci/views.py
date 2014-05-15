@@ -687,7 +687,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "procapite": float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier,
                     "variation": self.calculate_variation(
                                     main_val=e_main_totale['valore'],
-                                    comp_val=e_comp_regroup[self.totale_label]['valore']
+                                    comp_val=e_comp_regroup[self.totale_label]['valore'] if len(e_comp_regroup) else 0
                                       ),
                 }
 
@@ -701,7 +701,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "procapite": float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier,
                     "variation": self.calculate_variation(
                                     main_val=s_main_totale['valore'],
-                                    comp_val=s_comp_regroup[self.totale_label]['valore']
+                                    comp_val=s_comp_regroup[self.totale_label]['valore'] if len(s_comp_regroup) else 0
                                   ),
                 }
 
