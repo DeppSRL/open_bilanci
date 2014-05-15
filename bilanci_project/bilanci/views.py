@@ -1,4 +1,4 @@
-from itertools import groupby
+from itertools import groupby, ifilter
 from operator import itemgetter
 import os
 import re
@@ -403,6 +403,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
     serie_end_year = settings.TIMELINE_END_DATE.year
+    widget_type = None
     main_gdp_deflator = comp_gdb_deflator = None
     main_bilancio_year = main_bilancio_type = None
     comp_bilancio_year = comp_bilancio_type = None
@@ -413,6 +414,22 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+        self.main_bilancio_year = int(kwargs.get('bilancio_year', settings.APP_END_DATE.year ))
+        self.main_bilancio_type = kwargs.get('bilancio_type','consuntivo')
+        territorio_slug = kwargs.get('territorio_slug', None)
+        self.widget_type = kwargs.get('widget_type', 'overview')
+
+        if not territorio_slug:
+            return reverse('404')
+
+        self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
+
+        if self.widget_type == 'overview':
+            self.template_name = 'bilanci/composizione_bilancio.html'
+
+        else:
+            self.template_name = 'bilanci/composizione_entrate_uscite.html'
+
         return super(BilancioCompositionWidgetView, self).get(self, request, *args, **kwargs)
 
     # calculates the % variation of main_value compared to comparison_values
@@ -517,20 +534,25 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         return composition_data
 
+
+    def get_money_verb(self):
+        e_money_verb = "previsti"
+        s_money_verb = "previsti"
+
+        if self.main_bilancio_type == "consuntivo":
+            if self.cas_com_type == "cassa":
+                e_money_verb = "riscossi"
+                s_money_verb = "pagati"
+            else:
+                e_money_verb = "accertati"
+                s_money_verb = "impegnati"
+
+        return e_money_verb, s_money_verb
+
     # compose data dict for widget 4 : 1 box for voce detail
     def compose_widget_4(self):
 
-            e_money_verb = "previsti"
-            s_money_verb = "previsti"
-
-            if self.main_bilancio_type == "consuntivo":
-                if self.cas_com_type == "cassa":
-                    e_money_verb = "riscossi"
-                    s_money_verb = "pagati"
-                else:
-                    e_money_verb = "accertati"
-                    s_money_verb = "impegnati"
-
+            e_money_verb, s_money_verb = self.get_money_verb()
 
             return {
             "showHelp": self.show_help,
@@ -574,7 +596,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             }
 
 
-    def get_context_data(self, widget_type, territorio_slug, bilancio_year, bilancio_type, **kwargs):
+    def get_context_data(self, **kwargs):
 
         widget1 = widget2 = widget3 = None
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
@@ -611,17 +633,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         }
 
 
-        if widget_type == 'overview':
-            self.template_name = 'bilanci/composizione_bilancio.html'
-
-        else:
-            self.template_name = 'bilanci/composizione_entrate_uscite.html'
-
-        territorio_slug = territorio_slug
-        self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
-
-        self.main_bilancio_year = int(bilancio_year)
-        self.main_bilancio_type = bilancio_type
 
         composition_data['year'] = self.main_bilancio_year
 
@@ -653,36 +664,13 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data['spese'] = s_widget_data
 
 
-        widget1=\
-            {"type": "bar",
-                    "showHelp": self.show_help,
-                    "label": "Lorem ipsum",
-                    "sublabel2": "SUL consuntivo {0}".format(9999),
-                    "sublabel1": "Lorem ipsum",
-                    "value":0,
-                    "procapite":0,
-                    "variation":None,
-            }
-
-        widget2 = widget1
-        widget3 = widget1
-
+        widget1=widget2=widget3=None
 
         if self.main_bilancio_type == 'preventivo':
-            pslugs = ['preventivo-entrate', 'preventivo-spese']
-            pyears = [self.main_bilancio_year, self.comp_bilancio_year]
 
-            pdata = list(ValoreBilancio.objects.\
-                filter(anno__in=pyears, territorio=self.territorio, voce__slug__in=pslugs,).\
-                values('voce__slug','valore','anno','valore_procapite'))
-
-
-            p_regroup = dict((k,list(v)[0]) for k,v in groupby(pdata, key=lambda x: (x['voce__slug'],x['anno'])))
-
-            main_prev_entrate = p_regroup[('preventivo-entrate',self.main_bilancio_year)]
-            comp_prev_entrate = p_regroup[('preventivo-entrate',self.comp_bilancio_year)]
-            main_prev_spese = p_regroup[('preventivo-spese',self.main_bilancio_year)]
-            comp_prev_spese = p_regroup[('preventivo-spese',self.comp_bilancio_year)]
+            # gets the entrate / spese total values from previous regrouping
+            e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, e_main_regroup[self.totale_label])][0]
+            s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, s_main_regroup[self.totale_label])][0]
 
             widget1 = {
                     "type": "bar",
@@ -690,13 +678,13 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "label": "Entrate - Totale",
                     "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
                     "sublabel1": "",
-                    "value": main_prev_entrate['valore'],
-                    "procapite": main_prev_entrate['valore_procapite'],
+                    "value": e_main_totale['valore'],
+                    "procapite": e_main_totale['valore_procapite'],
                     "variation": self.calculate_variation(
-                                    main_val=main_prev_entrate['valore'],
-                                    comp_val=comp_prev_entrate['valore'],
+                                    main_val=e_main_totale['valore'],
+                                    comp_val=e_comp_regroup[self.totale_label]['valore']
                                       ),
-            }
+                }
 
             widget2 = {
                     "type": "bar",
@@ -704,13 +692,13 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "label": "Spese - Totale",
                     "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
                     "sublabel1": "",
-                    "value": main_prev_spese['valore'],
-                    "procapite": main_prev_spese['valore_procapite'],
+                    "value": s_main_totale['valore'],
+                    "procapite": s_main_totale['valore_procapite'],
                     "variation": self.calculate_variation(
-                                    main_val=main_prev_spese['valore'],
-                                    comp_val=comp_prev_spese['valore'],
+                                    main_val=s_main_totale['valore'],
+                                    comp_val=s_comp_regroup[self.totale_label]['valore']
                                   ),
-            }
+                }
 
             widget3= {
                 "type": "spark",
@@ -719,7 +707,88 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                 "sublabel1": "",
                 "sublabel3": "Entrate nei Bilanci Preventivi {0}-{1}".format(settings.APP_START_DATE.year, settings.APP_END_DATE.year),
                 "series": [[v['anno'],v['valore']] for v in e_main_regroup[self.totale_label]]
-              }
+                }
+
+        else:
+
+
+            def make_consuntivo_widget(entrate_slug, spese_slug):
+
+                comp_preventivo_entrate  = comp_preventivo_spese = main_consuntivo_entrate = main_consuntivo_spese =None
+
+                try:
+                    comp_preventivo_entrate = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = 'preventivo-entrate')
+                    comp_preventivo_spese = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = 'preventivo-spese')
+                    main_consuntivo_entrate = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = entrate_slug)
+                    main_consuntivo_spese = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = spese_slug)
+
+                except ObjectDoesNotExist:
+                    pass
+
+                # widget1
+                # avanzo / disavanzo di cassa / competenza
+                widget1 = {
+                    "type": "surplus",
+                    "showHelp": self.show_help,
+                    "label": "Avanzo/disavanzo",
+                    "sublabel1": "di "+self.cas_com_type,
+
+                }
+
+                yrs_to_consider = {
+                    '1':self.main_bilancio_year-1,
+                    '2':self.main_bilancio_year,
+                    '3':self.main_bilancio_year+1
+                }
+
+                for k, year in yrs_to_consider.iteritems():
+
+                    if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+
+                        try:
+                            entrate = ValoreBilancio.objects.get(anno=year, voce__slug=entrate_slug, territorio=self.territorio).valore
+                            spese = ValoreBilancio.objects.get(anno=year, voce__slug=spese_slug, territorio=self.territorio).valore
+                        except ObjectDoesNotExist:
+                            continue
+                        else:
+
+                            widget1['year'+k] = year
+                            widget1['value'+k] = entrate-spese
+
+                e_money_verb, s_money_verb = self.get_money_verb()
+                widget2 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Entrate - Totale",
+                    "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": e_money_verb,
+                    "value": main_consuntivo_entrate.valore,
+                    "procapite": main_consuntivo_entrate.valore_procapite,
+                    "variation": self.calculate_variation(
+                                    main_val=main_consuntivo_entrate.valore,
+                                    comp_val=comp_preventivo_entrate.valore,
+                                  ),
+                }
+
+                widget3 = {
+                    "type": "bar",
+                    "showHelp": self.show_help,
+                    "label": "Spese - Totale",
+                    "sublabel2": "SUL preventivo {0}".format(self.comp_bilancio_year),
+                    "sublabel1": s_money_verb,
+                    "value": main_consuntivo_spese.valore,
+                    "procapite": main_consuntivo_spese.valore_procapite,
+                    "variation": self.calculate_variation(
+                                    main_val=main_consuntivo_spese.valore,
+                                    comp_val=comp_preventivo_spese.valore
+                                  ),
+                }
+
+
+                return widget1, widget2, widget3
+
+            widget1, widget2, widget3 = make_consuntivo_widget(entrate_slug[self.main_bilancio_type], spese_slug[self.main_bilancio_type] )
+
 
 
 
