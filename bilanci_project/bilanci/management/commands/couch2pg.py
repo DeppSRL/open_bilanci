@@ -229,16 +229,19 @@ class Command(BaseCommand):
         voce_i = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni'))
         voce_sum = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni'))
 
-        vb_c = valori_bilancio.get(voce=voce_corr)
-        vb_i = valori_bilancio.get(voce=voce_i)
+        try:
+            vb_c = valori_bilancio.get(voce=voce_corr)
+            vb_i = valori_bilancio.get(voce=voce_i)
 
-        ValoreBilancio.objects.create(
-            territorio=vb_filters['territorio'],
-            anno=vb_filters['anno'],
-            voce=voce_sum,
-            valore=vb_c.valore + vb_i.valore,
-            valore_procapite=vb_c.valore_procapite + vb_i.valore_procapite
-        )
+            ValoreBilancio.objects.create(
+                territorio=vb_filters['territorio'],
+                anno=vb_filters['anno'],
+                voce=voce_sum,
+                valore=vb_c.valore + vb_i.valore,
+                valore_procapite=vb_c.valore_procapite + vb_i.valore_procapite
+            )
+        except ObjectDoesNotExist:
+            pass
 
 
     def create_voci_tree(self):
