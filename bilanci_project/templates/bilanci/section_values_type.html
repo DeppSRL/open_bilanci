@@ -7,14 +7,16 @@
             <img id="gear" src="{% static 'img/section_title_gear.png' %}"/>
         </span>
     {% endif %}
-    <span class="values_type">
-        {{ cas_com_type|default_if_none:''|upper }}
-    </span>
-    <div class="values_type">
-        {% if tooltip %}
-            {% tooltip text=cas_com_type %}
-        {% endif %}
-    </div>
+    {% if cas_com_type %}
+        <span class="values_type">
+            {{ cas_com_type|upper }}
+        </span>
+        <div class="values_type">
+            {% if tooltip %}
+                {% tooltip text=cas_com_type %}
+            {% endif %}
+        </div>
+    {% endif %}
     <span class="values_type">
         VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
     </span>
