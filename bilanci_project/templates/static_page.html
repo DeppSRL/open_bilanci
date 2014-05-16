@@ -4,21 +4,30 @@
 
 {% block content %}
     {% front_edit_scripts editor="ckeditor"%}
-    <h1>
+
+    <div id="content" class="col-sm-9">
+        <h1>
         {% front_edit "title" request.path %}
             Default title
         {% end_front_edit  %}
-    </h1>
-    <h3>
-        {% front_edit "subtitle" request.path %}
-            Default subtitle
+        </h1>
+        <h3>
+            {% front_edit "subtitle" request.path %}
+                Default subtitle
+            {% end_front_edit  %}
+        </h3>
+        <p>
+            {% front_edit "content" request.path %}
+                Default content
+            {% end_front_edit  %}
+        </p>
+    </div><!-- /#content -->
+
+    <aside id="sidebar" class="col-sm-3">
+        {% front_edit "sidebar" request.path %}
+        <br/>
         {% end_front_edit  %}
-    </h3>
-    <p>
-        {% front_edit "content" request.path %}
-            Default content
-        {% end_front_edit  %}
-    </p>
+    </aside><!-- /#sidebar -->
 
 {% endblock %}
 

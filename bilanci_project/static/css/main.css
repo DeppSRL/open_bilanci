@@ -2528,3 +2528,26 @@ form ul li label {
   display: list-item;
   color: #5e6a77 !important;
 }
+.social-accounts {
+  font-size: 9pt;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.social-accounts a,
+.social-accounts a:visited {
+  color: #fff;
+}
+.social-accounts a i:not(.fa-circle),
+.social-accounts a:visited i:not(.fa-circle) {
+  color: #cc6633;
+}
+#footer .nav li > a {
+  color: #fff;
+}
+#footer .nav li > a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+#footer .partners li a.openpolis {
+  background: none;
+}

@@ -217,3 +217,18 @@ display: inline;
   display: list-item;
   color: @baseColor!important;
 }
+
+.social-accounts {
+  font-size: 9pt;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  a, a:visited { color: #fff; i:not(.fa-circle) { color: #cc6633; } }
+}
+
+#footer {
+  .nav li {
+    &> a { color: #fff; }
+    &> a:hover { color: #fff; text-decoration: underline; }
+  }
+  .partners li a.openpolis { background: none; }
+}
