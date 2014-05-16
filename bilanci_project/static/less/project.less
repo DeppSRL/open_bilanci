@@ -139,6 +139,66 @@ display: inline;
   font-weight: bold;
 }
 
+.panel-tree {
+
+  .panel-heading, .panel {
+    border-radius: 0;
+  }
+
+   &> .panel {
+
+    border-top: 2px solid @baseColor;
+
+    .panel-body {
+      padding:0;
+      border-top: 0;
+    }
+    .panel-heading+.panel-collapse  .panel-body {
+      border-top: 0;
+    }
+
+    .panel-group {
+      border-bottom: 1px dashed @baseColor;
+    }
+
+    p.h3 {
+      margin-top: 0;
+    }
+
+    .chart-wrapper {
+      .chart {
+        width: 40px;
+        height: 40px;
+        overflow: hidden;
+        display: block;
+      }
+
+      .label {
+        color: @textColor;
+        font-weight: @normal;
+        display: inline-block;
+        text-align: left;
+        width: 45%;
+      }
+
+      .value {
+        font-weight: @heavy;;
+      }
+    }
+  }
+
+
+
+  > .panel .panel-collapse {
+      border-top: 1px dashed @baseColor;
+  }
+
+  > .pabel .panel-collapse .panel-collapse {
+      border-top: none !important;
+  }
+
+}
+
 //select2 style
 .select2-choice{
   height: 40px!important;

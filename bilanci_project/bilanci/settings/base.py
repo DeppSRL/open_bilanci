@@ -456,3 +456,8 @@ GOOGLE_SHORTENER_API_KEY = 'AIzaSyAzTAcojoJMKV3eh8XAsE3CP7hpgmms17M'
 GOOGLE_SHORTENER_URL = "https://www.googleapis.com/urlshortener/v1/url"
 
 TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}
+
+# voce bilancio slugs of funzioni sum branches
+PREVENTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'preventivo-spese-spese-somma-funzioni'
+CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzioni'
+
