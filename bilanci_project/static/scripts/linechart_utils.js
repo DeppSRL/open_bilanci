@@ -48,7 +48,7 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
 }
 
 function init_secondary_linechart(event){
-    event.preventDefault();
+    event.stopPropagation();
     var timeline_start_year = event.data.timeline_start_year;
     var timeline_end_year = event.data.timeline_end_year;
 

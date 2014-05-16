@@ -24,33 +24,44 @@ $(document).ready(function(){
         var panels_tree = $('.panel-tree');
 
         // add sub collapse ( first level close its sub-tree)
-        panels_tree.find('> .panel > .panel-collapse')
-            .on('hidden.bs.collapse', function () {
+        panels_tree
+            .on('hidden.bs.collapse', '> .panel > .panel-collapse', function (e) {
+                e.stopPropagation();
+                console.log('root HIDE', $(this));
                 $(this).find('.panel-collapse.in').collapse('hide');
             });
 
         // panels toggling
-        panels_tree.find('.panel-collapse')
+        $('.chart-container')
+            .on('hidden.bs.collapse', function(e){
+                e.stopPropagation()
+            })
+            .on('show.bs.collapse', function(e){
+                e.stopPropagation()
+            });
 
-            .on('hidden.bs.collapse', function (e) {
+        panels_tree
+
+            .on('hidden.bs.collapse', '.panel-collapse', function (e) {
                 e.stopPropagation();
+                console.log('HIDE', $(this));
                 var heading = $('#heading-' + $(this).attr('id'));
                 // replace minus with plus
                 heading.find('.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+
                 // remove bold style
                 heading.find('.entry span').css({
                     'font-weight': 'inherit',
                     'text-decoration': 'none'
                 });
-
                 // hide secondary line chart button
-                heading.find('.trend-chart-toggle').addClass('hidden');
-
+//                heading.find('.trend-chart-toggle').addClass('hidden');
                 // hide graph
                 heading.parent().find('.chart-container.in').collapse('hide');
 
-            }).on('show.bs.collapse', function (e) {
+            }).on('show.bs.collapse', '.panel-collapse', function (e) {
                 e.stopPropagation();
+                console.log('SHOW', $(this));
                 var heading = $('#heading-' + $(this).attr('id'));
                 // replace plus with minus
                 heading.find('.entry span').css({
@@ -60,8 +71,17 @@ $(document).ready(function(){
                 // add bold style
                 heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
                 // show secondary line chart button
-                heading.find('.trend-chart-toggle').removeClass('hidden');
+//                heading.find('.trend-chart-toggle').removeClass('hidden');
             });
+
+        // add graph toggler
+        panels_tree.on('click', '.trend-chart-toggle', function(e) {
+            e.preventDefault();
+//            console.log('chart HIDE', $(this));
+//            var panel = $($(this).data('target'));
+//            panel.collapse('toggle');
+//            return false;
+        });
 
         $results.find( '.more-info' ).on( 'click', function( e ){
             e.preventDefault();

@@ -1,5 +1,4 @@
 @import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
-
 @import url(//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
 /**
  * Main style
@@ -324,7 +323,6 @@ a:visited {
 #main-content .track.dragging {
   background: #d9d9d9;
   /* Browsers without rgba support */
-
   background: rgba(0, 0, 0, 0.15);
 }
 #main-content .handle {
@@ -639,11 +637,8 @@ a:visited {
   overflow: hidden;
   display: block;
   /* Firefox 10+, Firefox on Android */
-
   /* IE 6-9 */
-
   /* Chrome 19+, Safari 6+, Safari 6+ iOS */
-
 }
 #results td.chart-wrapper .label {
   color: #2a3036;
@@ -1983,4 +1978,46 @@ form ul li label {
 .table.table-striped a {
   color: #cc6633;
   font-weight: bold;
+}
+.panel-tree .panel-heading,
+.panel-tree .panel {
+  border-radius: 0;
+}
+.panel-tree > .panel {
+  border-top: 2px solid #5e6a77;
+}
+.panel-tree > .panel .panel-body {
+  padding: 0;
+  border-top: 0;
+}
+.panel-tree > .panel .panel-heading + .panel-collapse .panel-body {
+  border-top: 0;
+}
+.panel-tree > .panel .panel-group {
+  border-bottom: 1px dashed #5e6a77;
+}
+.panel-tree > .panel p.h3 {
+  margin-top: 0;
+}
+.panel-tree > .panel .chart-wrapper .chart {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  display: block;
+}
+.panel-tree > .panel .chart-wrapper .label {
+  color: #2a3036;
+  font-weight: 400;
+  display: inline-block;
+  text-align: left;
+  width: 45%;
+}
+.panel-tree > .panel .chart-wrapper .value {
+  font-weight: 700;
+}
+.panel-tree > .panel .panel-collapse {
+  border-top: 1px dashed #5e6a77;
+}
+.panel-tree > .pabel .panel-collapse .panel-collapse {
+  border-top: none !important;
 }
