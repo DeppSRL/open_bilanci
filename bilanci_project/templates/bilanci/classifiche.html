@@ -3,23 +3,38 @@
 {% load humanize %}
 {% load classifiche_parameter_list %}
 {% load classifiche_incarichi_politici %}
+{% load digg_paginator %}
+{% load section_title %}
+{% load section_values_type %}
+{% load italianize %}
 
 {% block content %}
 
     <div class="panel-heading">
-        <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
+        <!-- AddThis Button BEGIN -->
+        <div class="pull-right share">
+            {% if share_url %}
+
+                    <!-- AddThis Button BEGIN -->
+                    <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                        <img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+                    <script type="text/javascript">
+                        var addthis_config = {"data_track_addressbar":false   };
+                        var addthis_share =
+                                        {
+                                           "url":"{{ share_url|safe }}"
+                                        }
+                    </script>
+                    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+                    <!-- AddThis Button END -->
+            {% endif %}
+        </div>
+
+        <!-- AddThis Button END -->
         <h1 class="panel-title">CLASSIFICHE</h1>
     </div>
 
     <div class="panel-body">
-        <div class="row">
-            <div class="col-sm-4">
-                <a href=""  id="toggle-menu" role="button">
-                    <span class="icon sprite-toggle-menu"></span>
-                </a>
-            </div>
-        </div>
-
         <hr class="no-border">
 
         <div class="row">
@@ -34,75 +49,128 @@
                     <div class="col-md-8">
                         <div class="panel panel-default">
                             <div class="panel-heading clearfix">
-                                <h3 class="panel-title pull-left">
-                                    {{ valori_list.count }} COMUNI
-                                </h3>
+
+                                {# parameter name / type #}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="panel-title pull-left">
+                                            {% if selected_par_type == 'indicatori' %}
+                                                INDICATORE
+                                            {% else %}
+                                                {{ selected_par_type|upper }}
+                                            {% endif %}
+                                        </h4>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="pull-left">
+                                            {{ selected_parameter.denominazione|upper }}
+                                        </h4>
+                                    </div>
+                                </div>
+
+                                {% if selected_par_type != 'indicatori' %}
+                                    {# values type #}
+                                    <div class="row">
+                                        <div class="col-md-5 section_title" style="">
+                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+                                        </div>
+                                        <div class="col-md-7 section_title" style="padding:0;">
+                                            {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True hide_icon=True%}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% comment %}
                                 <form role="search" class="form-inline pull-left">
                                     <div class="form-group search">
                                         <label class="sr-only" for="city1">Cerca un comune</label>
                                         <input type="text" class="form-control" id="city1" placeholder="CERCA UN COMUNE">
                                         <span class="icon sprite-search-alt"></span>
                                     </div>
-                                    <!--button type="submit" class="btn btn-default">Submit</button-->
+
+                                    <button type="submit" class="btn btn-default">Submit</button>
                                 </form>
+                                {% endcomment %}
                             </div>
                             <div class="panel-body">
-                                <h4>{{ selected_par_type|upper }}</h4>
-                                <p class="small">
-                                    <span>{{ selected_parameter.denominazione|upper }}</span>
-                                </p>
-                                <div class="pagination-wrapper clearfix">
-                                    <ul>
-                                        <li><a href="#"><span class="icon sprite-arrow-left"></span></a></li>
-                                        <li class="active"><a href="#">1</a></li>
-                                        <li><a href="#">2</a></li>
-                                        <li><a href="#">3</a></li>
-                                        <li><span>...</span></li>
-                                        <li><a href="#">15</a></li>
-                                        <li class="more"><a href="#"><span class="icon sprite-arrow-right"></span></a></li>
-                                    </ul>
-                                    <div  class="pull-right">
-                                        <div class="dropdown pull-left">
-                                            <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
-                                                RISULTATI: <span>10</span>
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">10</a></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">20</a></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">50</a></li>
-                                                <li role="presentation" class="divider"></li>
-                                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Tutti</a></li>
-                                            </ul>
+                                {% if n_comuni > 0 %}
+                                    <p class="small" style="font-weight: bold;">
+                                        {{ n_comuni }} COMUNI
+                                    </p>
+
+
+                                    <div class="pagination-wrapper clearfix">
+                                        {% digg_paginator %}
+
+                                        {% comment %}
+                                        <div  class="pull-right">
+                                            <div class="dropdown pull-left">
+                                                <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                                                    RISULTATI: <span>10</span>
+                                                    <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">10</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">20</a></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">50</a></li>
+                                                    <li role="presentation" class="divider"></li>
+                                                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Tutti</a></li>
+                                                </ul>
+                                            </div>
+                                            <a href="#" class="refresh"><span class="icon sprite-refresh"></span></a>
                                         </div>
-                                        <a href="#" class="refresh"><span class="icon sprite-refresh"></span></a>
+                                        {% endcomment %}
                                     </div>
-                                </div>
+                                {% else %}
+                                    <p>Spiacenti, non sono presenti Comuni per le categorie selezionate</p>
+                                {% endif %}
+
                             </div>
 
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <tbody>
-                                        {% if valori_list %}
-                                            {% for valore_obj in valori_list %}
+                                        {% if object_list %}
+                                            {% for valore_obj in object_list %}
                                                 <tr>
                                                     <td class="col-sm-1 rate">
-                                                        <span class="h2">{{ valore_obj.valore|intcomma }}</span>
+                                                        <span class="h2">
+                                                            {% if selected_par_type == 'indicatori' %}
+                                                                {{ valore_obj.valore|italianize }}%
+                                                            {% else %}
+                                                                &euro;&nbsp;{{ valore_obj.valore|italianize }}
+                                                            {% endif %}
+                                                        </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio }}</a></h4>
+{#                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>#}
+                                                        <h4><a >{{ valore_obj.territorio.denominazione }}</a></h4>
                                                         <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
-                                                        <div class="media">
+                                                        <div class="media" style="font-size: 13px;">
                                                             {% classifiche_incarichi_politici valore_obj %}
                                                         </div>
 
                                                     </td>
                                                     <td class="col-sm-1 pos">
-                                                        <span class="h3">{{ forloop.counter }}°</span>
+                                                        <span class="h3">{{ valore_obj.position }}°</span>
                                                     </td>
+
                                                     <td class="col-sm-1 trend">
-                                                        <span class="icon sprite-trend-up-3"></span>
+                                                        {% spaceless %}
+                                                            <span title="Variazione rispetto all'anno precedente"
+                                                            {% if valore_obj.variazione == 0 %}
+                                                                class="icon sprite-trend"
+                                                                {% elif valore_obj.variazione > 0 %}
+                                                                    class="icon sprite-trend-up-3"
+                                                                    {% else  %}
+                                                                        class="icon sprite-trend-down-3"
+                                                            {% endif %}
+                                                            </span>
+                                                        {% endspaceless %}
+
                                                     </td>
                                                 </tr>
                                              {% endfor %}
@@ -110,121 +178,64 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                        {% if n_comuni > 0 %}
+                            {% spaceless %}
+                                <div class="panel-body" style="padding-top: 0;">
+                                    <div class="pagination-wrapper clearfix">
+                                        {% digg_paginator %}
+                                    </div>
+                                </div>
+                            {% endspaceless %}
+                        {% endif %}
+
+
                         </div>  <!-- /panel panel-default -->
                     </div> <!-- /col-md8 -->
 
-                <aside id="filters" class="col-md-4">
-                    <form>
-                    <div class="panel panel-default">
+                {#  classifiche filters   #}
 
-                        <div class="panel-heading">
-                            <div class="pull-right">Rimuovi tutti <a href="#"><span class="icon sprite-delete"></span></a></div>
-                            <h3 class="panel-title">FILTRA</h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="enabled">
-                                <p class="h4">REGIONE</p>
-                                <ul class="list-inline">
-                                    <li>
-                                        Regione 1
-                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
-                                    </li>
-                                    <li>
-                                        Regione 2
-                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
-                                    </li>
-                                    <li>
-                                        Regione 3
-                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
-                                    </li>
-                                </ul>
-
-                                <p class="h4">DIMENSI0NE</p>
-                                <ul class="list-inline">
-                                    <li>
-                                        Centri Piccolissimi
-                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
-                                    </li>
-                                </ul>
-
-                                <p class="h4">CLASSE</p>
-                                <ul class="list-inline">
-                                    <li>
-                                        Classe 1
-                                        <a href="#"><span class="icon sprite-delete-small"></span></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <ul class="list-group">
-                            <li class="list-group-item label">FILTRA PER REGIONE</li>
-                            {% for regione in regioni_list %}
-                                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ regione.denominazione }}</li>
-                            {% endfor %}
-
-                        </ul>
-
-                        <ul class="list-group">
-                            <li class="list-group-item label">FILTRA PER CLUSTER</li>
-                            {% for cluster in cluster_list %}
-                                <li class="list-group-item"><input type="checkbox" name="" value="" > {{ cluster.denominazione }}</li>
-                            {% endfor %}
-                        </ul>
-
-                        <ul class="list-group">
-                            <li class="list-group-item label">FILTRA PER CLASSE</li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value="" checked="checked"> I
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value=""> II
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value=""> III
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value=""> IV
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value=""> V
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="checkbox" name="" value=""> VI
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-
-                    </div>
-                    </form>
-                </aside> <!-- /#filters -->
-
+                {% include 'bilanci/classifiche_filters.html' %}
 
                 </div> <!-- /results row -->
-
 
                 {% block results %}
 
                 {% endblock %}
             </div>
 
-            {# comparison list menu  #}
+            {# menu handle is hidden on pageload   #}
+            <div id="side-controls" style="display: block; left: -50px; top: 343px;">
+                <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-open-menu"></span></a>
+            </div>
 
-            <aside id="sidebar" class="classifiche_parameter_container" class="hidden">
-                {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
-                {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
-                {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}
+            {# comparison list menu  #}
+            <aside id="sidebar" class="classifiche_parameter_container hidden">
+                <form id="parameter-list-form"  method="get">
+                    <div class="panel panel-default" id="side-menu">
+                        <div class="panel-body" id="classifiche_parameter_container">
+
+                            <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
+
+                            <h3 class="menu-title" style="margin-bottom:20px;">
+                                Seleziona
+                            </h3>
+                            <div class="dropdown" >
+
+                                <select id="classifiche-dropdown" class="parameter-dropdown">
+                                    <option value="indicatori">INDICATORI</option>
+                                    <option value="entrate">ENTRATE</option>
+                                    <option value="spese">SPESE</option>
+                                </select>
+                                <div class="separator"></div>
+
+                                {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
+                                {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
+                                {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </aside>
 
 
@@ -243,6 +254,8 @@
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/classifiche_utils.js' %}" type="text/javascript"></script>
 
     <!-- / visup js -->
 
@@ -259,13 +272,15 @@
                 'selected_year':{{ selected_year }},
                 'visible_buttons': false,
                 'selected_bilancio_type': null,
-                'start_year': {{ timeline_start_year }},
-                'end_year': {{ timeline_end_year }},
+                'start_year': {{ selector_start_year }},
+                'end_year': {{ selector_end_year }},
                 'reference_url': "{% url 'classifiche-list' parameter_type=selected_par_type parameter_slug=selected_parameter.slug anno=selected_year %}"
             };
 
 
             init_selector(selector_init_obj);
+            init_parameter_menu('classifiche');
+
 
         });
 
@@ -278,7 +293,8 @@
 {#    <!-- visup css-->#}
     <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/digg_paginator.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}
 {% endblock %}

@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% if valore_obj.incarichi_attivi %}
     {% if valore_obj.incarichi_attivi|length == 1 %}
+
         <figure class="pull-left img-circle">
             {% if  valore_obj.incarichi_attivi.0.pic_url %}
                 <img class="media-object" src="{{ valore_obj.incarichi_attivi.0.pic_url}}" alt="avatar">
@@ -9,13 +10,16 @@
             {% endif %}
         </figure>
         <div class="media-body">
-            <p class="h4"><a href="#">
-                {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}</a></p>
+            <p class="h4" style="font-weight: bold;">
+                <a target="_blank" href="{{ valore_obj.incarichi_attivi.0.op_link }}">
+                    {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}
+                </a>
+            </p>
 
             {% if valore_obj.incarichi_attivi.0.party_name %}
-                <p class="small">{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
+                <p >{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
             {% elif incarichi_attivi.0.party_acronym %}
-                <p class="small">{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
+                <p >{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
             {% endif %}
 
         </div>
@@ -23,7 +27,7 @@
         {{ valore_obj.incarichi_attivi|length }} incarichi attivi per il Comune di
         {{ valore_obj.territorio.denominazione }},
         {# creates link to hide/show incarichi list        #}
-        <a id="incarichi_attivi-link-{{ valore_obj.territorio.pk }}" href="">
+        <a id="incarichi_attivi-link-{{ valore_obj.territorio.pk }}" target="_blank" href="" >
             clicca qui per vederli
         </a>
 
@@ -31,8 +35,9 @@
             <ul>
             {% for incarico in valore_obj.incarichi_attivi  %}
                 <li>
-                    {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
-
+                    <a target="_blank" href="{{ incarico.op_link }}">
+                        {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
+                    </a>
                     {% if incarico.party_name %}
                         ({{ incarico.party_name|title}})
                     {% elif incarico.party_acronym %}

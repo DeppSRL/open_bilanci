@@ -8,7 +8,7 @@ from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
     BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
     HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
-    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, HomeTemporaryView
+    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, HomeTemporaryView, BilancioNotFoundView, HomeReleaseView
 
 admin.autodiscover()
 
@@ -17,7 +17,9 @@ urlpatterns = patterns('',
     url(r'^login$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login', ),
     url(r'^logout$', 'django.contrib.auth.views.logout_then_login', name='logout', ),
     url(r'^home$', HomeView.as_view(), name='home'),
+    url(r'^home_release$', HomeReleaseView.as_view(), name='home-release'),
 
+    url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
     url(r'^bilanci/(?P<slug>[-\w]+)/entrate$', BilancioEntrateView.as_view(), name='bilanci-entrate'),

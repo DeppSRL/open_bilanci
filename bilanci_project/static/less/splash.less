@@ -1,0 +1,126 @@
+/**
+ * Splash style
+ * @author mleone
+ * @version 1.5.7
+ **/
+
+// #splash
+#splash {
+
+    .container-fluid {
+        padding: 10px 0;
+    }
+
+    #header {
+        .brand {
+            color: #fff;
+            line-height: 30px;
+            display: inline-block;
+
+            small {
+                display: block;
+                font-size: 12px;
+                line-height: 1.42857;
+                text-align: right;
+                color: #fff;
+            }
+        }
+
+        h4 {
+            color: #fff;
+            line-height: 1.4em;
+        }
+    }
+
+    #main-content {
+        padding: 0;
+
+        form {
+            margin: 20px 0 0;
+
+            .row > div {
+                margin-bottom: 20px;
+            }
+
+            .form-control {
+                font-size: 18px;
+
+                &:-moz-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
+
+                &::-moz-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
+
+                &:-ms-input-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
+
+                &::-webkit-input-placeholder {
+                    color: @altTextColor;
+                    font-weight: @light;
+                }
+            }
+
+            .btn-danger {
+                background-color: #b84a34;
+                border-color: #b84a34;
+                min-width: 180px;
+            }
+        }
+
+        .preview {
+            position: relative;
+            width: 100%;
+            height: 391px;
+            background: url(../img/splash.jpg) no-repeat center center;
+        }
+
+    }
+
+    #footer {
+        color: #fff;
+        padding: 10px 0;
+
+        li {
+
+            a {
+                background: url(../img/loghi.png) no-repeat 0 0;
+                display: inline-block;
+                height: 56px;
+
+                &.ce {
+                    width: 43px;
+                    background-position: 0 0;
+                }
+
+                &.rl {
+                    width: 91px;
+                    background-position: -89px 0;
+                }
+
+                &.por {
+                    width: 58px;
+                    background-position: -229px 0;
+                }
+            }
+
+        }
+    }
+}
+
+// Media queries
+@media (max-width: 992px) {
+    #splash {
+        #main-content {
+            .preview {
+                height: 250px;
+                .background-sizing(1600px, 250px);
+            }
+        }
+    }
+}

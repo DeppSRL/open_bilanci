@@ -1,0 +1,49 @@
+ul#pagination-digg{
+    border:0;
+    margin-bottom: 50px;
+    padding-top: 20px;
+    color: #b5b8b6;
+}
+
+#pagination-digg li{
+    border:0;
+    padding:0;
+    list-style:none;
+    float:left;
+    display: block;
+    margin: 0;
+}
+#pagination-digg a{
+    border:solid 1px #b5b8b6;
+    margin-right:0px;
+    font-weight: normal;
+    color:#5172b5;
+}
+
+#pagination-digg a,
+#pagination-digg .ellipsis,
+#pagination-digg .active
+{
+    padding:0.6em 1em;
+}
+#pagination-digg .next a,
+#pagination-digg .previous a {
+}
+
+#pagination-digg .ellipsis {
+    padding: 0 1em;
+}
+#pagination-digg .active{
+    background:#c5edfe;
+    color:#5172b5;
+    font-weight:bold;
+    border:solid 1px #b5b8b6;
+}
+#pagination-digg a:link,
+#pagination-digg a:visited {
+    color:#5172b5;
+    text-decoration:none;
+}
+#pagination-digg a:hover{
+    border:solid 1px #b5b8b6;
+}

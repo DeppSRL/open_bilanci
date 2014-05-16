@@ -10,17 +10,28 @@
 var year_selector = null;
 var reference_url = null;
 
-function xfunct(y){
-    alert(y);
-}
 
 function clicked_year(selected_year){
     // gets the 4 digits in the reference url representing the year value and substitutes
     //  it with the selected year value
-    window.location.href = window.location.href.replace(/year=[-\d]{4}/,"year=" + String(selected_year));
+    var navigate_to_url;
+    var separator='/';
+    var split_path = window.location.pathname.split(separator);
+
+    //  determines the path to which the page will navigate:
+    // classifiche page has a different url compared to bilancio pages in which the selector is used
+    if(split_path[1] == 'classifiche'){
+
+        split_path[4]=selected_year;
+        navigate_to_url = split_path.join(separator);
+    }
+    else{
+        navigate_to_url = window.location.href.replace(/year=[-\d]{4}/,"year=" + String(selected_year));
+    }
+
+    window.location.href = navigate_to_url;
 
 }
-
 
 function clicked_button(){
     // if we are seeing preventivo navigates to consuntivo and viceversa
@@ -104,6 +115,7 @@ function init_selector(selector_init_obj){
 
     //when year is selected, navigate to the new page
     year_selector.on("clickYear",clicked_year);
+
 
     //if we are using buttons, binds the un-selected button with the callback function on the click event.
     // ie: if the Preventivo page is viewed and the user clicks Consuntivo -> the app navigates to the Consuntivo page

@@ -40,13 +40,14 @@
                         Seleziona
                     </h3>
                     <div class="dropdown" >
-                        <div style="margin-bottom: 20px;">
-                             <select id="confronti-dropdown">
+
+                         <select id="confronti-dropdown" class="parameter-dropdown">
                               <option value="indicatori" selected="selected">INDICATORI</option>
                               <option value="entrate">ENTRATE</option>
                               <option value="spese">SPESE</option>
-                             </select>
-                        </div>
+                         </select>
+                        <div class="separator"></div>
+
                         {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
                         {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
                         {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
@@ -82,6 +83,7 @@
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
+    <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
 
 
     <script type="text/javascript">
@@ -100,6 +102,7 @@
                 $("#push-menu").on("click", function(){ linechart.resize();});
             }
 
+            init_parameter_menu('confronti');
         });
 
     </script>
@@ -123,7 +126,7 @@
 {#    <!-- visup css-->#}
     <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}
 {% endblock %}

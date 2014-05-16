@@ -208,6 +208,7 @@ LOCAL_APPS = (
     'bilanci',
     'territori',
     'idioticon',
+    'shorturls',
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -410,8 +411,15 @@ TERRITORI_CONTEXT_REFERENCE_YEAR = 2012
 TIMELINE_START_DATE = APP_START_DATE
 TIMELINE_END_DATE = APP_END_DATE
 
+CLASSIFICHE_START_YEAR = APP_START_DATE.year
+CLASSIFICHE_END_YEAR = 2012
+
 SELECTOR_DEFAULT_YEAR = 2013
 SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
+
+# expiration time for a data in a session (seconds)
+SESSION_COOKIE_AGE = 7200
+SESSION_SAVE_EVERY_REQUEST = True
 
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'
@@ -444,3 +452,7 @@ LOGIN_URL = 'login'
 # defines Mailbin server address to push temporary home page form user data
 MAILBIN_SERVER_HOST = 'mailbin.openpolis.it'
 MAILBIN_QUEUE_ADDR = "tcp://{0}:5558".format(MAILBIN_SERVER_HOST)
+GOOGLE_SHORTENER_API_KEY = 'AIzaSyAzTAcojoJMKV3eh8XAsE3CP7hpgmms17M'
+GOOGLE_SHORTENER_URL = "https://www.googleapis.com/urlshortener/v1/url"
+
+TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}

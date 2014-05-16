@@ -1,0 +1,92 @@
+<aside id="filters" class="col-md-4">
+ <form id="classifiche-form"  method="post" >{% csrf_token %}
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+
+            <div class="pull-right" style="font-weight: bold;"><span onClick="toggle_checkboxes(this)">Rimuovi tutti <span class="icon sprite-delete"></span> </span></div>
+            <h3 class="panel-title">FILTRA</h3>
+
+            <button type="submit" class="btn btn-default">Aggiorna</button>
+
+        </div>
+
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER REGIONE</li>
+            {% for regione in regioni_list %}
+                <li class="list-group-item">
+                    <label>
+                        <input type="checkbox" name="regione[]" id="{{ regione.pk }}" value="{{ regione.pk }}"
+                            {% if regione.pk in selected_regioni %}
+                                checked="checked"
+                            {% endif %}
+                                >
+                        {{ regione.denominazione }}
+                    </label>
+                </li>
+            {% endfor %}
+
+        </ul>
+
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER CLUSTER</li>
+            {% for cluster in cluster_list %}
+                <li class="list-group-item">
+                    <label>
+                        <input type="checkbox" name="cluster[]" id="{{ cluster.cluster }}" value="{{ cluster.cluster }}"
+                            {% if cluster.cluster in selected_cluster %}
+                                checked="checked"
+                            {% endif %}
+                                >
+                        {{ cluster.denominazione }}
+                    </label>
+
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% comment %}
+        <ul class="list-group">
+            <li class="list-group-item label">FILTRA PER CLASSE</li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value="" checked="checked"> I
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> II
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> III
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> IV
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> V
+                    </div>
+                    <div class="col-md-6">
+                        <input type="checkbox" name="" value=""> VI
+                    </div>
+                </div>
+            </li>
+        </ul>
+        {% endcomment %}
+
+        <div class="panel-heading">
+
+            <button type="submit" class="btn btn-default">Aggiorna</button>
+
+        </div>
+
+    </div>
+    </form>
+</aside> <!-- /#filters -->

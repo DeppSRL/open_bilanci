@@ -45,7 +45,7 @@ form ul li label{
   padding-bottom: 20px;
 
 }
-select#confronti-dropdown{
+select.parameter-dropdown{
   width: 100%;
   padding:3px;
   background-color: #fff;
@@ -87,18 +87,38 @@ display: inline;
   height: 250px;
 }
 
-#sidebar .menu{
+#sidebar {
 
-  li{
-    margin-top: 2px;
-    margin-bottom: 3px;
+  .dropdown > .separator {
+    height: 1px;
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: black;
+    margin-bottom:9px;
+    margin-top:20px;
   }
 
-  .mytooltip{
-    float: right;
-    margin-right: 2px;
-    z-index: 0;
-    width: 8px;
+  ul.menu{
+    border: 0;
+
+    li{
+      font-size: 14px;
+      border: 0;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+    //parameter list menu active voice
+    li.active > div.row > div > a{
+      font-weight: bold;
+    }
+
+    .mytooltip{
+      float: right;
+      margin-right: 2px;
+      z-index: 0;
+      width: 8px;
+    }
+
   }
 
 }
@@ -106,4 +126,34 @@ display: inline;
 .confronti_parameter_list{
   a { color: #2a3036;}
   a:visited { color: #2a3036;}
+}
+
+//paginator fix
+#results .panel-default .pagination-wrapper > ul > li > a{
+  padding: 2px 8px;
+}
+
+//classifiche results link
+.table.table-striped a, {
+  color:rgb(204, 102, 51);
+  font-weight: bold;
+}
+
+//select2 style
+.select2-choice{
+  height: 40px!important;
+}
+
+#comparison .form-group .form-control{
+  padding-right: 0px;
+}
+
+#comparison .form-group .form-control{
+  height: 40px
+}
+
+.select2-results .select2-no-results, .select2-results .select2-searching, .select2-results .select2-selection-limit {
+  background: white!important;
+  display: list-item;
+  color: @baseColor!important;
 }

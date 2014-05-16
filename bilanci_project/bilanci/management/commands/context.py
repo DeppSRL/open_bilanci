@@ -1,6 +1,10 @@
 # coding=utf-8
 import logging
 from optparse import make_option
+from pprint import pprint
+import re
+import numpy
+import math
 
 from django.conf import settings
 from django.core.management import BaseCommand
@@ -12,6 +16,10 @@ from bilanci.utils import couch
 
 
 class Command(BaseCommand):
+
+    couchdb = None
+    logger = logging.getLogger('management')
+    comuni_dicts = {}
 
     option_list = BaseCommand.option_list + (
         make_option('--years',
@@ -50,8 +58,113 @@ class Command(BaseCommand):
         Compute territorial context data for the Bilanci db:
         """
 
-    logger = logging.getLogger('management')
-    comuni_dicts = {}
+
+
+    def clean_data(self,data):
+
+        if data:
+            if data == "N.C.":
+                return None
+            else:
+
+
+                # removes the decimals, if any
+                regex = re.compile("^.+,([\d]{2})$")
+                matches = regex.findall(data)
+                if len(matches) > 0:
+                    data = data[:-3]
+
+                # removes the thousand-delimiter point and the comma and converts to int
+                ret =  int(data.replace(".","").replace(",",""))
+
+                if ret > 10 * 1000 * 1000:
+                    return None
+                else:
+                    return ret
+
+
+
+    def get_data(self, territorio, years, key_name):
+
+        # gets the context data relative to the provided key_name
+        # from couchdb objects and checks that the numeric data on the values provided.
+        # If some value is out of the line of the mean and variance then the value is discarded.
+        # Return value: a list of tuple [(year, value), ...] of correct values
+
+        value_set = []
+        value_dict = {}
+        results = []
+        high_variance_set = False
+
+        titoli_possibile_names = [
+            "quadro-1-dati-generali-al-31-dicembrenotizie-varie",
+            "quadro-1-dati-generali-al-31-dicembre-notizie-varie",
+            "quadro-1-dati-generali-al-31-dicembre-1-notizie-varie"
+        ]
+
+        #     generates bilancio ids
+        bilancio_ids = ["{0}_{1}".format(year, territorio.cod_finloc) for year in years]
+
+        # read data from couch
+        for bilancio_id in bilancio_ids:
+            if bilancio_id in self.couchdb:
+                bilancio_data = self.couchdb[bilancio_id]
+
+                if "01" in bilancio_data['consuntivo']:
+                    for titolo_name in titoli_possibile_names:
+                        if titolo_name in bilancio_data["consuntivo"]["01"]:
+                            break
+                    else:
+                        titolo_name = None
+
+                    if titolo_name:
+                        contesto_couch = bilancio_data["consuntivo"]["01"]\
+                            [titolo_name]["data"]
+
+                        if key_name in contesto_couch:
+                            clean_data = self.clean_data(contesto_couch[key_name][0])
+
+                            # clean_data is None if the contesto_data is = "N.C", so I set it for deletion
+                            if clean_data is None:
+                                results.append((bilancio_id[0:4],None))
+                            else:
+                                value_set.append(clean_data)
+                                value_dict[int(bilancio_id[0:4])] = self.clean_data(contesto_couch[key_name][0])
+                    else:
+                        self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembre[-]notizie-varie' not found for id:{0}, skipping". format(bilancio_id))
+                else:
+                    self.logger.warning(u"Quadro '01' Consuntivo not found for id:{0}, skipping".format(bilancio_id))
+
+            else:
+                    self.logger.warning(u"Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
+
+        if len(value_set) == 0:
+            self.logger.warning(u"Cannot find data about {0} for city:{1} during the years:{2}".format(key_name, territorio, years))
+            return
+
+        mean = numpy.mean(value_set)
+        variance = numpy.var(value_set)
+
+        # Coherence check on values.
+        # if the fraction between sigma and mean exceeds the constant then all the values out of the
+        # gaussian distr. will be discarded. Otherwise all values are taken
+        
+        if math.sqrt(variance)/mean > 0.1:
+            high_variance_set = True
+
+        for anno, value in value_dict.iteritems():
+
+            if high_variance_set:
+                if pow((value-mean),2) < variance:
+                    results.append((anno, value))
+                else:
+                    results.append((anno, None))
+            else:
+                results.append((anno, value))
+
+        return results
+
+
 
 
     def handle(self, *args, **options):
@@ -120,7 +233,7 @@ class Command(BaseCommand):
 
 
         self.logger.info(u"Connecting to db: {0}".format(couchdb_dbname))
-        couchdb = couch.connect(
+        self.couchdb = couch.connect(
             couchdb_dbname,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
@@ -128,6 +241,7 @@ class Command(BaseCommand):
 
         # set contesto and filter out missing territories
         missing_territories = []
+        recalculate_percapita_cities = []
 
         for city in cities:
 
@@ -135,105 +249,82 @@ class Command(BaseCommand):
                 territorio = Territorio.objects.get(cod_finloc=city)
             except ObjectDoesNotExist:
                 self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+                missing_territories.append(city)
+                continue
 
-            for year in years:
+            # if skip_existing and the territorio has 1+ contesto then skip territorio
+            if skip_existing and Contesto.objects.filter(territorio=territorio).count() > 0:
+                    self.logger.info(u"Skip Existing - City:{0} already has context, skipping".format(territorio.denominazione))
+                    continue
 
-                self.logger.info(u"Setting context for city: {0}, year:{1}".format(territorio,year))
-                bilancio_id = "{0}_{1}".format(year, territorio.cod_finloc)
+            self.logger.info(u"Setting context for city: {0}".format(territorio,))
 
-                # read data from couch
-                if bilancio_id in couchdb:
-                    bilancio_data = couchdb[bilancio_id]
-                    titoli = [
-                        "quadro-1-dati-generali-al-31-dicembrenotizie-varie",
-                        "quadro-1-dati-generali-al-31-dicembre-notizie-varie",
-                        "quadro-1-dati-generali-al-31-dicembre-1-notizie-varie"
-                    ]
-                    if "01" in bilancio_data['consuntivo']:
-                        for titolo in titoli:
-                            if titolo in bilancio_data["consuntivo"]["01"]:
-                                break
-                        else:
-                            titolo = None
+            # note: the following keys will not be stored in the db because
+            # the number format is not constant through the years
+            #
+            # "nuclei familiari (n)":"bil_nuclei_familiari",
+            # "superficie urbana (ha)":"bil_superficie_urbana",
+            # "superficie totale del comune (ha)":"bil_superficie_totale",
+            # "lunghezza delle strade esterne (km)":"bil_strade_esterne",
+            # "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
+            # "di cui: in territorio montano (km)":"bil_strade_montane",
 
-                        if titolo:
-                            contesto_couch = bilancio_data["consuntivo"]["01"]\
-                                [titolo]["data"]
+            key_name = "popolazione residente (ab.)"
+            data_results = self.get_data(territorio, years, key_name)
 
-                            # if the contesto data is not present, inserts the data in the db
-                            # otherwise skips
-                            contesto_pg = None
-                            try:
-                                contesto_pg = Contesto.objects.get(
-                                    anno = year,
-                                    territorio = territorio,
-                                )
-                            except ObjectDoesNotExist:
-                                contesto_pg = Contesto()
-                                pass
+            for data_result in data_results:
+                contesto_pg = None
+                year, value = data_result
 
-                            # write data on postgres
-                            if dryrun is False:
+                # if value is None it means that the year selected had a value for the key that is not acceptable or wrong
+                # then if the value for that specific year is already in the db, it has to be deleted
+                if value is None:
 
-
-                                # contesto_keys maps the key in the couch doc and the name of
-                                # the field in the model
-
-                                contesto_keys = {
-                                    "popolazione residente (ab.)":"bil_popolazione_residente",
-                                    "nuclei familiari (n)":"bil_nuclei_familiari",
-                                    "superficie urbana (ha)":"bil_superficie_urbana",
-                                    "superficie totale del comune (ha)":"bil_superficie_totale",
-                                    "lunghezza delle strade esterne (km)":"bil_strade_esterne",
-                                    "lunghezza delle strade interne centro abitato (km)":"bil_strade_interne",
-                                    "di cui: in territorio montano (km)":"bil_strade_montane",
-                                    }
-
-                                for contesto_key, contesto_value in contesto_keys.iteritems():
-                                    if contesto_key in contesto_couch:
-                                        value = clean_data(contesto_couch[contesto_key])
-                                        setattr(contesto_pg, contesto_value, value)
-                                        self.logger.debug(u"    key: {0}, value:{1}".format(contesto_key, value))
+                    self.logger.warning(u"Deleting wrong value for city:{0} year:{1}".format(territorio.denominazione, year))
+                    _ = Contesto.objects.filter(
+                        anno = year,
+                        territorio = territorio,
+                    ).delete()
+                    
+                    
+                    if territorio not in recalculate_percapita_cities:
+                        recalculate_percapita_cities.append(territorio)
+                    continue
 
 
-                                contesto_pg.territorio = territorio
-                                contesto_pg.anno = year
+                # if the contesto data is not present, inserts the data in the db
+                # otherwise skips
 
-                                contesto_pg.save()
+                try:
+                    contesto_pg = Contesto.objects.get(
+                        anno = year,
+                        territorio = territorio,
+                    )
+                except ObjectDoesNotExist:
+                    contesto_pg = Contesto()
+                    pass
 
 
+                # write data on postgres
+                if dryrun is False:
+                    contesto_pg.bil_popolazione_residente = value
+                    self.logger.debug(u"year:{0}, value:{1}".format(year, value,))
 
-                        else:
-                            self.logger.warning(u"Titolo 'quadro-1-dati-generali-al-31-dicembre[-]notizie-varie' not found for id:{0}, skipping". format(bilancio_id))
-                    else:
-                        self.logger.warning(u"Quadro '01' not found for id:{0}, skipping".format(bilancio_id))
+                    contesto_pg.territorio = territorio
+                    contesto_pg.anno = year
+                    contesto_pg.save()
 
-                else:
-                    self.logger.warning(u"Bilancio obj not found for id:{0}, skipping". format(bilancio_id))
 
         if len(missing_territories)>0:
             self.logger.error(u"Following cities could not be found in Territori DB and could not be processed:")
             for missing_city in missing_territories:
                 self.logger.error("{0}".format(missing_city))
 
+        percapita_cmd_string = u"python manage.py percapita -v2 --years={0} --cities=".format(options['years'])
+        if len(recalculate_percapita_cities)>0:
+            self.logger.error(u"Following cities had at least one wrong context data and percapita should be recalculated with this command:")
+            for missing_city in recalculate_percapita_cities:
+                numeric_codfinloc = missing_city.cod_finloc.split("--")[1]
+                percapita_cmd_string+=numeric_codfinloc+","
 
-def clean_data(data):
-    c_data = data[0]
-    if c_data:
-        if c_data == "N.C.":
-            return None
-        else:
-            # if the number contains a comma, it strips the decimal values
-            if c_data.find(",") != -1:
-                c_data = c_data[:c_data.find(",")]
-
-            # removes the thousand-delimiter point and converts to int
-            ret =  int(c_data.replace(".",""))
-
-            if ret > 10 * 1000 * 1000:
-                return None
-            else:
-                return ret
-
-
-
+            self.logger.error(percapita_cmd_string[:-1])

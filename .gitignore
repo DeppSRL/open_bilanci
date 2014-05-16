@@ -26,20 +26,25 @@ build
 #south
 bilanci_project/*/migrations/
 
+#dump files
+dump_indicatori
+dump_territori
+ob_dump.sql.gz
+
 scraper_project/scraper/output/
 bilanci_project/bilanci/settings/local.py
 couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 scraper_project/scraper/settings.py
-
 /docs/_build/
 dati/
+/static/
 open_data/
 bilanci_project/data/csv
 bilanci_project/data/zip
 
-bilanci_project/static/data
+#bilanci_project/static/data
 bilanci_project/templates/visup_test.html
 
 html_templates/

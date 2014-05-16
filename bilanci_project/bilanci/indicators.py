@@ -1,4 +1,5 @@
 # encoding: utf-8
+import math
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from bilanci.models import ValoreBilancio, ValoreIndicatore, Indicatore
@@ -142,23 +143,23 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
 
 
 class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
+
     """
-    (preventivo-spese-spese-correnti - (consuntivo-spese-impegni-spese-correnti + consuntivo-spese-impegni-spese-per-investimenti) /
-    preventivo-spese-spese-correnti * 100
+    abs(psc - csc)/(psc + csc)
     """
+
     slug = 'bonta-previsione-spesa-corrente'
     label = u'Bontà di previsione della spesa corrente'
     used_voci_slugs = {
         'psc': 'preventivo-spese-spese-correnti',
         'csc': 'consuntivo-spese-impegni-spese-correnti',
-        'csi': 'consuntivo-spese-impegni-spese-per-investimenti',
     }
 
     def get_formula_result(self, data_dict, city, year):
         psc = self.get_val(data_dict, city, year, 'psc')
         csc = self.get_val(data_dict, city, year, 'csc')
-        csi = self.get_val(data_dict, city, year, 'csi')
-        return 100.0 * (1.0 - (csc+csi) / psc )
+
+        return (1.0-(abs(psc - csc)/(psc + csc)))*100.0
 
 
 

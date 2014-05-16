@@ -133,22 +133,4 @@ function init_confronti_page(){
         submitButtonConfronti(e);
     });
 
-    //initialize side menu: default value: indicatori
-    $('.pl-list').hide();
-    $('#pl-indicatori').show(0,function() {
-            $('#pl-indicatori').children().show();
-        });
-
-    // binds the selector dropdown change to hide / show parameter lists
-      $('#confronti-dropdown').change(function() {
-
-        var selected_element = '#pl-' + $(this).val();
-        $('.pl-list').hide(0,function() {
-            $('#pl-indicatori').children().show(0);
-        });
-        $(selected_element).show(0,function() {
-            $(selected_element).children().show(0);
-        });
-
-     });
 }
