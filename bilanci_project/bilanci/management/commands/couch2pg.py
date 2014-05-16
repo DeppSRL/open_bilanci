@@ -42,6 +42,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
+        make_option('--patch-somma-funzioni-only',
+                    dest='patch_somma_funzioni_only',
+                    action='store_true',
+                    default=False,
+                    help='Only apply the patch to compute somma-funzioni. Does not import other budget data.'),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -69,6 +74,7 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
+        patch_somma_funzioni_only = options['patch_somma_funzioni_only']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -188,16 +194,18 @@ class Command(BaseCommand):
                 )
 
 
-                ### persist the BilancioItem values
+                if not patch_somma_funzioni_only:
 
-                # previously remove all values for a city and a year
-                # used to speed up records insertion
-                ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+                    ### persist the BilancioItem values
 
-                # add values fastly, without checking their existance
-                # do that for the whole tree (preventivo, consuntivo, ...)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+                    # previously remove all values for a city and a year
+                    # used to speed up records insertion
+                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+
+                    # add values fastly, without checking their existance
+                    # do that for the whole tree (preventivo, consuntivo, ...)
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
 
                 vb_filters = {
@@ -207,24 +215,26 @@ class Command(BaseCommand):
                 valori_bilancio = ValoreBilancio.objects.filter(**vb_filters)
 
                 ##
-                # insert compute somma-funzioni in preventivo
+                # insert/overwrite compute somma-funzioni in preventivo
                 ##
-                f_correnti = Voce.objects.get(slug='preventivo-spese-spese-correnti-funzioni')
+                f_correnti = self.voci_dict['preventivo-spese-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
 
-                f_correnti = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni')
+                f_correnti = self.voci_dict['consuntivo-spese-cassa-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
 
-                f_correnti = Voce.objects.get(slug='consuntivo-spese-impegni-spese-correnti-funzioni')
+                f_correnti = self.voci_dict['consuntivo-spese-impegni-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
 
 
-    def create_somma_funzioni_patch(self, voce_corr, valori_bilancio, vb_filters):
+    def apply_somma_funzioni_patch(self, voce_corr, valori_bilancio, vb_filters):
         """
-        Add spese correnti and spese per investimenti for funzioni, and write into spese-somma
+        Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
+
+        Overwrite values if found.
         """
         voce_i = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')]
         voce_sum = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')]
@@ -233,13 +243,23 @@ class Command(BaseCommand):
             vb_c = valori_bilancio.get(voce=voce_corr)
             vb_i = valori_bilancio.get(voce=voce_i)
 
-            ValoreBilancio.objects.create(
+            valore = vb_c.valore + vb_i.valore
+            valore_procapite = vb_c.valore_procapite + vb_i.valore_procapite
+
+            vb, created = ValoreBilancio.objects.get_or_create(
                 territorio=vb_filters['territorio'],
                 anno=vb_filters['anno'],
                 voce=voce_sum,
-                valore=vb_c.valore + vb_i.valore,
-                valore_procapite=vb_c.valore_procapite + vb_i.valore_procapite
+                defaults={
+                    'valore': valore,
+                    'valore_procapite': valore_procapite
+                }
             )
+            if not created:
+                vb.valore = valore
+                vb.valore_procapite = valore_procapite
+                vb.save()
+
         except ObjectDoesNotExist:
             pass
 
