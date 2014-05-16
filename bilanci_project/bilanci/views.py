@@ -588,7 +588,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
     def compose_widget_6(self,):
             return {
-            "showHelp": self.show_help,
+            "showHelp": False,
             "entrate": {
                 "label": "andamento entrate da"
             },
