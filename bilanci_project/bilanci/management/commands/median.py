@@ -26,7 +26,7 @@ class Command(BaseCommand):
         make_option('--years',
                     dest='years',
                     default='',
-                    help='Years to fetch. From 2002 to 2012. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+                    help='Years to fetch. From 2003 to 2013. Use one of this formats: 2013 or 2003-2006 or 2003,2004,2006'),
         make_option('--type', '-t',
                     dest='type',
                     default='voci',
@@ -112,9 +112,8 @@ class Command(BaseCommand):
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects. \
                 get_or_create(
-                denominazione=cluster_data[1],
                 territorio=Territorio.TERRITORIO.L,
-                cluster=cluster_data[0]
+                cluster=cluster_data[0],
             )
 
             if values_type == 'indicatori':
@@ -161,7 +160,7 @@ class Command(BaseCommand):
                             if not is_created and not skip_existing:
                                 valore_mediano.valore = mediana
 
-                                if dryrun:
+                                if not dryrun:
                                     valore_mediano.save()
 
             if values_type == 'voci':
@@ -225,6 +224,6 @@ class Command(BaseCommand):
                                 valore_mediano.valore = long(mediana)
                                 valore_mediano.valore_procapite = float(mediana_procapite)
                                 
-                                if dryrun:
+                                if not dryrun:
                                     valore_mediano.save()
 
