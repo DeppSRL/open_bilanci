@@ -26,11 +26,15 @@ class Command(BaseCommand):
         make_option('--years',
                     dest='years',
                     default='',
-                    help='Years to fetch. From 2002 to 2012. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+                    help='Years to fetch. From 2003 to 2013. Use one of this formats: 2013 or 2003-2006 or 2003,2004,2006'),
         make_option('--type', '-t',
                     dest='type',
                     default='voci',
                     help='Type of median values to compute. [voci | indicatori]'),
+        make_option('--slug', '-s',
+                    dest='slug',
+                    default=None,
+                    help='Indicate the slug of the root node from which to start to calculate median. Includes self.'),
         make_option('--skip-existing',
                     dest='skip_existing',
                     action='store_true',
@@ -41,6 +45,7 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written in the db'),
+
     )
 
     help = """
@@ -60,6 +65,12 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.INFO)
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
+
+        ##
+        # starting node slug
+        ##
+
+        slug = options['slug']
 
         ###
         # type
@@ -101,9 +112,8 @@ class Command(BaseCommand):
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects. \
                 get_or_create(
-                denominazione=cluster_data[1],
                 territorio=Territorio.TERRITORIO.L,
-                cluster=cluster_data[0]
+                cluster=cluster_data[0],
             )
 
             if values_type == 'indicatori':
@@ -150,11 +160,19 @@ class Command(BaseCommand):
                             if not is_created and not skip_existing:
                                 valore_mediano.valore = mediana
 
-                                if dryrun:
+                                if not dryrun:
                                     valore_mediano.save()
 
             if values_type == 'voci':
-                for voce in Voce.objects.all():
+
+                voce_set = Voce.objects.all()
+
+                # if slug is specified then considers only descendants of voce with slug=slug including self
+                if slug:
+                    voce_rootnode = Voce.objects.get(slug = slug)
+                    voce_set = voce_rootnode.get_descendants(include_self=True)
+
+                for voce in voce_set:
                     self.logger.info(u"cluster: {0}, voce: {1}".format(territorio_cluster, voce))
                     valori_qs = \
                         ValoreBilancio.objects.filter(
@@ -178,8 +196,8 @@ class Command(BaseCommand):
 
                         if year not in valori_dict or valori_dict[year] is None:
                             self.logger.warning(
-                                "No values found for Voce: {0}, year:{1}. Median value not computed ".format(
-                                    voce, year
+                                "No values found for Voce: {0}, year:{1}, cluster:{2}. Median value not computed ".format(
+                                    voce, year, cluster_data[0]
                                 ))
                             continue
 
@@ -206,6 +224,6 @@ class Command(BaseCommand):
                                 valore_mediano.valore = long(mediana)
                                 valore_mediano.valore_procapite = float(mediana_procapite)
                                 
-                                if dryrun:
+                                if not dryrun:
                                     valore_mediano.save()
 

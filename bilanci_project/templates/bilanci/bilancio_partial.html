@@ -30,11 +30,15 @@
         <div class="tab-pane fade in active" id="dettaglio">
 
             <div class="row">
-                <div class="col-md-8 section_title" style="">
+                <div class="col-md-7 section_title" style="">
                     {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title %}
                 </div>
-                <div class="col-md-4 section_title" style="">
-                    {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True%}
+                <div class="col-md-5 section_title" style="">
+                    {% if tipo_bilancio == "consuntivo" %}
+                        {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True%}
+                    {% else %}
+                        {% section_values_type values_type=values_type tooltip=True per_capita=True%}
+                    {% endif %}
                 </div>
             </div>
 
@@ -105,13 +109,38 @@
         d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
                 "?values_type={{ values_type }}",
                 function (i) {
-            linechart.data(i)
+            linechart.data(i);
             linechart.year({{ selected_year }});
         });
 
     }
 
    function feed_secondary_linechart(voce_slug){
+       {%  comment %}
+
+         if voce_slug is from spese funzioni (preventivo / consuntivo) then the graph to be visualized
+         is the graph relative to  spese somma funzioni.
+         example: consuntivo-spese-impegni-spese-correnti-funzioni-amministrazione -> consuntivo-spese-impegni-spese-somma-funzioni-amministrazione
+
+       {% endcomment %}
+
+        if (voce_slug.indexOf("preventivo-spese-spese-correnti") == 0 ||
+                voce_slug.indexOf("consuntivo-spese-cassa-spese-correnti") == 0 ||
+                voce_slug.indexOf("consuntivo-spese-impegni-spese-correnti") == 0 ){
+
+                if(voce_slug == "preventivo-spese-spese-correnti" ||
+                        voce_slug == "consuntivo-spese-cassa-spese-correnti" ||
+                        voce_slug == "consuntivo-spese-impegni-spese-correnti" ){
+                    
+                    voce_slug=voce_slug.replace("spese-correnti", "spese-somma-funzioni");
+                }
+                else{
+                    voce_slug=voce_slug.replace("spese-correnti", "spese-somma");
+                    }
+
+
+        }
+
         d3.json(
             "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug +
                 "?values_type={{ values_type }}",

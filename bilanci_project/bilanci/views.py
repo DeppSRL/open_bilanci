@@ -453,13 +453,9 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             return None
 
 
-    def get_data_set(self, main_bilancio_slug, comp_bilancio_slug,):
+    def get_data_set(self, main_nodes, comp_nodes, main_totale_slug, comp_totale_slug):
         comp_not_available = False
-        main_rootnode = Voce.objects.get(slug=main_bilancio_slug)
-        main_nodes = main_rootnode.get_descendants(include_self=True).filter(level__lte=main_rootnode.level+1)
 
-        comp_rootnode = Voce.objects.get(slug=comp_bilancio_slug)
-        comparison_nodes = comp_rootnode.get_descendants(include_self=True).filter(level__lte=comp_rootnode.level+1)
 
         main_values = ValoreBilancio.objects.filter(
             voce__in= main_nodes,
@@ -469,7 +465,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             ).values('voce__denominazione','voce__level','anno','valore','valore_procapite','voce__slug').order_by('voce__denominazione','anno')
 
         comp_values = ValoreBilancio.objects.filter(
-            voce__in=comparison_nodes,
+            voce__in=comp_nodes,
             anno = self.comp_bilancio_year,
             territorio=self.territorio
         ).values('voce__denominazione', 'voce__level', 'anno','valore','valore_procapite','voce__slug').order_by('voce__denominazione','anno')
@@ -480,10 +476,10 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         # regroup the main and comparison value set based on voce__denominazione
         # to match the rootnode the label Totale is used when needed
 
-        main_keygen = lambda x: self.totale_label if x['voce__level'] == main_rootnode.level else x['voce__denominazione'].strip()
+        main_keygen = lambda x: self.totale_label if x['voce__slug'] == main_totale_slug else x['voce__denominazione'].strip()
         main_values_regroup = dict((k,list(v)) for k,v in groupby(main_values, key=main_keygen))
 
-        comp_keygen = lambda x: self.totale_label if x['voce__level'] == comp_rootnode.level else x['voce__denominazione'].strip()
+        comp_keygen = lambda x: self.totale_label if x['voce__slug'] == comp_totale_slug else x['voce__denominazione'].strip()
         comp_values_regroup = dict((k,list(v)[0]) for k,v in groupby(comp_values, key=comp_keygen))
 
 
@@ -620,8 +616,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                 'competenza': 'consuntivo-entrate-accertamenti',
             },
             'spese':{
-                'cassa': 'consuntivo-spese-cassa-spese-correnti-funzioni',
-                'competenza': 'consuntivo-spese-impegni-spese-correnti-funzioni',
+                'cassa': 'consuntivo-spese-cassa',
+                'competenza': 'consuntivo-spese-impegni',
             }
         }
 
@@ -631,7 +627,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         }
 
         spese_slug = {
-            'preventivo': 'preventivo-spese-spese-correnti-funzioni',
+            'preventivo': 'preventivo-spese',
             'consuntivo': consuntivo_slugs['spese'][self.cas_com_type]
         }
 
@@ -653,17 +649,27 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             self.main_gdp_multiplier = self.main_gdp_deflator
             self.comp_gdp_multiplier = self.comp_gdb_deflator
 
+
+        e_main_rootnode = Voce.objects.get(slug=entrate_slug[self.main_bilancio_type])
+        e_main_nodes = e_main_rootnode.get_descendants(include_self=True).filter(level__lte=e_main_rootnode.level+1)
+
+        e_comp_rootnode = Voce.objects.get(slug=entrate_slug[self.comp_bilancio_type])
+        e_comp_nodes = e_comp_rootnode.get_descendants(include_self=True).filter(level__lte=e_comp_rootnode.level+1)
+
         e_main_regroup, e_comp_regroup, e_widget_data =\
             self.get_data_set(
-                main_bilancio_slug=entrate_slug[self.main_bilancio_type],
-                comp_bilancio_slug=entrate_slug[self.comp_bilancio_type]
+                main_nodes=e_main_nodes,
+                comp_nodes=e_comp_nodes,
+                main_totale_slug=entrate_slug[self.main_bilancio_type],
+                comp_totale_slug=entrate_slug[self.comp_bilancio_type]
             )
 
-        s_main_regroup, s_comp_regroup, s_widget_data =\
-            self.get_data_set(
-                main_bilancio_slug=spese_slug[self.main_bilancio_type],
-                comp_bilancio_slug=spese_slug[self.comp_bilancio_type]
-            )
+        # s_main_regroup, s_comp_regroup, s_widget_data =\
+        #     self.get_data_set(
+        #         main_bilancio_slug=spese_slug[self.main_bilancio_type],
+        #         comp_bilancio_slug=spese_slug[self.comp_bilancio_type]
+        #     )
+        s_main_regroup = s_comp_regroup = s_widget_data = {}
 
         composition_data['entrate'] = e_widget_data
         composition_data['spese'] = s_widget_data
@@ -675,7 +681,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             # gets the entrate / spese total values from previous regrouping
             e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, e_main_regroup[self.totale_label])][0]
-            s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, s_main_regroup[self.totale_label])][0]
+            # s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, s_main_regroup[self.totale_label])][0]
 
             widget1 = {
                     "type": "bar",
@@ -697,12 +703,12 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     "label": "Spese - Totale",
                     "sublabel2": "SUL consuntivo {0}".format(self.comp_bilancio_year),
                     "sublabel1": "",
-                    "value": float(s_main_totale['valore'])*self.main_gdp_multiplier,
-                    "procapite": float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier,
-                    "variation": self.calculate_variation(
-                                    main_val=s_main_totale['valore'],
-                                    comp_val=s_comp_regroup[self.totale_label]['valore'] if len(s_comp_regroup) else 0
-                                  ),
+                    # "value": float(s_main_totale['valore'])*self.main_gdp_multiplier,
+                    # "procapite": float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier,
+                    # "variation": self.calculate_variation(
+                    #                 main_val=s_main_totale['valore'],
+                    #                 comp_val=s_comp_regroup[self.totale_label]['valore'] if len(s_comp_regroup) else 0
+                    #               ),
                 }
 
             widget3= {
@@ -1300,9 +1306,8 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
         # redirects to appropriate confronti view based on default parameter for Territori
-        # todo: define in settings default parameter for Classifiche
-        kwargs['parameter_type'] = 'indicatori'
-        kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+        kwargs['parameter_type'] = 'entrate'
+        kwargs['parameter_slug'] = settings.DEFAULT_VOCE_SLUG_CLASSIFICHE
         kwargs['anno'] = settings.CLASSIFICHE_END_YEAR
 
         try:
@@ -1600,11 +1605,10 @@ class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
         # redirects to appropriate confronti view based on default parameter for Territori
-        # todo: define in settings default indicator
-        kwargs['parameter_slug'] = Indicatore.objects.all()[0].slug
+        kwargs['parameter_slug'] = settings.DEFAULT_VOCE_SLUG_CONFRONTI
 
         try:
-            url = reverse('confronti-indicatori', args=args , kwargs=kwargs)
+            url = reverse('confronti-entrate', args=args , kwargs=kwargs)
         except NoReverseMatch:
             return reverse('404')
         else:
