@@ -2484,3 +2484,10 @@ form ul li label {
 #comparison .form-group .form-control {
   height: 40px;
 }
+.select2-results .select2-no-results,
+.select2-results .select2-searching,
+.select2-results .select2-selection-limit {
+  background: white!important;
+  display: list-item;
+  color: #5e6a77 !important;
+}
