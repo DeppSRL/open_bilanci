@@ -212,25 +212,24 @@ class Command(BaseCommand):
                     'territorio': territorio,
                     'anno': year,
                 }
-                valori_bilancio = ValoreBilancio.objects.filter(**vb_filters)
 
                 ##
                 # insert/overwrite compute somma-funzioni in preventivo
                 ##
                 f_correnti = self.voci_dict['preventivo-spese-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
 
                 f_correnti = self.voci_dict['consuntivo-spese-cassa-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
 
                 f_correnti = self.voci_dict['consuntivo-spese-impegni-spese-correnti-funzioni']
                 for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
 
 
-    def apply_somma_funzioni_patch(self, voce_corr, valori_bilancio, vb_filters):
+    def apply_somma_funzioni_patch(self, voce_corr, vb_filters):
         """
         Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
 
@@ -238,27 +237,26 @@ class Command(BaseCommand):
         """
         voce_i = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')]
         voce_sum = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')]
+        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
 
         try:
-            vb_c = valori_bilancio.get(voce=voce_corr)
-            vb_i = valori_bilancio.get(voce=voce_i)
+            vb_c = voce_corr.valorebilancio_set.get(**vb_filters)
+            vb_i = voce_i.valorebilancio_set.get(**vb_filters)
+
+            # remove all values for the somma_funzioni voce,
+            # so that values can be added with a faster create
+            voce_sum.valorebilancio_set.filter(**vb_filters).delete()
 
             valore = vb_c.valore + vb_i.valore
             valore_procapite = vb_c.valore_procapite + vb_i.valore_procapite
 
-            vb, created = ValoreBilancio.objects.get_or_create(
+            ValoreBilancio.objects.create(
                 territorio=vb_filters['territorio'],
                 anno=vb_filters['anno'],
                 voce=voce_sum,
-                defaults={
-                    'valore': valore,
-                    'valore_procapite': valore_procapite
-                }
+                valore=valore,
+                valore_procapite=valore_procapite
             )
-            if not created:
-                vb.valore = valore
-                vb.valore_procapite = valore_procapite
-                vb.save()
 
         except ObjectDoesNotExist:
             pass
