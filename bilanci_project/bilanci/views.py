@@ -1536,7 +1536,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
+        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
@@ -1653,7 +1653,7 @@ class ConfrontiView(LoginRequiredMixin, TemplateView):
         # defines the lists of possible confrontation parameters
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni').get_children().order_by('slug')
+        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
 
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
