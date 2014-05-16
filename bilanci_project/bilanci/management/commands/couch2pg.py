@@ -226,8 +226,8 @@ class Command(BaseCommand):
         """
         Add spese correnti and spese per investimenti for funzioni, and write into spese-somma
         """
-        voce_i = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni'))
-        voce_sum = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni'))
+        voce_i = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')]
+        voce_sum = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')]
 
         try:
             vb_c = valori_bilancio.get(voce=voce_corr)
