@@ -432,6 +432,10 @@ TERRITORIO_2_COLOR = '#a51206'
 CLUSTER_LINE_COLOR = '#f7b5a1'
 
 DEFAULT_INDICATOR_SLUG = 'autonomia-finanziaria'
+
+DEFAULT_VOCE_SLUG_CONFRONTI = 'consuntivo-entrate-cassa-imposte-e-tasse'
+DEFAULT_VOCE_SLUG_CLASSIFICHE = DEFAULT_VOCE_SLUG_CONFRONTI
+
 INDICATOR_COLORS = ['#cc6633',
                     '#f7da94',
                     '#913d6a',
