@@ -200,6 +200,47 @@ class Command(BaseCommand):
                 tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
 
+                vb_filters = {
+                    'territorio': territorio,
+                    'anno': year,
+                }
+                valori_bilancio = ValoreBilancio.objects.filter(**vb_filters)
+
+                ##
+                # insert compute somma-funzioni in preventivo
+                ##
+                f_correnti = Voce.objects.get(slug='preventivo-spese-spese-correnti-funzioni')
+                for voce_c in f_correnti.get_descendants(include_self=True):
+                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+
+                f_correnti = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni')
+                for voce_c in f_correnti.get_descendants(include_self=True):
+                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+
+                f_correnti = Voce.objects.get(slug='consuntivo-spese-impegni-spese-correnti-funzioni')
+                for voce_c in f_correnti.get_descendants(include_self=True):
+                    self.create_somma_funzioni_patch(voce_c, valori_bilancio, vb_filters)
+
+
+    def create_somma_funzioni_patch(self, voce_corr, valori_bilancio, vb_filters):
+        """
+        Add spese correnti and spese per investimenti for funzioni, and write into spese-somma
+        """
+        voce_i = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni'))
+        voce_sum = Voce.objects.get(slug=voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni'))
+
+        vb_c = valori_bilancio.get(voce=voce_corr)
+        vb_i = valori_bilancio.get(voce=voce_i)
+
+        ValoreBilancio.objects.create(
+            territorio=vb_filters['territorio'],
+            anno=vb_filters['anno'],
+            voce=voce_sum,
+            valore=vb_c.valore + vb_i.valore,
+            valore_procapite=vb_c.valore_procapite + vb_i.valore_procapite
+        )
+
+
     def create_voci_tree(self):
         """
         Create a Voci tree. If the tree exists, then it is deleted.
