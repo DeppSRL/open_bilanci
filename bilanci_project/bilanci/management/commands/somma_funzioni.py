@@ -30,6 +30,59 @@ class Command(BaseCommand):
         """
 
     logger = logging.getLogger('management')
+    new_branch_denominazione = '_spese_somma_funzioni'
+    new_branch_slug_affix = 'spese-somma-funzioni'
+    dryrun = True
+    
+    
+    def create_branch_consuntivo(self, rootnode_slug):
+
+            rootnode_consuntivo = Voce.objects.get(slug=rootnode_slug)
+            consuntivo_funzioni = Voce.objects.get(slug=rootnode_slug+'-spese-correnti-funzioni')
+
+            # create new branch rootnode
+            new_consuntivo_rootnode = Voce()
+            new_consuntivo_rootnode.slug=rootnode_consuntivo.slug+"-"+self.new_branch_slug_affix
+            new_consuntivo_rootnode.denominazione = self.new_branch_denominazione
+
+            try:
+                _= Voce.objects.get(slug=new_consuntivo_rootnode.slug)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                self.logger.error(u"Voce with slug {0} already exists! Quitting".format(new_consuntivo_rootnode.slug))
+                return
+
+
+            self.logger.info(u"Create Voce rootnode {0} {1}".format(new_consuntivo_rootnode.denominazione, new_consuntivo_rootnode.slug))
+            if not self.dryrun:
+                new_consuntivo_rootnode.insert_at(rootnode_consuntivo, position=u'last-child')
+                new_consuntivo_rootnode.save()
+
+
+            # insert leaves for new branch
+
+            for first_level_original in consuntivo_funzioni.get_children():
+                v_funzione_first = Voce()
+                v_funzione_first.slug = first_level_original.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
+                v_funzione_first.denominazione = first_level_original.denominazione
+
+
+                self.logger.info(u"Create Voce consuntivo {0} {1}".format(v_funzione_first.denominazione, v_funzione_first.slug))
+                if not self.dryrun:
+                    v_funzione_first.insert_at(new_consuntivo_rootnode, position=u'last-child')
+                    v_funzione_first.save()
+
+                for second_level_original in first_level_original.get_children():
+                    v_funzione_second = Voce()
+                    v_funzione_second.slug = second_level_original.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
+                    v_funzione_second.denominazione = second_level_original.denominazione
+
+                    self.logger.info(u"> Create Voce consuntivo {0} {1}".format(v_funzione_second.denominazione, v_funzione_second.slug))
+                    if not self.dryrun:
+                        v_funzione_second.insert_at(v_funzione_first,position=u'last-child')
+                        v_funzione_second.save()
+
 
 
     def handle(self, *args, **options):
@@ -46,10 +99,9 @@ class Command(BaseCommand):
         ###
         # dryrun
         ###
-        dryrun = options['dryrun']
+        self.dryrun = options['dryrun']
 
-        new_branch_denominazione = '_spese_somma_funzioni'
-        new_branch_slug_affix = 'spese-somma-funzioni'
+        
 
         ##
         # insert somma-funzioni in preventivo
@@ -59,8 +111,8 @@ class Command(BaseCommand):
         
         # create new branch rootnode
         new_preventivo_rootnode = Voce()
-        new_preventivo_rootnode.slug=rootnode_preventivo.slug+"-"+new_branch_slug_affix
-        new_preventivo_rootnode.denominazione = new_branch_denominazione
+        new_preventivo_rootnode.slug=rootnode_preventivo.slug+"-"+self.new_branch_slug_affix
+        new_preventivo_rootnode.denominazione = self.new_branch_denominazione
 
         try:
             _= Voce.objects.get(slug=new_preventivo_rootnode.slug)
@@ -71,7 +123,7 @@ class Command(BaseCommand):
             return
 
         self.logger.info(u"Create Voce rootnode {0} {1}".format(new_preventivo_rootnode.denominazione, new_preventivo_rootnode.slug))
-        if not dryrun:
+        if not self.dryrun:
             new_preventivo_rootnode.insert_at(rootnode_preventivo, position=u'last-child')
             new_preventivo_rootnode.save()
 
@@ -83,59 +135,17 @@ class Command(BaseCommand):
             v_funzione.denominazione = f_original.denominazione
 
             self.logger.info(u"Create Voce preventivo {0} {1}".format(v_funzione.denominazione, v_funzione.slug))
-            if not dryrun:
+            if not self.dryrun:
                 v_funzione.insert_at(new_preventivo_rootnode, position=u'last-child')
                 v_funzione.save()
 
 
         ##
-        # insert somma-funzioni in consuntivo
+        # insert somma-funzioni in consuntivo cassa / impegni
         ##
+
+        self.create_branch_consuntivo('consuntivo-spese-cassa')
+        self.create_branch_consuntivo('consuntivo-spese-impegni')
+
         
-        rootnode_consuntivo = Voce.objects.get(slug='consuntivo-spese-cassa')
-        consuntivo_funzioni = Voce.objects.get(slug='consuntivo-spese-cassa-spese-correnti-funzioni')
-        
-        # create new branch rootnode
-        new_consuntivo_rootnode = Voce()
-        new_consuntivo_rootnode.slug=rootnode_consuntivo.slug+"-"+new_branch_slug_affix
-        new_consuntivo_rootnode.denominazione = new_branch_denominazione
-
-        try:
-            _= Voce.objects.get(slug=new_consuntivo_rootnode.slug)
-        except ObjectDoesNotExist:
-            pass
-        else:
-            self.logger.error(u"Voce with slug {0} already exists! Quitting".format(new_preventivo_rootnode.slug))
-            return
-
-
-        self.logger.info(u"Create Voce rootnode {0} {1}".format(new_consuntivo_rootnode.denominazione, new_consuntivo_rootnode.slug))
-        if not dryrun:
-            new_consuntivo_rootnode.insert_at(rootnode_consuntivo, position=u'last-child')
-            new_consuntivo_rootnode.save()
-            
-        
-        # insert leaves for new branch
-        
-        for first_level_original in consuntivo_funzioni.get_children():
-            v_funzione_first = Voce()
-            v_funzione_first.slug = first_level_original.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
-            v_funzione_first.denominazione = first_level_original.denominazione
-
-
-            self.logger.info(u"Create Voce consuntivo {0} {1}".format(v_funzione_first.denominazione, v_funzione_first.slug))
-            if not dryrun:
-                v_funzione_first.insert_at(new_consuntivo_rootnode, position=u'last-child')
-                v_funzione_first.save()
-
-            for second_level_original in first_level_original.get_children():
-                v_funzione_second = Voce()
-                v_funzione_second.slug = second_level_original.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
-                v_funzione_second.denominazione = second_level_original.denominazione
-
-                self.logger.info(u"> Create Voce consuntivo {0} {1}".format(v_funzione_second.denominazione, v_funzione_second.slug))
-                if not dryrun:
-                    v_funzione_second.insert_at(v_funzione_first,position=u'last-child')
-                    v_funzione_second.save()
-                
         
