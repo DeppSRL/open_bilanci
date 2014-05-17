@@ -2533,3 +2533,7 @@ form ul li label {
   display: list-item;
   color: #5e6a77 !important;
 }
+#pagination-digg span.active {
+  background: #99a5b1 !important;
+  color: #2a3036!important;
+}
