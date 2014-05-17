@@ -212,53 +212,64 @@ class Command(BaseCommand):
                     'territorio': territorio,
                     'anno': year,
                 }
+                self.logger.debug("** start reading values")
+                vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore', 'valore_procapite')
+                self.logger.debug("** end reading values")
+
+                vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
                 ##
                 # insert/overwrite compute somma-funzioni in preventivo
+                # for all not to be patched
                 ##
-                f_correnti = self.voci_dict['preventivo-spese-spese-correnti-funzioni']
-                for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
+                nodes_to_pach_slugs = [
+                    'preventivo-spese-spese-correnti-funzioni',
+                    'consuntivo-spese-cassa-spese-correnti-funzioni',
+                    'consuntivo-spese-impegni-spese-correnti-funzioni',
+                ]
+                for node_to_patch_slug in nodes_to_pach_slugs:
+                    funzioni_correnti_voci = self.voci_dict[node_to_patch_slug]
+                    for voce_corrente_slug in funzioni_correnti_voci.get_descendants(include_self=True).values_list('slug', flat=True):
+                        self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
 
-                f_correnti = self.voci_dict['consuntivo-spese-cassa-spese-correnti-funzioni']
-                for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
-
-                f_correnti = self.voci_dict['consuntivo-spese-impegni-spese-correnti-funzioni']
-                for voce_c in f_correnti.get_descendants(include_self=True):
-                    self.apply_somma_funzioni_patch(voce_c, vb_filters)
+                del vb_dict
+                del vb_filters
 
 
-    def apply_somma_funzioni_patch(self, voce_corr, vb_filters):
+    def apply_somma_funzioni_patch(self, voce_c_slug, vb_filters, vb_dict):
         """
         Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
 
         Overwrite values if found.
         """
-        voce_i = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')]
-        voce_sum = self.voci_dict[voce_corr.slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')]
-        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
+        voce_i_slug = voce_c_slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')
+        voce_sum_slug = voce_c_slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
+        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum_slug))
 
         try:
-            vb_c = voce_corr.valorebilancio_set.get(**vb_filters)
-            vb_i = voce_i.valorebilancio_set.get(**vb_filters)
+            vb_c = vb_dict[voce_c_slug]
+            vb_i = vb_dict[voce_i_slug]
 
             # remove all values for the somma_funzioni voce,
             # so that values can be added with a faster create
-            voce_sum.valorebilancio_set.filter(**vb_filters).delete()
+            self.logger.debug("** start deleting values")
+            ValoreBilancio.objects.filter(voce__slug=voce_sum_slug).delete()
+            self.logger.debug("** end deleting values")
 
-            valore = vb_c.valore + vb_i.valore
-            valore_procapite = vb_c.valore_procapite + vb_i.valore_procapite
+            valore = vb_c['valore'] + vb_i['valore']
+            valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
 
+            self.logger.debug("** start adding values")
             ValoreBilancio.objects.create(
                 territorio=vb_filters['territorio'],
                 anno=vb_filters['anno'],
-                voce=voce_sum,
+                voce=self.voci_dict[voce_sum_slug],
                 valore=valore,
                 valore_procapite=valore_procapite
             )
+            self.logger.debug("** end adding values")
 
-        except ObjectDoesNotExist:
+        except KeyError:
             pass
 
 
