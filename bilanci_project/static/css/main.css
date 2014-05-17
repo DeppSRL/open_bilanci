@@ -2475,6 +2475,48 @@ form ul li label {
   color: #cc6633;
   font-weight: bold;
 }
+.panel-tree .panel-heading,
+.panel-tree .panel {
+  border-radius: 0;
+}
+.panel-tree > .panel {
+  border-top: 2px solid #5e6a77;
+}
+.panel-tree > .panel .panel-body {
+  padding: 0;
+  border-top: 0;
+}
+.panel-tree > .panel .panel-heading + .panel-collapse .panel-body {
+  border-top: 0;
+}
+.panel-tree > .panel .panel-group {
+  border-bottom: 1px dashed #5e6a77;
+}
+.panel-tree > .panel p.h3 {
+  margin-top: 0;
+}
+.panel-tree > .panel .chart-wrapper .chart {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  display: block;
+}
+.panel-tree > .panel .chart-wrapper .label {
+  color: #2a3036;
+  font-weight: 400;
+  display: inline-block;
+  text-align: left;
+  width: 45%;
+}
+.panel-tree > .panel .chart-wrapper .value {
+  font-weight: 700;
+}
+.panel-tree > .panel .panel-collapse {
+  border-top: 1px dashed #5e6a77;
+}
+.panel-tree > .pabel .panel-collapse .panel-collapse {
+  border-top: none !important;
+}
 .select2-choice {
   height: 40px!important;
 }
@@ -2483,4 +2525,39 @@ form ul li label {
 }
 #comparison .form-group .form-control {
   height: 40px;
+}
+.select2-results .select2-no-results,
+.select2-results .select2-searching,
+.select2-results .select2-selection-limit {
+  background: white!important;
+  display: list-item;
+  color: #5e6a77 !important;
+}
+#pagination-digg span.active {
+  background: #99a5b1 !important;
+  color: #2a3036!important;
+}
+
+.social-accounts {
+  font-size: 9pt;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.social-accounts a,
+.social-accounts a:visited {
+  color: #fff;
+}
+.social-accounts a i:not(.fa-circle),
+.social-accounts a:visited i:not(.fa-circle) {
+  color: #cc6633;
+}
+#footer .nav li > a {
+  color: #fff;
+}
+#footer .nav li > a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+#footer .partners li a.openpolis {
+  background: none;
 }

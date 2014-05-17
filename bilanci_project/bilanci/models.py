@@ -78,9 +78,9 @@ class Voce(MPTTModel):
 
 class ValoreBilancio(models.Model):
 
-    voce = models.ForeignKey(Voce, null=False, blank=False)
-    territorio = models.ForeignKey(Territorio, null=False, blank=False)
-    anno = models.PositiveSmallIntegerField()
+    voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
+    territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
+    anno = models.PositiveSmallIntegerField(db_index=True)
     valore = models.BigIntegerField(default=0, null=True, blank=True)
     valore_procapite = models.FloatField(default=0., null=True, blank=True)
 

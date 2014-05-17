@@ -44,7 +44,7 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, populati
     """
     Generate a composite BilancioItem tree, starting from a budget_node python dict
 
-    :param budget_dict: Contains the budget (usually extracted from couchdb)
+    :param budget_node: Contains the budget (usually extracted from couchdb)
     :param voci_dict:   Contains the mapping of the Voce MPTT tree (slug to instance)
     :param path:        A list of path, within the budget_node, where to start
     :param logger:      If specified, used to log warning messages
@@ -150,37 +150,60 @@ def make_tree_from_db(voce_node, valori_bilancio):
             treeitem_children.append(make_tree_from_db(voce_node_child, valori_bilancio))
         return make_composite(*treeitem_children, **voce_node_params)
 
-def write_record_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
+
+def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
     """
-    Save a single record in the VoceBilancio model
+    Write a record in the VoceBilancio model
 
     :param territorio:    A Territorio object, identifying the city
     :param anno:          The year, as an integer
-    :param tree_node:     The BilancioItem object to persist
+    :param voce:          The Voce node
+    :para valori:         a dict, with valore and valore_procapito values, to be persisted
     :param get_or_create: A flag, signaling whether to use the get_or_create method (slower)
     """
     if get_or_create:
         vb, created = ValoreBilancio.objects.get_or_create(
             territorio=territorio,
             anno=anno,
-            voce=voci_dict[tree_node.slug],
+            voce=voce,
             defaults={
-                'valore': tree_node.valore,
-                'valore_procapite': tree_node.valore_procapite
+                'valore': valori['valore'],
+                'valore_procapite': valori['valore_procapite']
             }
         )
         if not created:
-            vb.valore = tree_node.valore
-            vb.valore_procapite = tree_node.valore_procapite
+            vb.valore = valori['valore']
+            vb.valore_procapite = valori['valore_procapite']
             vb.save()
     else:
         ValoreBilancio.objects.create(
             territorio=territorio,
             anno=anno,
-            voce=voci_dict[tree_node.slug],
-            valore=tree_node.valore,
-            valore_procapite=tree_node.valore_procapite
+            voce=voce,
+            valore=valori['valore'],
+            valore_procapite=valori['valore_procapite']
         )
+
+
+def write_record_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
+    """
+    Save a single node in the VoceBilancio model
+
+    :param territorio:    A Territorio object, identifying the city
+    :param anno:          The year, as an integer
+    :param tree_node:     The BilancioItem object to persist
+    :param get_or_create: A flag, signaling whether to use the get_or_create method (slower)
+    """
+
+    tree_node_slug = tree_node.slug
+    voce = voci_dict[tree_node_slug]
+    valori = {
+        'valore': tree_node.valore,
+        'valore_procapite': tree_node.valore_procapite,
+    }
+
+    write_values_to_vb(territorio, anno, voce, valori, get_or_create)
+
 
 def write_tree_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
     """

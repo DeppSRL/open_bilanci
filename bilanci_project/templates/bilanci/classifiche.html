@@ -146,7 +146,7 @@
                                                     </td>
                                                     <td class="col-sm-9 text">
 {#                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>#}
-                                                        <h4><a >{{ valore_obj.territorio.denominazione }}</a></h4>
+                                                        <h4><a href="{% url 'bilanci-overview' slug=valore_obj.territorio.slug %}" >{{ valore_obj.territorio.denominazione }}</a></h4>
                                                         <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
                                                         <div class="media" style="font-size: 13px;">
@@ -168,6 +168,7 @@
                                                                     {% else  %}
                                                                         class="icon sprite-trend-down-3"
                                                             {% endif %}
+                                                                    >
                                                             </span>
                                                         {% endspaceless %}
 

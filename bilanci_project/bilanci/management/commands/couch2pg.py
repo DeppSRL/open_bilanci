@@ -42,6 +42,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
+        make_option('--patch-somma-funzioni-only',
+                    dest='patch_somma_funzioni_only',
+                    action='store_true',
+                    default=False,
+                    help='Only apply the patch to compute somma-funzioni. Does not import other budget data.'),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -69,6 +74,7 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
+        patch_somma_funzioni_only = options['patch_somma_funzioni_only']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -131,6 +137,29 @@ class Command(BaseCommand):
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
+        # build the list of voci ids to apply the somma_funzioni patch
+        nodes_to_pach_slugs = [
+            'preventivo-spese-spese-somma-funzioni',
+            'consuntivo-spese-cassa-spese-somma-funzioni',
+            'consuntivo-spese-impegni-spese-somma-funzioni',
+        ]
+        voci_correnti_ids = []
+        voci_correnti_slugs = []
+        for node_to_patch_slug in nodes_to_pach_slugs:
+            _voci = self.voci_dict[node_to_patch_slug]
+            _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
+            _ids = [
+                self.voci_dict[voce_corrente_slug].pk
+                for voce_corrente_slug in _slugs
+            ]
+            voci_correnti_ids.extend(_ids)
+            voci_correnti_slugs.extend(_slugs)
+
+            # delete all values in ValoreBilancio
+            self.logger.debug("** start deleting values for {0}".format(node_to_patch_slug))
+            ValoreBilancio.objects.filter(voce__in=_ids).delete()
+
+
         for city in cities:
 
             try:
@@ -188,16 +217,72 @@ class Command(BaseCommand):
                 )
 
 
-                ### persist the BilancioItem values
+                if not patch_somma_funzioni_only:
 
-                # previously remove all values for a city and a year
-                # used to speed up records insertion
-                ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+                    ### persist the BilancioItem values
 
-                # add values fastly, without checking their existance
-                # do that for the whole tree (preventivo, consuntivo, ...)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+                    # previously remove all values for a city and a year
+                    # used to speed up records insertion
+                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+
+                    # add values fastly, without checking their existance
+                    # do that for the whole tree (preventivo, consuntivo, ...)
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+
+
+                vb_filters = {
+                    'territorio': territorio,
+                    'anno': year,
+                }
+                self.logger.debug("** start reading values")
+                vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore', 'valore_procapite')
+                self.logger.debug("** end reading values")
+
+                vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+
+
+                ##
+                # insert/overwrite compute somma-funzioni in preventivo
+                # for all not to be patched
+                ##
+                for voce_corrente_slug in voci_correnti_slugs:
+                    self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
+                del vb_dict
+                del vb_filters
+
+
+    def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
+        """
+        Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
+
+        Overwrite values if found.
+        """
+        voce_c_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-correnti-funzioni')
+        voce_i_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-per-investimenti-funzioni')
+        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum_slug))
+
+        try:
+            vb_c = vb_dict[voce_c_slug]
+            vb_i = vb_dict[voce_i_slug]
+
+            voce_sum = self.voci_dict[voce_sum_slug]
+
+            valore = vb_c['valore'] + vb_i['valore']
+            valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
+
+            self.logger.debug("** start adding values")
+            ValoreBilancio.objects.create(
+                territorio=vb_filters['territorio'],
+                anno=vb_filters['anno'],
+                voce=voce_sum,
+                valore=valore,
+                valore_procapite=valore_procapite
+            )
+            self.logger.debug("** end adding values")
+
+        except KeyError:
+            pass
 
 
     def create_voci_tree(self):
