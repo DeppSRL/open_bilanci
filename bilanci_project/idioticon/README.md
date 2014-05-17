@@ -14,7 +14,7 @@ where the popovers appear.
 
 Installation
 ============
-Install django-tinymce with::
+Install django-tinymce, if not already installed with::
 
     pip install django-tinymce
 
