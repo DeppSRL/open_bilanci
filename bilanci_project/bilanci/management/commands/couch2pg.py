@@ -137,6 +137,24 @@ class Command(BaseCommand):
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
+        # build the list of slugs to apply the somma_funzioni patch
+        nodes_to_pach_slugs = [
+            'preventivo-spese-spese-correnti-funzioni',
+            'consuntivo-spese-cassa-spese-correnti-funzioni',
+            'consuntivo-spese-impegni-spese-correnti-funzioni',
+        ]
+        voci_correnti_slugs = []
+        for node_to_patch_slug in nodes_to_pach_slugs:
+            funzioni_correnti_voci = self.voci_dict[node_to_patch_slug]
+            for voce_corrente_slug in funzioni_correnti_voci.get_descendants(include_self=True).values_list('slug', flat=True):
+                voci_correnti_slugs.append(voce_corrente_slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni'))
+
+        # delete all values in ValoreBilancio
+        self.logger.debug("** start deleting values")
+        ValoreBilancio.objects.filter(voce__slug__in=voci_correnti_slugs).delete()
+        self.logger.debug("** start deleting values")
+
+
         for city in cities:
 
             try:
@@ -218,20 +236,13 @@ class Command(BaseCommand):
 
                 vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
+
                 ##
                 # insert/overwrite compute somma-funzioni in preventivo
                 # for all not to be patched
                 ##
-                nodes_to_pach_slugs = [
-                    'preventivo-spese-spese-correnti-funzioni',
-                    'consuntivo-spese-cassa-spese-correnti-funzioni',
-                    'consuntivo-spese-impegni-spese-correnti-funzioni',
-                ]
-                for node_to_patch_slug in nodes_to_pach_slugs:
-                    funzioni_correnti_voci = self.voci_dict[node_to_patch_slug]
-                    for voce_corrente_slug in funzioni_correnti_voci.get_descendants(include_self=True).values_list('slug', flat=True):
-                        self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
-
+                for voce_corrente_slug in voci_correnti_slugs:
+                    self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
                 del vb_dict
                 del vb_filters
 
