@@ -137,22 +137,27 @@ class Command(BaseCommand):
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
-        # build the list of slugs to apply the somma_funzioni patch
+        # build the list of voci ids to apply the somma_funzioni patch
         nodes_to_pach_slugs = [
-            'preventivo-spese-spese-correnti-funzioni',
-            'consuntivo-spese-cassa-spese-correnti-funzioni',
-            'consuntivo-spese-impegni-spese-correnti-funzioni',
+            'preventivo-spese-spese-somma-funzioni',
+            'consuntivo-spese-cassa-spese-somma-funzioni',
+            'consuntivo-spese-impegni-spese-somma-funzioni',
         ]
+        voci_correnti_ids = []
         voci_correnti_slugs = []
         for node_to_patch_slug in nodes_to_pach_slugs:
-            funzioni_correnti_voci = self.voci_dict[node_to_patch_slug]
-            for voce_corrente_slug in funzioni_correnti_voci.get_descendants(include_self=True).values_list('slug', flat=True):
-                voci_correnti_slugs.append(voce_corrente_slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni'))
+            _voci = self.voci_dict[node_to_patch_slug]
+            _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
+            _ids = [
+                self.voci_dict[voce_corrente_slug].pk
+                for voce_corrente_slug in _slugs
+            ]
+            voci_correnti_ids.extend(_ids)
+            voci_correnti_slugs.extend(_slugs)
 
-        # delete all values in ValoreBilancio
-        self.logger.debug("** start deleting values")
-        ValoreBilancio.objects.filter(voce__slug__in=voci_correnti_slugs).delete()
-        self.logger.debug("** start deleting values")
+            # delete all values in ValoreBilancio
+            self.logger.debug("** start deleting values for {0}".format(node_to_patch_slug))
+            ValoreBilancio.objects.filter(voce__in=_ids).delete()
 
 
         for city in cities:
@@ -247,14 +252,14 @@ class Command(BaseCommand):
                 del vb_filters
 
 
-    def apply_somma_funzioni_patch(self, voce_c_slug, vb_filters, vb_dict):
+    def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
         """
         Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
 
         Overwrite values if found.
         """
-        voce_i_slug = voce_c_slug.replace('spese-correnti-funzioni', 'spese-per-investimenti-funzioni')
-        voce_sum_slug = voce_c_slug.replace('spese-correnti-funzioni', 'spese-somma-funzioni')
+        voce_c_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-correnti-funzioni')
+        voce_i_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-per-investimenti-funzioni')
         self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum_slug))
 
         try:
@@ -262,12 +267,6 @@ class Command(BaseCommand):
             vb_i = vb_dict[voce_i_slug]
 
             voce_sum = self.voci_dict[voce_sum_slug]
-
-            # remove all values for the somma_funzioni voce,
-            # so that values can be added with a faster create
-            self.logger.debug("** start deleting values")
-            ValoreBilancio.objects.filter(voce=voce_sum).delete()
-            self.logger.debug("** end deleting values")
 
             valore = vb_c['valore'] + vb_i['valore']
             valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
