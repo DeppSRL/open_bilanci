@@ -1509,6 +1509,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             territorio_dict = {
                 'territorio':{
                     'denominazione': valoreObj.territorio.denominazione,
+                    'slug': valoreObj.territorio.slug,
                     'prov': valoreObj.territorio.prov,
                     'regione': valoreObj.territorio.regione,
                     'pk': valoreObj.territorio.pk,
