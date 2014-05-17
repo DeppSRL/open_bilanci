@@ -250,10 +250,12 @@ class Command(BaseCommand):
             vb_c = vb_dict[voce_c_slug]
             vb_i = vb_dict[voce_i_slug]
 
+            voce_sum = self.voci_dict[voce_sum_slug]
+
             # remove all values for the somma_funzioni voce,
             # so that values can be added with a faster create
             self.logger.debug("** start deleting values")
-            ValoreBilancio.objects.filter(voce__slug=voce_sum_slug).delete()
+            ValoreBilancio.objects.filter(voce=voce_sum).delete()
             self.logger.debug("** end deleting values")
 
             valore = vb_c['valore'] + vb_i['valore']
@@ -263,7 +265,7 @@ class Command(BaseCommand):
             ValoreBilancio.objects.create(
                 territorio=vb_filters['territorio'],
                 anno=vb_filters['anno'],
-                voce=self.voci_dict[voce_sum_slug],
+                voce=voce_sum,
                 valore=valore,
                 valore_procapite=valore_procapite
             )
