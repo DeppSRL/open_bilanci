@@ -29,10 +29,10 @@ class LoginRequiredMixin(object):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
+class HomeView(TemplateView):
     template_name = "home.html"
 
-class HomeReleaseView(LoginRequiredMixin, TemplateView):
+class HomeReleaseView(TemplateView):
     template_name = "home_release.html"
 
 class HomeTemporaryView(TemplateView):
