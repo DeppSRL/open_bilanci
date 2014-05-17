@@ -1447,7 +1447,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
 
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
-        ordinal_position = 1
+        ordinal_position = ((self.kwargs.get('page',1)-1) * self.paginate_by)+1
         comparison_year = self.anno_int - 1
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
         all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).values_list('cluster',flat=True)
@@ -1509,6 +1509,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             territorio_dict = {
                 'territorio':{
                     'denominazione': valoreObj.territorio.denominazione,
+                    'slug': valoreObj.territorio.slug,
                     'prov': valoreObj.territorio.prov,
                     'regione': valoreObj.territorio.regione,
                     'pk': valoreObj.territorio.pk,
