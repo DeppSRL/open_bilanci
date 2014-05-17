@@ -6,7 +6,6 @@ import json
 import zmq
 import requests
 from collections import OrderedDict
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
@@ -395,7 +394,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         )
 
 
-class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
+class BilancioCompositionWidgetView(TemplateView):
 
     template_name = None
     show_help = True
@@ -906,7 +905,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
     
 
 
-class BilancioRedirectView(LoginRequiredMixin, RedirectView):
+class BilancioRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -933,7 +932,7 @@ class BilancioRedirectView(LoginRequiredMixin, RedirectView):
             return reverse('404')
 
 
-class BilancioView(LoginRequiredMixin, DetailView):
+class BilancioView(DetailView):
 
     model = Territorio
     context_object_name = "territorio"
@@ -965,7 +964,7 @@ class BilancioView(LoginRequiredMixin, DetailView):
         return context
 
 
-class BilancioNotFoundView(LoginRequiredMixin, TemplateView):
+class BilancioNotFoundView(TemplateView):
 
     ##
     # show a page when a Comune doesnt have any bilancio
@@ -1117,7 +1116,7 @@ class BilancioOverView(BilancioView):
 
         return context
 
-class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -1301,7 +1300,7 @@ class BilancioSpeseView(BilancioDetailView):
         return context
 
 
-class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
+class ClassificheRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1317,7 +1316,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
         else:
             return url
 
-class ClassificheListView(LoginRequiredMixin, ListView):
+class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = 15
@@ -1582,7 +1581,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ConfrontiHomeView(LoginRequiredMixin, TemplateView):
+class ConfrontiHomeView(TemplateView):
 
     ##
     # ConfrontiHomeView shows the search form to compare two Territori
@@ -1601,7 +1600,7 @@ class ConfrontiHomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
+class ConfrontiRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1616,7 +1615,7 @@ class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
             return url
 
 
-class ConfrontiView(LoginRequiredMixin, TemplateView):
+class ConfrontiView(TemplateView):
 
     template_name = "bilanci/confronti_data.html"
 
