@@ -604,19 +604,22 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     def calc_variations(self, main_dict, comp_dict):
         # creates a variations dict based on voce denominazione
         variations = {}
-        for main_denominazione, main_value in main_dict.iteritems():
-            for year_value in main_value:
-                if year_value['anno'] == self.main_bilancio_year:
+        for main_denominazione, main_value_set in main_dict.iteritems():
+            for main_value_dict in main_value_set:
+                if main_value_dict['anno'] == self.main_bilancio_year:
+
+                    main_value = main_value_dict['valore']
+                    comparison_value = comp_dict.get([main_denominazione],None)
 
                     variations[main_denominazione] =\
                         self.calculate_variation(
-                            year_value['valore'],
-                            comp_dict[main_denominazione]['valore'],)
+                            main_value,
+                            comparison_value)
 
         return variations
 
 
-    def compose_widget_data(self, main_values_regroup, variations):
+    def compose_overview_data(self, main_values_regroup, variations):
         composition_data = []
 
         ##
@@ -654,52 +657,57 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         return composition_data
 
 
-    def get_context_data(self, **kwargs):
 
-        widget1 = widget2 = widget3 = None
-        main_regroup_e = main_regroup_s=variations_e=variations_s= None
+    def create_context_entrate(self):
 
-        context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
-
-        ##
-        # creates the context to feed the Visup composition widget
-        ##
-
-
-        if self.widget_type == "entrate" or self.widget_type == "overview":
-            main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type)
-            comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type)
-            main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-            comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
-            variations_e = self.calc_variations(main_regroup_e, comp_regroup_e,)
+        context = {}
+        context["type"]= "ENTRATE"
+        # entrate data
+        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type)
+        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
+        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
+        variations_e = self.calc_variations(main_regroup_e, comp_regroup_e,)
+        context['entrate'] = json.dumps(self.compose_overview_data(main_regroup_e, variations_e))
+        return context
 
 
-        if self.widget_type == "spese" or self.widget_type == "overview":
 
-            main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type)
-            comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type)
-            main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
-            comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-            variations_s = self.calc_variations(main_regroup_s, comp_regroup_s,)
+    def create_context_spese(self):
 
+        context = {}
+        context["type"]= "SPESE"
+        # spese data
+        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type)
+        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
+        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
+        variations_s = self.calc_variations(main_regroup_s, comp_regroup_s,)
+        context['spese'] = json.dumps(self.compose_overview_data(main_regroup_s, variations_s))
 
-        context['year'] = self.main_bilancio_year
-
-        if self.widget_type == "overview":
-            context['entrate'] = json.dumps(self.compose_widget_data(main_regroup_e, variations_e))
-            context['spese'] = json.dumps(self.compose_widget_data(main_regroup_s, variations_s))
-
-        elif self.widget_type == "entrate":
-
-             context['type'] = "ENTRATE"
-             context['entrate'] = []
-        else:
-
-            context['type'] = "SPESE"
-            context['spese'] = []
+        return context
 
 
-        widget1=widget2=widget3=None
+    def create_context_overview(self):
+
+        context = {}
+        # entrate data
+        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type)
+        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
+        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
+        variations_e = self.calc_variations(main_regroup_e, comp_regroup_e,)
+
+        # spese data
+        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type)
+        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
+        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
+        variations_s = self.calc_variations(main_regroup_s, comp_regroup_s,)
+
+
+        context['entrate'] = json.dumps(self.compose_overview_data(main_regroup_e, variations_e))
+        context['spese'] = json.dumps(self.compose_overview_data(main_regroup_s, variations_s))
 
         if self.main_bilancio_type == 'preventivo':
 
@@ -729,15 +737,12 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
                   )
 
-
             context["w3_type"]= "spark"
             context["w3_label"]=  "Andamento nel tempo delle Entrate"
             context["w3_sublabel1"]= ''
             context["w3_sublabel2"]= ''
             context["w3_sublabel3"]= "Entrate nei Bilanci Preventivi {0}-{1}".format(settings.APP_START_DATE.year, settings.APP_END_DATE.year)
             context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_e[self.totale_label]])
-
-
 
         else:
 
@@ -751,20 +756,11 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             # widget1
             # avanzo / disavanzo di cassa / competenza
-
-
-            yrs_to_consider = {
-                '1':self.main_bilancio_year-1,
-                '2':self.main_bilancio_year,
-                '3':self.main_bilancio_year+1
-            }
+            yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
 
             for k, year in yrs_to_consider.iteritems():
-
                 if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
-
                     try:
-
                         entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
                         spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
 
@@ -775,7 +771,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     except ObjectDoesNotExist:
                         continue
                     else:
-
                         context['w1_year'+k] = year
                         context['w1_value'+k] = entrate-spese
 
@@ -810,13 +805,41 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                                         comp_val=comp_preventivo_spese['valore']
                                     )
 
-
-        context['comp_bilancio_type'] = self.comp_bilancio_type
-        context['comp_bilancio_year'] = self.comp_bilancio_year
-
         context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
+
+
+        return context
+
+
+    def get_context_data(self, **kwargs):
+
+        widget1 = widget2 = widget3 = None
+        main_regroup_e = main_regroup_s=variations_e=variations_s= None
+
+        context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
+
+        ##
+        # creates the context to feed the Visup composition widget
+        ##
+
+        context['year'] = self.main_bilancio_year
+
+        if self.widget_type == "overview":
+
+            context.update(self.create_context_overview())
+
+
+        elif self.widget_type == "entrate":
+            context.update(self.create_context_entrate())
+
+        else:
+            context.update(self.create_context_spese())
+
+
+        context['comp_bilancio_type'] = self.comp_bilancio_type
+        context['comp_bilancio_year'] = self.comp_bilancio_year
 
 
         context['main_bilancio_type']=self.main_bilancio_type

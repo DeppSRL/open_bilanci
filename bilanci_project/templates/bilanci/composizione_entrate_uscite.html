@@ -4,7 +4,20 @@
 
     <script>
         $(document).ready( function() {
-          var load_sample_json = true;
+            var load_sample_json = true;
+
+            var composition_data = {
+            "type": "{{ type }}",
+            "hover": true,
+            "year": 2009,
+            "showLabels": true,
+
+            "button1": "Titoli",
+            "button2": "Categorie",
+            "button3": "Voci",
+
+            "composizione":{{ x }}
+            };
 
           var data = {{ composition_data|safe }};
 
