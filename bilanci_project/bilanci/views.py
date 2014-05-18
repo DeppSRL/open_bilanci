@@ -738,85 +738,74 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         else:
 
-
             # # creates overview widget data for consuntivo cassa / competenza
 
-            comp_preventivo_entrate  = comp_preventivo_spese = main_consuntivo_entrate = main_consuntivo_spese =None
+            comp_preventivo_entrate = comp_regroup_e[self.totale_label]['valore']
+            comp_preventivo_spese = comp_regroup_s[self.totale_label]['valore']
 
-            try:
-                comp_preventivo_entrate = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = 'preventivo-entrate')
-                comp_preventivo_spese = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = 'preventivo-spese')
-                main_consuntivo_entrate = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = main_tot_e)
-                main_consuntivo_spese = ValoreBilancio.objects.get(territorio=self.territorio, anno=self.comp_bilancio_year, voce__slug = main_tot_s)
+            main_consuntivo_entrate = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
+            main_consuntivo_spese= [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
 
-            except ObjectDoesNotExist:
-                pass
-            else:
-                # widget1
-                # avanzo / disavanzo di cassa / competenza
+            # widget1
+            # avanzo / disavanzo di cassa / competenza
 
 
-                yrs_to_consider = {
-                    '1':self.main_bilancio_year-1,
-                    '2':self.main_bilancio_year,
-                    '3':self.main_bilancio_year+1
-                }
+            yrs_to_consider = {
+                '1':self.main_bilancio_year-1,
+                '2':self.main_bilancio_year,
+                '3':self.main_bilancio_year+1
+            }
 
-                for k, year in yrs_to_consider.iteritems():
+            for k, year in yrs_to_consider.iteritems():
 
-                    if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+                if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
 
-                        try:
+                    try:
 
-                            entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
-                            spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
+                        entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
+                        spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
 
-                            if self.values_type == 'real':
-                                entrate = float(entrate) *settings.GDP_DEFLATORS[year]
-                                spese = float(spese) *settings.GDP_DEFLATORS[year]
+                        if self.values_type == 'real':
+                            entrate = float(entrate) *settings.GDP_DEFLATORS[year]
+                            spese = float(spese) *settings.GDP_DEFLATORS[year]
 
-                        except ObjectDoesNotExist:
-                            continue
-                        else:
+                    except ObjectDoesNotExist:
+                        continue
+                    else:
 
-                            context['w1_year'+k] = year
-                            context['w1_value'+k] = entrate-spese
-
-
-                context["w1_type"]= "surplus"
-                context["w1_label"]= "Avanzo/disavanzo"
-                context["w1_sublabel1"]= "di "+self.cas_com_type
-                context["w1_sublabel2"]= ""
+                        context['w1_year'+k] = year
+                        context['w1_value'+k] = entrate-spese
 
 
+            context["w1_type"]= "surplus"
+            context["w1_label"]= "Avanzo/disavanzo"
+            context["w1_sublabel1"]= "di "+self.cas_com_type
+            context["w1_sublabel2"]= ""
 
-                # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
-                e_money_verb, s_money_verb = self.get_money_verb()
+            # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
+            e_money_verb, s_money_verb = self.get_money_verb()
 
-                context['w2_label']  =  "Entrate - Totale"
-                context['w2_sublabel1'] = e_money_verb
-                context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
-                context['w2_value'] = float(main_consuntivo_entrate.valore)*self.main_gdp_multiplier
-                context['w2_value_procapite'] = float(main_consuntivo_entrate.valore_procapite)*self.main_gdp_multiplier
-                context['w2_variation'] = self.calculate_variation(
-                                            main_val=main_consuntivo_entrate.valore,
-                                            comp_val=comp_preventivo_entrate.valore,
-                                            )
-
-                context["w3_type"]= "bar"
-                context["w3_label"]=  "Spese - Totale"
-                context["w3_sublabel1"]= s_money_verb
-                context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
-                
-                context['w3_value'] = float(main_consuntivo_spese.valore)*self.main_gdp_multiplier
-                context['w3_value_procapite'] = float(main_consuntivo_spese.valore_procapite)*self.main_gdp_multiplier
-                context['w3_variation'] = self.calculate_variation(
-                                            main_val=main_consuntivo_spese.valore,
-                                            comp_val=comp_preventivo_spese.valore
+            context['w2_label']  =  "Entrate - Totale"
+            context['w2_sublabel1'] = e_money_verb
+            context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
+            context['w2_value'] = float(main_consuntivo_entrate.valore)*self.main_gdp_multiplier
+            context['w2_value_procapite'] = float(main_consuntivo_entrate.valore_procapite)*self.main_gdp_multiplier
+            context['w2_variation'] = self.calculate_variation(
+                                        main_val=main_consuntivo_entrate.valore,
+                                        comp_val=comp_preventivo_entrate.valore,
                                         )
 
+            context["w3_type"]= "bar"
+            context["w3_label"]=  "Spese - Totale"
+            context["w3_sublabel1"]= s_money_verb
+            context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
 
-
+            context['w3_value'] = float(main_consuntivo_spese.valore)*self.main_gdp_multiplier
+            context['w3_value_procapite'] = float(main_consuntivo_spese.valore_procapite)*self.main_gdp_multiplier
+            context['w3_variation'] = self.calculate_variation(
+                                        main_val=main_consuntivo_spese.valore,
+                                        comp_val=comp_preventivo_spese.valore
+                                    )
 
 
         context['comp_bilancio_type'] = self.comp_bilancio_type
