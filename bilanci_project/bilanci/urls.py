@@ -13,7 +13,7 @@ from bilanci.views import BilancioRedirectView, \
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', HomeReleaseView.as_view(), name='home'),
+    url(r'^$', HomeView.as_view(), name='home'),
 
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
