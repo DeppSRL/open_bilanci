@@ -16,7 +16,17 @@ class Term(models.Model):
     slug = models.SlugField(max_length=128, unique=True, help_text=_("A single word or slug, to use as key in popovers' inclusion tags"))
     popover_title = models.CharField(_("Title"), max_length=255, blank=True, null=True,
                                      help_text=_("The title in the popover box"))
-    definition = HTMLField(_("Definition"), help_text=_("The definition of the term"))
+    definition = HTMLField(_("Definition"), help_text=_("The definition of the term"), blank=True)
+    main_term = models.ForeignKey('self', null=True, blank=True, related_name='linked_terms', help_text=_("Main definition"))
+
+    @property
+    def is_main_term(self):
+        return self.main_term is None
+
+    def save(self, *args, **kwargs):
+        if self.term == '':
+            self.term = self.slug
+        return super(Term, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Term")
