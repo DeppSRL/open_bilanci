@@ -663,7 +663,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         return variations
 
 
-    def compose_widget_data(self, main_values_regroup, comp_values_regroup, variations):
+    def compose_widget_data(self, main_values_regroup, variations):
         composition_data = []
 
         ##
@@ -739,8 +739,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         variations_s = self.calc_variations(main_regroup_s, comp_regroup_s,)
 
         composition_data['year'] = self.main_bilancio_year
-        composition_data['entrate'] = self.compose_widget_data(main_regroup_e, comp_regroup_e, variations_e)
-        composition_data['spese'] = self.compose_widget_data(main_regroup_s, comp_regroup_s, variations_s)
+        composition_data['entrate'] = self.compose_widget_data(main_regroup_e, variations_e)
+        composition_data['spese'] = self.compose_widget_data(main_regroup_s, variations_s)
 
 
         widget1=widget2=widget3=None
