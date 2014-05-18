@@ -623,7 +623,7 @@ $(document).ready(function(){
     {
         setupTooltips();
         setupScrollbox();
-        setupCollapsibleTable();
+        //setupCollapsibleTable();
         setupSideControls();
         parallax();
 
