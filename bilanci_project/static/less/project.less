@@ -139,7 +139,20 @@ display: inline;
   font-weight: bold;
 }
 
+a[rel=info-popover] {
+  color: black;
+  text-decoration: none;
+  &:hover { color: @baseColor; }
+  &:visited { color: black; }
+}
+
 .panel-tree {
+
+  .panel {
+    overflow: visible;
+  }
+
+  .collapse-toggle { float: none !important;  }
 
   .panel-heading, .panel {
     border-radius: 0;
