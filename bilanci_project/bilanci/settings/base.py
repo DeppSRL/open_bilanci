@@ -160,6 +160,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'bilanci.middlewares.PrivateBetaMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 
@@ -465,3 +466,5 @@ TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}
 PREVENTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'preventivo-spese-spese-somma-funzioni'
 CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzioni'
 
+
+EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')
