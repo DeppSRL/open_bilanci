@@ -408,6 +408,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     main_bilancio_year = main_bilancio_type = None
     comp_bilancio_year = comp_bilancio_type = None
+    comparison_not_available = False
     values_type = None
     cas_com_type = None
 
@@ -416,13 +417,16 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
     def calculate_variation(self, main_val, comp_val, ):
 
+        if main_val is None or comp_val is None:
+            return None
+
         deflated_main_val = main_val
         deflated_comp_val = comp_val
 
         deflated_main_val = float(main_val) * self.main_gdp_multiplier
         deflated_comp_val = float(comp_val) * self.comp_gdp_multiplier
 
-        if deflated_comp_val != 0:
+        if deflated_comp_val != 0 and deflated_main_val != 0:
             # sets 2 digit precision for variation after decimal point
             return round(((deflated_main_val-deflated_comp_val)/ deflated_comp_val)*100.0,2)
         else:
@@ -478,13 +482,19 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
         self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = self.comp_bilancio_type )
 
+        if self.comp_bilancio_year is None:
+            self.comparison_not_available = True
+
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
-        self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(self.comp_bilancio_year)]
+
+        if not self.comparison_not_available:
+            self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(self.comp_bilancio_year)]
 
         if self.values_type == 'real':
             self.main_gdp_multiplier = self.main_gdp_deflator
-            self.comp_gdp_multiplier = self.comp_gdb_deflator
+            if not self.comparison_not_available:
+                self.comp_gdp_multiplier = self.comp_gdb_deflator
 
 
         if self.widget_type == 'overview':
@@ -579,7 +589,16 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             anno__gte=self.serie_start_year,
             anno__lte=self.serie_end_year,
             territorio=self.territorio
-            ).values('voce__denominazione','voce__level','anno','valore','valore_procapite','voce__slug').order_by('voce__denominazione','anno')
+            ).values(
+                'voce__pk',
+                'voce__parent__pk',
+                'voce__parent__parent__pk',
+                'voce__denominazione',
+                'voce__level',
+                'anno',
+                'valore',
+                'valore_procapite',
+                'voce__slug').order_by('voce__denominazione','anno')
 
         main_keygen = lambda x: self.totale_label if x['voce__slug'] == totale_slug else x['voce__denominazione'].strip()
         main_values_regroup = dict((k,list(v)) for k,v in groupby(values, key=main_keygen))
@@ -609,7 +628,9 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                 if main_value_dict['anno'] == self.main_bilancio_year:
 
                     main_value = main_value_dict['valore']
-                    comparison_value = comp_dict.get([main_denominazione],None)
+                    comparison_value_dict = comp_dict.get(main_denominazione,{})
+
+                    comparison_value = comparison_value_dict.get('valore',None)
 
                     variations[main_denominazione] =\
                         self.calculate_variation(
@@ -623,7 +644,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         composition_data = []
 
         ##
-        # compose_widget_data
+        # compose_overview_data
         # loops over the results to create the data struct to be returned
         ##
 
@@ -648,7 +669,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
                     value_dict['procapite'] = single_value_pc_deflated
 
                     #insert the % of variation between main_bilancio and comparison bilancio
-
                     value_dict['variation'] = variations[main_value_denominazione]
 
 
@@ -658,6 +678,61 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
 
 
+
+    def compose_partial_data(self, main_values_regroup, variations, totale_level):
+        composition_data = []
+
+        ##
+        # compose_overview_data
+        # loops over the results to create the data struct to be returned
+        ##
+
+        for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
+
+            # creates value dict
+            value_dict = dict(label = main_value_denominazione, series = [], total = False)
+
+            # insert hierarchy info into the data struct
+            sample_obj = main_value_set[0]
+            diff = sample_obj['voce__level']-totale_level
+
+            # if diff is same level as totale
+            if diff == 0:
+                value_dict['layer1'] = sample_obj['voce__pk']
+            elif diff == 1:
+                value_dict['layer1'] = sample_obj['voce__parent__pk']
+                value_dict['layer2'] = sample_obj['voce__pk']
+            elif diff == 2:
+
+                value_dict['layer1'] = sample_obj['voce__parent__parent__pk']
+                value_dict['layer2'] = sample_obj['voce__parent__pk']
+                value_dict['layer3'] = sample_obj['voce__pk']
+
+
+            value_dict['andamento']=0
+            # if the value considered is a total value then sets the appropriate flag
+            if main_value_denominazione == self.totale_label:
+                value_dict['total'] = True
+
+            # unpacks year values for the considered voice of entrate/spese
+            for index, single_value in enumerate(main_value_set):
+                single_value_deflated = float(single_value['valore'])*self.main_gdp_multiplier
+                single_value_pc_deflated = float(single_value['valore_procapite'])*self.main_gdp_multiplier
+
+                value_dict['series'].append([single_value['anno'], single_value_deflated])
+
+                if single_value['anno'] == self.main_bilancio_year:
+                    value_dict['value'] = round(single_value_deflated,0)
+                    value_dict['procapite'] = single_value_pc_deflated
+
+                    #insert the % of variation between main_bilancio and comparison bilancio
+                    value_dict['variation'] = variations[main_value_denominazione]
+
+
+            composition_data.append(value_dict)
+
+        return composition_data
+
     def create_context_entrate(self):
 
         context = {}
@@ -665,10 +740,11 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         # entrate data
         main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type)
         comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type)
+        totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_e = self.calc_variations(main_regroup_e, comp_regroup_e,)
-        context['entrate'] = json.dumps(self.compose_overview_data(main_regroup_e, variations_e))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
         return context
 
 
@@ -680,10 +756,11 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         # spese data
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type)
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type)
+        totale_level = Voce.objects.get(slug=main_tot_s).level
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_s = self.calc_variations(main_regroup_s, comp_regroup_s,)
-        context['spese'] = json.dumps(self.compose_overview_data(main_regroup_s, variations_s))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
 
         return context
 
@@ -721,21 +798,25 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             context["w1_sublabel1"]= ""
             context["w1_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
             context["w1_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
-            context["w1_variation"]= self.calculate_variation(
-                                    main_val=e_main_totale['valore'],
-                                    comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
-                                )
 
             context['w2_label']  =  "Spese - Totale"
             context['w2_sublabel1'] = ""
             context['w2_sublabel2'] = "consuntivo {0}".format(self.comp_bilancio_year)
             context['w2_value'] = float(s_main_totale['valore'])*self.main_gdp_multiplier
             context['w2_value_procapite'] = float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
-            context['w2_variation'] =\
-                self.calculate_variation(
-                    main_val=s_main_totale['valore'],
-                    comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
-                  )
+            if not self.comparison_not_available:
+
+                context["w1_variation"]= self.calculate_variation(
+                                    main_val=e_main_totale['valore'],
+                                    comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
+                                )
+
+
+                context['w2_variation'] =\
+                    self.calculate_variation(
+                        main_val=s_main_totale['valore'],
+                        comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
+                      )
 
             context["w3_type"]= "spark"
             context["w3_label"]=  "Andamento nel tempo delle Entrate"

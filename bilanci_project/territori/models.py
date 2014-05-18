@@ -162,12 +162,16 @@ class Territorio(models.Model):
         if not available_years:
             return None
 
-        best_year = available_years[0]
-        year_differences = year-best_year
-
         if year in available_years:
             return year
         else:
+
+            best_year = available_years[0]
+            year_differences = year-best_year
+
+            # if supposed best yr is > year return none: this comparison is always backward
+            if year_differences < 0:
+                return None
 
             for considered_year in available_years:
                 if year-considered_year < year_differences and year-considered_year > 0:

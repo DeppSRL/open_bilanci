@@ -4,6 +4,7 @@ from .models import Voce, ValoreBilancio, Indicatore
 
 class VoceAdmin(TreeAdmin):
     model = Voce
+    search_fields = ['slug',]
     list_display = ['denominazione', 'slug']
     list_per_page = 1000
 

@@ -4,22 +4,40 @@
 
     <script>
         $(document).ready( function() {
-            var load_sample_json = true;
+            var load_sample_json = false;
 
             var composition_data = {
-            "type": "{{ type }}",
-            "hover": true,
-            "year": 2009,
-            "showLabels": true,
+                "type": "{{ type }}",
+                "hover": true,
+                "year": 2009,
+                "showLabels": true,
 
-            "button1": "Titoli",
-            "button2": "Categorie",
-            "button3": "Voci",
+                "button1": "Titoli",
+                "button2": "Categorie",
+                "button3": "Voci",
 
-            "composizione":{{ x }}
+                "composizione":{{ composition|safe }},
+
+                "widget1": {
+                    "type": "bar",
+                    "showHelp": false,
+                    "label": "Entrate",
+                    "sublabel1": "Totale Riscossioni",
+                    "sublabel2": "su preventivo 2010",
+                    "value": 7015230821.689498,
+                    "procapite": 2658.4504952132393,
+                    "variation": 0.02,
+                    "variationAbs": 0.02
+                  }
             };
 
-          var data = {{ composition_data|safe }};
+            composition_data['widget2']=composition_data['widget1'];
+            composition_data['widget3']=composition_data['widget1'];
+            composition_data['widget4']=composition_data['widget1'];
+            composition_data['widget5']=composition_data['widget1'];
+            composition_data['widget6']=composition_data['widget1'];
+
+{#          var data = {{ composition_data|safe }};#}
 
           if(load_sample_json == true ){
               visup.composizione(function(){
@@ -32,7 +50,7 @@
                 });
           }
             else{
-              visup.composizione.data(data);
+              visup.composizione.data(composition_data);
           }
 
         });
