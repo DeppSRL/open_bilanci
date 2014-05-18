@@ -2,11 +2,106 @@
 
 {% block load_data_js %}
 
-        <script>
-            $(document).ready( function() {
-              var load_sample_json = false;
+    <script>
+        $(document).ready( function() {
+            var load_sample_json = false;
 
-              var data = {{ composition_data|safe }};
+
+            {% spaceless %}
+            var composition_data = {
+                "hover": true,
+                "showLabels": false,
+                "year": {{ year }},
+                "entrate":{{ entrate|safe }},
+                "spese":{{ spese|safe }},
+
+                //widget 1,2,3: overview boxes
+                "widget1": {
+                    "type": "{{ w1_type }}",
+                    "showHelp": {{ w1_showhelp|lower }},
+                    "label": "{{ w1_label|safe|default:"null" }}",
+                    "sublabel1": "{{ w1_sublabel1|safe}}",
+                    "sublabel2": "{{ w1_sublabel2|safe }}",
+
+                    "value": {{ w1_value|safe|default:"null" }},
+                    "procapite": {{ w1_value_procapite|safe|default:"null" }},
+                    "variation": {{ w1_variation|safe|default:"null" }},
+
+                    "year1": {{ w1_year1|default:"null" }},
+                    "year2": {{ w1_year2|default:"null" }},
+                    "year3": {{ w1_year3|default:"null" }},
+
+                    "value1": {{ w1_value1|safe|default:"null" }},
+                    "value2": {{ w1_value2|safe|default:"null" }},
+                    "value3": {{ w1_value3|safe|default:"null" }}
+                        
+                },
+
+                "widget2":{
+                    "type": "bar",
+                    "showHelp": {{ w2_showhelp|lower }},
+                    "label": "{{ w2_label }}",
+                    "sublabel2": "SUL {{ w2_sublabel2 }}",
+                    "sublabel1": "{{ w2_sublabel1|default_if_none:"" }}",
+                    "value": {{ w2_value|safe }},
+                    "procapite": {{ w2_value_procapite|safe }},
+                    "variation": {{ w2_variation|safe }}
+                },
+
+                "widget3": {
+                     "type": "{{ w3_type }}",
+                    "showHelp": {{ w3_showhelp|lower }},
+                    "label": "{{ w3_label|safe }}",
+                    "sublabel1": "{{ w3_sublabel1|safe}}",
+                    "sublabel2": "{{ w3_sublabel2|safe }}",
+                    "sublabel3": "{{ w3_sublabel3|safe }}",
+                    "value": {{ w3_value|safe|default:"null" }},
+                    "procapite": {{ w3_value_procapite|safe|default:"null" }},
+                    "variation": {{ w3_variation|safe|default:"null" }},
+                    "series": {{ w3_series|safe|default:"null" }}
+                },
+
+
+                // widget 4 : 1 box for voce detail
+                "widget4": {
+                    "showHelp": {{ w4_showhelp|lower }},
+                    "entrate": {
+                    "label": "entrate da",
+                    "sublabel": "{{ w4_e_moneyverb|safe }}"
+                    },
+                    "spese": {
+                    "label": "spese per",
+                    "sublabel": "{{ w4_s_moneyverb|safe }}"
+                    },
+                    "sublabel3": "sul {{ comp_bilancio_type|safe }} {{ comp_bilancio_year|safe }}"
+                },
+
+                // widget 5 : 2 box for voce detail
+                "widget5": {
+                    "showHelp": {{ w5_showhelp|lower }},
+
+                    "entrate": {
+                    "label": "Percentuale sul totale delle entrate"
+                    },
+                    "spese": {
+                    "label": "Percentuale sul totale delle spese"
+                    }
+                },
+                //widget 6 : 3 box for voce detail
+
+                "widget6": {
+                    "showHelp": false,
+                    "entrate": {
+                    "label": "andamento entrate da"
+                    },
+                    "spese": {
+                    "label": "andamento spese per"
+                    },
+                    "sublabel3": "nei bilanci {{ w6_main_bilancio_type_plural }}"
+                }
+            };
+
+            {% endspaceless %}
 
               if(load_sample_json == true ){
                   visup.bilancio(function(){
@@ -19,7 +114,7 @@
                     });
               }
                 else{
-                  visup.bilancio.data(data);
+                  visup.bilancio.data(composition_data);
               }
 
             });
