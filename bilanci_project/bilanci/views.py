@@ -740,8 +740,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             # # creates overview widget data for consuntivo cassa / competenza
 
-            comp_preventivo_entrate = comp_regroup_e[self.totale_label]['valore']
-            comp_preventivo_spese = comp_regroup_s[self.totale_label]['valore']
+            comp_preventivo_entrate = comp_regroup_e[self.totale_label]
+            comp_preventivo_spese = comp_regroup_s[self.totale_label]
 
             main_consuntivo_entrate = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
             main_consuntivo_spese= [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
@@ -788,11 +788,11 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             context['w2_label']  =  "Entrate - Totale"
             context['w2_sublabel1'] = e_money_verb
             context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
-            context['w2_value'] = float(main_consuntivo_entrate.valore)*self.main_gdp_multiplier
-            context['w2_value_procapite'] = float(main_consuntivo_entrate.valore_procapite)*self.main_gdp_multiplier
+            context['w2_value'] = float(main_consuntivo_entrate['valore'])*self.main_gdp_multiplier
+            context['w2_value_procapite'] = float(main_consuntivo_entrate['valore_procapite'])*self.main_gdp_multiplier
             context['w2_variation'] = self.calculate_variation(
-                                        main_val=main_consuntivo_entrate.valore,
-                                        comp_val=comp_preventivo_entrate.valore,
+                                        main_val=main_consuntivo_entrate['valore'],
+                                        comp_val=comp_preventivo_entrate['valore'],
                                         )
 
             context["w3_type"]= "bar"
@@ -800,11 +800,11 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             context["w3_sublabel1"]= s_money_verb
             context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
 
-            context['w3_value'] = float(main_consuntivo_spese.valore)*self.main_gdp_multiplier
-            context['w3_value_procapite'] = float(main_consuntivo_spese.valore_procapite)*self.main_gdp_multiplier
+            context['w3_value'] = float(main_consuntivo_spese['valore'])*self.main_gdp_multiplier
+            context['w3_value_procapite'] = float(main_consuntivo_spese['valore_procapite'])*self.main_gdp_multiplier
             context['w3_variation'] = self.calculate_variation(
-                                        main_val=main_consuntivo_spese.valore,
-                                        comp_val=comp_preventivo_spese.valore
+                                        main_val=main_consuntivo_spese['valore'],
+                                        comp_val=comp_preventivo_spese['valore']
                                     )
 
 
