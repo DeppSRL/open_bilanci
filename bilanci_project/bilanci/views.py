@@ -29,6 +29,38 @@ class LoginRequiredMixin(object):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
+class ShareUrlMixin(object):
+    share_url = None
+
+    def get(self, request, *args, **kwargs):
+
+        # gets current page url
+        long_url = "http://"+request.META['HTTP_HOST']+request.get_full_path()
+
+        # checks if short url is already in the db, otherwise asks to google to shorten the url
+
+        short_url_obj=None
+        try:
+            short_url_obj = ShortUrl.objects.get(long_url = long_url)
+
+        except ObjectDoesNotExist:
+
+            payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
+            headers = { 'content-type': 'application/json' }
+            short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+            if short_url_req.status_code == requests.codes.ok:
+                short_url = short_url_req.json().get('id')
+                short_url_obj = ShortUrl()
+                short_url_obj.short_url = short_url
+                short_url_obj.long_url = long_url
+                short_url_obj.save()
+
+        if short_url_obj:
+            self.share_url = short_url_obj.short_url
+
+        return super(ShareUrlMixin, self).get(request, *args, **kwargs)
+
+
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
@@ -1092,7 +1124,8 @@ class BilancioNotFoundView(LoginRequiredMixin, TemplateView):
     template_name = "bilanci/bilancio_not_found.html"
 
 
-class BilancioOverView(BilancioView):
+
+class BilancioOverView(ShareUrlMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
     year = None
@@ -1100,6 +1133,7 @@ class BilancioOverView(BilancioView):
     values_type = None
     cas_com_type = None
     fun_int_view = None
+    share_url = None
 
     def get(self, request, *args, **kwargs):
 
@@ -1188,7 +1222,7 @@ class BilancioOverView(BilancioView):
                     )
             )
 
-        return super(BilancioOverView, self).get(self, request, *args, **kwargs)
+        return super(BilancioOverView, self).get(request, *args, **kwargs)
 
 
     def get_context_data(self, **kwargs ):
@@ -1225,6 +1259,7 @@ class BilancioOverView(BilancioView):
 
         context['comparison_bilancio_type']=comparison_bilancio_type
         context['comparison_bilancio_year']=comparison_bilancio_year
+        context['share_url']=self.share_url
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
@@ -1235,11 +1270,12 @@ class BilancioOverView(BilancioView):
 
         return context
 
-class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(ShareUrlMixin, LoginRequiredMixin, DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
     selected_section = "indicatori"
+    share_url = None
     territorio = None
     
     def get(self, request, *args, **kwargs):
@@ -1253,7 +1289,7 @@ class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifi
             return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
                                         + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
 
-        return super(BilancioIndicatoriView, self).get(self, request, *args, **kwargs)
+        return super(BilancioIndicatoriView, self).get(request, *args, **kwargs)
 
 
 
@@ -1285,6 +1321,7 @@ class BilancioIndicatoriView(LoginRequiredMixin, DetailView, IndicatorSlugVerifi
         # creates the query string to call the IncarichiIndicatori Json view in template
         context['selected_indicators'] = selected_indicators_slugs
         context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)
+        context['share_url']=self.share_url
         return context
 
 
@@ -1734,10 +1771,10 @@ class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
             return url
 
 
-class ConfrontiView(LoginRequiredMixin, TemplateView):
+class ConfrontiView(ShareUrlMixin, LoginRequiredMixin, TemplateView):
 
     template_name = "bilanci/confronti_data.html"
-
+    share_url = None
     territorio_1 = None
     territorio_2 = None
 
@@ -1756,8 +1793,7 @@ class ConfrontiView(LoginRequiredMixin, TemplateView):
         self.territorio_1 = get_object_or_404(Territorio, slug = territorio_1_slug)
         self.territorio_2 = get_object_or_404(Territorio, slug = territorio_2_slug)
 
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+        return super(ConfrontiView,self).get(request,*args,**kwargs)
 
 
 
@@ -1777,7 +1813,7 @@ class ConfrontiView(LoginRequiredMixin, TemplateView):
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
         context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
         context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
-
+        context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
                 initial={

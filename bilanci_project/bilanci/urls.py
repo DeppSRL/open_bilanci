@@ -47,15 +47,15 @@ urlpatterns = patterns('',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)',
         ConfrontiEntrateView.as_view(), name='confronti-entrate'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)',
         ConfrontiSpeseView.as_view(), name='confronti-spese'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)',
         ConfrontiIndicatoriView.as_view(), name='confronti-indicatori'
         ),
 

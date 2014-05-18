@@ -4,6 +4,19 @@
 {% block content %}
 
     <div class="panel-heading">
+           <!-- AddThis Button BEGIN -->
+        <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+            <img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+        <script type="text/javascript">
+            var addthis_config = {"data_track_addressbar":false   };
+            var addthis_share =
+                            {
+                               "url":"{{ share_url|safe }}"
+                            }
+        </script>
+        <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+        <!-- AddThis Button END -->
+
         <a href="#" class="pull-right share">Condividi <span class="icon sprite-share"></span></a>
         <h1 class="panel-title">CONFRONTI</h1>
     </div>
