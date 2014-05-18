@@ -13,7 +13,10 @@ from bilanci.views import BilancioRedirectView, \
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^$', HomeTemporaryView.as_view(), name='home-temporary'),
+    url(r'^login$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login', ),
+    url(r'^logout$', 'django.contrib.auth.views.logout_then_login', name='logout', ),
+    url(r'^home$', HomeView.as_view(), name='home'),
 
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
