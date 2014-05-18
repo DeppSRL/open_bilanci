@@ -68,8 +68,15 @@ class ShareUrlMixin(object):
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
 
-class HomeReleaseView(LoginRequiredMixin, TemplateView):
+class HomeReleaseView(ShareUrlMixin, LoginRequiredMixin, TemplateView):
     template_name = "home_release.html"
+    share_url = None
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeReleaseView, self).get_context_data(**kwargs)
+        context['share_url']=self.share_url
+        return context
+
 
 class HomeTemporaryView(TemplateView):
     template_name = "home_temporary.html"
