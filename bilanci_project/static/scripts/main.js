@@ -20,7 +20,7 @@ $(document).ready(function(){
         mapPage  = ( $( '#map-canvas' ).length ? true : false ),
 
         options    = {
-            'env': 'development', // Environment. Values: production, development
+            'env': 'production', // Environment. Values: production, development
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
             'offset': ( mapPage ? 180 : 100 ), // Top offset.
             'collapsibleMenu': {
