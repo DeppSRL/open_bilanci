@@ -23,8 +23,8 @@
                     <form method="post" action="{% url 'django.contrib.auth.views.login' %}" class="form-signin" role="form">
                         {% csrf_token %}
                         <h2 class="form-signin-heading">Login al sito</h2>
-                        <input type="email" class="form-control" placeholder="Username" required="" autofocus="">
-                        <input type="password" class="form-control" placeholder="Password" required="">
+                        <input type="text" class="form-control" placeholder="Username" name="username" required="" autofocus="">
+                        <input type="password" class="form-control" placeholder="Password" name="password" required="">
                         <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}{% url 'home' %}{% endif %}" />
                         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
                   </form>
