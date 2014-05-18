@@ -8,7 +8,9 @@ register = template.Library()
 @register.inclusion_tag('popover_enabled_icon.html')
 def popover_info(term_slug, popover_placement='right', width='300px'):
     try:
-        term = Term.objects.get(slug=term_slug)
+        term = Term.objects.select_related('main_term').get(slug=term_slug)
+        if term.main_term:
+            term = term.main_term
     except ObjectDoesNotExist:
         return {
             'title': term_slug,

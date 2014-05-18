@@ -17,7 +17,6 @@ urlpatterns = patterns('',
     url(r'^login$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login', ),
     url(r'^logout$', 'django.contrib.auth.views.logout_then_login', name='logout', ),
     url(r'^home$', HomeView.as_view(), name='home'),
-    url(r'^home_release$', HomeReleaseView.as_view(), name='home-release'),
 
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
@@ -47,15 +46,15 @@ urlpatterns = patterns('',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/entrate/(?P<parameter_slug>[-\w]+)',
         ConfrontiEntrateView.as_view(), name='confronti-entrate'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese/(?P<parameter_slug>[-\w]+)',
         ConfrontiSpeseView.as_view(), name='confronti-spese'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/indicatori/(?P<parameter_slug>[-\w]+)',
         ConfrontiIndicatoriView.as_view(), name='confronti-indicatori'
         ),
 

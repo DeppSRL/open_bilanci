@@ -1,86 +1,159 @@
 /**
  * Main scripts
  * @author mleone
- * @version 1.4.6
+ * @version 1.5.7
  **/
 
 $(document).ready(function(){
 
     // Main vars
-    var dev       = false,
-        scroll    = false,
-        $window   = $(window),
+    var $window   = $( window ),
         $lock     = $( '#lock' ),
+        $main     = $( '#main-content'),
         $sidebar  = $( '#sidebar' ),
         $content  = $( '#content' ),
         $results  = $( '#results' ),
         $comments = $( '#comments' ),
         $controls = $( '#side-controls' ),
-        $hook     = $( 'h2.text-alt' ).first();
+        $settings = $( '#settings' ),
+        $sidemenu = $( '#side-menu' ),
+        mapPage  = ( $( '#map-canvas' ).length ? true : false ),
+
+        options    = {
+            'env': 'production', // Environment. Values: production, development
+            'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
+            'offset': ( mapPage ? 180 : 100 ), // Top offset.
+            'collapsibleMenu': {
+                'closeOthers': true // On click collapse other items. Values: true, false
+            },
+            'pushMenu': {
+                'scroll': true, // Push menu scrolling. Values: true, false
+                'scrollto': false // On click scroll page to menu position. Values: true, false
+            }
+        };
+
+    function homeInit()
+    {
+        var home = {
+            $sections : $( '#main-content > section' ),
+            $more : $( '#more-content a' ),
+            $navlinks : $( '#nav-links > a' ),
+            currentLink : 0,
+            $body : $( 'html, body' ),
+            animspeed : 650,
+            animeasing : 'easeInOutExpo'
+        };
+
+        home.$more.css( 'opacity', 1 );
+
+        home.$sections.waypoint( function( direction ) {
+            if( direction === 'down' ) { changeNav( $( this ) ); }
+        }, { offset: '30%' } ).waypoint( function( direction ) {
+            if( direction === 'up' ) { changeNav( $( this ) ); }
+        }, { offset: '-30%' } );
+
+        // on window resize: the body is scrolled to the position of the current section
+        $window.on( 'debouncedresize', function() {
+            scrollAnim( home.$sections.eq( home.currentLink ).offset().top );
+        });
+
+        // click on a navigation link: the body is scrolled to the position of the respective section
+        home.$navlinks.on( 'click', function() {
+            scrollAnim( home.$sections.eq( $( this ).index() ).offset().top );
+            return false;
+        });
+
+        // click on the arrow link
+        home.$more.on( 'click', function() {
+            var n = (home.currentLink + 1 < home.$sections.length ? home.currentLink + 1 : 0);
+            scrollAnim( home.$sections.eq( n ).offset().top );
+            home.$more.css( 'opacity', '');
+            return false;
+        });
+
+        // update the current navigation link
+        function changeNav( $section ) {
+            home.$navlinks.eq( home.currentLink ).removeClass( 'current' );
+            home.currentLink = $section.index( 'section' );
+            home.$navlinks.eq( home.currentLink ).addClass( 'current' );
+        }
+
+        // function to scroll / animate the body
+        function scrollAnim( top )
+        {
+            home.$body.stop().animate( { scrollTop : top }, home.animspeed, home.animeasing );
+        }
+    }
+
+
+
+
+    // Function to get the Max value in Array
+    Array.max = function( array ){
+        return Math.max.apply( Math, array );
+    };
+
+    // Function to get the Min value in Array
+    Array.min = function( array ){
+       return Math.min.apply( Math, array );
+    };
 
     // Collapsible table
     function setupCollapsibleTable()
     {
-        var panels_tree = $('.panel-tree');
 
-        // add sub collapse ( first level close its sub-tree)
-        panels_tree
-            .on('hidden.bs.collapse', '> .panel > .panel-collapse', function (e) {
-                e.stopPropagation();
-                console.log('root HIDE', $(this));
-                $(this).find('.panel-collapse.in').collapse('hide');
-            });
+        var tables   = $results.find( 'table' ),
+            togglers = $results.find( '.collapse-toggle' ),
+            panels   = $results.find( '.collapse' );
 
-        // panels toggling
-        $('.chart-container')
-            .on('hidden.bs.collapse', function(e){
-                e.stopPropagation()
-            })
-            .on('show.bs.collapse', function(e){
-                e.stopPropagation()
-            });
+        panels.collapse({
+            toggle: false
+        });
 
-        panels_tree
+        tables.find( '.collapse' ).on( 'hidden.bs.collapse', function(){
+            var panel = $(this);
+            panel.prev().removeClass( 'shown' );
+            $lock.modal( 'hide' );
+        });
 
-            .on('hidden.bs.collapse', '.panel-collapse', function (e) {
-                e.stopPropagation();
-                console.log('HIDE', $(this));
-                var heading = $('#heading-' + $(this).attr('id'));
-                // replace minus with plus
-                heading.find('.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
+        tables.find( '.collapse' ).on( 'shown.bs.collapse', function(){
+            var panel = $(this);
 
-                // remove bold style
-                heading.find('.entry span').css({
-                    'font-weight': 'inherit',
-                    'text-decoration': 'none'
-                });
-                // hide secondary line chart button
-//                heading.find('.trend-chart-toggle').addClass('hidden');
-                // hide graph
-                heading.parent().find('.chart-container.in').collapse('hide');
+            panel.siblings( '.shown' ).removeClass( 'shown' );
+            panel.prev().addClass( 'shown' );
 
-            }).on('show.bs.collapse', '.panel-collapse', function (e) {
-                e.stopPropagation();
-                console.log('SHOW', $(this));
-                var heading = $('#heading-' + $(this).attr('id'));
-                // replace plus with minus
-                heading.find('.entry span').css({
-                    'font-weight': 'bold',
-                    'text-decoration': 'underline'
-                });
-                // add bold style
-                heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
-                // show secondary line chart button
-//                heading.find('.trend-chart-toggle').removeClass('hidden');
-            });
+            panel.siblings( '.panel-heading' ).not( $( '.shown' ) ).find( 'span.icon' )
+                    .removeClass( 'sprite-minus' )
+                    .addClass( 'sprite-plus' );
 
-        // add graph toggler
-        panels_tree.on('click', '.trend-chart-toggle', function(e) {
+            $lock.modal( 'hide' );
+        });
+
+        togglers.on( 'click', function(e) {
             e.preventDefault();
-//            console.log('chart HIDE', $(this));
-//            var panel = $($(this).data('target'));
-//            panel.collapse('toggle');
-//            return false;
+            $lock.modal( 'show' );
+
+            var toggler = $(this),
+                target  = $(toggler.attr( 'href' ));
+
+            toggler.closest( 'tr' ).siblings( '.panel-collapse' ).each(function(i, el){
+                if ($(el).attr( 'id' ) !== target.attr( 'id' )) {
+                    $(el).collapse( 'hide' );
+                }
+            });
+
+            if (target.hasClass( 'in' )) {
+                target.collapse( 'hide' );
+                toggler.find( 'span.icon' )
+                    .removeClass( 'sprite-minus' )
+                    .addClass( 'sprite-plus' );
+            } else {
+                target.collapse( 'show' );
+                toggler.find( 'span.icon' )
+                    .removeClass( 'sprite-plus' )
+                    .addClass( 'sprite-minus' );
+            }
+
         });
 
         $results.find( '.more-info' ).on( 'click', function( e ){
@@ -97,17 +170,51 @@ $(document).ready(function(){
             }
         });
 
-
     }
 
-    // Resize sidebar
-    function resizeSidebar()
+    // Scroll box
+    function setupScrollbox()
     {
-        $sidebar.find( '.scrollbox' ).enscroll({
+        $( '.scrollbox' ).enscroll({
             showOnHover: true,
             pollChanges: true,
             verticalTrackClass: 'track',
             verticalHandleClass: 'handle'
+        });
+    }
+
+    // Collapsible menu
+    function setupCollapsibleMenu( $container )
+    {
+        $container.find( '.panel-collapse' ).on( 'click', function(e){
+            e.preventDefault();
+            var $togglers = $container.find( '.panel-collapse' ),
+                $toggler = $( this ),
+                $submenu = $toggler.next( 'ul' ),
+                $pin = null,
+                selected = 0;
+
+            $togglers.each(function( i, el ){
+
+                if ( !$toggler.is($( el )) ) {
+                    if ( options.collapsibleMenu.closeOthers ) {
+                        $( el ).addClass( 'collapse' );
+                        $( el ).next( 'ul' ).addClass( 'hidden' );
+                    }
+                } else {
+                    $toggler.toggleClass( 'collapse' );
+                        $submenu.toggleClass( 'hidden' );
+                }
+
+                selected = $( el ).next( 'ul' ).find( 'input:checked' ).length;
+                $pin = $( el ).prev();
+
+                if (selected > 0) {
+                    $pin.removeClass( 'hidden' );
+                } else {
+                    $pin.addClass( 'hidden' );
+                }
+            });
         });
     }
 
@@ -132,7 +239,7 @@ $(document).ready(function(){
 
         $opener.on( 'click', function( e ){
             e.preventDefault();
-            $controls.animate({ left: -50 }, 200);
+            $controls.css({ left: -50 });
 
             $sidebar
                 .removeClass( clss.sidebar.off )
@@ -141,11 +248,18 @@ $(document).ready(function(){
                 .removeClass( clss.content.on )
                 .addClass( clss.content.off );
 
+            $window.trigger( 'scroll' );
+
+            if ( options.pushMenu.scrollto ) {
+                $( 'html, body' ).animate({
+                    scrollTop: $sidebar.offset().top
+                }, 0);
+            }
         });
 
         $closer.on( 'click', function( e ){
             e.preventDefault();
-            $controls.animate({ left: -2 }, 200);
+            $controls.css({ left: -2 });
 
             $sidebar
                 .removeClass( clss.sidebar.on )
@@ -155,78 +269,129 @@ $(document).ready(function(){
                 .addClass( clss.content.on );
         });
 
-        $sidebar.find( '.panel-collapse' ).on( 'click', function(e){
+
+        $sidebar.find( 'ul.dropdown-menu li a' ).on( 'click', function( e ){
             e.preventDefault();
-            var $toggler = $( this ),
-                $submenu = $toggler.next(),
-                $pin =  $toggler.prev(),
-                selected = $submenu.find( 'input:checked' ).length;
 
-            if ( $toggler.hasClass( 'collapse' ) ) {
-                $submenu.removeClass( 'hidden' );
-                $toggler.removeClass( 'collapse' );
-            } else {
-                $submenu.addClass( 'hidden' );
-                $toggler.addClass( 'collapse' );
-            }
+            var $this = $( this ),
+                $dropdown = $this.parents( '.dropdown' ),
+                $btn = $dropdown.find( 'button' );
 
-            if (selected > 0) {
-                $pin.removeClass( 'hidden' );
-            } else {
-                $pin.addClass( 'hidden' );
-            }
+            $btn.html( '<span class="caret pull-right" />' + $this.text() );
+            $dropdown.removeClass('open');
+
+            $sidebar.find( 'ul.menu' ).addClass( 'hidden' );
+            $sidebar.find( $this.attr( 'href' ) ).removeClass( 'hidden' );
+
         });
+
+        setupCollapsibleMenu( $sidebar );
     }
 
     // Settings menu
     function setupSettingsMenu()
     {
-        var $panel = $( '#settings' ),
+        var $panel  = $settings,
             $opener = $( '#open-settings' ),
             $closer = $( '#hide-settings' ),
-            delta = $panel.width(),
-            y = ( $hook.length > 0 ? $hook.offset().top - $hook.position().top - $hook.height() : 30 );
+            delta   = $panel.width();
 
-        $panel.css( 'top', y ).show( 'fast' );
-
-        $opener.on( 'click', function(e){
+        $opener.on( 'click', function( e ){
             e.preventDefault();
-            $panel.animate({ left: 4 }, 400);
-            $controls.animate({ left: -50 }, 200);
+            $panel.css({ left: 4 }).show( 0 );
+            $controls.css({ left: -50 });
         });
 
-        $closer.on( 'click', function(e){
+        $closer.on( 'click', function( e ){
             e.preventDefault();
-            $panel.animate({ left: -1 * (delta + 20) }, 400, function() {
-                $controls.animate({ left: -2 }, 200);
+            $panel.css({ left: -1 * (delta + 20) });
+            $controls.css({ left: -2 });
+        });
+
+        // Check for map page
+        if ( mapPage ) {
+            $opener = $( '#open-menu-schede, #open-menu-indicatori, #open-menu-filtri' );
+            $closer = null;
+
+            $opener.on( 'click', function( e ){
+                e.preventDefault();
+
+                var $this = $( this ),
+                    $target = $( $this.attr( 'href' ) ),
+                    $closer = $target.find( 'a.close-menu' );
+
+                $target
+                    .removeClass('hidden')
+                    .siblings().addClass('hidden');
+
+                $closer.on( 'click', function( e ){
+                    e.preventDefault();
+                    $target.addClass('hidden');
+                });
             });
 
-        });
+            setupCollapsibleMenu( $( '#menu-indicatori' ) );
+        }
 
+    }
+
+    // Reposition controls and settings panel
+    function moveScroll( $el, offset )
+    {
+         var y = 0,
+             h = 0,
+             t = 0;
+
+         if ( $el.length ) {
+
+            h = $( '#header' ).height() || 0;
+            t = $el.closest( $sidebar ).length ? $sidebar.position().top : 0;
+
+            if ( $window.scrollTop() >= offset + h + t ) {
+                    y = $window.scrollTop() - h - t;
+                    if ( y >= $main.height() - $el.height() - t) {
+                        y = $main.height() - $el.height() - t;
+                    }
+                } else {
+                    y = offset;
+                }
+
+            $el.css( 'top', y );
+        }
     }
 
     // Side controls
     function setupSideControls()
     {
-        var y = ( $hook.length > 0 ? $hook.offset().top - $hook.position().top - $hook.height() : 30 );
+        $controls.show();
 
-        $controls.css( 'top', y ).show( 'fast' );
-        setupPushMenu();
-        setupSettingsMenu();
+        moveScroll( $controls, options.offset );
+        moveScroll( $settings, options.offset );
 
-        if (scroll) {
-            y = 30;
+        if ( options.pushMenu.scroll ) {
+            moveScroll( $sidemenu, 0 );
+        }
 
+        $window.on( 'load', function() {
+            moveScroll( $controls, options.offset );
+            moveScroll( $settings, options.offset );
+            if ( options.pushMenu.scroll ) {
+                moveScroll( $sidemenu, 0 );
+            }
+        });
+
+        if ( options.autoScroll) {
             $window.on( 'scroll', function() {
-                var offset = y + $window.scrollTop();
-                if ( $window.scrollTop() == y + $controls.height() ) {
-                    offset = $window.scrollTop() - y;
-                } else {
-                    offset = y;
+                moveScroll( $controls, options.offset );
+                moveScroll( $settings, options.offset );
+                if ( options.pushMenu.scroll ) {
+                    moveScroll( $sidemenu, 0 );
                 }
-                $controls.css( 'top', offset );
             });
         }
+
+        setupPushMenu();
+        setupSettingsMenu();
     }
 
     // Tooltips
@@ -236,14 +401,14 @@ $(document).ready(function(){
     }
 
     // Donut chart
-    function setDonutChart(holder, cx, cy, radius, scale, data)
+    function setDonutChart(holder, cx, cy, radius, data)
     {
         cx = cx || 100;
         cy = cy || 100;
         radius = radius || 50;
         data = data || [];
-        colors = ['#cc6633', '#cccccc'];
-        overs = ['#888888', '#cccccc'];
+        colors = ['#ceccc4', '#cc6633'];
+        overs = ['#ceccc4', '#888888'];
 
         var ms = 500,
             r = Raphael(holder),
@@ -255,6 +420,52 @@ $(document).ready(function(){
                 preserveValues: true,
                 donutDiameter: 0.6
             });
+    }
+
+    // Line chart
+    function setLineChart(holder, cx, cy, xdata, data)
+    {
+        cx = cx || 200;
+        cy = cy || 100;
+        data = data || [];
+        xdata = xdata || [0, 1, 3, 4, 5];
+
+        var vmax = Array.max(data),
+            idx = data.indexOf(vmax),
+            r = Raphael(holder, cx, cy),
+            pmax = null,
+            x = -5,
+            y = 5,
+            xlen = cx,
+            ylen = cy,
+            gutter = 20,
+            l = r.linechart(x, y, xlen, ylen, xdata, data, {
+                gutter: gutter,
+                nostroke: false,
+                width: 7,
+                colors: ['#ceccc4'],
+                axis: "0 0 0 0",
+                symbol: "circle",
+                smooth: false
+            });
+
+        // reset radius of all points
+        l.symbols.attr({ r: 0 });
+
+        // hightlight the point with higher y value
+        // for the last instead of max:
+        // l.symbols[0].length;
+        // idx = last-1
+        pmax = l.symbols[0][idx];
+        pmax.attr({ r: 8, fill: '#cc6633' });
+
+        // draw the line
+        // "M10 10L90 90" = draw a line: move to 10,10, line to 90,90
+        r.path( "M" + pmax.attr('cx') + " " + pmax.attr('cy') + "L" + pmax.attr('cx') + " " + (pmax.attr('cy') - 13) ).attr({ 'stroke-width': 3, stroke: '#cc6633' });
+
+        // print the label
+        r.text( pmax.attr('cx'), (pmax.attr('cy') - 21), xdata[idx]).attr({'font-size': 10, 'font-family': "Lato", 'font-weight': 700, fill: "#cc6633"});
+
     }
 
     // Rank chart
@@ -306,25 +517,25 @@ $(document).ready(function(){
             bars[i].attr({ 'fill': colors[data] });
         }
 
-        // main set
+        // Main set
         st.push(
             faces,
             bars
         );
 
+        // Scale
         translate = 't' + (-1 * st.getBBox().x) +','+ (-1 * st.getBBox().y);
-        st.transform(translate + 's'+ scale +','+ scale +', 0, 0' );
-
+        st.transform(translate + 's'+ scale +','+ scale +', -1, -1' );
 
         // Over/active colors
         wrapper =  $( '#' + holder ).parents( 'tr' );
         if (wrapper.hasClass( 'active' )) {
             faces.attr({ 'fill': '#ffffff' });
             bars.forEach(
-                    function(el,j) {
-                        if ( el.attrs.fill === colors[0]) {
-                            bars[j].attr({ 'fill': '#ffffff' });
-                        }
+                function(el,j) {
+                    if ( el.attrs.fill === colors[0]) {
+                        bars[j].attr({ 'fill': '#ffffff' });
+                    }
                 });
         } else {
             wrapper.on( 'mouseover', function(){
@@ -352,7 +563,8 @@ $(document).ready(function(){
     {
         $( '.chart' ).each( function(i, el) {
             var chartData = $( el ).data(),
-                val = parseFloat( chartData.chartValue ) || 0,
+                val = chartData.chartValue,
+                xdata = chartData.chartXdata,
                 w = parseFloat( chartData.chartWidth ) || false,
                 h = parseFloat( chartData.chartHeight ) || false,
                 r = parseFloat( chartData.chartRadius ) || false,
@@ -360,34 +572,64 @@ $(document).ready(function(){
 
             switch ( chartData.chartType ) {
                 case 'rank':
+                    val = parseFloat( val ) || 0;
                     w = w || 95;
                     h = h || 24;
                     setRankChart( el.id, w, h, scale, val );
                     break;
 
                 case 'trend':
+                    val = val.replace(/ /g,'').split(',').map(Number);
+                    xdata = xdata.replace(/ /g,'').split(',').map(Number);
+                    w = w || 95;
+                    h = h || 24;
+                    setLineChart( el.id, w, h, xdata, val );
                     break;
 
                 default:
                 case 'donut':
-                    val = val / 100 ;
+                    val = parseFloat( val ) / 100 ;
                     w = w || 20;
                     h = h || 20;
                     r = r || 15;
-                    setDonutChart( el.id, w, h, r, scale, [1 - val, val] );
+                    setDonutChart( el.id, w, h, r, [1 - val, val] );
                     break;
             }
 
         });
     }
 
+
+    function parallax()
+    {
+        $('section[data-type="background"]').each(function(){
+
+        var $scroll = $(this);
+
+            $window.scroll(function() {
+            var yPos = -($window.scrollTop() / $scroll.data('speed'));
+
+            // background position
+            var coords = '50% '+ yPos + 'px';
+
+            // move the background
+            $scroll.css({ backgroundPosition: coords });
+         });
+      });
+    }
+
     // App init
     function init()
     {
         setupTooltips();
-        resizeSidebar();
-        setupCollapsibleTable();
+        setupScrollbox();
+        //setupCollapsibleTable();
         setupSideControls();
+        parallax();
+
+        if ( $( 'body#home' ).length ) {
+            homeInit();
+        }
 
         $window.load(function(){
             addChart();
@@ -397,8 +639,8 @@ $(document).ready(function(){
     init();
 
     // Dev
-    if ( dev ) {
-        $( 'body' ).append( '<script src="scripts/live.js">' );
+    if ( options.env === 'development' ) {
+        $( 'body' ).append( '<script src="scripts/live.js"></script>' );
     }
 
 

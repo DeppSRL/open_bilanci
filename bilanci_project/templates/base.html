@@ -33,36 +33,41 @@
             then move to project.css -->
         {% block extra_css %}{% endblock extra_css %}
 
+        <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" />
+
     </head>
 
 
-    <body>
-        <div class="container">
+    <body id={% block body_id %}{% endblock %}>
 
-            <!-- Main menu -->
-            {% block main_menu %}
-                {% include 'commons/navbar.html' %}
-            {% endblock %}
+        {% block container %}
+            <div class="container">
 
-
-
-            <div class="row">
-                <!-- content -->
-                <div class="panel" id="main-content">
-                    {% block content %}
-                        <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
-                    {% endblock content %}
-                </div>
-            </div>
-
-            <div class="row">
-                {% block footer %}
-                    <!-- Footer -->
-                    {% include 'commons/footer.html' %}
+                <!-- Main menu -->
+                {% block main_menu %}
+                    {% include 'commons/navbar.html' %}
                 {% endblock %}
-            </div>
 
-        </div> <!-- /container -->
+
+
+                <div class="row">
+                    <!-- content -->
+                    <div class="panel" id="main-content">
+                        {% block content %}
+                            <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
+                        {% endblock content %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% block footer %}
+                        <!-- Footer -->
+                        {% include 'commons/footer.html' %}
+                    {% endblock %}
+                </div>
+
+            </div> <!-- /container -->
+        {% endblock %}
 
 
         <!-- Include all compiled plugins (below), or include individual files as needed -->
