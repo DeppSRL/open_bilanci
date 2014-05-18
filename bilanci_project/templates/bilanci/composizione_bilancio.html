@@ -45,7 +45,7 @@
                     "sublabel1": "{{ w2_sublabel1|default_if_none:"" }}",
                     "value": {{ w2_value|safe }},
                     "procapite": {{ w2_value_procapite|safe }},
-                    "variation": {{ w2_variation|safe }}
+                    "variation": {{ w2_variation|safe|default:"null" }}
                 },
 
                 "widget3": {

@@ -4,9 +4,119 @@
 
     <script>
         $(document).ready( function() {
-          var load_sample_json = true;
+            var load_sample_json = false;
 
-          var data = {{ composition_data|safe }};
+            var composition_data = {
+                "type": "{{ type }}",
+                "hover": true,
+                "year": 2009,
+                "showLabels": true,
+
+                "button1": "Titoli",
+                "button2": "Categorie",
+                "button3": "Voci",
+
+                "composizione":{{ composition|safe }},
+
+                 "widget1": {
+    "type": "bar",
+    "showHelp": false,
+    "label": "Entrate",
+    "sublabel1": "Totale Riscossioni",
+    "sublabel2": "su preventivo 2010",
+    "value": 7015230821.689498,
+    "procapite": 2658.4504952132393,
+    "variation": 0.02
+  },
+  "widget2": {
+    "type": "compare",
+    "showHelp": false,
+    "label": "confronto",
+    "sublabel1": "preventivo-consuntivo",
+    "valueLabel1": "ENTRATE PREVISTE PREV. 2010",
+    "value1": 130000000,
+    "variation1": -28,
+    "valueLabel2": "ACCERTAMENTI CONS. 2010",
+    "value2": 11000000,
+    "variation2": 8,
+    "variationLabel2": "SU PREVENTIVO 2010",
+    "valueLabel3": "RISCOSSIONI CONS. 2010",
+    "value3": 23000000,
+    "variation3": 15,
+    "variationLabel3": "SU PREVENTIVO 2010"
+  },
+  "widget3": {
+    "type": "spark",
+    "showHelp": false,
+    "label": "Andamento del",
+    "sublabel1": "totale riscossioni",
+    "sublabel3": "nei bilanci consuntivi 2003-2013",
+    "series": [
+      [
+        2003,
+        119357853
+      ],
+      [
+        2004,
+        115102443
+      ],
+      [
+        2005,
+        233250
+      ],
+      [
+        2006,
+        140853290
+      ],
+      [
+        2007,
+        149952528
+      ],
+      [
+        2008,
+        151110972
+      ],
+      [
+        2009,
+        161982949
+      ],
+      [
+        2010,
+        164030500
+      ],
+      [
+        2011,
+        162034029
+      ],
+      [
+        2012,
+        164878601
+      ],
+      [
+        2013,
+        163309589
+      ]
+    ]
+  },
+  "widget4": {
+    "showHelp": true,
+    "label": "entrate da",
+    "sublabel2": "riscossi",
+    "sublabel3": "sul preventivo 2011"
+  },
+  "widget5": {
+    "showHelp": false,
+    "label": "Percentuale sul totale delle entrate"
+  },
+  "widget6": {
+    "showHelp": false,
+    "label": "andamento entrate per",
+    "sublabel3": "nei bilanci consuntivi"
+  }
+            };
+
+
+{#          var data = {{ composition_data|safe }};#}
 
           if(load_sample_json == true ){
               visup.composizione(function(){
@@ -19,7 +129,7 @@
                 });
           }
             else{
-              visup.composizione.data(data);
+              visup.composizione.data(composition_data);
           }
 
         });
