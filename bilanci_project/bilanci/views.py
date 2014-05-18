@@ -694,19 +694,27 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             # insert hierarchy info into the data struct
             sample_obj = main_value_set[0]
-            diff = sample_obj['voce__level']-totale_level
-
+            diff = sample_obj['voce__level']-totale_level-1
+            print main_value_denominazione, diff
             # if diff is same level as totale
             if diff == 0:
                 value_dict['layer1'] = sample_obj['voce__pk']
+                print "layer1:"+str(value_dict['layer1'])
             elif diff == 1:
                 value_dict['layer1'] = sample_obj['voce__parent__pk']
                 value_dict['layer2'] = sample_obj['voce__pk']
-            elif diff == 2:
 
+                print "layer1:"+str(value_dict['layer1'])+",layer2:"+str(value_dict['layer2'])
+            elif diff == 2:
                 value_dict['layer1'] = sample_obj['voce__parent__parent__pk']
                 value_dict['layer2'] = sample_obj['voce__parent__pk']
                 value_dict['layer3'] = sample_obj['voce__pk']
+
+
+            # debug
+            # value_dict['layer1']=1
+            # value_dict['layer2']=2
+            # value_dict['layer3']=3
 
 
             value_dict['andamento']=0
@@ -829,9 +837,6 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             # # creates overview widget data for consuntivo cassa / competenza
 
-            comp_preventivo_entrate = comp_regroup_e[self.totale_label]
-            comp_preventivo_spese = comp_regroup_s[self.totale_label]
-
             main_consuntivo_entrate = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
             main_consuntivo_spese= [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
 
@@ -869,10 +874,7 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
             context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
             context['w2_value'] = float(main_consuntivo_entrate['valore'])*self.main_gdp_multiplier
             context['w2_value_procapite'] = float(main_consuntivo_entrate['valore_procapite'])*self.main_gdp_multiplier
-            context['w2_variation'] = self.calculate_variation(
-                                        main_val=main_consuntivo_entrate['valore'],
-                                        comp_val=comp_preventivo_entrate['valore'],
-                                        )
+
 
             context["w3_type"]= "bar"
             context["w3_label"]=  "Spese - Totale"
@@ -881,10 +883,23 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
             context['w3_value'] = float(main_consuntivo_spese['valore'])*self.main_gdp_multiplier
             context['w3_value_procapite'] = float(main_consuntivo_spese['valore_procapite'])*self.main_gdp_multiplier
-            context['w3_variation'] = self.calculate_variation(
+
+
+            if not self.comparison_not_available:
+
+                comp_preventivo_entrate = comp_regroup_e[self.totale_label]
+                comp_preventivo_spese = comp_regroup_s[self.totale_label]
+
+                context['w2_variation'] = self.calculate_variation(
+                                        main_val=main_consuntivo_entrate['valore'],
+                                        comp_val=comp_preventivo_entrate['valore'],
+                                        )
+
+                context['w3_variation'] = self.calculate_variation(
                                         main_val=main_consuntivo_spese['valore'],
                                         comp_val=comp_preventivo_spese['valore']
                                     )
+
 
         context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
