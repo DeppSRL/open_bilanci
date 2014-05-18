@@ -13,7 +13,9 @@
         });
 
         // enable popovers
-        $('a[rel=info-popover]').popover();
+        $('a[rel=info-popover]').popover().click(function(e) {
+            e.preventDefault();
+        });
 
         // enable nested accordion
         setupNestedAccordion();
@@ -50,7 +52,7 @@ var setupNestedAccordion = function(startElement) {
             heading.find('.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
 
             // remove bold style
-            heading.find('.entry span').css({
+            heading.find('.entry .collapse-toggle').css({
                 'font-weight': 'inherit',
                 'text-decoration': 'none'
             });
@@ -63,7 +65,7 @@ var setupNestedAccordion = function(startElement) {
             e.stopPropagation();
             var heading = $('#heading-' + $(this).attr('id'));
             // replace plus with minus
-            heading.find('.entry span').css({
+            heading.find('.entry .collapse-toggle').css({
                 'font-weight': 'bold',
                 'text-decoration': 'underline'
             });
