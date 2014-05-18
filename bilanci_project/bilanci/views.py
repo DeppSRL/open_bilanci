@@ -686,36 +686,29 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
         # compose_overview_data
         # loops over the results to create the data struct to be returned
         ##
-
         for main_value_denominazione, main_value_set in main_values_regroup.iteritems():
 
             # creates value dict
             value_dict = dict(label = main_value_denominazione, series = [], total = False)
 
             # insert hierarchy info into the data struct
-            sample_obj = main_value_set[0]
-            diff = sample_obj['voce__level']-totale_level-1
-            print main_value_denominazione, diff
+
             # if diff is same level as totale
-            if diff == 0:
-                value_dict['layer1'] = sample_obj['voce__pk']
-                print "layer1:"+str(value_dict['layer1'])
-            elif diff == 1:
-                value_dict['layer1'] = sample_obj['voce__parent__pk']
-                value_dict['layer2'] = sample_obj['voce__pk']
+            if main_value_denominazione != self.totale_label:
+                sample_obj = main_value_set[0]
+                diff = sample_obj['voce__level']-totale_level-1
 
-                print "layer1:"+str(value_dict['layer1'])+",layer2:"+str(value_dict['layer2'])
-            elif diff == 2:
-                value_dict['layer1'] = sample_obj['voce__parent__parent__pk']
-                value_dict['layer2'] = sample_obj['voce__parent__pk']
-                value_dict['layer3'] = sample_obj['voce__pk']
+                if diff == 0:
+                    value_dict['layer1'] = sample_obj['voce__pk']
 
+                elif diff == 1:
+                    value_dict['layer1'] = sample_obj['voce__parent__pk']
+                    value_dict['layer2'] = sample_obj['voce__pk']
 
-            # debug
-            # value_dict['layer1']=1
-            # value_dict['layer2']=2
-            # value_dict['layer3']=3
-
+                elif diff == 2:
+                    value_dict['layer1'] = sample_obj['voce__parent__parent__pk']
+                    value_dict['layer2'] = sample_obj['voce__parent__pk']
+                    value_dict['layer3'] = sample_obj['voce__pk']
 
             value_dict['andamento']=0
             # if the value considered is a total value then sets the appropriate flag
@@ -735,6 +728,8 @@ class BilancioCompositionWidgetView(LoginRequiredMixin, TemplateView):
 
                     #insert the % of variation between main_bilancio and comparison bilancio
                     value_dict['variation'] = variations[main_value_denominazione]
+                    value_dict["variationAbs"] = variations[main_value_denominazione]
+                    value_dict["andamento"] = 1
 
 
             composition_data.append(value_dict)
