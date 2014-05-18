@@ -13,7 +13,7 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View, L
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
@@ -30,6 +30,12 @@ class LoginRequiredMixin(object):
 
 class HomeView(TemplateView):
     template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data( **kwargs)
+        context['territori_search_form_home'] = TerritoriSearchFormHome()
+        return  context
+
 
 class HomeReleaseView(TemplateView):
     template_name = "home_release.html"
