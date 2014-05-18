@@ -37,26 +37,30 @@ class ShareUrlMixin(object):
         # gets current page url
         long_url = "http://"+request.META['HTTP_HOST']+request.get_full_path()
 
-        # checks if short url is already in the db, otherwise asks to google to shorten the url
+        if len(long_url) < 80:
+            self.share_url = long_url
 
-        short_url_obj=None
-        try:
-            short_url_obj = ShortUrl.objects.get(long_url = long_url)
+        else:
+            # checks if short url is already in the db, otherwise asks to google to shorten the url
 
-        except ObjectDoesNotExist:
+            short_url_obj=None
+            try:
+                short_url_obj = ShortUrl.objects.get(long_url = long_url)
 
-            payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
-            headers = { 'content-type': 'application/json' }
-            short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
-            if short_url_req.status_code == requests.codes.ok:
-                short_url = short_url_req.json().get('id')
-                short_url_obj = ShortUrl()
-                short_url_obj.short_url = short_url
-                short_url_obj.long_url = long_url
-                short_url_obj.save()
+            except ObjectDoesNotExist:
 
-        if short_url_obj:
-            self.share_url = short_url_obj.short_url
+                payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
+                headers = { 'content-type': 'application/json' }
+                short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+                if short_url_req.status_code == requests.codes.ok:
+                    short_url = short_url_req.json().get('id')
+                    short_url_obj = ShortUrl()
+                    short_url_obj.short_url = short_url
+                    short_url_obj.long_url = long_url
+                    short_url_obj.save()
+
+            if short_url_obj:
+                self.share_url = short_url_obj.short_url
 
         return super(ShareUrlMixin, self).get(request, *args, **kwargs)
 
