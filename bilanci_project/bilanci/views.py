@@ -1224,6 +1224,27 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return values_regroup
 
+    def get_chi_guardagna_perde(self, value_set, guadagna=False):
+        results=[]
+        if guadagna:
+            value_set = value_set[::-1]
+
+        for element in value_set:
+
+            if element['variation'] is None:
+                continue
+            if guadagna:
+                if element['variation']>0:
+                    results.append(element)
+            else:
+                if element['variation']<0:
+                    results.append(element)
+
+            if len(results) == 2:
+                return results
+
+        return results
+
 
     def get(self, request, *args, **kwargs):
 
@@ -1379,8 +1400,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
 
-        context['entrate_chiperde'] = variations_e_sorted[:2]
-        context['entrate_chiguadagna'] = variations_e_sorted[-2:]
+        context['entrate_chiperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
+        context['entrate_chiguadagna'] = self.get_chi_guardagna_perde(variations_e_sorted,guadagna=True)
         print variations_e_sorted
 
         # spese data
@@ -1391,8 +1412,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
 
-        context['spese_chiperde'] = variations_s_sorted[:2]
-        context['spese_chiguadagna'] = variations_s_sorted[-2:]
+        context['spese_chiperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
+        context['spese_chiguadagna'] = self.get_chi_guardagna_perde(variations_s_sorted, guadagna=True)
 
         print variations_s_sorted
 
