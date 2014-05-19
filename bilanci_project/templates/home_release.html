@@ -17,7 +17,10 @@
           <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
           <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
         <![endif]-->
+
+        <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" />
     </head>
+
 <body id="home">
     <div class="container-fluid">
         <div class="row">
@@ -50,8 +53,8 @@
                         </h1>
 
                         <h2>
-                            I bilanci di tutti i comuni italiani degli ultimi dieci anni<br>
-                            i nomi dei Sindaci a cui chiedere conto
+                            I bilanci di tutti i Comuni italiani degli ultimi dieci anni<br>
+                            i Sindaci a cui chiedere conto
                         </h2>
 
                     </div>
@@ -61,14 +64,14 @@
 
         <!-- Main panel -->
         <div id="main-content">
-            <section id="intro" data-speed="6" data-type="background">
+            <section id="intro">
                 <div class="container">
                     <form class="form" role="form">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="form-group">
                                     <label class="sr-only" for="city">Cerca un comune</label>
-                                    <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE, SCOPRI I SUOI BILANCI">
+                                    <input type="text" class="form-control" id="city" placeholder="CERCA UN COMUNE, ENTRA NEI BILANCI, CONDIVIDI QUELLO CHE SCOPRI">
                                     <span class="icon sprite-search-alt"></span>
                                 </div>
                             </div>
@@ -76,30 +79,30 @@
                         <div class="row text-center">
                             <div class="col-sm-4">
                                 <h3>
-                                    <a href="#">
+                                    <a href="{% url 'confronti-home' %}">
                                         <span class="icon sprite-confronti-big"></span>
                                         confronti
                                     </a>
                                 </h3>
-                                <p>Lorem Ipsum is simply dummy</p>
+                                <p>confronta due Comuni: cifre, indicatori, gestione dei Sindaci. Condividi quello che trovi</p>
                             </div>
                             <div class="col-sm-4">
                                 <h3>
-                                    <a href="#">
+                                    <a href="{% url 'classifiche-redirect' %}">
                                         <span class="icon sprite-classifiche-big"></span>
                                         classifiche
                                     </a>
                                 </h3>
-                                <p>Lorem Ipsum is simply dummy</p>
+                                <p>chi spende di pi&ugrave; per la cultura? chi ha le tasse più alte? crea e diffondi la tua classifica</p>
                             </div>
                             <div class="col-sm-4">
                                 <h3>
-                                    <a href="#">
+                                    <a href="#" onclick="javascript:void(0)" title="Prossimamente...">
                                         <span class="icon sprite-mappa-big"></span>
                                         mappe
                                     </a>
                                 </h3>
-                                <p>Lorem Ipsum is simply dummy</p>
+                                <p>cosa cambia da nord a sud nei bilanci dei Comuni? crea la tua mappa e condividi - prossimamente...</p>
                             </div>
                         </div>
                     </form>
@@ -108,60 +111,61 @@
 
             <section id="slider">
 
-                <div class="modal fade video-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <iframe src="//player.vimeo.com/video/94017018" width="100%" height="340" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
+{#                <div class="modal fade video-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">#}
+{#                    <div class="modal-dialog">#}
+{#                        <div class="modal-content">#}
+{#                            <iframe src="//player.vimeo.com/video/94017018" width="100%" height="340" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
 
-                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                <div id="carousel" class="carousel slide" data-ride="carousel">
                     <!-- Indicators -->
                     <!--ol class="carousel-indicators">
-                        <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-                        <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-                        <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+                        <li data-target="#carousel" data-slide-to="0" class="active"></li>
+                        <li data-target="#carousel" data-slide-to="1"></li>
+                        <li data-target="#carousel" data-slide-to="2"></li>
                     </ol-->
 
                     <!-- Wrapper for slides -->
                     <div class="carousel-inner">
                         <div class="item active">
-                            <img src="{% static 'img/slide_temp.jpg' %}" alt="...">
+                            <img src="{% static 'img/slides/slide_01.jpg' %}" alt="...">
                             <div class="carousel-caption"></div>
                         </div>
                         <div class="item">
-                            <img src="{% static 'img/slide_temp.jpg' %}" alt="...">
+                            <img src="{% static 'img/slides/slide_02.jpg' %}" alt="...">
                             <div class="carousel-caption"></div>
                         </div>
                         <div class="item">
-                            <img src="{% static 'img/slide_temp.jpg' %}" alt="...">
+                            <img src="{% static 'img/slides/slide_03.jpg' %}" alt="...">
                             <div class="carousel-caption"></div>
                         </div>
                     </div>
 
                     <!-- Controls -->
-                    <a class="left carousel-control" href="#carousel-example-generic" data-slide="prev">
+                    <a class="left carousel-control" href="#carousel" data-slide="prev">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a class="right carousel-control" href="#carousel-example-generic" data-slide="next">
+                    <a class="right carousel-control" href="#carousel" data-slide="next">
                         <i class="fa fa-angle-right"></i>
                     </a>
 
                     <!-- Open video -->
-                    <div class="container video-holder">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <button class="btn btn-primary pull-right" data-toggle="modal" data-target=".video-modal">
-                                    <i class="fa fa-play-circle"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+{#                    <div class="container video-holder">#}
+{#                        <div class="row">#}
+{#                            <div class="col-md-12">#}
+{#                                <button class="btn btn-primary pull-right" data-toggle="modal" data-target=".video-modal">#}
+{#                                    <i class="fa fa-play-circle"></i>#}
+{#                                    <span class="hidden-sm hidden-md hidden-lg">play</span>#}
+{#                                </button>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
                 </div>
             </section>
 
-            <section id="from-the-blog"  data-speed="6" data-type="background">
+            <section id="from-the-blog">
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
@@ -220,38 +224,30 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <h1>Servizi per i Comuni</h1>
+                            <h1>i Comuni che adottano Open bilanci scelgono:</h1>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-4">
-                            <h2>Aggiornamento dei dati</h2>
+                            <h2>Trasparenza tempestiva</h2>
                             <p class="text">
-                                Lorem Ipsum is simply dummy text of the
-                                printing and typesetting industry. Lorem
-                                Ipsum has been the industry's...
-                            </p>
+                              Ora c'&egrave; una piattaforma nazionale dove il tuo Comune può pubblicare subito l'ultimo bilancio approvato - ora siamo ancora al preventivo 2013! Senza dati aggiornati non c'&egrave; trasparenza n&eacute; partecipazione
+                          </p>
                         </div>
                         <div class="col-sm-4">
-                            <h2>Comunicazione del bilancio</h2>
+                            <h2>Accesso totale</h2>
                             <p class="text">
-                                Lorem Ipsum is simply dummy text of the
-                                printing and typesetting industry. Lorem
-                                Ipsum has been the industry's...
-                            </p>
+                                I cittadini potranno vedere i bilanci anche attraverso il sito web del tuo Comune, sfruttando tutti gli strumenti di visualizzazione, confronto, condivisione e scarico dati di Open bilanci</p>
                         </div>
                         <div class="col-sm-4">
-                            <h2>Personalizzazione</h2>
+                            <h2>Rendicontazione puntuale</h2>
                             <p class="text">
-                                Lorem Ipsum is simply dummy text of the
-                                printing and typesetting industry. Lorem
-                                Ipsum has been the industry's...
-                            </p>
+                                Non sarebbe meglio se il sindaco spiegasse puntualmente, a fianco di cifre e grafici, come e  perch&egrave; una tariffa &egrave; cresciuta o un servizio ridotto? Open bilanci servir&agrave; anche a questo</p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12 text-center">
-                            <a href="#" class="btn btn-default more-info">MAGGIORI DETTAGLI</a>
+                            <!--a href="#" class="btn btn-default more-info">MAGGIORI DETTAGLI</a-->
                         </div>
                     </div>
                 </div>
@@ -264,89 +260,32 @@
                         <div class="col-md-12 text-center">
                             <h1>Dati aperti</h1>
                             <h2>
-                                Lorem Ipsum is simply dummy text of the printing industry<br>
-                                Lorem Ipsum is simply dummy text ...<br>
-                                Lorem Ipsum is simply dummy text of the printing...<br>
+                                I bilanci degli ultimi dieci anni di tutti i Comuni sono ora realmente pubblici. Un quantit&agrave; importante di dati grezzi e ufficiali in formati leggibili da computer e liberamente riusabili, pronti per essere scaricati da cittadini, media e ricercatori.<br>
                             </h2>
                         </div>
                     </div>
                 </div>
             </section>
 
-        </div><!-- /.panel -->
+            <nav id="nav-links" class="hidden">
+                <a href="#intro" class="current">Section 1</a>
+                <a href="#slider">Section 2</a>
+                <a href="#from-the-blog">Section 3</a>
+                <a href="#services">Section 4</a>
+                <a href="#open-data">Section 5</a>
+            </nav>
 
-        <!-- Main footer -->
-        <footer id="footer">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-15">
-                        <h4>il progetto</h4>
-                        <ul class="nav nav-stacked">
-                            <li><a href="#">confronti</a></li>
-                            <li class="active"><a href="#">classifiche</a></li>
-                            <li><a href="#">blog</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-6 col-sm-15">
-                        <h4>cosa puoi fare</h4>
-                        <ul class="nav nav-stacked">
-                            <li><a href="#">confronti</a></li>
-                            <li><a href="#">classifiche</a></li>
-                            <li><a href="#">blog</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-6 col-sm-15">
-                        <h4>servizi premium</h4>
-                        <ul class="nav nav-stacked">
-                            <li><a href="#">confronti</a></li>
-                            <li><a href="#">classifiche</a></li>
-                            <li><a href="#">blog</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-6 col-sm-15">
-                        <h4>altro</h4>
-                        <ul class="nav nav-stacked">
-                            <li><a href="#">confronti</a></li>
-                            <li><a href="#">classifiche</a></li>
-                            <li><a href="#">blog</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-6 col-sm-15">
-                        <h4>contatti</h4>
-                        <ul class="nav nav-stacked">
-                            <li><a href="#">confronti</a></li>
-                            <li><a href="#">classifiche</a></li>
-                            <li><a href="#">blog</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <hr class="no-border">
-                <div class="row">
-                    <div class="col-sm-6 col-md-2">
-                        <p class="small">E' un progetto</p>
-                        <ul class="list-unstyled partners clearfix">
-                            <li>
-                                <a href="#" class="depp"></a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-sm-6 col-md-10 clearfix">
-                        <p class="small">Realizzato con il cofinanziamento dell’Unione Europea</p>
-                        <ul class="list-unstyled partners clearfix">
-                            <li>
-                                <a href="#" class="ce"></a>
-                            </li>
-                            <li>
-                                <a href="#" class="rl"></a>
-                            </li>
-                            <li>
-                                <a href="#" class="por"></a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <div id="more-content">
+                <p class="h1 text-center">
+                    <a href="#">
+                        <i class="fa fa-chevron-down"></i>
+                    </a>
+                </p>
             </div>
-        </footer>
+
+        </div><!-- /#main-content -->
+
+        {% include 'commons/footer.html' %}
     </div> <!-- /.container -->
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -354,11 +293,20 @@
     <!-- Enscroll -->
     <script src="{% static  'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
 
+    <!-- Raphael -->
+    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.line.js' %}"></script>
+    <!-- Home scrolling -->
+    <script src="{% static 'scripts/vendor/jquery.debouncedresize/js/jquery.debouncedresize.js' %}"></script>
+    <script src="{% static 'scripts/vendor/jquery.easing/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'scripts/vendor/jquery-waypoints/waypoints.min.js' %}"></script>
+
     <!-- Html designer scripts -->
     <script src="{% static 'scripts/main.js' %}"></script>
     <!-- Project scripts -->
     <script src="{% static 'scripts/project.js' %}"></script>
-    <script src="{% static 'scripts/select2_locale_it.js' %}"></script>
 
 </body>
 </html>

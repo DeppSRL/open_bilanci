@@ -6,7 +6,6 @@ import json
 import zmq
 import requests
 from collections import OrderedDict
-from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
@@ -14,19 +13,13 @@ from django.views.generic import TemplateView, DetailView, RedirectView, View, L
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
 
 from territori.models import Territorio, Contesto, Incarico
-
-
-class LoginRequiredMixin(object):
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class ShareUrlMixin(object):
@@ -65,10 +58,16 @@ class ShareUrlMixin(object):
         return super(ShareUrlMixin, self).get(request, *args, **kwargs)
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
+class HomeView(TemplateView):
     template_name = "home.html"
 
-class HomeReleaseView(ShareUrlMixin, LoginRequiredMixin, TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data( **kwargs)
+        context['territori_search_form_home'] = TerritoriSearchFormHome()
+        return  context
+
+
+class HomeReleaseView(ShareUrlMixin, TemplateView):
     template_name = "home_release.html"
     share_url = None
 
@@ -442,6 +441,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
 # includes function to calculate voce variations over the years
 
 class CalculateVariationsMixin(object):
+
 
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
@@ -1093,7 +1093,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
     
 
 
-class BilancioRedirectView(LoginRequiredMixin, RedirectView):
+class BilancioRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1120,7 +1120,7 @@ class BilancioRedirectView(LoginRequiredMixin, RedirectView):
             return reverse('404')
 
 
-class BilancioView(LoginRequiredMixin, DetailView):
+class BilancioView(DetailView):
 
     model = Territorio
     context_object_name = "territorio"
@@ -1152,7 +1152,7 @@ class BilancioView(LoginRequiredMixin, DetailView):
         return context
 
 
-class BilancioNotFoundView(LoginRequiredMixin, TemplateView):
+class BilancioNotFoundView(TemplateView):
 
     ##
     # show a page when a Comune doesnt have any bilancio
@@ -1427,7 +1427,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return context
 
-class BilancioIndicatoriView(ShareUrlMixin, LoginRequiredMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -1613,7 +1613,7 @@ class BilancioSpeseView(BilancioDetailView):
         return context
 
 
-class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
+class ClassificheRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1629,7 +1629,7 @@ class ClassificheRedirectView(LoginRequiredMixin, RedirectView):
         else:
             return url
 
-class ClassificheListView(LoginRequiredMixin, ListView):
+class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = 15
@@ -1666,57 +1666,51 @@ class ClassificheListView(LoginRequiredMixin, ListView):
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
         # catches session variables if any
-        if len(self.request.session.get('selected_regioni',[])):
-            self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
-        if len(self.request.session.get('selected_cluster',[])):
-            self.selected_cluster = self.request.session['selected_cluster']
+        # if len(self.request.session.get('selected_regioni',[])):
+        #     self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
+        # if len(self.request.session.get('selected_cluster',[])):
+        #     self.selected_cluster = self.request.session['selected_cluster']
 
 
-        selected_regioni_get = [int(k) for k in self.request.GET.getlist('regione')]
+        selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
 
 
-        selected_cluster_get = self.request.GET.getlist('cluster')
+        selected_cluster_get = self.request.GET.getlist('c')
         if len(selected_cluster_get):
             self.selected_cluster = selected_cluster_get
 
-        page = self.request.GET.getlist('page')
-        if len(page):
-            try:
-                self.kwargs['page'] = int(page[0])
-            except ValueError:
-                pass
-
+        page = int(self.request.GET.get('page', '1'))
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-
-        # catches POST params and passes the execution to get method
-        # if the params passed in POST are different then the parameter already set, then the page number return to 1
-        selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
-        selected_cluster_post = self.request.POST.getlist('cluster[]')
-
-        if len(selected_regione_post):
-            if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
-                self.selected_regioni = selected_regione_post
-                self.reset_pages = True
-
-        if len(selected_cluster_post):
-            if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
-                self.selected_cluster = self.request.POST.getlist('cluster[]')
-                self.reset_pages = True
-
-        # sets session vars about what the user has selected
-        self.request.session['selected_regioni'] = self.selected_regioni
-        self.request.session['selected_cluster'] = self.selected_cluster
-
-        # if the parameters have changed, redirects to page 1 for the new set
-        if self.reset_pages:
-            return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
-
-        return self.get(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #
+    #     # catches POST params and passes the execution to get method
+    #     # if the params passed in POST are different then the parameter already set, then the page number return to 1
+    #     selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
+    #     selected_cluster_post = self.request.POST.getlist('cluster[]')
+    #
+    #     if len(selected_regione_post):
+    #         if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
+    #             self.selected_regioni = selected_regione_post
+    #             self.reset_pages = True
+    #
+    #     if len(selected_cluster_post):
+    #         if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
+    #             self.selected_cluster = self.request.POST.getlist('cluster[]')
+    #             self.reset_pages = True
+    #
+    #     # sets session vars about what the user has selected
+    #     self.request.session['selected_regioni'] = self.selected_regioni
+    #     self.request.session['selected_cluster'] = self.selected_cluster
+    #
+    #     # if the parameters have changed, redirects to page 1 for the new set
+    #     if self.reset_pages:
+    #         return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
+    #
+    #     return self.get(request, *args, **kwargs)
 
     def get_queryset(self):
 
@@ -1774,7 +1768,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # create comparison set to calculate variation from last yr
         if self.parameter_type == 'indicatori':
 
-            comparison_set = list(ValoreBilancio.objects.\
+            comparison_set = list(ValoreIndicatore.objects.\
                                 filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
                                 values('valore','territorio__pk','territorio__denominazione'))
         else:
@@ -1867,7 +1861,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         # gets current page url
         long_url = self.request.build_absolute_uri(
             reverse('classifiche-list', kwargs={'anno':self.anno,'parameter_type':self.parameter_type, 'parameter_slug':self.parameter.slug})
-            )+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+            )+'?' + "&r=".join(regioni_list)+"&c=".join(cluster_list)+'&page='+str(context['page_obj'].number)
 
 
         # checks if short url is already in the db, otherwise asks to google to shorten the url
@@ -1894,7 +1888,7 @@ class ClassificheListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ConfrontiHomeView(LoginRequiredMixin, TemplateView):
+class ConfrontiHomeView(TemplateView):
 
     ##
     # ConfrontiHomeView shows the search form to compare two Territori
@@ -1913,7 +1907,7 @@ class ConfrontiHomeView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
+class ConfrontiRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1928,7 +1922,7 @@ class ConfrontiRedirectView(LoginRequiredMixin, RedirectView):
             return url
 
 
-class ConfrontiView(ShareUrlMixin, LoginRequiredMixin, TemplateView):
+class ConfrontiView(ShareUrlMixin, TemplateView):
 
     template_name = "bilanci/confronti_data.html"
     share_url = None

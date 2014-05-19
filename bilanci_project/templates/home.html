@@ -1,15 +1,263 @@
 {%  extends "base.html" %}
 {% load popover_info %}
+{% load staticfiles %}
 
 {% block page_title %}
     Home page
 {% endblock %}
 
+{% block body_id %}home{% endblock %}
 
-{% block content %}
-    <div style="height: 200px">
-        <div style="margin-top: 200px; text-align: center; font-weight: bold;">
-            This is the HOMEPAGE {% popover_info 'home' %}
+{% block extra_js %}
+    <!-- Home scrolling -->
+    <script src="{% static 'scripts/vendor/jquery.debouncedresize/js/jquery.debouncedresize.js' %}"></script>
+    <script src="{% static 'scripts/vendor/jquery.easing/js/jquery.easing.min.js' %}"></script>
+    <script src="{% static 'scripts/vendor/jquery-waypoints/waypoints.min.js' %}"></script>
+{% endblock extra_js%}
+
+{% block container %}
+
+    <!-- Main header -->
+    <header id="header">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-8 col-md-offset-2">
+
+                    <h1>
+                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small></span>
+                    </h1>
+
+                    <h2>
+                        I bilanci di tutti i Comuni italiani degli ultimi dieci anni<br>
+                        i Sindaci a cui chiedere conto
+                    </h2>
+
+                </div>
+            </div>
         </div>
-    </div>
-{% endblock %}
+    </header>
+
+    <!-- Main panel -->
+    <div id="main-content">
+        <section id="intro">
+            <div class="container">
+                <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="form-group">
+                                {{ territori_search_form_home }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <div class="col-sm-4">
+                            <h3>
+                                <a href="{% url 'confronti-home' %}">
+                                    <span class="icon sprite-confronti-big"></span>
+                                    confronti
+                                </a>
+                            </h3>
+                            <p>confronta due Comuni: cifre, indicatori, gestione dei Sindaci. Condividi quello che trovi</p>
+                        </div>
+                        <div class="col-sm-4">
+                            <h3>
+                                <a href="{% url 'classifiche-redirect' %}">
+                                    <span class="icon sprite-classifiche-big"></span>
+                                    classifiche
+                                </a>
+                            </h3>
+                            <p>chi spende di pi&ugrave; per la cultura? chi ha le tasse più alte? crea e diffondi la tua classifica</p>
+                        </div>
+                        <div class="col-sm-4">
+                            <h3>
+                                <a href="javascript:void(0)" title="Prossimamente...">
+                                    <span class="icon sprite-mappa-big"></span>
+                                    mappe
+                                </a>
+                            </h3>
+                            <p>cosa cambia da nord a sud nei bilanci dei Comuni? crea la tua mappa e condividi - prossimamente...</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="slider">
+
+{#            <div class="modal fade video-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">#}
+{#                <div class="modal-dialog">#}
+{#                    <div class="modal-content">#}
+{#                        <iframe src="//player.vimeo.com/video/94017018" width="100%" height="340" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+            <div id="carousel" class="carousel slide" data-ride="carousel">
+                <!-- Indicators -->
+                <!--ol class="carousel-indicators">
+                    <li data-target="#carousel" data-slide-to="0" class="active"></li>
+                    <li data-target="#carousel" data-slide-to="1"></li>
+                    <li data-target="#carousel" data-slide-to="2"></li>
+                </ol-->
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                    <div class="item active">
+                        <img src="{% static 'img/slides/slide_01.jpg' %}" alt="...">
+                        <div class="carousel-caption"></div>
+                    </div>
+                    <div class="item">
+                        <img src="{% static 'img/slides/slide_02.jpg' %}" alt="...">
+                        <div class="carousel-caption"></div>
+                    </div>
+                    <div class="item">
+                        <img src="{% static 'img/slides/slide_03.jpg' %}" alt="...">
+                        <div class="carousel-caption"></div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <a class="left carousel-control" href="#carousel" data-slide="prev">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                <a class="right carousel-control" href="#carousel" data-slide="next">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+
+                <!-- Open video -->
+{#                <div class="container video-holder">#}
+{#                    <div class="row">#}
+{#                        <div class="col-md-12">#}
+{#                            <button class="btn btn-primary pull-right" data-toggle="modal" data-target=".video-modal">#}
+{#                                <i class="fa fa-play-circle"></i>#}
+{#                                <span class="hidden-sm hidden-md hidden-lg">play</span>#}
+{#                            </button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+            </div>
+        </section>
+
+        <section id="from-the-blog">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>Dal Blog</h1>
+                    </div>
+                </div>
+                <ul class="list-unstyled row">
+                    <li class="col-sm-4">
+                        <hr>
+                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
+                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
+                        <div class="text">
+                            <p>
+                                Considerata l’apertura del Governo Renzi sui temi della
+                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
+                                Openpolis intendono rilanciare il tema Opensiope.</strong>
+                            </p>
+                        </div>
+                        <footer>
+                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
+                        </footer>
+                    </li>
+                    <li class="col-sm-4">
+                        <hr>
+                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
+                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
+                        <div class="text">
+                            <p>
+                                Considerata l’apertura del Governo Renzi sui temi della
+                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
+                                Openpolis intendono rilanciare il tema Opensiope.</strong>
+                            </p>
+                        </div>
+                        <footer>
+                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
+                        </footer>
+                    </li>
+                    <li class="col-sm-4">
+                        <hr>
+                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
+                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
+                        <p class="text">
+                            Considerata l’apertura del Governo Renzi sui temi della
+                            trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
+                            Openpolis intendono rilanciare il tema Opensiope.</strong>
+                        </p>
+                        <footer>
+                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
+                        </footer>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h1>i Comuni che adottano Open bilanci scelgono:</h1>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h2>Trasparenza tempestiva</h2>
+                        <p class="text">
+                          Ora c'&egrave; una piattaforma nazionale dove il tuo Comune può pubblicare subito l'ultimo bilancio approvato - ora siamo ancora al preventivo 2013! Senza dati aggiornati non c'&egrave; trasparenza n&eacute; partecipazione
+                      </p>
+                    </div>
+                    <div class="col-sm-4">
+                        <h2>Accesso totale</h2>
+                        <p class="text">
+                            I cittadini potranno vedere i bilanci anche attraverso il sito web del tuo Comune, sfruttando tutti gli strumenti di visualizzazione, confronto, condivisione e scarico dati di Open bilanci</p>
+                    </div>
+                    <div class="col-sm-4">
+                        <h2>Rendicontazione puntuale</h2>
+                        <p class="text">
+                            Non sarebbe meglio se il sindaco spiegasse puntualmente, a fianco di cifre e grafici, come e  perch&egrave; una tariffa &egrave; cresciuta o un servizio ridotto? Open bilanci servir&agrave; anche a questo</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <!--a href="#" class="btn btn-default more-info">MAGGIORI DETTAGLI</a-->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="open-data" data-speed="6" data-type="background">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h1>Dati aperti</h1>
+                        <h2>
+                            I bilanci degli ultimi dieci anni di tutti i Comuni sono ora realmente pubblici. Un quantit&agrave; importante di dati grezzi e ufficiali in formati leggibili da computer e liberamente riusabili, pronti per essere scaricati da cittadini, media e ricercatori.<br>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <nav id="nav-links" class="hidden">
+            <a href="#intro" class="current">Section 1</a>
+            <a href="#slider">Section 2</a>
+            <a href="#from-the-blog">Section 3</a>
+            <a href="#services">Section 4</a>
+            <a href="#open-data">Section 5</a>
+        </nav>
+
+        <div id="more-content">
+            <p class="h1 text-center">
+                <a href="#">
+                    <i class="fa fa-chevron-down"></i>
+                </a>
+            </p>
+        </div>
+
+    </div><!-- /#main-content -->
+
+    {% include 'commons/footer.html' %}
+
+{% endblock container %}

@@ -7,6 +7,12 @@
 
         <title>Open Bilanci - {% block page_title %}{% endblock %}</title>
 
+        <meta property="og:title" content="Open Bilanci" />
+        <meta property="og:site_name" content="Open Bilanci" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ site_full_url }}" />
+        <meta property="og:image" content="{{ site_full_url }}{% static 'img/social_image.png' %}" />
+
         <!-- jQuery (needed in head for select2) -->
         <script src="{% static 'scripts/vendor/jquery/jquery.js' %}"></script>
 
@@ -33,36 +39,41 @@
             then move to project.css -->
         {% block extra_css %}{% endblock extra_css %}
 
+        <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" />
+
     </head>
 
 
-    <body>
-        <div class="container">
+    <body id={% block body_id %}{% endblock %}>
 
-            <!-- Main menu -->
-            {% block main_menu %}
-                {% include 'commons/navbar.html' %}
-            {% endblock %}
+        {% block container %}
+            <div class="container">
 
-
-
-            <div class="row">
-                <!-- content -->
-                <div class="panel" id="main-content">
-                    {% block content %}
-                        <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
-                    {% endblock content %}
-                </div>
-            </div>
-
-            <div class="row">
-                {% block footer %}
-                    <!-- Footer -->
-                    {% include 'commons/footer.html' %}
+                <!-- Main menu -->
+                {% block main_menu %}
+                    {% include 'commons/navbar.html' %}
                 {% endblock %}
-            </div>
 
-        </div> <!-- /container -->
+
+
+                <div class="row">
+                    <!-- content -->
+                    <div class="panel" id="main-content">
+                        {% block content %}
+                            <p>Hello, I'm a base template and shouldn't appear anywhere!</p>
+                        {% endblock content %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    {% block footer %}
+                        <!-- Footer -->
+                        {% include 'commons/footer.html' %}
+                    {% endblock %}
+                </div>
+
+            </div> <!-- /container -->
+        {% endblock %}
 
 
         <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -78,6 +89,7 @@
 
         {% block extra_js %}{% endblock extra_js %}
 
+        {% block google_analytics %}{% include 'commons/ga.html' %}{% endblock%}
 
 
 

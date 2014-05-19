@@ -16,5 +16,7 @@ def main_settings(request):
         'settings': {
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,
-        }
+        },
+        'site_full_url': request.build_absolute_uri('/')[:-1],
+        'page_full_url': request.build_absolute_uri(),
     }

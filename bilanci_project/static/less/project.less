@@ -139,7 +139,20 @@ display: inline;
   font-weight: bold;
 }
 
+a[rel=info-popover] {
+  color: black;
+  text-decoration: none;
+  &:hover { color: @baseColor; }
+  &:visited { color: black; }
+}
+
 .panel-tree {
+
+  .panel {
+    overflow: visible;
+  }
+
+  .collapse-toggle { float: none !important;  }
 
   .panel-heading, .panel {
     border-radius: 0;
@@ -221,8 +234,22 @@ display: inline;
 #pagination-digg span.active {
   background: @altTextColor!important;
   color: #2a3036!important;
+}
 
+.social-accounts {
+  font-size: 9pt;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  a, a:visited { color: #fff; i:not(.fa-circle) { color: #cc6633; } }
 }
 #balance .panel-default .table td.text {
   width: 100%!important;
+}
+
+#footer {
+  .nav li {
+    &> a { color: #fff; }
+    &> a:hover { color: #fff; text-decoration: underline; }
+  }
+  .partners li a.openpolis { background: none; }
 }

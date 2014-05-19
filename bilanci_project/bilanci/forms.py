@@ -2,7 +2,21 @@ from django import forms
 from territori.fields import TerritoriChoices, TerritoriClusterChoices
 
 from django.utils.translation import ugettext_lazy as _
-from territori.models import Territorio
+
+
+class TerritoriSearchFormHome(forms.Form):
+
+    territori = TerritoriChoices(
+        to_field_name = 'slug',
+        required=False,
+        label='',
+        widget=TerritoriChoices.widget(
+            select2_options={
+                'width': '48em',
+                'placeholder': _(u"CERCA UN COMUNE, ENTRA NEI BILANCI, CONDIVIDI QUELLO CHE SCOPRI"),
+            }
+        )
+    )
 
 
 class TerritoriSearchForm(forms.Form):

@@ -2475,6 +2475,22 @@ form ul li label {
   color: #cc6633;
   font-weight: bold;
 }
+a[rel=info-popover] {
+  color: black;
+  text-decoration: none;
+}
+a[rel=info-popover]:hover {
+  color: #5e6a77;
+}
+a[rel=info-popover]:visited {
+  color: black;
+}
+.panel-tree .panel {
+  overflow: visible;
+}
+.panel-tree .collapse-toggle {
+  float: none !important;
+}
 .panel-tree .panel-heading,
 .panel-tree .panel {
   border-radius: 0;
@@ -2537,6 +2553,29 @@ form ul li label {
   background: #99a5b1 !important;
   color: #2a3036!important;
 }
+.social-accounts {
+  font-size: 9pt;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.social-accounts a,
+.social-accounts a:visited {
+  color: #fff;
+}
+.social-accounts a i:not(.fa-circle),
+.social-accounts a:visited i:not(.fa-circle) {
+  color: #cc6633;
+}
 #balance .panel-default .table td.text {
   width: 100%!important;
+}
+#footer .nav li > a {
+  color: #fff;
+}
+#footer .nav li > a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+#footer .partners li a.openpolis {
+  background: none;
 }
