@@ -1,12 +1,6 @@
 /* Project specific Javascript goes here. */
 
 !function($){
-    var isVisible = false;
-    var hideAllPopovers = function() {
-       $('a[rel=info-popover]').each(function() {
-            $(this).popover('hide');
-        });
-    };
 
     $(document).ready(function(){
         // Fix input element click problem
@@ -20,28 +14,18 @@
         });
 
         // enable popovers
-        $('a[rel=info-popover]').popover({
-            trigger: 'manual'
-        }).on('click', function(e) {
-            // if any other popovers are visible, hide them
-            if(isVisible) {
-                hideAllPopovers();
-            }
-            $(this).popover('show');
-
-            // handle clicking on the popover itself
-            $('.popover').off('click').on('click', function(e) {
-                e.stopPropagation(); // prevent event for bubbling up => will not get caught with document.onclick
-            });
-
-            isVisible = true;
-            e.stopPropagation();
-            return false;
+        $('a[rel=info-popover]').popover().on('click', function(e) {
+            e.preventDefault();
         });
         // close all popovers on document click
-        $(document).on('click', function(e) {
-            hideAllPopovers();
-            isVisible = false;
+        $('body').on('click', function (e) {
+            $('[data-toggle="popover"]').each(function () {
+                //the 'is' for buttons that trigger popups
+                //the 'has' for icons within a button that triggers a popup
+                if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                    $(this).popover('hide');
+                }
+            });
         });
 
         // enable nested accordion
