@@ -28,6 +28,11 @@
             });
         });
 
+        $('.checkbox-toggler').on('click', function() {
+            var $this = $(this);
+            $this.parent().parent().find('input[type=checkbox]').not($this).prop('checked', $this.prop('checked'));
+        });
+
         // enable nested accordion
         setupNestedAccordion();
     });
