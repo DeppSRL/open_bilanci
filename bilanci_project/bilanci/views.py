@@ -1519,57 +1519,51 @@ class ClassificheListView(ListView):
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
         # catches session variables if any
-        if len(self.request.session.get('selected_regioni',[])):
-            self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
-        if len(self.request.session.get('selected_cluster',[])):
-            self.selected_cluster = self.request.session['selected_cluster']
+        # if len(self.request.session.get('selected_regioni',[])):
+        #     self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
+        # if len(self.request.session.get('selected_cluster',[])):
+        #     self.selected_cluster = self.request.session['selected_cluster']
 
 
-        selected_regioni_get = [int(k) for k in self.request.GET.getlist('regione')]
+        selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
 
 
-        selected_cluster_get = self.request.GET.getlist('cluster')
+        selected_cluster_get = self.request.GET.getlist('c')
         if len(selected_cluster_get):
             self.selected_cluster = selected_cluster_get
 
-        page = self.request.GET.getlist('page')
-        if len(page):
-            try:
-                self.kwargs['page'] = int(page[0])
-            except ValueError:
-                pass
-
+        page = int(self.request.GET.get('page', '1'))
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-
-        # catches POST params and passes the execution to get method
-        # if the params passed in POST are different then the parameter already set, then the page number return to 1
-        selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
-        selected_cluster_post = self.request.POST.getlist('cluster[]')
-
-        if len(selected_regione_post):
-            if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
-                self.selected_regioni = selected_regione_post
-                self.reset_pages = True
-
-        if len(selected_cluster_post):
-            if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
-                self.selected_cluster = self.request.POST.getlist('cluster[]')
-                self.reset_pages = True
-
-        # sets session vars about what the user has selected
-        self.request.session['selected_regioni'] = self.selected_regioni
-        self.request.session['selected_cluster'] = self.selected_cluster
-
-        # if the parameters have changed, redirects to page 1 for the new set
-        if self.reset_pages:
-            return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
-
-        return self.get(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #
+    #     # catches POST params and passes the execution to get method
+    #     # if the params passed in POST are different then the parameter already set, then the page number return to 1
+    #     selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
+    #     selected_cluster_post = self.request.POST.getlist('cluster[]')
+    #
+    #     if len(selected_regione_post):
+    #         if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
+    #             self.selected_regioni = selected_regione_post
+    #             self.reset_pages = True
+    #
+    #     if len(selected_cluster_post):
+    #         if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
+    #             self.selected_cluster = self.request.POST.getlist('cluster[]')
+    #             self.reset_pages = True
+    #
+    #     # sets session vars about what the user has selected
+    #     self.request.session['selected_regioni'] = self.selected_regioni
+    #     self.request.session['selected_cluster'] = self.selected_cluster
+    #
+    #     # if the parameters have changed, redirects to page 1 for the new set
+    #     if self.reset_pages:
+    #         return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
+    #
+    #     return self.get(request, *args, **kwargs)
 
     def get_queryset(self):
 
@@ -1627,7 +1621,7 @@ class ClassificheListView(ListView):
         # create comparison set to calculate variation from last yr
         if self.parameter_type == 'indicatori':
 
-            comparison_set = list(ValoreBilancio.objects.\
+            comparison_set = list(ValoreIndicatore.objects.\
                                 filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
                                 values('valore','territorio__pk','territorio__denominazione'))
         else:
@@ -1720,7 +1714,7 @@ class ClassificheListView(ListView):
         # gets current page url
         long_url = self.request.build_absolute_uri(
             reverse('classifiche-list', kwargs={'anno':self.anno,'parameter_type':self.parameter_type, 'parameter_slug':self.parameter.slug})
-            )+'?' + "&regione=".join(regioni_list)+"&cluster=".join(cluster_list)+'&page='+str(context['page_obj'].number)
+            )+'?' + "&r=".join(regioni_list)+"&c=".join(cluster_list)+'&page='+str(context['page_obj'].number)
 
 
         # checks if short url is already in the db, otherwise asks to google to shorten the url

@@ -36,11 +36,11 @@ urlpatterns = patterns('',
         BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
 
     # classifiche
-    url(r'^classifiche$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
+    url(r'^classifiche/$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
     url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)/(?P<anno>[-\d]{4})$', ClassificheListView.as_view(), name='classifiche-list'),
 
     # confronti
-    url(r'^confronti$', ConfrontiHomeView.as_view(), name='confronti-home'),
+    url(r'^confronti/$', ConfrontiHomeView.as_view(), name='confronti-home'),
 
     url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)$',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'

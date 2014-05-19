@@ -1,5 +1,5 @@
 <aside id="filters" class="col-md-4">
- <form id="classifiche-form"  method="post" >{% csrf_token %}
+ <form id="classifiche-form"  method="get" >
     <div class="panel panel-default">
 
         <div class="panel-heading">
@@ -16,7 +16,7 @@
             {% for regione in regioni_list %}
                 <li class="list-group-item">
                     <label>
-                        <input type="checkbox" name="regione[]" id="{{ regione.pk }}" value="{{ regione.pk }}"
+                        <input type="checkbox" name="r" id="{{ regione.pk }}" value="{{ regione.pk }}"
                             {% if regione.pk in selected_regioni %}
                                 checked="checked"
                             {% endif %}
@@ -33,7 +33,7 @@
             {% for cluster in cluster_list %}
                 <li class="list-group-item">
                     <label>
-                        <input type="checkbox" name="cluster[]" id="{{ cluster.cluster }}" value="{{ cluster.cluster }}"
+                        <input type="checkbox" name="c" id="{{ cluster.cluster }}" value="{{ cluster.cluster }}"
                             {% if cluster.cluster in selected_cluster %}
                                 checked="checked"
                             {% endif %}
