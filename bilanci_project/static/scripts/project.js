@@ -1,6 +1,13 @@
 /* Project specific Javascript goes here. */
 
 !function($){
+    var isVisible = false;
+    var hideAllPopovers = function() {
+       $('a[rel=info-popover]').each(function() {
+            $(this).popover('hide');
+        });
+    };
+
     $(document).ready(function(){
         // Fix input element click problem
         // http://mifsud.me/adding-dropdown-login-form-bootstraps-navbar/
@@ -13,10 +20,28 @@
         });
 
         // enable popovers
-        $('a[rel=info-popover]').popover().click(function(e) {
-            e.preventDefault();
-            // close other popover on open
-            $('a[rel=info-popover]').not(this).popover('hide');
+        $('a[rel=info-popover]').popover({
+            trigger: 'manual'
+        }).on('click', function(e) {
+            // if any other popovers are visible, hide them
+            if(isVisible) {
+                hideAllPopovers();
+            }
+            $(this).popover('show');
+
+            // handle clicking on the popover itself
+            $('.popover').off('click').on('click', function(e) {
+                e.stopPropagation(); // prevent event for bubbling up => will not get caught with document.onclick
+            });
+
+            isVisible = true;
+            e.stopPropagation();
+            return false;
+        });
+        // close all popovers on document click
+        $(document).on('click', function(e) {
+            hideAllPopovers();
+            isVisible = false;
         });
 
         // enable nested accordion
