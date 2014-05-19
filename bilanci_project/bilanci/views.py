@@ -545,7 +545,7 @@ class CalculateVariationsMixin(object):
 
 
 
-class BilancioCompositionWidgetView(CalculateVariationsMixin, LoginRequiredMixin, TemplateView):
+class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     template_name = None
     show_help = True
