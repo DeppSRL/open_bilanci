@@ -1,4 +1,4 @@
-{% load tooltip %}
+{% load popover_info %}
 
 <div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
     <div class="scrollbox"  >
@@ -32,7 +32,7 @@
                             </a>
                         </div>
                         <div class="col-sm-1">
-                            {% tooltip text=parameter.denominazione %}
+                            {% popover_info parameter.slug %}
                         </div>
 
                     </div>
