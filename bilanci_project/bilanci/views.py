@@ -1206,8 +1206,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
             variations.append(variation_dict )
 
-            print main_denominazione_strip, main_value, comparison_value, variation_dict['variation']
-
         return variations
 
     # return data_regroup for bilancio for selected year
@@ -1275,6 +1273,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             self.comp_bilancio_type = 'preventivo'
             self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = self.comp_bilancio_type )
 
+        if self.comp_bilancio_year is None:
+            self.comparison_not_available = True
 
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
@@ -1402,7 +1402,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['entrate_chiperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
         context['entrate_chiguadagna'] = self.get_chi_guardagna_perde(variations_e_sorted,guadagna=True)
-        print variations_e_sorted
 
         # spese data
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
@@ -1414,8 +1413,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['spese_chiperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
         context['spese_chiguadagna'] = self.get_chi_guardagna_perde(variations_s_sorted, guadagna=True)
-
-        print variations_s_sorted
 
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year

@@ -2537,3 +2537,6 @@ form ul li label {
   background: #99a5b1 !important;
   color: #2a3036!important;
 }
+#balance .panel-default .table td.text {
+  width: 100%!important;
+}

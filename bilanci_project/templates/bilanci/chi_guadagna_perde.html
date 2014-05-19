@@ -4,7 +4,7 @@
             {% for voce in voce_set %}
 
                 <tr>
-                    <td class="col-sm-10 text">
+                    <td class="col-sm-7 ">
                         <h5><a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">{{ voce.denominazione|upper }}</a></h5>
                     </td>
                     <td class="col-sm-1 trend">
@@ -16,7 +16,7 @@
                         {% endif %}
 
                     </td>
-                    <td class="col-sm-1 pos">
+                    <td class="col-sm-4 pos">
                         {% if type == "guadagna" %}
                             <span class="h3">+{{ voce.variation }}%</span>
                         {% else %}
@@ -30,13 +30,13 @@
         {% else %}
 
             <tr style="background-color: #d3d3d3;">
-                <td class="col-sm-10 text">
+                <td class="col-sm-7 ">
                     <h5>DATO NON DISPONIBILE PER QUESTO BILANCIO</h5>
                 </td>
                 <td class="col-sm-1 trend">
                     <span style="visibility: hidden;" class="icon sprite-trend-up-3"></span>
                 </td>
-                <td class="col-sm-1 pos">
+                <td class="col-sm-4 pos">
 
                 </td>
             </tr>
