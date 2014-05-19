@@ -73,7 +73,7 @@ var setupNestedAccordion = function(startElement) {
                 'text-decoration': 'none'
             });
             // hide secondary line chart button
-//          heading.find('.trend-chart-toggle').addClass('hidden');
+          heading.find('.trend-chart-toggle').addClass('hidden');
             // hide graph
             heading.parent().find('.chart-container.in').collapse('hide');
 
@@ -88,7 +88,7 @@ var setupNestedAccordion = function(startElement) {
             // add bold style
             heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
             // show secondary line chart button
-//          heading.find('.trend-chart-toggle').removeClass('hidden');
+          heading.find('.trend-chart-toggle').removeClass('hidden');
         });
 
     // add graph toggler
