@@ -29,6 +29,7 @@ class TermAdmin(admin.ModelAdmin):
     inlines = [TermInline, ]
     ordering = ('slug', )
     list_display = ('slug', 'popover_title', 'main_term')
+    search_fields = ('slug', 'popover_title',)
 
 
 admin.site.register(Term, TermAdmin)

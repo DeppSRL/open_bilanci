@@ -11,9 +11,9 @@ class Term(models.Model):
 
     It is called idioticon, because it's a much more interesting name.
     """
-    term = models.CharField(_("Term"), max_length=128,
+    term = models.CharField(_("Term"), max_length=255,
                             help_text=_("The term"))
-    slug = models.SlugField(max_length=128, unique=True, help_text=_("A single word or slug, to use as key in popovers' inclusion tags"))
+    slug = models.SlugField(max_length=255, unique=True, help_text=_("A single word or slug, to use as key in popovers' inclusion tags"))
     popover_title = models.CharField(_("Title"), max_length=255, blank=True, null=True,
                                      help_text=_("The title in the popover box"))
     definition = HTMLField(_("Definition"), help_text=_("The definition of the term"), blank=True)
