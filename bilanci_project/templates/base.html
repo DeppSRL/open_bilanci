@@ -7,6 +7,12 @@
 
         <title>Open Bilanci - {% block page_title %}{% endblock %}</title>
 
+        <meta property="og:title" content="Open Bilanci" />
+        <meta property="og:site_name" content="Open Bilanci" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ site_full_url }}" />
+        <meta property="og:image" content="{{ site_full_url }}{% static 'img/social_image.png' %}" />
+
         <!-- jQuery (needed in head for select2) -->
         <script src="{% static 'scripts/vendor/jquery/jquery.js' %}"></script>
 
