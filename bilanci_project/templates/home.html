@@ -1,6 +1,7 @@
 {%  extends "base.html" %}
 {% load popover_info %}
 {% load staticfiles %}
+{% load feedparse %}
 
 {% block page_title %}
     Home page
@@ -146,6 +147,19 @@
                     </div>
                 </div>
                 <ul class="list-unstyled row">
+                    {% for blog_post in op_blog_posts %}
+                    <li class="col-sm-4">
+                        <hr>
+                        <h3><a href="{{ blog_post.link }}">{{ blog_post.title }}</a></h3>
+                        <p class="small"><time datetime="{{ blog_post.published_parsed|time_to_datetime|date:'Y-m-d' }}"><span class="icon sprite-calendar"></span> {{ blog_post.published_parsed|time_to_datetime|date:'d F Y' }}</time></p>
+                        <div class="text">
+                            {{ blog_post.description|safe }}
+                        </div>
+                        <footer>
+                            <p class="small tags"><span class="icon sprite-tag"></span> {% for tag in blog_post.tags %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                        </footer>
+                    </li>
+                    {% empty %}
                     <li class="col-sm-4">
                         <hr>
                         <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
@@ -189,6 +203,8 @@
                             <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
                         </footer>
                     </li>
+                    {% endfor %}
+
                 </ul>
             </div>
         </section>

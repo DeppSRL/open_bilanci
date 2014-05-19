@@ -3,6 +3,7 @@ from operator import itemgetter
 import os
 import re
 import json
+import feedparser
 import zmq
 import requests
 from collections import OrderedDict
@@ -64,7 +65,8 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data( **kwargs)
         context['territori_search_form_home'] = TerritoriSearchFormHome()
-        return  context
+        context['op_blog_posts'] = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
+        return context
 
 
 class HomeReleaseView(ShareUrlMixin, TemplateView):
