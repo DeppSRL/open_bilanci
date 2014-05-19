@@ -34,7 +34,7 @@
         });
 
         // enable nested accordion
-        setupNestedAccordion();
+        setupNestedAccordion(location.hash);
     });
 }(jQuery);
 
@@ -98,7 +98,9 @@ var setupNestedAccordion = function(startElement) {
 
     // auto open accordion
     if ( startElement != undefined ) {
-        $(startElement).collapse('show');
+        // expand parents if exists
+        $(startElement, panels_tree).parents('.collapse').collapse('show');
+        $(startElement, panels_tree).collapse('show');
     }
 };
 
