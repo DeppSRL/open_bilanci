@@ -15,6 +15,8 @@
         // enable popovers
         $('a[rel=info-popover]').popover().click(function(e) {
             e.preventDefault();
+            // close other popover on open
+            $('a[rel=info-popover]').not(this).popover('hide');
         });
 
         // enable nested accordion
