@@ -1,5 +1,4 @@
 @import url(http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
-
 @import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
 /**
  * Main style
@@ -364,7 +363,6 @@ a:visited {
 #main-content .track.dragging {
   background: #d9d9d9;
   /* Browsers without rgba support */
-
   background: rgba(0, 0, 0, 0.15);
 }
 #main-content .handle {
@@ -678,11 +676,8 @@ a:visited {
   overflow: hidden;
   display: block;
   /* Firefox 10+, Firefox on Android */
-
   /* IE 6-9 */
-
   /* Chrome 19+, Safari 6+, Safari 6+ iOS */
-
 }
 #results td.chart-wrapper .label {
   color: #2a3036;
@@ -2192,6 +2187,11 @@ a.active .sprite-mappa-big {
 #home #main-content #intro h3 a.active {
   font-weight: 400;
   text-decoration: none;
+}
+#home #main-content #intro h3 a.disabled:hover,
+#home #main-content #intro h3 a.disabled:active {
+  font-weight: inherit;
+  cursor: default;
 }
 #home #main-content #slider {
   padding: 0;

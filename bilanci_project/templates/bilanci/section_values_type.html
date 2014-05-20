@@ -1,5 +1,5 @@
 {% load staticfiles %}
-{% load tooltip %}
+{% load popover_info %}
 {# displays info about cas/com and about values type  #}
 <div class="cas_com_box">
     {% if not hide_icon %}
@@ -13,16 +13,16 @@
         </span>
         <div class="values_type">
             {% if tooltip %}
-                {% tooltip text=cas_com_type %}
+                {% popover_info cas_com_type %}
             {% endif %}
         </div>
     {% endif %}
     <span class="values_type">
-        VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI{% else %} NOMINALI {% endif %}
+        VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI {% else %} NOMINALI{% endif %}
     </span>
     <div class="values_type">
         {% if tooltip %}
-            {% tooltip text=values_type %}
+            {% if values_type == 'real' %}{% popover_info 'valore-reale' %}{% else %}{% popover_info 'valore-nominale' %}{% endif %}
         {% endif %}
     </div>
 </div>

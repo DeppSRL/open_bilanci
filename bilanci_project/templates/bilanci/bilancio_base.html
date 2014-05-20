@@ -1,6 +1,7 @@
 {%  extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
+{% load popover_info %}
 
 
 {% block extra_css %}
@@ -121,11 +122,11 @@
 
                                         <div class="col-md-6">
                                             <input type="radio" value="cassa" id="cas_com_type_cassa" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa</label>
+                                            <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa {% popover_info 'cassa' %}</label>
                                         </div>
                                         <div class="col-md-6">
                                             <input type="radio" value="competenza" id="cas_com_type_competenza" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza</label>
+                                            <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza {% popover_info 'competenza' %}</label>
                                         </div>
 
                                         {% else %}
@@ -134,13 +135,13 @@
                                                 <input type="radio" value="cassa"
                                                        {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
                                                        id="cas_com_type_cassa" name="cas_com_type">
-                                                <label for="cas_com_type_cassa" >Cassa</label>
+                                                <label for="cas_com_type_cassa" >Cassa {% popover_info 'cassa' %}</label>
                                             </div>
                                             <div class="col-md-6">
                                                 <input type="radio" value="competenza"
                                                        {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
                                                        id="cas_com_type_competenza" name="cas_com_type">
-                                                <label for="cas_com_type_competenza">Competenza</label>
+                                                <label for="cas_com_type_competenza">Competenza {% popover_info 'compentenza' %}</label>
                                             </div>
 
                                     {% endif %}
@@ -155,13 +156,13 @@
                                         <input type="radio" value="real"
                                                {% if values_type == "real" %}checked="checked"{% endif %}
                                                id="values_type_real" name="values_type">
-                                        <label for="values_type_real">Reali</label>
+                                        <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
                                     </div>
                                     <div class="col-md-6">
                                         <input type="radio" value="nominal"
                                                {% if values_type == "nominal" %}checked="checked"{% endif %}
                                                id="values_type_nominal" name="values_type">
-                                        <label for="values_type_nominal">Nominali</label>
+                                        <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
                                     </div>
                                 </div>
                             </li>
