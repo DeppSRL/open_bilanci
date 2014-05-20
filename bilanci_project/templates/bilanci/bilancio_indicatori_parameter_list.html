@@ -1,4 +1,4 @@
-{% load tooltip %}
+{% load popover_info %}
 <aside id="sidebar" class="hidden">
     <form id="parameter-list-form"  method="get" >
         <div class="panel panel-default">
@@ -12,7 +12,7 @@
                 <div>
                     <ul class="nav nav-stacked menu">
                         <li>
-                            <a href="#" class="pin pull-right hidden" data-toggle="tooltip" title="presenti voci selezionate"><span class="icon sprite-alert"></span></a>
+{#                            <a href="#" class="pin pull-right hidden" data-toggle="tooltip" title="presenti voci selezionate"><span class="icon sprite-alert"></span></a>#}
                             <ul class="nav nav-stacked ">
                                 {% for parameter in parameter_list %}
                                 <li>
@@ -30,7 +30,7 @@
                                             </label>
                                         </div>
                                         <div class="col-sm-1">
-                                            {% tooltip link="#" text="vai alla classifica di tutti i Comuni per questo indicatore.<br><strong class='link'><span class='icon sprite-search-alt'></span> Lorem ipsum</strong>" %}
+                                            {% popover_info parameter.slug %}
                                         </div>
                                     </div>
                                 </li>

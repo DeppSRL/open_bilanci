@@ -1,4 +1,4 @@
-{% load tooltip %}
+{% load popover_info %}
 <div class="pl-list" id="pl-{{ parameter_list_type|lower }}">
     <div class=""  >
         <ul class="nav nav-stacked confronti_parameter_list menu" id="parameter_list_{{ parameter_list_type }}">
@@ -20,7 +20,7 @@
 
                         </div>
                         <div class="col-sm-1">
-                            {% tooltip text=parameter.denominazione %}
+                            {% popover_info parameter.slug %}
                         </div>
                     </div>
 

@@ -1,12 +1,6 @@
 /* Project specific Javascript goes here. */
 
 !function($){
-    var isVisible = false;
-    var hideAllPopovers = function() {
-       $('a[rel=info-popover]').each(function() {
-            $(this).popover('hide');
-        });
-    };
 
     $(document).ready(function(){
         // Fix input element click problem
@@ -20,32 +14,27 @@
         });
 
         // enable popovers
-        $('a[rel=info-popover]').popover({
-            trigger: 'manual'
-        }).on('click', function(e) {
-            // if any other popovers are visible, hide them
-            if(isVisible) {
-                hideAllPopovers();
-            }
-            $(this).popover('show');
-
-            // handle clicking on the popover itself
-            $('.popover').off('click').on('click', function(e) {
-                e.stopPropagation(); // prevent event for bubbling up => will not get caught with document.onclick
-            });
-
-            isVisible = true;
-            e.stopPropagation();
-            return false;
+        $('a[rel=info-popover]').popover().on('click', function(e) {
+            e.preventDefault();
         });
         // close all popovers on document click
-        $(document).on('click', function(e) {
-            hideAllPopovers();
-            isVisible = false;
+        $('body').on('click', function (e) {
+            $('[data-toggle="popover"]').each(function () {
+                //the 'is' for buttons that trigger popups
+                //the 'has' for icons within a button that triggers a popup
+                if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                    $(this).popover('hide');
+                }
+            });
+        });
+
+        $('.checkbox-toggler').on('click', function() {
+            var $this = $(this);
+            $this.parent().parent().find('input[type=checkbox]').not($this).prop('checked', $this.prop('checked'));
         });
 
         // enable nested accordion
-        setupNestedAccordion();
+        setupNestedAccordion(location.hash);
     });
 }(jQuery);
 
@@ -84,7 +73,7 @@ var setupNestedAccordion = function(startElement) {
                 'text-decoration': 'none'
             });
             // hide secondary line chart button
-//          heading.find('.trend-chart-toggle').addClass('hidden');
+          heading.find('.trend-chart-toggle').addClass('hidden');
             // hide graph
             heading.parent().find('.chart-container.in').collapse('hide');
 
@@ -99,7 +88,7 @@ var setupNestedAccordion = function(startElement) {
             // add bold style
             heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
             // show secondary line chart button
-//          heading.find('.trend-chart-toggle').removeClass('hidden');
+          heading.find('.trend-chart-toggle').removeClass('hidden');
         });
 
     // add graph toggler
@@ -109,7 +98,9 @@ var setupNestedAccordion = function(startElement) {
 
     // auto open accordion
     if ( startElement != undefined ) {
-        $(startElement).collapse('show');
+        // expand parents if exists
+        $(startElement, panels_tree).parents('.collapse').collapse('show');
+        $(startElement, panels_tree).collapse('show');
     }
 };
 

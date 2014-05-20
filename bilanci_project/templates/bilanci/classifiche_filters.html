@@ -4,7 +4,7 @@
 
         <div class="panel-heading">
 
-            <div class="pull-right" style="font-weight: bold;"><span onClick="toggle_checkboxes(this)">Rimuovi tutti <span class="icon sprite-delete"></span> </span></div>
+{#            <div class="pull-right" style="font-weight: bold;"><span onClick="toggle_checkboxes(this)">Rimuovi tutti <span class="icon sprite-delete"></span> </span></div>#}
             <h3 class="panel-title">FILTRA</h3>
 
             <button type="submit" class="btn btn-default">Aggiorna</button>
@@ -12,7 +12,7 @@
         </div>
 
         <ul class="list-group">
-            <li class="list-group-item label">FILTRA PER REGIONE</li>
+            <li class="list-group-item label"><input type="checkbox" class="checkbox-toggler" checked /> FILTRA PER REGIONE</li>
             {% for regione in regioni_list %}
                 <li class="list-group-item">
                     <label>
@@ -29,7 +29,7 @@
         </ul>
 
         <ul class="list-group">
-            <li class="list-group-item label">FILTRA PER CLUSTER</li>
+            <li class="list-group-item label"><input type="checkbox" class="checkbox-toggler" checked /> FILTRA PER CLUSTER</li>
             {% for cluster in cluster_list %}
                 <li class="list-group-item">
                     <label>

@@ -388,6 +388,7 @@ GDP_DEFLATORS = {
 ##
 
 OP_API_HOST = "http://api3.openpolis.it"
+OP_BLOG_CATEGORY = 'neibilanci'
 
 ##
 # APPLICATION VARIABLES:
