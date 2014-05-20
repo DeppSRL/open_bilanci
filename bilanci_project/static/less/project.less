@@ -146,6 +146,14 @@ a[rel=info-popover] {
   &:visited { color: black; }
 }
 
+#home #intro h3 a {
+  display: inline-block;
+  &.disabled:hover, &.disabled:active {
+      font-weight: inherit;
+      cursor: default;
+    }
+}
+
 .panel-tree {
 
   .panel {
