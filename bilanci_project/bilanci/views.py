@@ -369,19 +369,24 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             voce_line_label = voce_slug_to_translate[voce_bilancio.slug]
 
 
-        legend = [
-            {
-              "color": settings.TERRITORIO_1_COLOR,
-              "id": 1,
-              "label": voce_line_label.upper()
-            },
-            {
-              "color": settings.CLUSTER_LINE_COLOR,
-              "id": 2,
-              "label": 'MEDIANA DEI COMUNI ' + cluster.denominazione.upper()+''
-            },
+        legend = {
+            'title':None,
 
-        ]
+             "items":[
+                 {
+                  "color": settings.TERRITORIO_1_COLOR,
+                  "id": 1,
+                  "label": voce_line_label.upper()
+                },
+                {
+                  "color": settings.CLUSTER_LINE_COLOR,
+                  "id": 2,
+                  "label": 'MEDIANA DEI COMUNI ' + cluster.denominazione.upper()+''
+                },
+
+                ]
+        }
+
 
 
         return HttpResponse(
@@ -430,7 +435,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
                 {
                     "timeSpans":[incarichi_set],
                     'data':indicatori_set,
-                    'legend':legend_set
+                    'legend':{'title':None, 'items':legend_set}
                 }
             ),
             content_type="application/json"
@@ -1085,7 +1090,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
                 {
                     "timeSpans":[incarichi_set_1, incarichi_set_2],
                     'data':data,
-                    'legend':legend
+                    'legend':{'title':None,'items':legend}
                 }
             ),
             content_type="application/json"

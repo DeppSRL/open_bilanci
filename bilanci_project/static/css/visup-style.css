@@ -7,6 +7,10 @@
 
 /*SELECTOR*/
 
+.visup-selector-dropdown {
+	height: 103px;
+}
+
 .visup-selector-buttons {
 	text-align: center;
 	display: inline-block;
@@ -97,15 +101,39 @@
 }
 
 .visup-span-descr {
+	overflow: hidden;
 	position: absolute;
 	height: 100%;
 	padding-top: 5px;
 }
 
+.visup-span-descr.visup-collide {
+	border-right: 1px solid #c6d1cf;
+}
+
+.visup-span-descr.visup-collide:hover {
+	border-right: 1px solid #c6d1cf;
+	background-color: white;
+	z-index: 2;
+	width: auto !important;
+}
+
+.visup-span-descr.visup-collide:hover .visup-span-descr-labels{
+	padding: 10px 8px 10px 0px;
+}
+
+.visup-span-descr.visup-collide:hover .visup-span-label {
+	width: auto !important;
+}
+
+.visup-span-descr.visup-collide:hover .visup-span-sublabel {
+	width: auto !important;
+}
+
 .visup-span-descr-labels {
 	vertical-align: top;
 	display: inline-block;
-	padding: 3px 8px 3px 0px;
+	padding: 10px 0px 10px 0px;
 }
 
 .visup-span-bar {
@@ -114,6 +142,11 @@
 	border-radius: 3px;
 	border-width: 1px;
 	border-style: solid;
+}
+
+.visup-span-bar.disabled {
+	background-color: #b9c6c4 !important;
+	border-color: #b9c6c4 !important;
 }
 
 .visup-span-icon {
@@ -129,19 +162,33 @@
 }
 
 .visup-span-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
 	height: 40%;
-	line-height: 18px;
-	text-decoration: underline;
-	font-size: 12px;
+	line-height: 10px;
+	font-size: 10px;
+	font-weight: 900;
+	color: #cc6633;
+	text-decoration: none;
 	/*max-width: 100px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;*/
 }
 
+.visup-span-label:hover {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+
 .visup-span-sublabel {
+	overflow: hidden;
+	text-overflow: ellipsis;
 	height: 40%;
-	font-size: 12px;
+	font-size: 8px;
+	font-weight: 300;
+	text-transform: uppercase;
 }
 
 .visup-span-axisX {
@@ -157,7 +204,7 @@
 	position: relative;
 	height: 100%;
 	width: 100%;
-	margin-bottom: 26px;
+	margin-bottom: 15px;
 }
 
 .visup-timeline-back {
@@ -167,11 +214,11 @@
 }
 
 .visup-timeline-back-highlighted {
-	fill:white;
+	fill: #f2efe7;
 }
 
 .visup-timeline-back-line {
-	stroke: black;
+	stroke: #b9c6c4;
 	stroke-width: 1px;
 	shape-rendering: crispEdges;
 }
@@ -195,12 +242,13 @@ path.domain {
 }
 
 .visup-timeline-axisY-container g.tick line {
-	stroke:black;
+	stroke: #b9c6c4;
 	stroke-width:1px;
 	shape-rendering:crispEdges;
 }
 
 g.tick text {
+	font-weight: 300;
 	font-size: 16px;
 	pointer-events: none;
 }
@@ -241,7 +289,7 @@ g.tick text {
 }
 
 .visup-backline {
-	stroke: black;
+	stroke: #b9c6c4;
 	stroke-width: 1px;
 	stroke-dasharray: 5, 5;
 	shape-rendering: crispEdges;
@@ -257,7 +305,7 @@ g.tick text {
 
 .visup-clippath {
 	position: absolute;
-	border: 1px solid #2a3037;
+	border: 1px solid #b9c6c4;
 	border-radius: 5px;
 	pointer-events: none;
 }
@@ -267,6 +315,13 @@ g.tick text {
 .visup-legend-container {
 	width: 100%;
 	padding-left: 5px;
+}
+
+.visup-legend-title {
+	border-bottom: 1px solid #2a3037;
+	height: 40px;
+	font-size: 16px;
+	line-height: 40px;
 }
 
 .visup-legend-row {
@@ -284,6 +339,7 @@ g.tick text {
 .visup-legend-item {
 	padding: 17px 5px;
 	display: inline-block;
+	vertical-align: top;
 }
 
 .visup-legend-item-description {
@@ -315,10 +371,13 @@ g.tick text {
 .visup-legend-item-value {
 	padding-right: 5px;
 	display: inline-block;
+	font-size: 12px;
+	font-weight: 900;
 }
 
 .visup-legend-item-unit {
 	font-size: 8px;
+	font-weight: 300;
 	display: inline-block;
 }
 
