@@ -11,9 +11,8 @@ def classifiche_parameter_list(context, parameter_list_type, parameter_list, sel
     return {
         'parameter_list_type': parameter_list_type,
         'parameter_list': parameter_list,
-        # selected parameter type / selected parameter slug
         'selected_par_type': selected_par_type,
         'selected_par_slug': selected_par_slug,
         'selected_year': selected_year,
-
+        'query_string': context['query_string'],
     }
