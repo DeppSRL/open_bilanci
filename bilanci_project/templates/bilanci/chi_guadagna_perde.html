@@ -1,14 +1,23 @@
 <table class="table">
     <tbody>
-        {% if voce_set|length  > 0 %}
+        {% if voce_set|length  == 0 %}
+
+            <tr style="background-color: #d3d3d3;">
+                <td class="col-sm-12 " colspan="3">
+                    <h5>DATO NON DISPONIBILE PER QUESTO BILANCIO</h5>
+                </td>
+            </tr>
+
+        {% else %}
+
             {% for voce in voce_set %}
 
                 <tr>
                     <td class="col-sm-7 ">
                         <h5>
-{#                            <a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">#}
+    {#                            <a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">#}
                                 {{ voce.denominazione|upper }}
-{#                            </a>#}
+    {#                            </a>#}
                         </h5>
                     </td>
                     <td class="col-sm-1 trend">
@@ -30,20 +39,14 @@
                 </tr>
 
             {% endfor %}
-
-        {% else %}
-
+        {% endif %}
+        {% if voce_set|length  == 1  %}
             <tr style="background-color: #d3d3d3;">
-                <td class="col-sm-7 ">
-                    <h5>DATO NON DISPONIBILE PER QUESTO BILANCIO</h5>
-                </td>
-                <td class="col-sm-1 trend">
-                    <span style="visibility: hidden;" class="icon sprite-trend-up-3"></span>
-                </td>
-                <td class="col-sm-4 pos">
-
+                <td class="col-sm-12 " colspan="3">
+                    <h5>NON CI SONO ALTRE VOCI IN CLASSIFICA</h5>
                 </td>
             </tr>
         {% endif %}
     </tbody>
 </table>
+

@@ -19,8 +19,10 @@
         <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
 
             <div class="row">
-                <div class="col-sm-5 entry">
+                <div class="col-sm-6 entry">
+                    {% if node.indent_level > 0 %}
                     {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                    {% endif %}
                     {% if not node.is_leaf_node %}
                     <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
                         <i class="fa fa-fw fa-plus-circle"></i>
@@ -49,12 +51,12 @@
 
                 </div>
 
-                <div class="col-sm-5 actions">
+                <div class="col-sm-3 actions">
                     {# set 3rd parameter to True, (is_interventi) #}
                     {% voice_values node.slug budget_values True %}
                 </div>
 
-                <div class="col-sm-2">
+                <div class="col-sm-2 col-md-offset-1">
                    <a href="#{{ node.slug }}" class="pull-right btn btn-default trend-chart-toggle{% if not node.is_leaf_node %} hidden{% endif %}" data-toggle="collapse"
                       id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
                        <i class="fa fa-fw fa-signal"></i> Grafico <i class="fa fa-caret-down"></i>
