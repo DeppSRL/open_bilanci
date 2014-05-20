@@ -29,6 +29,7 @@ class Command(BaseCommand):
     # determines max n.days between commissari charges to be united as a unique charge
     max_n_days_between_commissari = max_n_days_charges_discontinuty
 
+    overlapping_dict={}
     incarichi_longer_5yrs = []
 
     # territori with charges discontinuity longer than max discontinuity lenght
@@ -122,8 +123,54 @@ class Command(BaseCommand):
             Incarico.objects.all().delete()
             self.logger.info(u"Done.".format(dryrun))
 
-        self.handle_incarichi(territori_type, dryrun)
-        self.logger.info(u"End import charges script")
+        nomi_capoluoghi = list(
+            Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).
+                values_list('denominazione', flat=True)
+            )
+
+        altri_nomi_capoluoghi = [
+            'Barletta',
+            'Andria',
+            'Trani',
+            'Carbonia',
+            'Iglesias',
+            'Forlì',
+            'Massa',
+            'Villacidro',
+            'Sanluri',
+            'Monza',
+            'Tortolì',
+            'Lanusei',
+            'Olbia',
+            'Tempio Pausania',
+            'Pesaro',
+            'Urbino',
+            'Aosta',
+            'Verbania'
+        ]
+
+        # aggiunge i capoluoghi a capo di una provincia che non ha il loro stesso nome
+        nomi_capoluoghi.extend(altri_nomi_capoluoghi)
+
+        # prende tutte le citta' che hanno il nome = alla provincia di appartenenza
+        capoluoghi_provincia = Territorio.objects.\
+            filter(territorio = Territorio.TERRITORIO.C, denominazione__in = nomi_capoluoghi).order_by('-cluster','denominazione')
+
+
+        altri_territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).\
+            exclude(denominazione__in = nomi_capoluoghi).exclude(denominazione__in = altri_nomi_capoluoghi).order_by('-cluster','denominazione')
+
+        # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori
+        # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
+
+        if territori_type != 'others':
+            self.process_cities(capoluoghi_provincia, dryrun)
+
+        if territori_type !='capoluoghi':
+            self.process_cities(altri_territori, dryrun)
+
+        self.log_errors()
+
 
 
     def get_incarichi_api(self, territorio_opid):
@@ -150,10 +197,9 @@ class Command(BaseCommand):
 
     def date_integrity_check(self, incarichi_set):
 
-
-
-
         # check & log incarico.lenght > 5 yrs, check & log incarico timespan > 60days
+
+        added_ids=[]
         for idx, incarico in enumerate(incarichi_set):
 
             if incarico['date_end']:
@@ -161,16 +207,23 @@ class Command(BaseCommand):
                 if diff > self.max_n_days_incarico_length:
                     self.incarichi_longer_5yrs.append(incarico)
 
-                if idx < len(incarichi_set)-1:
-                    diff_next = (incarichi_set[idx+1]['date_start']-incarico['date_end']).days
-                    if diff_next > self.max_n_days_charges_discontinuty:
+            if idx < len(incarichi_set)-1 and incarico['date_start'] and incarico['date_end']:
+                diff_next = (incarichi_set[idx+1]['date_start']-incarico['date_end']).days
+                if diff_next > self.max_n_days_charges_discontinuty:
+                    if idx not in added_ids and idx+1 not in added_ids:
                         self.territori_discontinuity.append({'incarico_1':incarichi_set[idx+1], 'incarico_2': incarico, 'diff': diff_next})
+                        added_ids.append(idx)
+                        added_ids.append(idx+1)
 
             if idx > 0:
                 if incarichi_set[idx-1]['date_end']:
                     diff_previous = (incarico['date_start']-incarichi_set[idx-1]['date_end']).days
                     if diff_previous > self.max_n_days_charges_discontinuty:
-                        self.territori_discontinuity.append({'incarico_1':incarico, 'incarico_2': incarichi_set[idx-1], 'diff': diff_previous})
+
+                        if idx not in added_ids and idx-1 not in added_ids:
+                            self.territori_discontinuity.append({'incarico_1':incarico, 'incarico_2': incarichi_set[idx-1], 'diff': diff_previous})
+                            added_ids.append(idx)
+                            added_ids.append(idx-1)
 
 
 
@@ -201,18 +254,21 @@ class Command(BaseCommand):
                     inner_start = incarico_inner['date_start']
                     inner_end = incarico_inner['date_end']
 
-                    if inner_start < considered_start < inner_end:
+                    if inner_end:
+                        if inner_start < considered_start < inner_end:
 
-                        if (incarico_inner, incarico_considered) not in overlapping_incarichi and\
-                            (incarico_considered, incarico_inner) not in overlapping_incarichi:
+                            if (incarico_inner, incarico_considered) not in overlapping_incarichi and\
+                                (incarico_considered, incarico_inner) not in overlapping_incarichi:
 
-                            overlapping_incarichi.append((incarico_inner, incarico_considered))
+                                overlapping_incarichi.append((incarico_inner, incarico_considered))
+                        else:
+                            if considered_end:
 
-                    elif inner_end > considered_end > inner_start:
-                        if (incarico_inner, incarico_considered) not in overlapping_incarichi and\
-                            (incarico_considered, incarico_inner) not in overlapping_incarichi:
+                                if inner_end > considered_end > inner_start:
+                                    if (incarico_inner, incarico_considered) not in overlapping_incarichi and\
+                                        (incarico_considered, incarico_inner) not in overlapping_incarichi:
 
-                            overlapping_incarichi.append((incarico_inner, incarico_considered))
+                                        overlapping_incarichi.append((incarico_inner, incarico_considered))
 
 
         if len(overlapping_incarichi) > 0:
@@ -220,25 +276,85 @@ class Command(BaseCommand):
 
         return True, incarichi_set
 
+
+    def commissari_regroup(self, incarichi_set):
+
+        contigue_commissari_id=[]
+        same_period_commissari_id = []
+        incarichi_clean_set = []
+        regrouped_set = []
+
+        # removes commissari which are starting/ending on the same date.
+        # fills in incarichi_clean_set
+        for outer_idx, incarico_outer in enumerate(incarichi_set):
+            if incarico_outer['charge_type'] == u'Commissario':
+
+                for inner_idx, incarico_inner in enumerate(incarichi_set):
+                    if inner_idx != outer_idx and incarico_inner['charge_type'] == u'Commissario':
+                        if incarico_inner['date_start'] == incarico_outer['date_start']\
+                            and incarico_inner['date_end'] == incarico_outer['date_end']:
+                            
+                            same_period_commissari_id.append(inner_idx)
+
+        
+        for idx, incarico in enumerate(incarichi_set):
+            if idx not in same_period_commissari_id:
+                incarichi_clean_set.append(incarico)
+                
+                
+                        
+        # based on previous operation loops over incarichi_clean_set and unites commissari which are
+        # less than max_n_days_between_commissari days apart in one single incarico
+
+
+        for idx, incarico in enumerate(incarichi_clean_set):
+            if incarico['charge_type'] == u'Commissario':
+                if idx not in contigue_commissari_id:
+
+                    if idx < len(incarichi_clean_set)-1:
+                        next_incarico = incarichi_clean_set[idx+1]
+                        if next_incarico['charge_type'] == u'Commissario' and incarico['date_end']:
+                            diff_next = (next_incarico['date_start']-incarico['date_end']).days
+
+                            if diff_next < self.max_n_days_between_commissari:
+                                contigue_commissari_id.append(idx+1)
+                                incarico['date_end']=next_incarico['date_end']
+
+                    if idx > 0:
+                        prev_incarico = incarichi_clean_set[idx-1]
+                        if prev_incarico['date_end']:
+                            diff_previous = (incarico['date_start']-prev_incarico['date_end']).days
+                            if diff_previous < self.max_n_days_between_commissari:
+                                contigue_commissari_id.append(idx-1)
+                                incarico['date_start']=prev_incarico['date_start']
+
+
+                regrouped_set.append(incarico)
+            else:
+                regrouped_set.append(incarico)
+
+        return regrouped_set
+
     def process_cities(self, territori_set, dryrun):
 
         for territorio in territori_set:
             self.logger.info('Getting incarichi for territorio:{0},opid: {1}'.format(territorio,territorio.op_id))
             # get incarichi for territorio
-            incarichi_territorio = self.get_incarichi_api(territorio.op_id)
+            incarichi_set = self.get_incarichi_api(territorio.op_id)
 
             # check for data integrity
 
-            if len(incarichi_territorio) == 0:
+            if len(incarichi_set) == 0:
                 self.logger.warning('Incarichi missing for {0}'.format(unidecode(territorio.denominazione)).upper())
                 return
 
 
-            self.date_integrity_check(incarichi_territorio)
-            continue
+            self.date_integrity_check(incarichi_set)
+
+            incarichi_set = self.commissari_regroup(incarichi_set)
 
             # if data is ok transform data format to fit Visup widget specs
-            date_check, incarichi_set = self.check_overlapping_incarichi(incarichi_territorio)
+            date_check, incarichi_set = self.check_overlapping_incarichi(incarichi_set)
 
             if date_check:
 
@@ -286,13 +402,8 @@ class Command(BaseCommand):
                             self.create_incarico(incarico_dict, territorio, tipologia)
 
             else:
-                self.logger.warning("TERRITORIO: {0} OVERLAPPING INCARICHI:".format(unidecode(territorio.denominazione.upper())))
-                for incarichi_tuple in incarichi_set:
+                self.overlapping_dict[territorio.denominazione.upper()] = incarichi_set
 
-                    incarico_0_str = self.format_incarico(incarichi_tuple[0])
-                    incarico_1_str = self.format_incarico(incarichi_tuple[1])
-
-                    self.logger.warning("Incarico: {0} is overlapping with {1}".format(incarico_0_str, incarico_1_str))
 
 
         return
@@ -347,56 +458,15 @@ class Command(BaseCommand):
         self.logger.warning("Incarico over max lenght:{0}".format(len(self.incarichi_longer_5yrs)))
         self.logger.warning("Incarichi couple over max days apart:{0}".format(len(self.territori_discontinuity)))
 
+        for denominazione_territorio, single_dict in self.overlapping_dict.iteritems():
+            self.logger.warning("TERRITORIO: {0} OVERLAPPING INCARICHI:".format(unidecode(denominazione_territorio)))
+            for incarichi_tuple in single_dict:
 
-    def handle_incarichi(self, territori_type, dryrun):
+                incarico_0_str = self.format_incarico(incarichi_tuple[0])
+                incarico_1_str = self.format_incarico(incarichi_tuple[1])
 
-        nomi_capoluoghi = list(Territorio.objects.\
-            filter(territorio=Territorio.TERRITORIO.P).values_list('denominazione', flat=True))
+                self.logger.warning("Incarico: {0} is overlapping with {1}".format(incarico_0_str, incarico_1_str))
 
-        altri_nomi_capoluoghi = [
-            'Barletta',
-            'Andria',
-            'Trani',
-            'Carbonia',
-            'Iglesias',
-            'Forlì',
-            'Massa',
-            'Villacidro',
-            'Sanluri',
-            'Monza',
-            'Tortolì',
-            'Lanusei',
-            'Olbia',
-            'Tempio Pausania',
-            'Pesaro',
-            'Urbino',
-            'Aosta',
-            'Verbania'
-        ]
-
-        # aggiunge i capoluoghi a capo di una provincia che non ha il loro stesso nome
-        nomi_capoluoghi.extend(altri_nomi_capoluoghi)
-
-        # prende tutte le citta' che hanno il nome = alla provincia di appartenenza
-        capoluoghi_provincia = Territorio.objects.\
-            filter(territorio = Territorio.TERRITORIO.C, denominazione__in = nomi_capoluoghi).order_by('-cluster','denominazione')
-
-
-        altri_territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).\
-            exclude(denominazione__in = nomi_capoluoghi).exclude(denominazione__in = altri_nomi_capoluoghi).order_by('-cluster','denominazione')
-
-        # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori
-        # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
-
-        if territori_type != 'others':
-            self.process_cities(capoluoghi_provincia, dryrun)
-
-        if territori_type !='capoluoghi':
-            self.process_cities(altri_territori, dryrun)
-
-        self.log_errors()
-
-        return
 
 
 
