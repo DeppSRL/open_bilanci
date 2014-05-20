@@ -10,7 +10,7 @@
 <div class="panel-group panel-tree" id="tree-preventivo-spese">
 
 {% recursetree bilancio_tree %}
-    {% if node.denominazione != "Spese per investimenti" and not "interventi" in node.slug.lower %}
+    {% if node.denominazione != "Spese per investimenti" and node.denominazione != "_spese_somma_funzioni" and not "interventi" in node.slug.lower %}
     {% if node == bilancio_rootnode or node.denominazione.lower == "funzioni" %}
         {{ children }}
     {% else %}

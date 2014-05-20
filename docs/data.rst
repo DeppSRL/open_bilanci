@@ -347,7 +347,7 @@ A random set of cities codes can be extracted from the python shell_plus, with a
         )
     )
 
-Then, assuming that the ``cities`` string has been copied in the clipboard,
+Then, assuming that the ``cities`` string has been **copied** in the clipboard,
 the following management tasks will import all values from the couchdb instance; compute the median values
 and the indicators::
 
