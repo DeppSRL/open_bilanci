@@ -2188,11 +2188,6 @@ a.active .sprite-mappa-big {
   font-weight: 400;
   text-decoration: none;
 }
-#home #main-content #intro h3 a.disabled:hover,
-#home #main-content #intro h3 a.disabled:active {
-  font-weight: inherit;
-  cursor: default;
-}
 #home #main-content #slider {
   padding: 0;
 }
@@ -2485,6 +2480,14 @@ a[rel=info-popover]:hover {
 a[rel=info-popover]:visited {
   color: black;
 }
+#home #intro h3 a {
+  display: inline-block;
+}
+#home #intro h3 a.disabled:hover,
+#home #intro h3 a.disabled:active {
+  font-weight: inherit;
+  cursor: default;
+}
 .panel-tree .panel {
   overflow: visible;
 }
@@ -2578,4 +2581,70 @@ a[rel=info-popover]:visited {
 }
 #footer .partners li a.openpolis {
   background: none;
+}
+#bilancio-header p .year {
+  display: none;
+}
+#bilancio-header.affix {
+  top: 0;
+  background-color: white;
+  z-index: 9998;
+  border-bottom: 1px solid #2a3036;
+}
+#bilancio-header.affix .share-box {
+  display: none;
+}
+#bilancio-header.affix > p {
+  float: left;
+}
+#bilancio-header.affix > p .inhabitants {
+  display: none;
+}
+#bilancio-header.affix > p .year {
+  display: inline-block;
+}
+#bilancio-header.affix h1.panel-title {
+  float: left;
+  font-size: inherit;
+  font-weight: bold;
+}
+#bilancio-header.affix h1.panel-title,
+#bilancio-header.affix > p {
+  margin: 4px 10px 0 0;
+  line-height: 1.4;
+}
+#bilancio-header.affix .navbar-subnav {
+  border: 0;
+  margin-bottom: 0;
+  background: transparent;
+}
+#bilancio-header.affix .navbar-subnav li {
+  background-color: #2a3036;
+}
+#bilancio-header.affix .navbar-subnav li:last-child {
+  border-right: 0;
+}
+#bilancio-header.affix .navbar-subnav li a {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: .8em;
+  font-weight: bold;
+}
+#bilancio-header.affix > p.details {
+  display: inline-block;
+}
+#settings {
+  z-index: 9999 !important;
+}
+#main-content > .panel-heading .panel-title {
+  font-size: 38px;
+}
+@media (max-width: 768px) {
+  #bilancio-header.affix p {
+    float: none;
+  }
+  #bilancio-header.affix .navbar-subnav {
+    width: 1%;
+    display: table-cell;
+  }
 }

@@ -146,6 +146,14 @@ a[rel=info-popover] {
   &:visited { color: black; }
 }
 
+#home #intro h3 a {
+  display: inline-block;
+  &.disabled:hover, &.disabled:active {
+      font-weight: inherit;
+      cursor: default;
+    }
+}
+
 .panel-tree {
 
   .panel {
@@ -252,4 +260,59 @@ a[rel=info-popover] {
     &> a:hover { color: #fff; text-decoration: underline; }
   }
   .partners li a.openpolis { background: none; }
+}
+
+#bilancio-header {
+  p .year { display: none; }
+}
+#bilancio-header.affix {
+  top: 0;
+  background-color: white;
+  z-index: 9998;
+  border-bottom: 1px solid @textColor;
+  .share-box { display: none; }
+  &> p {
+    float:left;
+    .inhabitants { display: none; }
+    .year { display: inline-block; }
+  }
+  h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
+  h1.panel-title, &> p {
+    margin: 4px 10px 0 0;
+    line-height: 1.4;
+  }
+  .navbar-subnav {
+    border: 0;
+    margin-bottom: 0;
+    background: transparent;
+    li {
+      background-color: @textColor;
+      &:last-child { border-right: 0; }
+      a { padding-top: 6px; padding-bottom: 6px; font-size: .8em; font-weight: bold; }
+    }
+  }
+  > p.details { display: inline-block; }
+}
+#settings { z-index: 9999 !important; }
+
+#main-content {
+
+    > .panel-heading {
+        .panel-title {
+            font-size: 38px;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+  #bilancio-header.affix {
+    p {
+      float: none;
+    }
+    .navbar-subnav {
+
+      width: 1%;
+      display: table-cell;
+    }
+  }
 }
