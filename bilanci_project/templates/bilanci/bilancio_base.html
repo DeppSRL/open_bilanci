@@ -214,6 +214,9 @@
                     top: $this.offset().top
                   }
             });
+            $( window ).resize(function() {
+              $this.css('width', $this.parent().width());
+            });
         });
     </script>
 

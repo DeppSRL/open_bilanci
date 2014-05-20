@@ -2588,7 +2588,7 @@ a[rel=info-popover]:visited {
 #bilancio-header.affix {
   top: 0;
   background-color: white;
-  z-index: 9999;
+  z-index: 9998;
   border-bottom: 1px solid #2a3036;
 }
 #bilancio-header.affix .share-box {
@@ -2633,6 +2633,18 @@ a[rel=info-popover]:visited {
 #bilancio-header.affix > p.details {
   display: inline-block;
 }
+#settings {
+  z-index: 9999 !important;
+}
 #main-content > .panel-heading .panel-title {
   font-size: 38px;
+}
+@media (max-width: 768px) {
+  #bilancio-header.affix p {
+    float: none;
+  }
+  #bilancio-header.affix .navbar-subnav {
+    width: 1%;
+    display: table-cell;
+  }
 }

@@ -268,7 +268,7 @@ a[rel=info-popover] {
 #bilancio-header.affix {
   top: 0;
   background-color: white;
-  z-index: 9999;
+  z-index: 9998;
   border-bottom: 1px solid @textColor;
   .share-box { display: none; }
   &> p {
@@ -293,6 +293,7 @@ a[rel=info-popover] {
   }
   > p.details { display: inline-block; }
 }
+#settings { z-index: 9999 !important; }
 
 #main-content {
 
@@ -301,4 +302,17 @@ a[rel=info-popover] {
             font-size: 38px;
         }
     }
+}
+
+@media (max-width: 768px) {
+  #bilancio-header.affix {
+    p {
+      float: none;
+    }
+    .navbar-subnav {
+
+      width: 1%;
+      display: table-cell;
+    }
+  }
 }
