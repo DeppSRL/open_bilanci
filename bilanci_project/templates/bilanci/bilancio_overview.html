@@ -40,7 +40,9 @@
 
     <div id="balance" class="row">
         <div class="col-md-12">
-            <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO CONSUNTIVO 2011</strong><br class="hidden-lg"> A CONFRONTO CON IL PREVENTIVO 2011</h3>
+            <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }} </strong>
+                <br class="hidden-lg">&nbsp;A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
+            </h3>
             <div class="row">
                 <div class="col-sm-6"><h4>ENTRATE</h4></div>
                 <div class="col-sm-6"><h4>SPESE</h4></div>
