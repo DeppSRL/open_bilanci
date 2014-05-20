@@ -1,11 +1,13 @@
 {% load humanize %}
 <p class="help-block">
-    {{ territorio.prov }}, {{ territorio.regione }}<br>
-    <span class="icon sprite-small-town"></span> {{ territorio.get_cluster_display }}
+    {{ territorio.prov }}, {{ territorio.regione }}
+{#    <span class="icon sprite-small-town"></span> #}
 
     {% if contesto %}
         {% if contesto.bil_popolazione_residente %}
-            , {{ contesto.bil_popolazione_residente|intcomma }} abitanti, dato {{ contesto.anno }}
+            | {{ contesto.bil_popolazione_residente|intcomma }} abitanti (dato {{ contesto.anno }})
         {% endif %}
     {% endif %}
+
+{#    {{ territorio.get_cluster_display }}#}
 </p>

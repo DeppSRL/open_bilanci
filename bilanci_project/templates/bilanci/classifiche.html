@@ -12,23 +12,26 @@
 
     <div class="panel-heading">
         <!-- AddThis Button BEGIN -->
-        <div class="pull-right share">
-            {% if share_url %}
+        {% if share_url %}
+            <div class="pull-right">
+                <span style="text-transform: uppercase; font-size: 13px;">Condividi</span>
 
-                    <!-- AddThis Button BEGIN -->
-                    <a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                        <img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
-                    <script type="text/javascript">
-                        var addthis_config = {"data_track_addressbar":false   };
-                        var addthis_share =
-                                        {
-                                           "url":"{{ share_url|safe }}"
-                                        }
-                    </script>
-                    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-                    <!-- AddThis Button END -->
-            {% endif %}
-        </div>
+                <!-- AddThis Button BEGIN -->
+                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                     <strong>la tua classifica</strong> <span class="icon sprite-share"></span>
+                </a>
+                <script type="text/javascript">
+                    var addthis_config = {"data_track_addressbar":false   };
+                    var addthis_share =
+                    {
+                        "url":"{{ share_url|safe }}"
+                    }
+                </script>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+                <!-- AddThis Button END -->
+            </div>
+
+        {% endif %}
 
         <!-- AddThis Button END -->
         <h1 class="panel-title">CLASSIFICHE</h1>
@@ -207,7 +210,7 @@
 
             {# menu handle is hidden on pageload   #}
             <div id="side-controls" style="display: block; left: -50px; top: 343px;">
-                <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-open-menu"></span></a>
+                <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>
             </div>
 
             {# comparison list menu  #}

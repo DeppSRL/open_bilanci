@@ -17,54 +17,60 @@
 
     {# header block with Comune name, inhabitants and share button    #}
     <div class="panel-heading">
-        <span class="pull-right">
-            {% if csv_package_file %}
-            Scarica i dati <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share">CSV ({{ csv_package_file.file_size|filesizeformat }})<span class="glyphicon glyphicon-download-alt"></span></a>
-            |
-            {% endif %}
+        <div id="bilancio-header">
 
-
-           <!-- AddThis Button BEGIN -->
-            <a class="share pull-right addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                Condividi <span class="icon sprite-share"></span>
-            </a>
-            <script type="text/javascript">
-                var addthis_config = {"data_track_addressbar":false   };
-                var addthis_share =
-                                {
-                                   "url":"{{ share_url|safe }}"
-                                }
-            </script>
-            <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-            <!-- AddThis Button END -->
-
-
-
-        </span>
-        <h1 class="panel-title">{{territorio.denominazione}}</h1>
-        <p class="details">
-            <span class="location">
-                {{ territorio.prov|default:"" }},
-                {{ territorio.regione|default_if_none:""|title }}
-            </span>
-            <span style="padding-left: 6px;">
-                {% if comune_context.bil_popolazione_residente %}
-                    {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+            <span class="pull-right share-box">
+                {% if csv_package_file %}
+                <span style="text-transform: uppercase; font-size: 13px;">Scarica i dati</span> <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
+                |
                 {% endif %}
+
+
+                <!-- AddThis Button BEGIN -->
+                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                    <strong>Condividi</strong> <span class="icon sprite-share"></span>
+                </a>
+                <script type="text/javascript">
+                    var addthis_config = {"data_track_addressbar":false   };
+                    var addthis_share =
+                    {
+                        "url":"{{ share_url|safe }}"
+                    }
+                </script>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+                <!-- AddThis Button END -->
+
+
+
             </span>
-        </p>
+            <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+            <p class="details">
+                <span class="location">
+                    {{ territorio.prov|default:"" }},
+                    {{ territorio.regione|default_if_none:""|title }}
+                </span>
+                <span class="year">
+                    <span class="label label-warning">{{ selected_year }}</span>
+                    {{ selected_bilancio_type }}
+                </span>
+                <span style="padding-left: 6px;" class="inhabitants">
+                    {% if comune_context.bil_popolazione_residente %}
+                        {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                    {% endif %}
+                </span>
+            </p>
+
+            {% block bilanci_navigation_menu %}
+                {% include 'bilanci/_navigation_menu.html' with active_voice=selected_section %}
+            {% endblock %}
+
+        </div>
     </div>
     
     <div class="panel-body">
 
-        <div class="row">
-            <div class="col-sm-12">
-                {% block bilanci_navigation_menu %}
-                    {% include 'bilanci/_navigation_menu.html' with active_voice=selected_section %}
-                {% endblock %}
-                <h2 class="panel-title text-alt">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
-            </div>
-        </div>
+        <h2 class="panel-title text-alt">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+
         <hr class="no-border">
 
         {% if selected_section == 'bilancio' %}
@@ -195,6 +201,25 @@
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
    <!-- visup linechart -->
    <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function(){
+            var $this = $('#bilancio-header');
+            // fix container height
+            $this.css('width', $this.width());
+            $this.parent().css('min-height', $this.height());
+            // set affix dynamic offset
+            $this.affix({
+                  offset: {
+                    top: $this.offset().top
+                  }
+            });
+            $( window ).resize(function() {
+              $this.css('width', $this.parent().width());
+                $this.parent().css('min-height', $this.height());
+            });
+        });
+    </script>
 
     {% block extra_js_inner %}
         {# block for extra js activity needed for children templates   #}
