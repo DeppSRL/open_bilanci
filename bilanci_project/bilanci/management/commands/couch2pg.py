@@ -155,9 +155,15 @@ class Command(BaseCommand):
             voci_correnti_ids.extend(_ids)
             voci_correnti_slugs.extend(_slugs)
 
-            # delete all values in ValoreBilancio
-            self.logger.debug("** start deleting values for {0}".format(node_to_patch_slug))
-            ValoreBilancio.objects.filter(voce__in=_ids).delete()
+            # delete all values added by the patch in ValoreBilancio
+            # only delete specified years, cities and the voices to patch
+            self.logger.info("** start deleting values for {0}".format(node_to_patch_slug))
+            filters = dict(voce__in=_ids)
+            if cities:
+                filters.update(territorio__cod_finloc__in=cities)
+            if years:
+                filters.update(anno__in=years)
+            ValoreBilancio.objects.filter(**filters).delete()
 
 
         for city in cities:
