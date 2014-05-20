@@ -325,3 +325,34 @@ Then there are data which need to be computed on the data already present in the
 
 
 
+Development dataset
+-------------------
+
+Schema and data (bar Valori, which contains millions of records), can be restored from 2 dump files,
+available under ``s3://open_bilanci``:
+
+* ``ob_schema.sql`` and
+* ``ob_data_novalori.sql``
+
+A random set of cities codes can be extracted from the python shell_plus, with a single command line::
+
+    import numpy as np
+    cities = ",".join(
+        np.hstack(
+            [
+                [t.split('--')[1] for t in
+                    Territorio.objects.filter(cluster=c, territorio='C').order_by('?').values_list('cod_finloc', flat=True)[:10]
+                ] for c in range(1, 10)
+            ]
+        )
+    )
+
+Then, assuming that the ``cities`` string has been copied in the clipboard,
+the following management tasks will import all values from the couchdb instance; compute the median values
+and the indicators::
+
+    CITIES=<PASTE>
+    python manage.py couch2pg --cities=$CITIES --years=2003-2013 -v2
+    python manage.py median --years=2003-2013 -v2
+    python manage.py indicators --cities=$CITIES --years=2003-2013 -v2
+
