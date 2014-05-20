@@ -23,7 +23,7 @@ function clicked_year(selected_year){
     if(split_path[1] == 'classifiche'){
 
         split_path[4]=selected_year;
-        navigate_to_url = split_path.join(separator);
+        navigate_to_url = split_path.join(separator) + window.location.search;
     }
     else{
         navigate_to_url = window.location.href.replace(/year=[-\d]{4}/,"year=" + String(selected_year));
