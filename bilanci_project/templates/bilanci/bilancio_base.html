@@ -19,23 +19,23 @@
     <div class="panel-heading">
         <div id="bilancio-header">
 
-            <span class="pull-right share-box">
+            <span class="pull-right">
                 {% if csv_package_file %}
-                Scarica i dati <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share">CSV ({{ csv_package_file.file_size|filesizeformat }})<span class="glyphicon glyphicon-download-alt"></span></a>
+                <span style="text-transform: uppercase; font-size: 13px;">Scarica i dati</span> <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
                 |
                 {% endif %}
 
 
-               <!-- AddThis Button BEGIN -->
-                <a class="share pull-right addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                    Condividi <span class="icon sprite-share"></span>
+                <!-- AddThis Button BEGIN -->
+                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                    <strong>Condividi</strong> <span class="icon sprite-share"></span>
                 </a>
                 <script type="text/javascript">
                     var addthis_config = {"data_track_addressbar":false   };
                     var addthis_share =
-                                    {
-                                       "url":"{{ share_url|safe }}"
-                                    }
+                    {
+                        "url":"{{ share_url|safe }}"
+                    }
                 </script>
                 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
                 <!-- AddThis Button END -->

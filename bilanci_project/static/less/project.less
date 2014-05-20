@@ -265,12 +265,13 @@ a[rel=info-popover] {
 #bilancio-header {
   p .year { display: none; }
 }
+.share { font-size: 13px !important; color: @textColor; span.fa { color: @activeColor; } strong { font-weight: bold; color: @activeColor; } }
 #bilancio-header.affix {
   top: 0;
   background-color: white;
   z-index: 9998;
   border-bottom: 1px solid @textColor;
-  .share-box { display: none; }
+  .share { display: none; }
   &> p {
     float:left;
     .inhabitants { display: none; }

@@ -2585,13 +2585,24 @@ a[rel=info-popover]:visited {
 #bilancio-header p .year {
   display: none;
 }
+.share {
+  font-size: 13px !important;
+  color: #2a3036;
+}
+.share span.fa {
+  color: #cc6633;
+}
+.share strong {
+  font-weight: bold;
+  color: #cc6633;
+}
 #bilancio-header.affix {
   top: 0;
   background-color: white;
   z-index: 9998;
   border-bottom: 1px solid #2a3036;
 }
-#bilancio-header.affix .share-box {
+#bilancio-header.affix .share {
   display: none;
 }
 #bilancio-header.affix > p {
