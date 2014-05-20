@@ -261,3 +261,44 @@ a[rel=info-popover] {
   }
   .partners li a.openpolis { background: none; }
 }
+
+#bilancio-header {
+  p .year { display: none; }
+}
+#bilancio-header.affix {
+  top: 0;
+  background-color: white;
+  z-index: 9999;
+  border-bottom: 1px solid @textColor;
+  .share-box { display: none; }
+  &> p {
+    float:left;
+    .inhabitants { display: none; }
+    .year { display: inline-block; }
+  }
+  h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
+  h1.panel-title, &> p {
+    margin: 4px 10px 0 0;
+    line-height: 1.4;
+  }
+  .navbar-subnav {
+    border: 0;
+    margin-bottom: 0;
+    background: transparent;
+    li {
+      background-color: @textColor;
+      &:last-child { border-right: 0; }
+      a { padding-top: 6px; padding-bottom: 6px; font-size: .8em; font-weight: bold; }
+    }
+  }
+  > p.details { display: inline-block; }
+}
+
+#main-content {
+
+    > .panel-heading {
+        .panel-title {
+            font-size: 38px;
+        }
+    }
+}
