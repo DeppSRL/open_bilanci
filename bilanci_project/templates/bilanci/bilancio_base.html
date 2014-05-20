@@ -207,7 +207,7 @@
             var $this = $('#bilancio-header');
             // fix container height
             $this.css('width', $this.width());
-            $this.parent().css('height', $this.height());
+            $this.parent().css('min-height', $this.height());
             // set affix dynamic offset
             $this.affix({
                   offset: {
@@ -216,6 +216,7 @@
             });
             $( window ).resize(function() {
               $this.css('width', $this.parent().width());
+                $this.parent().css('min-height', $this.height());
             });
         });
     </script>
