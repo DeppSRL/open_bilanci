@@ -1692,33 +1692,6 @@ class ClassificheListView(ListView):
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
-    # def post(self, request, *args, **kwargs):
-    #
-    #     # catches POST params and passes the execution to get method
-    #     # if the params passed in POST are different then the parameter already set, then the page number return to 1
-    #     selected_regione_post = [int(k) for k in self.request.POST.getlist('regione[]')]
-    #     selected_cluster_post = self.request.POST.getlist('cluster[]')
-    #
-    #     if len(selected_regione_post):
-    #         if set(selected_regione_post) & set(self.selected_regioni) != len(self.selected_regioni):
-    #             self.selected_regioni = selected_regione_post
-    #             self.reset_pages = True
-    #
-    #     if len(selected_cluster_post):
-    #         if set(selected_cluster_post) & set(self.selected_cluster) != len(self.selected_cluster):
-    #             self.selected_cluster = self.request.POST.getlist('cluster[]')
-    #             self.reset_pages = True
-    #
-    #     # sets session vars about what the user has selected
-    #     self.request.session['selected_regioni'] = self.selected_regioni
-    #     self.request.session['selected_cluster'] = self.selected_cluster
-    #
-    #     # if the parameters have changed, redirects to page 1 for the new set
-    #     if self.reset_pages:
-    #         return HttpResponseRedirect(reverse('classifiche-list', kwargs=kwargs))
-    #
-    #     return self.get(request, *args, **kwargs)
-
     def get_queryset(self):
 
         # construct the queryset based on the type of parameter (voce/indicatore) and
@@ -1859,6 +1832,9 @@ class ClassificheListView(ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
+
+        context['query_string'] = self.request.META['QUERY_STRING']
+
 
         # creates url for share button
         regioni_list=['',]
