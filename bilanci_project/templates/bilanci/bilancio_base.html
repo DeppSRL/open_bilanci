@@ -19,7 +19,7 @@
     <div class="panel-heading">
         <div id="bilancio-header">
 
-            <span class="pull-right">
+            <span class="pull-right share-box">
                 {% if csv_package_file %}
                 <span style="text-transform: uppercase; font-size: 13px;">Scarica i dati</span> <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
                 |
@@ -43,7 +43,7 @@
 
 
             </span>
-            <h1 class="panel-title">{{territorio.denominazione}}</h1>
+            <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
             <p class="details">
                 <span class="location">
                     {{ territorio.prov|default:"" }},

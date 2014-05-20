@@ -156,6 +156,16 @@ a[rel=info-popover] {
 
 .panel-tree {
 
+  a {
+    color: @textColor;
+  }
+
+  .actions {
+    text-align: right;
+    p.h3 { font-weight: bold; margin-bottom: 0; }
+    p.small { margin-bottom: 0; }
+  }
+
   .panel {
     overflow: visible;
   }
@@ -271,7 +281,7 @@ a[rel=info-popover] {
   background-color: white;
   z-index: 9998;
   border-bottom: 1px solid @textColor;
-  .share { display: none; }
+  .share, .share-box { display: none; }
   &> p {
     float:left;
     .inhabitants { display: none; }
@@ -303,6 +313,12 @@ a[rel=info-popover] {
             font-size: 38px;
         }
     }
+}
+
+.popover-title {
+  background-color: @activeColor !important;
+  font-size: 16px;
+  color: white;
 }
 
 @media (max-width: 768px) {

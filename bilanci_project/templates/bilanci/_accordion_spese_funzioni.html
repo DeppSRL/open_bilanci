@@ -20,7 +20,9 @@
 
             <div class="row">
                 <div class="col-sm-4 entry">
-{#                    {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}#}
+                    {% if node.indent_level > 0 %}
+                    {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                    {% endif %}
                     {% if not node.is_leaf_node %}
                     <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
                         <i class="fa fa-fw fa-plus-circle"></i>
