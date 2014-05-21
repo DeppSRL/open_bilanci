@@ -457,7 +457,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
 
 class CalculateVariationsMixin(object):
 
-
+    somma_funzioni_affix = '-spese-somma-funzioni'
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
 
@@ -531,22 +531,20 @@ class CalculateVariationsMixin(object):
 
     def get_slugset_spese(self, bilancio_type, cas_com_type, include_totale=True):
 
-        somma_funzioni_affix = '-spese-somma-funzioni'
-
         ##
         # overview widget and spese widget
         ##
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
-            rootnode_slug = totale_slug+somma_funzioni_affix
+            rootnode_slug = totale_slug+self.somma_funzioni_affix
         else:
             if cas_com_type == 'cassa':
                 totale_slug = bilancio_type+'-spese-cassa'
             else:
                 totale_slug = bilancio_type+'-spese-impegni'
 
-            rootnode_slug = totale_slug+somma_funzioni_affix
+            rootnode_slug = totale_slug+self.somma_funzioni_affix
 
         rootnode = Voce.objects.get(slug = rootnode_slug)
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
@@ -780,7 +778,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
             # if diff is same level as totale
             if main_value_denominazione != self.totale_label:
                 sample_obj = main_value_set[0]
+
                 diff = sample_obj['voce__level']-totale_level-1
+
+                # if the voce belongs to somma-funzioni branch then it should
+                # be considered one level less than its real level
+                
+                if self.somma_funzioni_affix  in sample_obj['voce__slug']:
+                    diff -= 1
 
                 if diff == 0:
                     value_dict['layer1'] = sample_obj['voce__pk']
