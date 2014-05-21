@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load section_title %}
 {% load section_values_type %}
+{% load popover_info %}
 
 {% block page_title %}
     {{ selected_section|title }} del bilancio {{ selected_bilancio_type }} per il Comune di {{ territorio }}, anno {{ year }}
@@ -20,6 +21,27 @@
     <!-- Tab panes -->
     <div class="tab-content">
         <div class="tab-pane fade in active" id="composizione">
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-md-12">
+                    {% if tipo_bilancio == "consuntivo" %}
+                        {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+                    {% else %}
+                        {% section_values_type values_type=values_type tooltip=True %}
+                    {% endif %}
+                    <h3 style="margin-top: 0; font-size: 18px;">
+                        {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="row" >
+                <div class="col-md-12">
+                Qual è la politica di chi amministra il Comune? Quali sono le sue priorità?<br/>
+                Fai click sulla bolla per vedere la composizione delle {{ selected_section|title }} e come si distribuiscono
+                <span style="font-weight: bold; color:#7d8e17">GLI AUMENTI</span> e in alto,
+                e <span style="font-weight: bold; color:#9b2d1b">LE RIDUZIONI</span> e in basso. {% popover_info 'widget-bilancio' %}
+                </div>
+            </div>
 {#            composition widget#}
             <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
                 src="{% url 'composition-widget' widget_type=selected_section territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>

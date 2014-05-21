@@ -833,7 +833,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
             entrct_fake['layer2']=0
             composition_data.append(prestiti_fake)
             composition_data.append(entrct_fake)
-            
+
         return composition_data
 
     def create_context_entrate(self):
