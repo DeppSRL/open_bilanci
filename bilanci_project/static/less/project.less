@@ -400,13 +400,14 @@ a[rel=info-popover] {
   margin-top: 0; font-size: 18px;
 }
 
-.navbar-brand {
+#home .brand { padding-top: 6px; }
+.navbar-brand, #home .brand {
   position: relative;
   .version {
     top: 0;
     position: absolute;
     font-weight: bold;
-    color: @activeColor;
+    color: @activeColor !important;
   }
 
 }
