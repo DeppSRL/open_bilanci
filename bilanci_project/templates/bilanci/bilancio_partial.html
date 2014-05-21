@@ -13,7 +13,7 @@
     <!-- Nav Tabs -->
     <ul class="nav nav-tabs nav-justified">
         <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE {{ selected_section|upper }}</a></li>
-        <li ><a href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
+        <li ><a id="andamento-tempo-dettaglio" href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
     </ul>
 
     <hr class="no-border">
@@ -42,7 +42,7 @@
                 e <span style="font-weight: bold; color:#9b2d1b">LE RIDUZIONI</span> e in basso. {% popover_info 'widget-bilancio' %}
                 </div>
             </div>
-{#            composition widget#}
+            {#            composition widget#}
             <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
                 src="{% url 'composition-widget' widget_type=selected_section territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
         </div>
@@ -118,6 +118,11 @@
         * set handlers for secondary trend charts (the ones in the accordion)
         **/
         $('#results').find('.chart-container').on('shown.bs.collapse', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
+
+        $('a[data-toggle="tab"]').on("shown.bs.tab",function(){
+            {# fixes graph size on tab switch   #}
+            linechart.resize();
+        });
         init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"EURO","EURO");
         feed_main_linechart();
 
