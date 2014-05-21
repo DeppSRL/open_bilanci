@@ -9,114 +9,101 @@
             var composition_data = {
                 "type": "{{ type }}",
                 "hover": true,
-                "year": 2009,
-                "showLabels": true,
+                "year": {{ year }},
+                "showLabels": false,
 
-                "button1": "Titoli",
-                "button2": "Categorie",
-                "button3": "Voci",
+                "button1": "Livello I",
+                "button2": "Livello II",
+                "button3": "Livello III",
+                "activeLayers": {{ active_layers|default_if_none:2 }},
 
                 "composizione":{{ composition|safe }},
 
-                 "widget1": {
-    "type": "bar",
-    "showHelp": false,
-    "label": "Entrate",
-    "sublabel1": "Totale Riscossioni",
-    "sublabel2": "su preventivo 2010",
-    "value": 7015230821.689498,
-    "procapite": 2658.4504952132393,
-    "variation": 0.02
-  },
-  "widget2": {
-    "type": "compare",
-    "showHelp": false,
-    "label": "confronto",
-    "sublabel1": "preventivo-consuntivo",
-    "valueLabel1": "ENTRATE PREVISTE PREV. 2010",
-    "value1": 130000000,
-    "variation1": -28,
-    "valueLabel2": "ACCERTAMENTI CONS. 2010",
-    "value2": 11000000,
-    "variation2": 8,
-    "variationLabel2": "SU PREVENTIVO 2010",
-    "valueLabel3": "RISCOSSIONI CONS. 2010",
-    "value3": 23000000,
-    "variation3": 15,
-    "variationLabel3": "SU PREVENTIVO 2010"
-  },
-  "widget3": {
-    "type": "spark",
-    "showHelp": false,
-    "label": "Andamento del",
-    "sublabel1": "totale riscossioni",
-    "sublabel3": "nei bilanci consuntivi 2003-2013",
-    "series": [
-      [
-        2003,
-        119357853
-      ],
-      [
-        2004,
-        115102443
-      ],
-      [
-        2005,
-        233250
-      ],
-      [
-        2006,
-        140853290
-      ],
-      [
-        2007,
-        149952528
-      ],
-      [
-        2008,
-        151110972
-      ],
-      [
-        2009,
-        161982949
-      ],
-      [
-        2010,
-        164030500
-      ],
-      [
-        2011,
-        162034029
-      ],
-      [
-        2012,
-        164878601
-      ],
-      [
-        2013,
-        163309589
-      ]
-    ]
-  },
-  "widget4": {
-    "showHelp": true,
-    "label": "entrate da",
-    "sublabel2": "riscossi",
-    "sublabel3": "sul preventivo 2011"
-  },
-  "widget5": {
-    "showHelp": false,
-    "label": "Percentuale sul totale delle entrate"
-  },
-  "widget6": {
-    "showHelp": false,
-    "label": "andamento entrate per",
-    "sublabel3": "nei bilanci consuntivi"
-  }
+                 //widget 1,2,3: overview boxes
+                "widget1": {
+                    "type": "{{ w1_type }}",
+                    "showHelp": {{ w1_showhelp|lower }},
+                    "label": "{{ w1_label|safe|default:"null" }}",
+                    "sublabel1": "{{ w1_sublabel1|safe}}",
+                    "sublabel2": "{{ w1_sublabel2|safe }}",
+
+                    "value": {{ w1_value|safe|default:"null" }},
+                    "procapite": {{ w1_value_procapite|safe|default:"null" }},
+                    "variation": {{ w1_variation|safe|default:"null" }},
+
+                },
+                "widget2": {
+                    "type": "{{ w2_type }}",
+                    "showHelp": {{ w2_showhelp|lower }},
+                    "label": "{{ w2_label|safe|default:"null" }}",
+                    "sublabel1": "{{ w2_sublabel1|safe}}",
+                    "sublabel2": "{{ w2_sublabel2|safe }}",
+
+                    "value": {{ w2_value|safe|default:"null" }},
+                    "procapite": {{ w2_value_procapite|safe|default:"null" }},
+                    "variation": {{ w2_variation|safe|default:"null" }},
+
+                    "valueLabel1": {{ w2_year1|default:"null" }},
+                    "valueLabel2": {{ w2_year2|default:"null" }},
+                    "valueLabel3": {{ w2_year3|default:"null" }},
+
+                    "value1": {{ w2_value1|safe|default:"null" }},
+                    "value2": {{ w2_value2|safe|default:"null" }},
+                    "value3": {{ w2_value3|safe|default:"null" }}
+
+                },
+                "widget3": {
+                     "type": "{{ w3_type }}",
+                    "showHelp": {{ w3_showhelp|lower }},
+                    "label": "{{ w3_label|safe }}",
+                    "sublabel1": "{{ w3_sublabel1|safe}}",
+                    "sublabel2": "{{ w3_sublabel2|safe }}",
+                    "sublabel3": "{{ w3_sublabel3|safe }}",
+                    "value": {{ w3_value|safe|default:"null" }},
+                    "procapite": {{ w3_value_procapite|safe|default:"null" }},
+                    "variation": {{ w3_variation|safe|default:"null" }},
+                    "series": {{ w3_series|safe|default:"null" }}
+                },
+
+                // widget 4 : 1 box for voce detail
+                "widget4": {
+                    "showHelp": {{ w4_showhelp|lower }},
+                    "entrate": {
+                    "label": "entrate da",
+                    "sublabel": "{{ w4_e_moneyverb|safe }}"
+                    },
+                    "spese": {
+                    "label": "spese per",
+                    "sublabel": "{{ w4_s_moneyverb|safe }}"
+                    },
+                    "sublabel3": "sul {{ comp_bilancio_type|safe }} {{ comp_bilancio_year|safe }}"
+                },
+
+                // widget 5 : 2 box for voce detail
+                "widget5": {
+                    "showHelp": {{ w5_showhelp|lower }},
+
+                    "entrate": {
+                    "label": "Percentuale sul totale delle entrate"
+                    },
+                    "spese": {
+                    "label": "Percentuale sul totale delle spese"
+                    }
+                },
+                //widget 6 : 3 box for voce detail
+
+                "widget6": {
+                    "showHelp": false,
+                    "entrate": {
+                    "label": "andamento entrate da"
+                    },
+                    "spese": {
+                    "label": "andamento spese per"
+                    },
+                    "sublabel3": "nei bilanci {{ w6_main_bilancio_type_plural }}"
+                }
             };
 
-
-{#          var data = {{ composition_data|safe }};#}
 
           if(load_sample_json == true ){
               visup.composizione(function(){
