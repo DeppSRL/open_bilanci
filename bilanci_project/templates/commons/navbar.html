@@ -11,7 +11,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="{% url 'home' %}">open<strong>bilanci</strong><small>rendiamoci conto</small>
-                        <small class="version">alpha</small></a>
+                        {% if SITE_VERSION %}<small class="version">{{ SITE_VERSION }}</small>{% endif %}</a>
                     <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
                         <div class="form-group">
                              {{ territori_search_form }}
