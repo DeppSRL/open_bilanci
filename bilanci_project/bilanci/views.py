@@ -761,7 +761,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
 
 
-    def compose_partial_data(self, main_values_regroup, variations, totale_level):
+    def compose_partial_data(self, main_values_regroup, variations, totale_level, bugfix=False):
         composition_data = []
 
         ##
@@ -823,6 +823,17 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             composition_data.append(value_dict)
 
+        # if bugfix is true then duplicates voce with name prestiti, entrate conto terzi in the next level
+        if bugfix:
+            prestiti = [k for k in ifilter(lambda x: x['label']==u'Prestiti', composition_data)][0]
+            prestiti_fake = prestiti.copy()
+            prestiti_fake['layer2']=0
+            entr_ct = [k for k in ifilter(lambda x: x['label']==u'Entrate per conto terzi', composition_data)][0]
+            entrct_fake = entr_ct.copy()
+            entrct_fake['layer2']=0
+            composition_data.append(prestiti_fake)
+            composition_data.append(entrct_fake)
+            
         return composition_data
 
     def create_context_entrate(self):
@@ -840,7 +851,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level, bugfix=True))
         s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
         e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
@@ -857,7 +868,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                 main_val=e_main_totale['valore'],
                                 comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
                             )
-            
+
         # widget2: bar totale spese
         context["w2_type"]= "bar"
         context["w2_label"]= "Spese - Totale"
