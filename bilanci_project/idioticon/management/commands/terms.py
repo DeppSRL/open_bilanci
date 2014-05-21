@@ -49,7 +49,12 @@ class Command(BaseCommand):
 
                 for row in reader:
                     original_slug = row['slug old']
-                    linked_slugs = (row[k] for k in ['slug consuntivo competenza', 'slug consuntivo cassa', 'slug preventivo'])
+                    linked_slugs = (row[k] for k in [
+                        'slug consuntivo competenza', 'slug consuntivo cassa', 'slug preventivo',
+                        'slug preventivo spese correnti',
+                        'slug consuntivo competenza impegni spese correnti',
+                        'slug consuntivo cassa spese correnti'
+                    ])
                     title = row['titolo']
                     definition = row['descrizione']
 
