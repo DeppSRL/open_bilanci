@@ -426,6 +426,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'
 INCARICO_MARKER_DUMMY = '/static/img/incarico_dummy.png'
+INCARICO_MARKER_COMMISSARIO = '/static/img/commissario.png'
 
 # defines the color of the line graph
 TERRITORIO_1_COLOR = '#cc6633'
