@@ -124,21 +124,21 @@
 
        {% endcomment %}
 
-        if (voce_slug.indexOf("preventivo-spese-spese-correnti") == 0 ||
-                voce_slug.indexOf("consuntivo-spese-cassa-spese-correnti") == 0 ||
-                voce_slug.indexOf("consuntivo-spese-impegni-spese-correnti") == 0 ){
+        if (window.location.source.indexOf("fun_int_view=funzioni") != -1) {
+            if (voce_slug.indexOf("preventivo-spese-spese-correnti") == 0 ||
+                    voce_slug.indexOf("consuntivo-spese-cassa-spese-correnti") == 0 ||
+                    voce_slug.indexOf("consuntivo-spese-impegni-spese-correnti") == 0 ){
 
-                if(voce_slug == "preventivo-spese-spese-correnti" ||
-                        voce_slug == "consuntivo-spese-cassa-spese-correnti" ||
-                        voce_slug == "consuntivo-spese-impegni-spese-correnti" ){
-                    
-                    voce_slug=voce_slug.replace("spese-correnti", "spese-somma-funzioni");
-                }
-                else{
-                    voce_slug=voce_slug.replace("spese-correnti", "spese-somma");
+                    if(voce_slug == "preventivo-spese-spese-correnti" ||
+                            voce_slug == "consuntivo-spese-cassa-spese-correnti" ||
+                            voce_slug == "consuntivo-spese-impegni-spese-correnti" ){
+
+                        voce_slug=voce_slug.replace("spese-correnti", "spese-somma-funzioni");
                     }
-
-
+                    else{
+                        voce_slug=voce_slug.replace("spese-correnti", "spese-somma");
+                        }
+            }
         }
 
         d3.json(
