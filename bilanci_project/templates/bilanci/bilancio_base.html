@@ -19,16 +19,19 @@
     <div class="panel-heading">
         <div id="bilancio-header">
 
-            <span class="pull-right share-box">
+            <!-- AddThis Button BEGIN -->
+            <div class="pull-right share-box">
                 {% if csv_package_file %}
-                <span style="text-transform: uppercase; font-size: 13px;">Scarica i dati</span> <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
-                |
+                <span>Scarica i dati</span>
+                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
+{#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
+                &nbsp;|&nbsp;
                 {% endif %}
 
+                <span>Condividi</span>
 
-                <!-- AddThis Button BEGIN -->
                 <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                    <strong>Condividi</strong> <span class="icon sprite-share"></span>
+                     <strong>i tuoi confronti</strong> <span class="fa fa-share-alt"></span>
                 </a>
                 <script type="text/javascript">
                     var addthis_config = {"data_track_addressbar":false   };
@@ -39,20 +42,20 @@
                 </script>
                 <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
                 <!-- AddThis Button END -->
+            </div>
 
-
-
-            </span>
             <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
             <p class="details">
                 <span class="location">
                     {{ territorio.prov|default:"" }},
                     {{ territorio.regione|default_if_none:""|title }}
                 </span>
+                {% if selected_year %}
                 <span class="year">
                     <span class="label label-warning">{{ selected_year }}</span>
                     {{ selected_bilancio_type }}
                 </span>
+                {% endif %}
                 <span style="padding-left: 6px;" class="inhabitants">
                     {% if comune_context.bil_popolazione_residente %}
                         {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
@@ -69,7 +72,7 @@
     
     <div class="panel-body">
 
-        <h2 class="panel-title text-alt">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+        <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
 
         <hr class="no-border">
 
@@ -114,7 +117,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <a href="#" role="button" href="#" class="pull-right slider-arrow close" id="hide-settings"><span class="icon sprite-close-menu"></span></a>
-                            <h3 class="panel-title">IMPOSTAZIONI</h3>
+                            <h3 class="panel-title">Impostazioni</h3>
                             <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
                             <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
                         </div>
