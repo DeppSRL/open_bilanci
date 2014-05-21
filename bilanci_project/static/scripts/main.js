@@ -22,7 +22,7 @@ $(document).ready(function(){
         options    = {
             'env': 'production', // Environment. Values: production, development
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
-            'offset': ( mapPage ? 180 : 100 ), // Top offset.
+            'offset': ( mapPage ? 180 : 112 ), // Top offset.
             'collapsibleMenu': {
                 'closeOthers': true // On click collapse other items. Values: true, false
             },

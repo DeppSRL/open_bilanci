@@ -83,7 +83,7 @@ var setupNestedAccordion = function(startElement) {
             // replace plus with minus
             heading.find('.entry .collapse-toggle').css({
                 'font-weight': 'bold',
-                'text-decoration': 'underline'
+                'text-decoration': 'none'
             });
             // add bold style
             heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');

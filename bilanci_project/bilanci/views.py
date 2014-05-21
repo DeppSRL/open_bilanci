@@ -3,6 +3,7 @@ from operator import itemgetter
 import os
 import re
 import json
+from django.core.cache import cache
 import feedparser
 import zmq
 import requests
@@ -63,7 +64,11 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data( **kwargs)
         context['territori_search_form_home'] = TerritoriSearchFormHome()
-        context['op_blog_posts'] = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
+        op_blog_posts = cache.get('blog-posts')
+        if op_blog_posts is None:
+            op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
+            cache.set('blog-posts', op_blog_posts)
+        context['op_blog_posts'] = op_blog_posts
         return context
 
 
@@ -158,30 +163,40 @@ class IncarichiGetterMixin(object):
         for incarico in incarichi_set:
 
             dict_widget = {
-                'start':  incarico.data_inizio.strftime(self.date_fmt),
-                'end': incarico.data_fine.strftime(self.date_fmt),
-
                 # sets incarico marker color and highlight
                 'icon': settings.INCARICO_MARKER_DUMMY,
                 'color': settings.INCARICO_MARKER_INACTIVE,
                 'highlightColor': highlight_color,
             }
 
+            # truncates date start to timeline start
+            timeline_start = settings.TIMELINE_START_DATE.date()
+
+            if incarico.data_inizio < timeline_start:
+                dict_widget['start'] = timeline_start.strftime(self.date_fmt)
+            else:
+                dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
+
+
+            if incarico.data_fine:
+                dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
+
             if incarico.pic_url:
                 dict_widget['icon'] = incarico.pic_url
 
             if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
-                dict_widget['label'] = "Commissariamento".upper()
+                dict_widget['label'] = "Commissario".title()
+                dict_widget['icon'] = settings.INCARICO_MARKER_COMMISSARIO
                 dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else:
 
                 # sets sindaco / vicesindaco name, surname
-                dict_widget['label'] = "{0}.{1}".\
+                dict_widget['label'] = "{0}".\
                     format(
-                        incarico.nome[0].upper(),
-                        incarico.cognome.upper().encode('utf-8'),
+
+                        incarico.cognome.title().encode('utf-8'),
                     )
 
                 if incarico.tipologia == Incarico.TIPOLOGIA.vicesindaco_ff :
@@ -350,6 +365,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             per_capita=True
         )
 
+
         voce_line_label = voce_bilancio.denominazione
 
         # if the voce is a voce used for the main linegraph the label is translated for better comprehension
@@ -447,7 +463,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
 
 class CalculateVariationsMixin(object):
 
-
+    somma_funzioni_affix = '-spese-somma-funzioni'
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
 
@@ -521,22 +537,20 @@ class CalculateVariationsMixin(object):
 
     def get_slugset_spese(self, bilancio_type, cas_com_type, include_totale=True):
 
-        somma_funzioni_affix = '-spese-somma-funzioni'
-
         ##
         # overview widget and spese widget
         ##
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
-            rootnode_slug = totale_slug+somma_funzioni_affix
+            rootnode_slug = totale_slug+self.somma_funzioni_affix
         else:
             if cas_com_type == 'cassa':
                 totale_slug = bilancio_type+'-spese-cassa'
             else:
                 totale_slug = bilancio_type+'-spese-impegni'
 
-            rootnode_slug = totale_slug+somma_funzioni_affix
+            rootnode_slug = totale_slug+self.somma_funzioni_affix
 
         rootnode = Voce.objects.get(slug = rootnode_slug)
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
@@ -553,7 +567,7 @@ class CalculateVariationsMixin(object):
 class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     template_name = None
-    show_help = True
+    show_help = False
     totale_label = "Totale"
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
@@ -753,7 +767,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
 
 
-    def compose_partial_data(self, main_values_regroup, variations, totale_level):
+    def compose_partial_data(self, main_values_regroup, variations, totale_level, bugfix=False):
         composition_data = []
 
         ##
@@ -770,7 +784,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
             # if diff is same level as totale
             if main_value_denominazione != self.totale_label:
                 sample_obj = main_value_set[0]
+
                 diff = sample_obj['voce__level']-totale_level-1
+
+                # if the voce belongs to somma-funzioni branch then it should
+                # be considered one level less than its real level
+
+                if self.somma_funzioni_affix  in sample_obj['voce__slug']:
+                    diff -= 1
 
                 if diff == 0:
                     value_dict['layer1'] = sample_obj['voce__pk']
@@ -808,6 +829,17 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             composition_data.append(value_dict)
 
+        # if bugfix is true then duplicates voce with name prestiti, entrate conto terzi in the next level
+        if bugfix:
+            prestiti = [k for k in ifilter(lambda x: x['label']==u'Prestiti', composition_data)][0]
+            prestiti_fake = prestiti.copy()
+            prestiti_fake['layer2']=0
+            entr_ct = [k for k in ifilter(lambda x: x['label']==u'Entrate per conto terzi', composition_data)][0]
+            entrct_fake = entr_ct.copy()
+            entrct_fake['layer2']=0
+            composition_data.append(prestiti_fake)
+            composition_data.append(entrct_fake)
+
         return composition_data
 
     def create_context_entrate(self):
@@ -817,11 +849,59 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         # entrate data
         main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
         comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
+        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level, bugfix=True))
+        s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
+        e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
+
+        # widget1 : bar totale entrate
+        context["w1_type"]= "bar"
+        context["w1_label"]= "Entrate - Totale"
+        context["w1_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w1_sublabel1"]= ""
+        context["w1_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
+        context["w1_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
+
+            context["w1_variation"]= self.calculate_variation(
+                                main_val=e_main_totale['valore'],
+                                comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
+                            )
+
+        # widget2: bar totale spese
+        context["w2_type"]= "bar"
+        context["w2_label"]= "Spese - Totale"
+        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w2_sublabel1"]= ""
+        context["w2_value"]= float(s_main_totale['valore'])*self.main_gdp_multiplier
+        context["w2_value_procapite"]= float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
+
+            context["w2_variation"]= self.calculate_variation(
+                                main_val=s_main_totale['valore'],
+                                comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
+                            )
+
+        # widget3: andamento nel tempo del totale delle entrate
+        context["w3_type"]= "spark"
+        context["w3_label"]=  "Andamento nel tempo delle Entrate"
+        context["w3_sublabel1"]= ''
+        context["w3_sublabel2"]= ''
+        context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
+        context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_e[self.totale_label]])
+
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
+        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
+        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
+        context['active_layers'] = 2
+
         return context
 
 
@@ -831,13 +911,61 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context = {}
         context["type"]= "SPESE"
         # spese data
+        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_s).level
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
+        s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
+        e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
+
+        #  # widget1 : bar totale spese
+        context["w1_type"]= "bar"
+        context["w1_label"]= "Spese - Totale"
+        context["w1_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w1_sublabel1"]= ""
+        context["w1_value"]= float(s_main_totale['valore'])*self.main_gdp_multiplier
+        context["w1_value_procapite"]= float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
+
+            context["w1_variation"]= self.calculate_variation(
+                                main_val=s_main_totale['valore'],
+                                comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
+                            )
+        # # widget2: bar totale entrate
+        
+        context["w2_type"]= "bar"
+        context["w2_label"]= "Entrate - Totale"
+        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w2_sublabel1"]= ""
+        context["w2_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
+        context["w2_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
+
+            context["w2_variation"]= self.calculate_variation(
+                                main_val=e_main_totale['valore'],
+                                comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
+                            )
+        
+
+        # widget3: andamento nel tempo del totale delle entrate
+        context["w3_type"]= "spark"
+        context["w3_label"]=  "Andamento nel tempo delle Spese"
+        context["w3_sublabel1"]= ''
+        context["w3_sublabel2"]= ''
+        context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
+        context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_s[self.totale_label]])
+
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
+        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
+        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
+        context['active_layers'] = 1
 
         return context
 
@@ -970,7 +1098,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                     )
 
 
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
 

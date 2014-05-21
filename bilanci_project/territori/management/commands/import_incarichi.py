@@ -295,6 +295,8 @@ class Command(BaseCommand):
                             and incarico_inner['date_end'] == incarico_outer['date_end']:
                             
                             same_period_commissari_id.append(inner_idx)
+                            self.logger.debug("Merge commissario {0} with {1}: same date_start/date_end".\
+                                format(self.format_incarico(incarico_inner), self.format_incarico(incarico_outer)))
 
         
         for idx, incarico in enumerate(incarichi_set):
@@ -306,32 +308,40 @@ class Command(BaseCommand):
         # based on previous operation loops over incarichi_clean_set and unites commissari which are
         # less than max_n_days_between_commissari days apart in one single incarico
 
-
-        for idx, incarico in enumerate(incarichi_clean_set):
-            if incarico['charge_type'] == u'Commissario':
+        for idx, incarico_outer in enumerate(incarichi_clean_set):
+            if incarico_outer['charge_type']== u'Commissario':
                 if idx not in contigue_commissari_id:
+                    if idx < len(incarichi_clean_set)-1 and incarico_outer['date_end']:
+                        idx_next = idx+1
+                        if idx_next not in contigue_commissari_id:
+                            while idx_next < len(incarichi_clean_set):
+                                next_incarico = incarichi_clean_set[idx_next]
 
-                    if idx < len(incarichi_clean_set)-1:
-                        next_incarico = incarichi_clean_set[idx+1]
-                        if next_incarico['charge_type'] == u'Commissario' and incarico['date_end']:
-                            diff_next = (next_incarico['date_start']-incarico['date_end']).days
+                                if next_incarico['charge_type']!= u'Commissario':
+                                    break
+                                else:
+                                    diff_next = (next_incarico['date_start']-incarico_outer['date_end']).days
 
-                            if diff_next < self.max_n_days_between_commissari:
-                                contigue_commissari_id.append(idx+1)
-                                incarico['date_end']=next_incarico['date_end']
+                                    # if the next incarico is a commissario and the difference between them is < max_n
+                                    # then merges them
 
-                    if idx > 0:
-                        prev_incarico = incarichi_clean_set[idx-1]
-                        if prev_incarico['date_end']:
-                            diff_previous = (incarico['date_start']-prev_incarico['date_end']).days
-                            if diff_previous < self.max_n_days_between_commissari:
-                                contigue_commissari_id.append(idx-1)
-                                incarico['date_start']=prev_incarico['date_start']
+                                    if diff_next < self.max_n_days_between_commissari:
+                                        incarico_outer['date_end']=next_incarico['date_end']
+                                        contigue_commissari_id.append(idx)
+                                        contigue_commissari_id.append(idx_next)
+                                        idx_next +=1
+
+                                        self.logger.debug("Merge commissario {0} with {1}: closer than {2} days".\
+                                            format(self.format_incarico(incarico_outer), self.format_incarico(next_incarico), self.max_n_days_between_commissari))
+                                    else:
+                                        break
 
 
-                regrouped_set.append(incarico)
+                    regrouped_set.append(incarico_outer)
             else:
-                regrouped_set.append(incarico)
+                regrouped_set.append(incarico_outer)
+
+
 
         return regrouped_set
 

@@ -25,7 +25,7 @@
                 <div class="col-md-8 col-md-offset-2">
 
                     <h1>
-                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small></span>
+                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small>{% if settings.SITE_VERSION %}<small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</span>
                     </h1>
 
                     <h2>
@@ -71,7 +71,7 @@
                         </div>
                         <div class="col-sm-4">
                             <h3>
-                                <a href="javascript:void(0)" class="disabled" title="Prossimamente...">
+                                <a href="javascript:void(0);" class="disabled" title="Prossimamente...">
                                     <span class="icon sprite-mappa-big"></span>
                                     mappe
                                 </a>
