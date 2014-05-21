@@ -835,10 +835,13 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
+        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
-
+        s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
         e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
         # widget1 : bar totale entrate
@@ -854,31 +857,20 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                 main_val=e_main_totale['valore'],
                                 comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
                             )
-        # widget2
-        # avanzo / disavanzo di cassa / competenza
-        yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
+            
+        # widget2: bar totale spese
+        context["w2_type"]= "bar"
+        context["w2_label"]= "Spese - Totale"
+        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w2_sublabel1"]= ""
+        context["w2_value"]= float(s_main_totale['valore'])*self.main_gdp_multiplier
+        context["w2_value_procapite"]= float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
 
-        for k, year in yrs_to_consider.iteritems():
-            if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
-                try:
-                    entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
-                    spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
-
-                    if self.values_type == 'real':
-                        entrate = float(entrate) *settings.GDP_DEFLATORS[year]
-                        spese = float(spese) *settings.GDP_DEFLATORS[year]
-
-                except ObjectDoesNotExist:
-                    continue
-                else:
-                    context['w2_year'+k] = year
-                    context['w2_value'+k] = entrate-spese
-
-
-        context["w2_type"]= "compare"
-        context["w2_label"]= "Avanzo/disavanzo"
-        context["w2_sublabel1"]= "di "+self.cas_com_type
-        context["w2_sublabel2"]= ""
+            context["w2_variation"]= self.calculate_variation(
+                                main_val=s_main_totale['valore'],
+                                comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
+                            )
 
         # widget3: andamento nel tempo del totale delle entrate
         context["w3_type"]= "spark"
@@ -905,13 +897,17 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         # spese data
         main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_s).level
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
         s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
+        e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
         #  # widget1 : bar totale spese
         context["w1_type"]= "bar"
@@ -926,31 +922,21 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                 main_val=s_main_totale['valore'],
                                 comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
                             )
-        # # widget2
-        # avanzo / disavanzo di cassa / competenza
-        yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
+        # # widget2: bar totale entrate
+        
+        context["w2_type"]= "bar"
+        context["w2_label"]= "Entrate - Totale"
+        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
+        context["w2_sublabel1"]= ""
+        context["w2_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
+        context["w2_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
+        if not self.comparison_not_available:
 
-        for k, year in yrs_to_consider.iteritems():
-            if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
-                try:
-                    entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
-                    spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
-
-                    if self.values_type == 'real':
-                        entrate = float(entrate) *settings.GDP_DEFLATORS[year]
-                        spese = float(spese) *settings.GDP_DEFLATORS[year]
-
-                except ObjectDoesNotExist:
-                    continue
-                else:
-                    context['w2_year'+k] = year
-                    context['w2_value'+k] = entrate-spese
-
-
-        context["w2_type"]= "compare"
-        context["w2_label"]= "Avanzo/disavanzo"
-        context["w2_sublabel1"]= "di "+self.cas_com_type
-        context["w2_sublabel2"]= ""
+            context["w2_variation"]= self.calculate_variation(
+                                main_val=e_main_totale['valore'],
+                                comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
+                            )
+        
 
         # widget3: andamento nel tempo del totale delle entrate
         context["w3_type"]= "spark"
