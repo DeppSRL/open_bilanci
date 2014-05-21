@@ -7,18 +7,21 @@
 
     <div class="row">
         <div class="col-md-5 section_title" >
-            {% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}
-        </div>
-        <div class="col-md-4 section_title" >
-            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+            <h3>{% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}</h3>
         </div>
 
-        {#        switch funzioni interventi #}
+{#        switch funzioni interventi #}
         <div class="col-md-3 section_title" >
 
             <a href="{{ fun_int_switch.url }}" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>
 
         </div>
+
+        <div class="col-md-4 section_title" >
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+        </div>
+
+
     </div>
 {% endblock %}
 
