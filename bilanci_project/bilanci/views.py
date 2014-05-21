@@ -161,7 +161,6 @@ class IncarichiGetterMixin(object):
 
             dict_widget = {
                 'start':  incarico.data_inizio.strftime(self.date_fmt),
-                'end': incarico.data_fine.strftime(self.date_fmt),
 
                 # sets incarico marker color and highlight
                 'icon': settings.INCARICO_MARKER_DUMMY,
@@ -169,21 +168,24 @@ class IncarichiGetterMixin(object):
                 'highlightColor': highlight_color,
             }
 
+            if incarico.data_fine:
+                dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
+
             if incarico.pic_url:
                 dict_widget['icon'] = incarico.pic_url
 
             if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
-                dict_widget['label'] = "Commissariamento".upper()
+                dict_widget['label'] = "Commissario".title()
                 dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else:
 
                 # sets sindaco / vicesindaco name, surname
-                dict_widget['label'] = "{0}.{1}".\
+                dict_widget['label'] = "{0}".\
                     format(
-                        incarico.nome[0].upper(),
-                        incarico.cognome.upper().encode('utf-8'),
+
+                        incarico.cognome.title().encode('utf-8'),
                     )
 
                 if incarico.tipologia == Incarico.TIPOLOGIA.vicesindaco_ff :
