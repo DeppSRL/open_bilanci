@@ -16,7 +16,7 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
 
     // sets default values for Y axis value unit and tooltip value unit
     axisUnit = typeof axisUnit !== 'undefined' ? axisUnit : 'MILIONI';
-    tooltipUnit = typeof tooltipUnit !== 'undefined' ? tooltipUnit : 'MLN';
+    tooltipUnit = typeof tooltipUnit !== 'undefined' ? tooltipUnit : 'Euro';
     linechart_visible = typeof linechart_visible !== 'undefined' ? linechart_visible : true;
 
     linechart.options({
