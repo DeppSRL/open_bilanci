@@ -125,7 +125,7 @@
 
 {% block body %}
     {% verbatim %}
-        <div class='wrap' ng-controller='AppControllerBilancio'>
+        <div class='wrap' ng-cloak ng-controller='AppControllerBilancio'>
         <div class='visup-main visup-graph-compare'>
         <div class='visup-graph-left-container'>
         <div class='visup-title'>Entrate</div>
@@ -155,12 +155,12 @@
         <div class='visup-legend'>
         <img alt="Legend" src="/static/img/visup/legend.png" />
         </div>
-        <div class='visup-graph-toolip' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-graph-toggle' ng-class='{active: (toggleActive &amp;&amp; showLabels), disable: (!toggleActive)}'>{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
         </div>
         <div class='visup-sidebar visup-sidebar1'>
         <div class='visup-widget widget1'>
-        <div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-description'>
         <div class='visup-title' ng-class="widget1.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget1.label'>{{widget1.label}}</div>
         <div class='visup-subtitle' ng-class="widget1.type != 'surplus' ? 'as-title' : ''" ng-show='widget1.sublabel1'>{{widget1.sublabel1}}</div>
@@ -203,7 +203,7 @@
         <div class='visup-sublabel' ng-show='widget1.sublabel3'>{{widget1.sublabel3}}</div>
         </div>
         <div class='visup-widget widget4 visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
-        <div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-description'>
         <div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget4.entrate.label : widget4.spese.label}}</div>
         <div class='visup-subtitle as-title'>{{selected.label}}</div>
@@ -227,7 +227,7 @@
         <i class='fa fa-times visup-widget-close' href='' ng-style="{'color':selected.color}"></i>
         </div>
         <div class='visup-widget widget2'>
-        <div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-description'>
         <div class='visup-title' ng-class="widget2.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget2.label'>{{widget2.label}}</div>
         <div class='visup-subtitle' ng-class="widget2.type != 'surplus' ? 'as-title' : ''" ng-show='widget2.sublabel1'>{{widget2.sublabel1}}</div>
@@ -270,7 +270,7 @@
         <div class='visup-sublabel' ng-show='widget2.sublabel3'>{{widget2.sublabel3}}</div>
         </div>
         <div class='visup-widget widget3'>
-        <div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-description'>
         <div class='visup-title' ng-class="widget3.type != 'surplus' ? 'as-subtitle' : ''" ng-show='widget3.label'>{{widget3.label}}</div>
         <div class='visup-subtitle' ng-class="widget3.type != 'surplus' ? 'as-title' : ''" ng-show='widget3.sublabel1'>{{widget3.sublabel1}}</div>
@@ -320,7 +320,7 @@
         <div class='visup-value-2'>{{selected.percent}}%</div>
         </div>
         <div class='visup-widget widget6 active-selection active-hover'>
-        <div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-82f653bb69ae4fd45cc2ac0190229c53.png)'></div>
+        <div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
         <div class='visup-description'>
         <div class='visup-title as-subtitle'>{{type === 'ENTRATE' ? widget6.entrate.label : widget6.spese.label}}</div>
         <div class='visup-subtitle as-title'>{{selected.label}}</div>
