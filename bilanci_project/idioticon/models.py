@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from tinymce.models import HTMLField
@@ -26,6 +27,10 @@ class Term(models.Model):
     def save(self, *args, **kwargs):
         if self.term == '':
             self.term = self.slug
+        # expire cached value
+        term_key = 'popover-%s' % self.slug
+        if cache.get(term_key):
+            cache.delete(term_key)
         return super(Term, self).save(*args, **kwargs)
 
     class Meta:
