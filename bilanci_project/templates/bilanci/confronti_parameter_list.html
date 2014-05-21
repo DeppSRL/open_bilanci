@@ -5,39 +5,42 @@
 
         <ul class="menu nav nav-stacked confronti_parameter_list" id="parameter_list_{{ parameter_list_type }}">
             {% for parameter in parameter_list %}
-                <li
-                    {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
-                        class="active"
-                    {% endif %}
-                        >
-                    <div class="row">
-                        <div class="col-sm-10">
-                            <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
 
-                                {# initialize the url for parameter list menu   #}
-                                {% if parameter_list_type == 'indicatori' %}
-                                    href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                                    {% else %}
-                                    {% if parameter_list_type == 'entrate' %}
-                                        href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                {% if parameter.slug != 'consuntivo-entrate-cassa-entrate-per-conto-terzi' %}
+                    <li
+                        {% if parameter_list_type == selected_par_type and parameter.slug == selected_par_slug %}
+                            class="active"
+                        {% endif %}
+                            >
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
+
+                                    {# initialize the url for parameter list menu   #}
+                                    {% if parameter_list_type == 'indicatori' %}
+                                        href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
                                         {% else %}
-                                        {% if parameter_list_type == 'spese' %}
-                                            href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                        {% if parameter_list_type == 'entrate'%}
+                                            href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                            {% else %}
+                                            {% if parameter_list_type == 'spese' %}
+                                                href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
-                                {% endif %}
-                                    >
-                                {{ parameter.denominazione }}
+                                        >
+                                    {{ parameter.denominazione }}
 
-                            </a>
+                                </a>
+                            </div>
+                            <div class="col-sm-1">
+                                {% popover_info parameter.slug %}
+                            </div>
+
                         </div>
-                        <div class="col-sm-1">
-                            {% popover_info parameter.slug %}
-                        </div>
 
-                    </div>
-
-                </li>
+                    </li>
+                {% endif %}
 
             {% endfor %}
 
