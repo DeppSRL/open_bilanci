@@ -29,7 +29,7 @@
 
                     "value": {{ w1_value|safe|default:"null" }},
                     "procapite": {{ w1_value_procapite|safe|default:"null" }},
-                    "variation": {{ w1_variation|default:"null" }}
+                    "variation": {{ w1_variation|default_if_none:"null"|safe }}
 
                 },
                 "widget2": {
@@ -41,7 +41,7 @@
 
                     "value": {{ w2_value|safe|default:"null" }},
                     "procapite": {{ w2_value_procapite|safe|default:"null" }},
-                    "variation": {{ w2_variation|default:"null" }},
+                    "variation": {{ w2_variation|default_if_none:"null"|safe }},
 
                     "valueLabel1": {{ w2_year1|default:"null" }},
                     "valueLabel2": {{ w2_year2|default:"null" }},
@@ -61,7 +61,7 @@
                     "sublabel3": "{{ w3_sublabel3|safe }}",
                     "value": {{ w3_value|safe|default:"null" }},
                     "procapite": {{ w3_value_procapite|safe|default:"null" }},
-                    "variation": {{ w3_variation|default:"null" }},
+                    "variation": {{ w3_variation|default_if_none:"null"|safe }},
                     "series": {{ w3_series|safe|default:"null" }}
                 },
 
