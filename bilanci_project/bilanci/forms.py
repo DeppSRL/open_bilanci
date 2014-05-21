@@ -8,12 +8,13 @@ class TerritoriSearchFormHome(forms.Form):
 
     territori = TerritoriChoices(
         to_field_name = 'slug',
-        required=False,
+        required=True,
         label='',
         widget=TerritoriChoices.widget(
             select2_options={
                 'width': '48em',
                 'placeholder': _(u"CERCA UN COMUNE, ENTRA NEI BILANCI, CONDIVIDI QUELLO CHE SCOPRI"),
+                # 'allowClear': 'false',
             }
         )
     )
@@ -23,12 +24,13 @@ class TerritoriSearchForm(forms.Form):
 
     territori = TerritoriChoices(
         to_field_name = 'slug',
-        required=False,
+        required=True,
         label='',
         widget=TerritoriChoices.widget(
             select2_options={
                 'width': '20em',
                 'placeholder': _(u"CERCA UN COMUNE"),
+                # 'allowClear': None,
             }
         )
     )

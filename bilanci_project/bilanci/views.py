@@ -3,6 +3,7 @@ from operator import itemgetter
 import os
 import re
 import json
+from django.core.cache import cache
 import feedparser
 import zmq
 import requests
@@ -63,7 +64,11 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data( **kwargs)
         context['territori_search_form_home'] = TerritoriSearchFormHome()
-        context['op_blog_posts'] = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
+        op_blog_posts = cache.get('blog-posts')
+        if op_blog_posts is None:
+            op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
+            cache.set('blog-posts', op_blog_posts)
+        context['op_blog_posts'] = op_blog_posts
         return context
 
 

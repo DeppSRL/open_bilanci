@@ -2771,3 +2771,6 @@ a[rel=info-popover]:visited {
 #classifiche-form .list-group-item {
   background-color: #f8f8f8;
 }
+.select2-container .select2-choice .select2-arrow b {
+  background-position-y: 6px !important;
+}
