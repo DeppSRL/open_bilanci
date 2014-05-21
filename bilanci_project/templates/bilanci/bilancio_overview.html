@@ -13,20 +13,20 @@
 {% block bilanci_content %}
 
     <div class="row" style="margin-top: 15px;">
-        <div class="col-md-7 col-md-offset-1 section_title" style="">
-            {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
-        </div>
-        <div class="col-md-3 section_title" style="">
+        <div class="col-md-12">
             {% if tipo_bilancio == "consuntivo" %}
                 {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
             {% else %}
                 {% section_values_type values_type=values_type tooltip=True %}
             {% endif %}
+            <h3 style="margin-top: 0; font-size: 18px;">
+                {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+            </h3>
         </div>
     </div>
 
     <div class="row" >
-        <div class="col-md-10 col-md-offset-1 ">
+        <div class="col-md-12">
             Come si suddividono le entrate e le spese? Quali sono le priorità di chi amministra il Comune?<br/>
             In verde <span style="font-weight: bold; color:#7d8e17"> GLI AUMENTI</span>, in rosso <span style="font-weight: bold; color:#9b2d1b">I TAGLI</span>.
         </div>

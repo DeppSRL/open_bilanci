@@ -11,8 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.conf import settings
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
@@ -1726,7 +1724,7 @@ class ClassificheListView(ListView):
 
 
         self.queryset =  base_queryset.\
-                        filter( territorio__territorio = 'C', anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
+                        filter(anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
 
 
         return self.queryset
@@ -1735,7 +1733,8 @@ class ClassificheListView(ListView):
 
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
-        ordinal_position = ((self.kwargs.get('page',1)-1) * self.paginate_by)+1
+        page = int(self.request.GET.get('page',1))
+        ordinal_position = ((page - 1) * self.paginate_by) + 1
         comparison_year = self.anno_int - 1
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
         all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).values_list('cluster',flat=True)

@@ -2493,6 +2493,19 @@ a[rel=info-popover]:visited {
   font-weight: inherit;
   cursor: default;
 }
+.panel-tree a {
+  color: #2a3036;
+}
+.panel-tree .actions {
+  text-align: right;
+}
+.panel-tree .actions p.h3 {
+  font-weight: bold;
+  margin-bottom: 0;
+}
+.panel-tree .actions p.small {
+  margin-bottom: 0;
+}
 .panel-tree .panel {
   overflow: visible;
 }
@@ -2590,12 +2603,24 @@ a[rel=info-popover]:visited {
 #bilancio-header p .year {
   display: none;
 }
+.share {
+  font-size: 13px !important;
+  color: #2a3036;
+}
+.share span.fa {
+  color: #cc6633;
+}
+.share strong {
+  font-weight: bold;
+  color: #cc6633;
+}
 #bilancio-header.affix {
   top: 0;
   background-color: white;
   z-index: 9998;
   border-bottom: 1px solid #2a3036;
 }
+#bilancio-header.affix .share,
 #bilancio-header.affix .share-box {
   display: none;
 }
@@ -2643,6 +2668,11 @@ a[rel=info-popover]:visited {
 }
 #main-content > .panel-heading .panel-title {
   font-size: 38px;
+}
+.popover-title {
+  background-color: #cc6633 !important;
+  font-size: 16px;
+  color: white;
 }
 @media (max-width: 768px) {
   #bilancio-header.affix p {
