@@ -9,12 +9,13 @@
             var composition_data = {
                 "type": "{{ type }}",
                 "hover": true,
-                "year": 2009,
-                "showLabels": true,
+                "year": {{ year }},
+                "showLabels": false,
 
-                "button1": "Titoli",
-                "button2": "Categorie",
-                "button3": "Voci",
+                "button1": "Livello I",
+                "button2": "Livello II",
+                "button3": "Livello III",
+                "activeLayers": {{ active_layers|default_if_none:2 }},
 
                 "composizione":{{ composition|safe }},
 
@@ -30,84 +31,38 @@
                     "procapite": {{ w1_value_procapite|safe|default:"null" }},
                     "variation": {{ w1_variation|safe|default:"null" }},
 
-                    "year1": {{ w1_year1|default:"null" }},
-                    "year2": {{ w1_year2|default:"null" }},
-                    "year3": {{ w1_year3|default:"null" }},
-
-                    "value1": {{ w1_value1|safe|default:"null" }},
-                    "value2": {{ w1_value2|safe|default:"null" }},
-                    "value3": {{ w1_value3|safe|default:"null" }}
-
                 },
                 "widget2": {
-                    "type": "compare",
-                    "showHelp": false,
-                    "label": "confronto",
-                    "sublabel1": "preventivo-consuntivo",
-                    "valueLabel1": "ENTRATE PREVISTE PREV. 2010",
-                    "value1": 130000000,
-                    "variation1": -28,
-                    "valueLabel2": "ACCERTAMENTI CONS. 2010",
-                    "value2": 11000000,
-                    "variation2": 8,
-                    "variationLabel2": "SU PREVENTIVO 2010",
-                    "valueLabel3": "RISCOSSIONI CONS. 2010",
-                    "value3": 23000000,
-                    "variation3": 15,
-                    "variationLabel3": "SU PREVENTIVO 2010"
-                  },
+                    "type": "{{ w2_type }}",
+                    "showHelp": {{ w2_showhelp|lower }},
+                    "label": "{{ w2_label|safe|default:"null" }}",
+                    "sublabel1": "{{ w2_sublabel1|safe}}",
+                    "sublabel2": "{{ w2_sublabel2|safe }}",
+
+                    "value": {{ w2_value|safe|default:"null" }},
+                    "procapite": {{ w2_value_procapite|safe|default:"null" }},
+                    "variation": {{ w2_variation|safe|default:"null" }},
+
+                    "valueLabel1": {{ w2_year1|default:"null" }},
+                    "valueLabel2": {{ w2_year2|default:"null" }},
+                    "valueLabel3": {{ w2_year3|default:"null" }},
+
+                    "value1": {{ w2_value1|safe|default:"null" }},
+                    "value2": {{ w2_value2|safe|default:"null" }},
+                    "value3": {{ w2_value3|safe|default:"null" }}
+
+                },
                 "widget3": {
-                "type": "spark",
-                "showHelp": false,
-                "label": "Andamento del",
-                "sublabel1": "totale riscossioni",
-                "sublabel3": "nei bilanci consuntivi 2003-2013",
-                "series": [
-                  [
-                    2003,
-                    119357853
-                  ],
-                  [
-                    2004,
-                    115102443
-                  ],
-                  [
-                    2005,
-                    233250
-                  ],
-                  [
-                    2006,
-                    140853290
-                  ],
-                  [
-                    2007,
-                    149952528
-                  ],
-                  [
-                    2008,
-                    151110972
-                  ],
-                  [
-                    2009,
-                    161982949
-                  ],
-                  [
-                    2010,
-                    164030500
-                  ],
-                  [
-                    2011,
-                    162034029
-                  ],
-                  [
-                    2012,
-                    164878601
-                  ],
-                  [
-                    2013,
-                    163309589
-                  ]
-                ]
+                     "type": "{{ w3_type }}",
+                    "showHelp": {{ w3_showhelp|lower }},
+                    "label": "{{ w3_label|safe }}",
+                    "sublabel1": "{{ w3_sublabel1|safe}}",
+                    "sublabel2": "{{ w3_sublabel2|safe }}",
+                    "sublabel3": "{{ w3_sublabel3|safe }}",
+                    "value": {{ w3_value|safe|default:"null" }},
+                    "procapite": {{ w3_value_procapite|safe|default:"null" }},
+                    "variation": {{ w3_variation|safe|default:"null" }},
+                    "series": {{ w3_series|safe|default:"null" }}
                 },
 
                 // widget 4 : 1 box for voce detail
