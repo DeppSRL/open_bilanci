@@ -891,8 +891,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
         context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_e[self.totale_label]])
 
-
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
         context['active_layers'] = 2
@@ -957,13 +956,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
         context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_s[self.totale_label]])
 
-
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
-        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
-        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-
-
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
         context['active_layers'] = 1
@@ -1099,7 +1092,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                     )
 
 
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
 
