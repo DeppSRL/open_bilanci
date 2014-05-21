@@ -158,13 +158,20 @@ class IncarichiGetterMixin(object):
         for incarico in incarichi_set:
 
             dict_widget = {
-                'start':  incarico.data_inizio.strftime(self.date_fmt),
-
                 # sets incarico marker color and highlight
                 'icon': settings.INCARICO_MARKER_DUMMY,
                 'color': settings.INCARICO_MARKER_INACTIVE,
                 'highlightColor': highlight_color,
             }
+
+            # truncates date start to timeline start
+            timeline_start = settings.TIMELINE_START_DATE.date()
+
+            if incarico.data_inizio < timeline_start:
+                dict_widget['start'] = timeline_start.strftime(self.date_fmt)
+            else:
+                dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
+
 
             if incarico.data_fine:
                 dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
@@ -351,6 +358,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             values_type=self.request.GET.get('values_type', 'real'),
             per_capita=True
         )
+
 
         voce_line_label = voce_bilancio.denominazione
 
@@ -555,7 +563,7 @@ class CalculateVariationsMixin(object):
 class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     template_name = None
-    show_help = True
+    show_help = False
     totale_label = "Totale"
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
@@ -819,11 +827,46 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         # entrate data
         main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
         comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
+
+
+        # widget1
+        # avanzo / disavanzo di cassa / competenza
+        yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
+
+        for k, year in yrs_to_consider.iteritems():
+            if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+                try:
+                    entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
+                    spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
+
+                    if self.values_type == 'real':
+                        entrate = float(entrate) *settings.GDP_DEFLATORS[year]
+                        spese = float(spese) *settings.GDP_DEFLATORS[year]
+
+                except ObjectDoesNotExist:
+                    continue
+                else:
+                    context['w1_year'+k] = year
+                    context['w1_value'+k] = entrate-spese
+
+
+        context["w1_type"]= "surplus"
+        context["w1_label"]= "Avanzo/disavanzo"
+        context["w1_sublabel1"]= "di "+self.cas_com_type
+        context["w1_sublabel2"]= ""
+
+
+
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
+        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
+
         return context
 
 
@@ -840,6 +883,10 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
+
+        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = self.show_help
+        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
+        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
 
         return context
 
