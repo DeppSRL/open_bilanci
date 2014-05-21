@@ -56,6 +56,7 @@
                                 {# parameter name / type #}
                                 <div class="row">
                                     <div class="col-md-12">
+                                        {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True hide_icon=True%}
                                         <h4 class="panel-title pull-left">
                                             {% if selected_par_type == 'indicatori' %}
                                                 INDICATORE
@@ -76,11 +77,8 @@
                                 {% if selected_par_type != 'indicatori' %}
                                     {# values type #}
                                     <div class="row">
-                                        <div class="col-md-5 section_title" style="">
+                                        <div class="col-md-12" style="">
                                             {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
-                                        </div>
-                                        <div class="col-md-7 section_title" style="padding:0;">
-                                            {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True hide_icon=True%}
                                         </div>
                                     </div>
                                 {% endif %}

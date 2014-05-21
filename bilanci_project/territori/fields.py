@@ -25,5 +25,5 @@ class TerritoriClusterChoices(AutoModelSelect2Field):
 
 
     def label_from_instance(self, obj):
-        return u"{0} Cluster:{1}".format(obj.nome_con_provincia, obj.get_cluster_display())
+        return u"{0}, {1}".format(obj.nome_con_provincia, obj.get_cluster_display())
 

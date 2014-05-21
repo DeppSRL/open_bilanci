@@ -7,7 +7,7 @@ from idioticon.models import Term
 register = template.Library()
 
 @register.inclusion_tag('popover_enabled_icon.html')
-def popover_info(term_slug, popover_placement='right', width='300px'):
+def popover_info(term_slug, popover_placement='auto', width='300px'):
 
     term_key = 'popover-%s' % term_slug
     term_context = cache.get(term_key)
