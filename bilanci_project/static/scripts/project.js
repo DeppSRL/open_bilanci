@@ -36,12 +36,10 @@
 
         if(location.hash == '#composizione' || location.hash == ""){
             //open composizione
-            console.log('composizione');
             $('#partial-tabs a[href="#composizione"]').tab('show');
         }
         else{
             //open dettaglio
-            console.log('dettaglio');
              $('#partial-tabs a[href="#dettaglio"]').tab('show');
             // enable nested accordion
             setupNestedAccordion(location.hash);

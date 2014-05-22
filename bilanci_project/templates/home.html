@@ -14,6 +14,9 @@
     <script src="{% static 'scripts/vendor/jquery.debouncedresize/js/jquery.debouncedresize.js' %}"></script>
     <script src="{% static 'scripts/vendor/jquery.easing/js/jquery.easing.min.js' %}"></script>
     <script src="{% static 'scripts/vendor/jquery-waypoints/waypoints.min.js' %}"></script>
+    <script>
+        $(document).ready(function(){ $('#from-the-blog').find('a').attr("target", "_blank"); })
+    </script>
 {% endblock extra_js%}
 
 {% block container %}
@@ -153,10 +156,10 @@
                         <h3><a href="{{ blog_post.link }}">{{ blog_post.title }}</a></h3>
                         <p class="small"><time datetime="{{ blog_post.published_parsed|time_to_datetime|date:'Y-m-d' }}"><span class="icon sprite-calendar"></span> {{ blog_post.published_parsed|time_to_datetime|date:'d F Y' }}</time></p>
                         <div class="text">
-                            {{ blog_post.description|safe }}
+                            {{ blog_post.content.0.value|truncatewords_html:40|safe }}
                         </div>
                         <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> {% for tag in blog_post.tags %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                            <p class="small tags">{% for tag in blog_post.tags %}{% if tag.term.0|lower == tag.term.0 %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
                         </footer>
                     </li>
                     {% empty %}
