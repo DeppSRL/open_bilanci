@@ -11,16 +11,16 @@
 
 {% block bilanci_content %}
     <!-- Nav Tabs -->
-    <ul class="nav nav-tabs nav-justified">
-        <li class="active"><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE {{ selected_section|upper }} E PRIORIT&Agrave;</a></li>
-        <li ><a id="andamento-tempo-dettaglio" href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
+    <ul id="partial-tabs" class="nav nav-tabs nav-justified">
+        <li><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE {{ selected_section|upper }} E PRIORIT&Agrave;</a></li>
+        <li ><a href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
     </ul>
 
     <hr class="no-border">
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <div class="tab-pane fade in active" id="composizione">
+        <div class="tab-pane fade in" id="composizione">
             <div class="row" style="margin-top: 15px;">
                 <div class="col-md-12">
                     {% if tipo_bilancio == "consuntivo" %}
@@ -123,6 +123,10 @@
             {# fixes graph size on tab switch   #}
             linechart.resize();
         });
+
+        {# adds anchor #composizione / #dettaglio to page url   #}
+        $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
+
         init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"EURO","EURO");
         feed_main_linechart();
 
