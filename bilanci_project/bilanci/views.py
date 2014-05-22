@@ -226,7 +226,12 @@ class IncarichiGetterMixin(object):
     def get_incarichi_struct(self, territorio_opid, highlight_color):
 
         incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio_opid))
-        return self.transform_incarichi(incarichi_set, highlight_color)
+        transformed_set =  self.transform_incarichi(incarichi_set, highlight_color)
+
+        if len(transformed_set):
+            return [transformed_set]
+        else:
+            return None
 
 
     ##
@@ -408,7 +413,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":[incarichi_set],
+                    "timeSpans":incarichi_set,
                     'data':[cluster_mean_set, voce_set],
                     'legend':legend
                 }

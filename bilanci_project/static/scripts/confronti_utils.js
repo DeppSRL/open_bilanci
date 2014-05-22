@@ -52,7 +52,7 @@ function hideWarningBox(){
 }
 
 function checkTerritoriCluster(){
-    var needle = 'Cluster:';
+    var needle = ', ';
 
     var territorio_1_name = $("#id_territorio_1").select2('data').text;
     var territorio_2_name = $("#id_territorio_2").select2('data').text;
