@@ -1772,6 +1772,7 @@ class ClassificheListView(ListView):
     template_name = 'bilanci/classifiche.html'
     paginate_by = 15
     n_comuni = None
+    territori_baseset = None
     parameter_type = None
     parameter = None
     anno = None
@@ -1803,12 +1804,6 @@ class ClassificheListView(ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-        # catches session variables if any
-        # if len(self.request.session.get('selected_regioni',[])):
-        #     self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
-        # if len(self.request.session.get('selected_cluster',[])):
-        #     self.selected_cluster = self.request.session['selected_cluster']
-
 
         selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         if len(selected_regioni_get):
@@ -1818,8 +1813,6 @@ class ClassificheListView(ListView):
         selected_cluster_get = self.request.GET.getlist('c')
         if len(selected_cluster_get):
             self.selected_cluster = selected_cluster_get
-
-        page = int(self.request.GET.get('page', '1'))
 
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
@@ -1840,22 +1833,22 @@ class ClassificheListView(ListView):
         ##
 
         # initial territori_baseset is the complete list of comuni
-        territori_baseset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
+        self.territori_baseset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
 
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
             selected_regioni_names = list(Territorio.objects.\
                 filter(pk__in=self.selected_regioni, territorio=Territorio.TERRITORIO.R).values_list('denominazione',flat=True))
 
-            territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
+            self.territori_baseset = self.territori_baseset.filter(regione__in=selected_regioni_names)
 
 
         if len(self.selected_cluster):
-            territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
+            self.territori_baseset = self.territori_baseset.filter(cluster__in=self.selected_cluster)
 
 
         self.queryset =  base_queryset.\
-                        filter(anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
+                        filter(anno = self.anno, territorio__in=self.territori_baseset).select_related('territorio')
 
 
         return self.queryset
@@ -1881,12 +1874,14 @@ class ClassificheListView(ListView):
         if self.parameter_type == 'indicatori':
 
             comparison_set = list(ValoreIndicatore.objects.\
-                                filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
+                                filter(territorio__in = self.territori_baseset, anno = comparison_year, indicatore = self.parameter).\
+                                order_by('-valore').select_related('territorio').\
                                 values('valore','territorio__pk','territorio__denominazione'))
         else:
 
             comparison_set = list(ValoreBilancio.objects.\
-                                filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
+                                filter(territorio__in = self.territori_baseset, anno = comparison_year, voce = self.parameter).\
+                                order_by('-valore_procapite').select_related('territorio').\
                                 values('valore_procapite','territorio__pk','territorio__denominazione'))
 
         self.n_comuni = self.queryset.count()
@@ -1898,28 +1893,32 @@ class ClassificheListView(ListView):
         incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
         # regroups comparison values based on territorio
-        regroup_territorio_keygen = lambda x: x['territorio__pk']
-        comparison_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_set, key=regroup_territorio_keygen))
+        # regroup_territorio_keygen = lambda x: x['territorio__pk']
+        # comparison_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_set, key=regroup_territorio_keygen))
 
 
 
         for valoreObj in paginated_queryset:
             valore_template = None
             incarichi = []
-            comparison_value=0
-            variazione = 0
+            position_variation = 0
 
             if self.parameter_type =='indicatori':
                 valore_template = valoreObj.valore
-                comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
 
             else:
                 valore_template = valoreObj.valore_procapite
-                comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
 
+            # gets the territorio position in the comparison set,
+            # this list is 0-based so 1 unit is added to match ordinal position that is 1-based
+            # if the comparison value for a territorio is not available then the variation is set to 0
+            try:
+                comparison_position = next(index for (index, d) in enumerate(comparison_set) if d["territorio__pk"] == valoreObj.territorio.pk)+1
+            except StopIteration:
+                position_variation = 0
+            else:
+                position_variation = comparison_position-ordinal_position
 
-            if comparison_value is not None:
-                variazione = valore_template - comparison_value
 
             if valoreObj.territorio.pk in incarichi_regroup.keys():
                 incarichi = incarichi_regroup[valoreObj.territorio.pk]
@@ -1934,8 +1933,8 @@ class ClassificheListView(ListView):
                     },
                 'valore': valore_template,
                 'incarichi_attivi': incarichi,
-                'variazione':variazione,
-                'position': ordinal_position
+                'position': ordinal_position,
+                'position_variation': position_variation
                 }
 
             ordinal_position+=1
