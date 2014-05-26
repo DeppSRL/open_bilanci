@@ -970,7 +970,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-        context['active_layers'] = 1
+        context['active_layers'] = 2
 
         return context
 
