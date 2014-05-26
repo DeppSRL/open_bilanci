@@ -454,7 +454,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":[incarichi_set],
+                    "timeSpans":incarichi_set,
                     'data':indicatori_set,
                     'legend':{'title':None, 'items':legend_set}
                 }
