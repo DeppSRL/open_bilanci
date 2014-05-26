@@ -705,6 +705,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                 'voce__pk',
                 'voce__parent__pk',
                 'voce__parent__parent__pk',
+                'voce__children',
                 'voce__denominazione',
                 'voce__level',
                 'anno',
@@ -772,7 +773,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
 
 
-    def compose_partial_data(self, main_values_regroup, variations, totale_level, bugfix=False):
+    def compose_partial_data(self, main_values_regroup, variations, totale_level,):
         composition_data = []
 
         ##
@@ -810,6 +811,13 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                     value_dict['layer2'] = sample_obj['voce__parent__pk']
                     value_dict['layer3'] = sample_obj['voce__pk']
 
+                #     sets the value to mark the circle as a parent of other voce or not
+
+                if sample_obj['voce__children'] is None:
+                    value_dict['is_parent'] = False
+                else:
+                    value_dict['is_parent'] = True
+
             value_dict['andamento']=0
             # if the value considered is a total value then sets the appropriate flag
             if main_value_denominazione == self.totale_label:
@@ -834,17 +842,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             composition_data.append(value_dict)
 
-        # if bugfix is true then duplicates voce with name prestiti, entrate conto terzi in the next level
-        if bugfix:
-            prestiti = [k for k in ifilter(lambda x: x['label']==u'Prestiti', composition_data)][0]
-            prestiti_fake = prestiti.copy()
-            prestiti_fake['layer2']=0
-            entr_ct = [k for k in ifilter(lambda x: x['label']==u'Entrate per conto terzi', composition_data)][0]
-            entrct_fake = entr_ct.copy()
-            entrct_fake['layer2']=0
-            composition_data.append(prestiti_fake)
-            composition_data.append(entrct_fake)
-
         return composition_data
 
     def create_context_entrate(self):
@@ -862,7 +859,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level, bugfix=True))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
         s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
         e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
