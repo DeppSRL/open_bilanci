@@ -705,7 +705,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                 'voce__pk',
                 'voce__parent__pk',
                 'voce__parent__parent__pk',
-                'voce__children',
                 'voce__denominazione',
                 'voce__level',
                 'anno',
@@ -812,11 +811,9 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                     value_dict['layer3'] = sample_obj['voce__pk']
 
                 #     sets the value to mark the circle as a parent of other voce or not
+                voce = Voce.objects.get(pk=sample_obj['voce__pk'])
+                value_dict['is_parent'] = not voce.is_leaf_node()
 
-                if sample_obj['voce__children'] is None:
-                    value_dict['is_parent'] = False
-                else:
-                    value_dict['is_parent'] = True
 
             value_dict['andamento']=0
             # if the value considered is a total value then sets the appropriate flag
