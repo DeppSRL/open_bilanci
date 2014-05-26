@@ -1178,7 +1178,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
 
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
-
+        incarichi_set_1.extend(incarichi_set_2)
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
         parameter_type = kwargs['parameter_type']
@@ -1221,7 +1221,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":[incarichi_set_1, incarichi_set_2],
+                    "timeSpans":incarichi_set_1,
                     'data':data,
                     'legend':{'title':None,'items':legend}
                 }
