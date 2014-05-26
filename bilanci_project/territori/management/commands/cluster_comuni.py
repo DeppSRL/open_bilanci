@@ -79,16 +79,23 @@ class Command(BaseCommand):
         comuni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
 
         for comune in comuni:
-            cluster_value = None
-            for cluster_id,upper_treshold in cluster_map.items():
-                if comune.get_abitanti() <= upper_treshold:
-                    cluster_value = cluster_id
-                    break
+            cluster_comune = None
+            abitanti_comune = comune.get_abitanti()
 
-            if cluster_value is None:
-                cluster_value = '9'
+            if not abitanti_comune:
+                cluster_comune = '1'
 
-            comune.cluster = cluster_value
+            else:
+                # finds right cluster value for comune
+                for cluster_id,upper_treshold in cluster_map.items():
+                    if abitanti_comune <= upper_treshold:
+                        cluster_comune = cluster_id
+                        break
+
+            if cluster_comune is None:
+                cluster_comune = '9'
+
+            comune.cluster = cluster_comune
 
             if dryrun is False:
                 comune.save()

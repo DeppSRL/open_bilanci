@@ -131,9 +131,18 @@ class Territorio(models.Model):
     def get_abitanti(self, anno=settings.TERRITORI_CONTEXT_REFERENCE_YEAR):
         try:
             contesto = self.contesto_set.get(anno=anno)
-            return contesto.bil_popolazione_residente
+
         except ObjectDoesNotExist:
-            return None
+            # if context isn't available for territori_context_reference_year ->
+            # gets inhabitants n. from best year available
+            latest_contesto = self.latest_contesto()
+            if latest_contesto:
+                return latest_contesto.bil_popolazione_residente
+            else:
+                return None
+
+        else:
+            return contesto.bil_popolazione_residente
 
 
     def latest_contesto(self, anno = None):
