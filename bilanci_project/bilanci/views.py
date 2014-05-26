@@ -1892,12 +1892,6 @@ class ClassificheListView(ListView):
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
-        # regroups comparison values based on territorio
-        # regroup_territorio_keygen = lambda x: x['territorio__pk']
-        # comparison_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_set, key=regroup_territorio_keygen))
-
-
-
         for valoreObj in paginated_queryset:
             valore_template = None
             incarichi = []
