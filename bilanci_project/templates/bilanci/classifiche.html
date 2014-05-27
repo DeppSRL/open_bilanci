@@ -146,7 +146,6 @@
                                                         </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-{#                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>#}
                                                         <h4><a href="{% url 'bilanci-overview' slug=valore_obj.territorio.slug %}" >{{ valore_obj.territorio.denominazione }}</a></h4>
                                                         <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
@@ -161,10 +160,11 @@
 
                                                     <td class="col-sm-1 trend">
                                                         {% spaceless %}
-                                                            <span title="Variazione rispetto all'anno precedente"
-                                                            {% if valore_obj.position_variation == 0 %}
+
+                                                            <span title="Variazione rispetto all'anno precedente ({{ valore_obj.prev_position }}°)"
+                                                            {% if valore_obj.variazione == 0 %}
                                                                 class="icon sprite-trend"
-                                                                {% elif valore_obj.position_variation > 0 %}
+                                                                {% elif valore_obj.variazione > 0 %}
                                                                     class="icon sprite-trend-up-3"
                                                                     {% else  %}
                                                                         class="icon sprite-trend-down-3"

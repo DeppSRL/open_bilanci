@@ -3,6 +3,7 @@ from django.db import models
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 import re
+from bilanci.managers import ValoreBilancioManager, ValoreIndicatoreManager
 from territori.models import Territorio
 
 
@@ -84,6 +85,8 @@ class ValoreBilancio(models.Model):
     valore = models.BigIntegerField(default=0, null=True, blank=True)
     valore_procapite = models.FloatField(default=0., null=True, blank=True)
 
+    objects = ValoreBilancioManager()
+
     def __unicode__(self):
         return u"%s %s %s" % (self.voce.denominazione, self.anno, self.valore)
 
@@ -106,6 +109,8 @@ class ValoreIndicatore(models.Model):
     anno = models.PositiveIntegerField()
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     valore = models.FloatField(default=0.)
+
+    objects = ValoreIndicatoreManager()
 
     class Meta:
         verbose_name_plural = u'Valori indicatori'
