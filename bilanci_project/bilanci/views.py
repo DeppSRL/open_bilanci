@@ -1832,7 +1832,6 @@ class ClassificheListView(ListView):
         # initial territori_baseset is the complete list of comuni
         territori_baseset = Territorio.objects.comuni
 
-        _filter = False
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
             selected_regioni_names = list(
@@ -1841,7 +1840,7 @@ class ClassificheListView(ListView):
             territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
 
         if len(self.selected_cluster):
-            self.territori_baseset = self.territori_baseset.filter(cluster__in=self.selected_cluster)
+            territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
 
         territori_ids = list(territori_baseset.values_list('id', flat=True))
 
