@@ -8,12 +8,16 @@ import feedparser
 import zmq
 import requests
 from collections import OrderedDict
+
+from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
+from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
@@ -1798,11 +1802,9 @@ class ClassificheListView(ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-
         selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
-
 
         selected_cluster_get = self.request.GET.getlist('c')
         if len(selected_cluster_get):
@@ -1811,40 +1813,42 @@ class ClassificheListView(ListView):
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
     def get_queryset(self):
-
-        # construct the queryset based on the type of parameter (voce/indicatore) and
-        # the comparison set on which the variation will be computed
+        # read current and previous years' lit of Territorio ids, sorted by descending procapite
+        #in order to create the paginated Classifica page, with the delta on positions from previous year
+        self.curr_year = self.anno_int
+        self.prev_year = self.anno_int - 1
 
         if self.parameter_type == 'indicatori':
-            base_queryset = ValoreIndicatore.objects.filter(indicatore = self.parameter).order_by('-valore')
-
+            self.curr_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            self.prev_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.prev_year)
         else:
-            base_queryset = ValoreBilancio.objects.filter(voce = self.parameter).order_by('-valore_procapite')
-
+            self.curr_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            self.prev_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.prev_year)
 
         ##
         # Filters on regioni / cluster
         ##
 
         # initial territori_baseset is the complete list of comuni
-        self.territori_baseset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
+        territori_baseset = Territorio.objects.comuni
 
+        _filter = False
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
-            selected_regioni_names = list(Territorio.objects.\
-                filter(pk__in=self.selected_regioni, territorio=Territorio.TERRITORIO.R).values_list('denominazione',flat=True))
-
-            self.territori_baseset = self.territori_baseset.filter(regione__in=selected_regioni_names)
-
+            selected_regioni_names = list(
+                Territorio.objects.regioni.filter(pk__in=self.selected_regioni).values_list('denominazione',flat=True)
+            )
+            territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
 
         if len(self.selected_cluster):
             self.territori_baseset = self.territori_baseset.filter(cluster__in=self.selected_cluster)
 
+        territori_ids = list(territori_baseset.values_list('id', flat=True))
 
-        self.queryset =  base_queryset.\
-                        filter(anno = self.anno, territorio__in=self.territori_baseset).select_related('territorio')
+        self.curr_ids =  [id for id in self.curr_ids if id in territori_ids]
+        self.prev_ids =  [id for id in self.prev_ids if id in territori_ids]
 
-
+        self.queryset = self.curr_ids
         return self.queryset
 
     def get_context_data(self, **kwargs):
@@ -1852,87 +1856,73 @@ class ClassificheListView(ListView):
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
         page = int(self.request.GET.get('page',1))
-        ordinal_position = ((page - 1) * self.paginate_by) + 1
-        comparison_year = self.anno_int - 1
+        paginator_offset = ((page - 1) * self.paginate_by) + 1
+
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
-        all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).values_list('cluster',flat=True)
+        all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).values_list('cluster',flat=True)
 
         context = super(ClassificheListView, self).get_context_data( **kwargs)
 
         # creates context data based on the paginated queryset
         paginated_queryset = context['object_list']
-        queryset_territori = list(paginated_queryset.values_list('territorio',flat=True))
-
-
-        # create comparison set to calculate variation from last yr
-        if self.parameter_type == 'indicatori':
-
-            comparison_set = list(ValoreIndicatore.objects.\
-                                filter(territorio__in = self.territori_baseset, anno = comparison_year, indicatore = self.parameter).\
-                                order_by('-valore').select_related('territorio').\
-                                values('valore','territorio__pk','territorio__denominazione'))
-        else:
-
-            comparison_set = list(ValoreBilancio.objects.\
-                                filter(territorio__in = self.territori_baseset, anno = comparison_year, voce = self.parameter).\
-                                order_by('-valore_procapite').select_related('territorio').\
-                                values('valore_procapite','territorio__pk','territorio__denominazione'))
-
-        self.n_comuni = self.queryset.count()
 
         # regroups incarichi politici based on territorio
-
-        incarichi_set = Incarico.get_incarichi_attivi_set(queryset_territori, self.anno).select_related('territorio')
+        incarichi_set = Incarico.get_incarichi_attivi_set(paginated_queryset, self.curr_year).select_related('territorio')
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
-        for valoreObj in paginated_queryset:
-            valore_template = None
+        # re-hydrate only objects in page
+        filters = {
+            'anno': self.curr_year,
+            "territorio__id__in": paginated_queryset,
+        }
+        if self.parameter_type == 'indicatori':
+            filters['indicatore__id'] = self.parameter.id
+            objects = list(ValoreIndicatore.objects.filter(**filters).select_related())
+        else:
+            filters['voce__id'] = self.parameter.id
+            objects = list(ValoreBilancio.objects.filter(**filters).select_related())
+        objects_dict = dict((obj.territorio_id, obj) for obj in objects)
+
+        # build context for objects in page, there are no db-access at this point
+        for ordinal_position, territorio_id in enumerate(paginated_queryset, start=paginator_offset):
             incarichi = []
-            position_variation = 0
+            variazione = 0
+
+            obj = objects_dict[territorio_id]
 
             if self.parameter_type =='indicatori':
-                valore_template = valoreObj.valore
+                valore = obj.valore
+                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
 
             else:
-                valore_template = valoreObj.valore_procapite
+                valore = obj.valore_procapite
+                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
 
-            # gets the territorio position in the comparison set,
-            # this list is 0-based so 1 unit is added to match ordinal position that is 1-based
-            # if the comparison value for a territorio is not available then the variation is set to 0
-            try:
-                comparison_position = next(index for (index, d) in enumerate(comparison_set) if d["territorio__pk"] == valoreObj.territorio.pk)+1
-            except StopIteration:
-                position_variation = 0
-            else:
-                position_variation = comparison_position-ordinal_position
-
-
-            if valoreObj.territorio.pk in incarichi_regroup.keys():
-                incarichi = incarichi_regroup[valoreObj.territorio.pk]
+            if territorio_id in incarichi_regroup.keys():
+                incarichi = incarichi_regroup[territorio_id]
 
             territorio_dict = {
                 'territorio':{
-                    'denominazione': valoreObj.territorio.denominazione,
-                    'slug': valoreObj.territorio.slug,
-                    'prov': valoreObj.territorio.prov,
-                    'regione': valoreObj.territorio.regione,
-                    'pk': valoreObj.territorio.pk,
+                    'denominazione': obj.territorio.denominazione,
+                    'slug': obj.territorio.slug,
+                    'prov': obj.territorio.prov,
+                    'regione': obj.territorio.regione,
+                    'pk': obj.territorio.pk,
                     },
-                'valore': valore_template,
+                'valore': valore,
                 'incarichi_attivi': incarichi,
+                'variazione': self.prev_ids.index(territorio_id) - self.curr_ids.index(territorio_id),
                 'position': ordinal_position,
-                'position_variation': position_variation
+                'prev_position': self.prev_ids.index(territorio_id) + 1,
                 }
-
-            ordinal_position+=1
 
             object_list.append( territorio_dict )
 
 
         # updates obj list
         context['object_list'] = object_list
-        context['n_comuni'] = self.n_comuni
+        context['n_comuni'] = len(self.queryset)
 
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
@@ -1960,12 +1950,11 @@ class ClassificheListView(ListView):
         regioni_list.extend([str(r) for r in self.selected_regioni])
         cluster_list=['',]
         cluster_list.extend(self.selected_cluster)
+
         # gets current page url
         long_url = self.request.build_absolute_uri(
             reverse('classifiche-list', kwargs={'anno':self.anno,'parameter_type':self.parameter_type, 'parameter_slug':self.parameter.slug})
             )+'?' + "&r=".join(regioni_list)+"&c=".join(cluster_list)+'&page='+str(context['page_obj'].number)
-
-
         # checks if short url is already in the db, otherwise asks to google to shorten the url
 
         short_url_obj=None
@@ -1976,13 +1965,17 @@ class ClassificheListView(ListView):
 
             payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
             headers = { 'content-type': 'application/json' }
-            short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
-            if short_url_req.status_code == requests.codes.ok:
-                short_url = short_url_req.json().get('id')
-                short_url_obj = ShortUrl()
-                short_url_obj.short_url = short_url
-                short_url_obj.long_url = long_url
-                short_url_obj.save()
+            try:
+                short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+                if short_url_req.status_code == requests.codes.ok:
+                    short_url = short_url_req.json().get('id')
+                    short_url_obj = ShortUrl()
+                    short_url_obj.short_url = short_url
+                    short_url_obj.long_url = long_url
+                    short_url_obj.save()
+            except (ConnectionError, Timeout, SSLError, ProxyError):
+                pass
+
 
         if short_url_obj:
             context['share_url'] = short_url_obj.short_url
