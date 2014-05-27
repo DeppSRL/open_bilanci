@@ -34,17 +34,6 @@
         });
 
 
-        if(location.hash == '#composizione' || location.hash == ""){
-            //open composizione
-            $('#partial-tabs a[href="#composizione"]').tab('show');
-        }
-        else{
-            //open dettaglio
-             $('#partial-tabs a[href="#dettaglio"]').tab('show');
-            // enable nested accordion
-            setupNestedAccordion(location.hash);
-        }
-
     });
 }(jQuery);
 
