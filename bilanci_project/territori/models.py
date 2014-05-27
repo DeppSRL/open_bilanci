@@ -11,19 +11,23 @@ class TerritoriManager(models.GeoManager):
     def nazione(self):
         return Territorio.objects.get(territorio= Territorio.TERRITORIO.N )
 
+    @property
     def regioni(self, with_nation=False):
         codes = [ Territorio.TERRITORIO.R ]
         if with_nation:
             codes.append( Territorio.TERRITORIO.N )
             codes.append( Territorio.TERRITORIO.E )
-        return self.get_query_set().filter(territorio__in= codes )
+        return self.get_query_set().filter(territorio__in=codes)
 
+    @property
     def provincie(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.P )
 
+    @property
     def province(self):
         return self.provincie()
 
+    @property
     def comuni(self):
         return self.get_query_set().filter(territorio= Territorio.TERRITORIO.C )
 
@@ -309,8 +313,8 @@ class Incarico(models.Model):
 
     territorio = models.ForeignKey(Territorio, null=False, default=0)
 
-    data_inizio = models.DateField(null=False,)
-    data_fine = models.DateField(null=True, default=0)
+    data_inizio = models.DateField(null=False, db_index=True)
+    data_fine = models.DateField(null=True, default=0, db_index=True)
     tipologia = models.CharField(max_length=1, choices=TIPOLOGIA, db_index=True)
     nome = models.CharField(max_length=50, blank=True, null=True)
     cognome = models.CharField(max_length=80, blank=True, null=True)
