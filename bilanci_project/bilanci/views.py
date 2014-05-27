@@ -1856,7 +1856,6 @@ class ClassificheListView(ListView):
         # initial territori_baseset is the complete list of comuni
         territori_baseset = Territorio.objects.comuni
 
-        _filter = False
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
             selected_regioni_names = list(
@@ -1865,7 +1864,7 @@ class ClassificheListView(ListView):
             territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
 
         if len(self.selected_cluster):
-            self.territori_baseset = self.territori_baseset.filter(cluster__in=self.selected_cluster)
+            territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
 
         territori_ids = list(territori_baseset.values_list('id', flat=True))
 
@@ -1911,7 +1910,6 @@ class ClassificheListView(ListView):
         # build context for objects in page, there are no db-access at this point
         for ordinal_position, territorio_id in enumerate(paginated_queryset, start=paginator_offset):
             incarichi = []
-            variazione = 0
 
             obj = objects_dict[territorio_id]
 
@@ -1935,11 +1933,17 @@ class ClassificheListView(ListView):
                     'pk': obj.territorio.pk,
                     },
                 'valore': valore,
+                'variazione': 0,
                 'incarichi_attivi': incarichi,
-                'variazione': self.prev_ids.index(territorio_id) - self.curr_ids.index(territorio_id),
                 'position': ordinal_position,
-                'prev_position': self.prev_ids.index(territorio_id) + 1,
-                }
+                'prev_position': ordinal_position,
+            }
+
+            # adjust prev position and variation if values are found
+            if territorio_id in self.prev_ids:
+                territorio_dict['variazione'] = self.prev_ids.index(territorio_id) - self.curr_ids.index(territorio_id)
+                territorio_dict['prev_position'] = self.prev_ids.index(territorio_id) + 1
+
 
             object_list.append( territorio_dict )
 
