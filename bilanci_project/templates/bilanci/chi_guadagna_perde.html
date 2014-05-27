@@ -11,42 +11,50 @@
         {% else %}
 
             {% for voce in voce_set %}
+                {% if voce != None %}
+                    <tr>
+                        <td class="col-sm-7 ">
+                            <h5>
+        {#                            <a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">#}
+                                    {{ voce.denominazione|upper }}
+        {#                            </a>#}
+                            </h5>
+                        </td>
+                        <td class="col-sm-1 trend">
 
-                <tr>
-                    <td class="col-sm-7 ">
-                        <h5>
-    {#                            <a title="" data-toggle="tooltip" href="#" data-original-title="vai alla pagina di dettaglio della voce">#}
-                                {{ voce.denominazione|upper }}
-    {#                            </a>#}
-                        </h5>
-                    </td>
-                    <td class="col-sm-1 trend">
+                            {% if voce.variation > 0 %}
+                                <span class="icon sprite-trend-up-3"></span>
+                            {% else %}
+                                <span class="icon sprite-trend-down-3"></span>
+                            {% endif %}
 
-                        {% if type == "guadagna" %}
-                            <span class="icon sprite-trend-up-3"></span>
-                        {% else %}
-                            <span class="icon sprite-trend-down-3"></span>
-                        {% endif %}
+                        </td>
+                        <td class="col-sm-4 pos">
+                            {% if voce.variation > 0 %}
+                                <span class="h3">+{{ voce.variation }}%</span>
+                            {% else %}
+                                <span class="h3">{{ voce.variation }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
 
-                    </td>
-                    <td class="col-sm-4 pos">
-                        {% if type == "guadagna" %}
-                            <span class="h3">+{{ voce.variation }}%</span>
-                        {% else %}
-                            <span class="h3">{{ voce.variation }}%</span>
-                        {% endif %}
-                    </td>
-                </tr>
+                {% else %}
+
+                    <tr style="background-color: #d3d3d3;">
+                        <td class="col-sm-8" colspan="2">
+                            <h5>NON CI SONO ALTRE VOCI IN CLASSIFICA</h5>
+                        </td>
+                        <td class="col-sm-1 trend">
+                            <span class="icon sprite-trend" style="visibility: hidden;"></span>
+                        </td>
+
+                    </tr>
+
+                {% endif %}
 
             {% endfor %}
         {% endif %}
-        {% if voce_set|length  == 1  %}
-            <tr style="background-color: #d3d3d3;">
-                <td class="col-sm-12 " colspan="3">
-                    <h5>NON CI SONO ALTRE VOCI IN CLASSIFICA</h5>
-                </td>
-            </tr>
-        {% endif %}
+
     </tbody>
 </table>
 

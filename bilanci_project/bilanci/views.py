@@ -1,4 +1,4 @@
-from itertools import groupby, ifilter
+from itertools import groupby, ifilter, repeat
 from operator import itemgetter
 import os
 import re
@@ -1358,24 +1358,52 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return values_regroup
 
-    def get_chi_guardagna_perde(self, value_set, guadagna=False):
+    def get_chi_guardagna_perde(self, value_set, ):
         results=[]
-        if guadagna:
-            value_set = value_set[::-1]
+        values_not_null=[]
+        n_total_elements = 4
+        n_half_elements = n_total_elements/2
+        n_negs=0
+        n_pos=0
+        negs_to_add=2
+        pos_to_add=2
 
-        for element in value_set:
+        for value in value_set:
+            if value['variation'] is not None:
+                if value['variation'] < 0:
+                    n_negs+=1
+                elif value['variation'] > 0:
+                    n_pos +=1
 
-            if element['variation'] is None:
-                continue
-            if guadagna:
-                if element['variation']>0:
-                    results.append(element)
+                values_not_null.append(value)
+
+
+        # sets how many pos or neg values are needed to have a grand total
+        # of 4 elements in the result list
+        if n_negs < 2 or n_pos < 2:
+
+            if n_negs < n_half_elements and n_pos < n_half_elements:
+                pos_to_add = n_pos
+                negs_to_add = n_negs
+
             else:
-                if element['variation']<0:
-                    results.append(element)
+                if n_negs < n_half_elements:
+                    negs_to_add = n_negs
+                    pos_to_add = n_total_elements-n_negs
+                else:
+                    pos_to_add = n_pos
+                    negs_to_add = n_total_elements-n_pos
 
-            if len(results) == 2:
-                return results
+        pos_values = values_not_null[-pos_to_add:]
+        neg_values = values_not_null[:negs_to_add]
+
+        results.extend(pos_values[::-1])
+        results.extend(neg_values[::-1])
+
+        # if results < n_total elements, fills in with none values
+        if len(results) < n_total_elements:
+            diff = n_total_elements-len(results)
+            results.extend(repeat(None,diff))
 
         return results
 
@@ -1535,9 +1563,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
-
-        context['entrate_chiperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
-        context['entrate_chiguadagna'] = self.get_chi_guardagna_perde(variations_e_sorted,guadagna=True)
+        context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
 
         # spese data
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
@@ -1546,9 +1572,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
-
-        context['spese_chiperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
-        context['spese_chiguadagna'] = self.get_chi_guardagna_perde(variations_s_sorted, guadagna=True)
+        context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year
