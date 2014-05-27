@@ -160,15 +160,15 @@
 
                                                     <td class="col-sm-1 trend">
                                                         {% spaceless %}
-                                                            <span title="Variazione rispetto all'anno precedente ({{ valore_obj.prev_position }}°)"
+                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
                                                             {% if valore_obj.variazione == 0 %}
                                                                 class="icon sprite-trend"
-                                                                {% elif valore_obj.position_variation > 0 %}
-                                                                    class="icon sprite-trend-up-3"
-                                                                    {% else  %}
-                                                                        class="icon sprite-trend-down-3"
+                                                            {% elif valore_obj.variazione > 0 %}
+                                                                class="icon sprite-trend-up-3"
+                                                            {% else  %}
+                                                                class="icon sprite-trend-down-3"
                                                             {% endif %}
-                                                                    >
+                                                            >
                                                             </span>
                                                         {% endspaceless %}
 
