@@ -1383,6 +1383,10 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if n_negs < 2 or n_pos < 2:
 
             if n_negs < n_half_elements and n_pos < n_half_elements:
+
+                if n_negs == 0 and n_pos == 0:
+                    return results
+                
                 pos_to_add = n_pos
                 negs_to_add = n_negs
 
