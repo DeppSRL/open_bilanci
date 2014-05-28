@@ -17,9 +17,3 @@ function toggle_checkboxes(source) {
   }
 }
 
-function goToByScroll(classname){
-      // Scroll
-    $('html,body').animate({
-        scrollTop: $("."+classname).offset().top},
-        'slow');
-}

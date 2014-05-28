@@ -156,9 +156,9 @@
                                                                 {% if selected_par_type == 'indicatori' %}
                                                                     href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
                                                                 {% elif selected_par_type == 'entrate' %}
-                                                                    href="{% url 'bilanci-entrate' slug=valore_obj.territorio.slug %}#{{ selected_parameter.slug }}"
+                                                                    href="{% url 'bilanci-entrate' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
                                                                 {% else %}
-                                                                    href="{% url 'bilanci-spese' slug=valore_obj.territorio.slug %}#{{ selected_parameter.slug }}"
+                                                                    href="{% url 'bilanci-spese' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
                                                                 {% endif %}
                                                                     >
                                                                 {{ valore_obj.territorio.denominazione }}
@@ -301,7 +301,7 @@
             init_parameter_menu('classifiche');
 
             if ($('.highlight_territorio').length == 1){
-                goToByScroll('highlight_territorio');
+                goToClassByScroll('highlight_territorio');
             }
 
 

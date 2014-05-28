@@ -141,7 +141,12 @@
             // initialize main_linechart
             show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
             // enable nested accordion
-            setupNestedAccordion(location.hash);
+            setupNestedAccordion();
+            var lhash = location.hash
+            var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
+            
+            autoOpenNestedAccordion(startElement);
+            goToIdByScroll(startElement.replace("#","#heading-"));
         }
 
     });
