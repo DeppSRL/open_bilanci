@@ -1789,6 +1789,11 @@ class ClassificheSearchView(RedirectView):
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
 
     def get(self, request, *args, **kwargs):
+        ##
+        # catches the user search for a territorio,
+        # redirects to the correct classifiche list page highlighting the chosen territorio
+        ##
+
         territorio_found = True
         selected_cluster = request.GET.get('selected_cluster').split(',')
         selected_regioni = request.GET.get('selected_regioni').split(',')
@@ -1808,7 +1813,7 @@ class ClassificheSearchView(RedirectView):
             parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
 
         try:
-            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)+1
+            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)
             territorio_page = (territorio_idx / self.paginate_by)+1
         except ValueError:
             territorio_page = 1
@@ -2005,15 +2010,13 @@ class ClassificheListView(ListView):
 
         self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
         self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
-        self.selected_cluster = [str(k) for k in self.selected_cluster]
-        self.selected_regioni = [str(k) for k in self.selected_regioni]
 
         context['selected_regioni'] = self.selected_regioni
         context['selected_cluster'] = self.selected_cluster
 
         # string version of form flags needed for classifiche search
-        context['selected_regioni_str'] = ','.join(self.selected_regioni)
-        context['selected_cluster_str'] = ','.join(self.selected_cluster)
+        context['selected_regioni_str'] = ','.join([str(k) for k in self.selected_regioni])
+        context['selected_cluster_str'] = ','.join([str(k) for k in self.selected_cluster])
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
