@@ -16,3 +16,10 @@ function toggle_checkboxes(source) {
     cluster[i].checked = source.checked;
   }
 }
+
+function goToByScroll(classname){
+      // Scroll
+    $('html,body').animate({
+        scrollTop: $("."+classname).offset().top},
+        'slow');
+}

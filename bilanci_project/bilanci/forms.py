@@ -1,5 +1,5 @@
 from django import forms
-from territori.fields import TerritoriChoices, TerritoriClusterChoices
+from territori.fields import TerritoriChoices, TerritoriClusterChoices, TerritoriChoicesClassifiche
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -18,6 +18,25 @@ class TerritoriSearchFormHome(forms.Form):
             }
         )
     )
+
+class TerritoriSearchFormClassifiche(forms.Form):
+
+    territorio_id = TerritoriChoicesClassifiche(
+        to_field_name = 'pk',
+        required=True,
+        label='',
+        widget=TerritoriChoicesClassifiche.widget(
+            select2_options={
+                'width': '100%',
+                'placeholder': _(u"CERCA UN COMUNE"),
+            }
+        )
+    )
+    selected_year = forms.MultiValueField(widget=forms.HiddenInput())
+    selected_par_type = forms.MultiValueField(widget=forms.HiddenInput())
+    selected_parameter = forms.MultiValueField(widget=forms.HiddenInput())
+    selected_regioni = forms.MultiValueField(widget=forms.HiddenInput())
+    selected_cluster = forms.MultiValueField(widget=forms.HiddenInput())
 
 
 class TerritoriSearchForm(forms.Form):

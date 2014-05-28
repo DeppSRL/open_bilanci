@@ -8,7 +8,7 @@ from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
     BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
     HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
-    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, HomeTemporaryView, BilancioNotFoundView, HomeReleaseView
+    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, HomeTemporaryView, BilancioNotFoundView, ClassificheSearchView
 
 admin.autodiscover()
 
@@ -37,6 +37,7 @@ urlpatterns = patterns('',
     # classifiche
     url(r'^classifiche/$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),
     url(r'^classifiche/(?P<parameter_type>[-\w]+)/(?P<parameter_slug>[-\w]+)/(?P<anno>[-\d]{4})$', ClassificheListView.as_view(), name='classifiche-list'),
+    url(r'^classifiche/search', ClassificheSearchView.as_view(), name='classifiche-search'),
 
     # confronti
     url(r'^confronti/$', ConfrontiHomeView.as_view(), name='confronti-home'),

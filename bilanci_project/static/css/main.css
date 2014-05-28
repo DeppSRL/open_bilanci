@@ -2777,3 +2777,11 @@ a[rel=info-popover]:visited {
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+table > tbody > tr.highlight_territorio > td,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td {
+  background-color: #ffff00;
+}
+table > tbody > tr.highlight_territorio:hover > td,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td {
+  background-color: #c9c900;
+}
