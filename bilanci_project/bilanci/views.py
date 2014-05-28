@@ -2032,7 +2032,6 @@ class ClassificheListView(ListView):
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
         context['territori_search_form_classifiche'] = TerritoriSearchFormClassifiche()
-        # context['query_string'] = self.request.META['QUERY_STRING']
         context['query_string'] = "r="+"&r=".join(selected_regioni_str)+"&c="+"&c=".join(selected_cluster_str)
 
         # if there is a territorio to highlight passes the data to context
