@@ -11,21 +11,30 @@
 
 {% recursetree bilancio_tree %}
     {% if node.denominazione != "Spese per investimenti" and node.denominazione != "_spese_somma_funzioni" and not "interventi" in node.slug.lower %}
-    {% if node == bilancio_rootnode or node.denominazione.lower == "funzioni" %}
-        {{ children }}
-    {% else %}
+        {% if node == bilancio_rootnode or node.denominazione.lower == "funzioni" %}
+            {{ children }}
+        {% else %}
 
-    <div class="panel">
-        <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
+        <div class="panel">
+            <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
 
-            <div class="row">
-                <div class="col-sm-4 entry">
-                    {% if node.indent_level > 0 %}
-                    {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
-                    {% endif %}
-                    {% if not node.is_leaf_node %}
-                    <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
-                        <i class="fa fa-fw fa-plus-circle"></i>
+                <div class="row">
+                    <div class="col-sm-4 entry">
+                        {% if node.indent_level > 0 %}
+                        {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
+                        {% endif %}
+                        {% if not node.is_leaf_node %}
+                        <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
+                            <i class="fa fa-fw fa-plus-circle"></i>
+                            <span style="text-transform: uppercase">
+                                {% if node.denominazione == "Spese correnti" %}
+                                    Funzioni
+                                {% else %}
+                                    {{ node.denominazione|lower|capfirst }}
+                                {% endif %}
+                            </span>
+                        </a>
+                        {% else %}
                         <span style="text-transform: uppercase">
                             {% if node.denominazione == "Spese correnti" %}
                                 Funzioni
@@ -33,77 +42,68 @@
                                 {{ node.denominazione|lower|capfirst }}
                             {% endif %}
                         </span>
-                    </a>
-                    {% else %}
-                    <span style="text-transform: uppercase">
-                        {% if node.denominazione == "Spese correnti" %}
-                            Funzioni
-                        {% else %}
-                            {{ node.denominazione|lower|capfirst }}
                         {% endif %}
-                    </span>
-                    {% endif %}
-                    {% popover_info node.slug %}
+                        {% popover_info node.slug %}
 
+                    </div>
+
+                    <div class="col-sm-3 actions">
+                        {% voice_values node.slug budget_values %}
+                    </div>
+
+                    <div class="col-sm-3 chart-wrapper">
+                        {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
+                            {% voice_composition node.slug budget_values %}
+                        {% endif %}
+                    </div>
+
+                    <div class="col-sm-2">
+                       <a href="#{{ node.slug }}" class="pull-right btn btn-default trend-chart-toggle{% if not node.is_leaf_node %} hidden{% endif %}" data-toggle="collapse"
+                          id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
+                           <i class="fa fa-fw fa-signal"></i> Grafico <i class="fa fa-caret-down"></i>
+                           <!--<img class="secondary-graph-toggle" src="{% static 'img/secondary_graph_off.png' %}" />-->
+                       </a>
+                    </div>
                 </div>
 
-                <div class="col-sm-3 actions">
-                    {% voice_values node.slug budget_values %}
-                </div>
-
-                <div class="col-sm-3 chart-wrapper">
-                    {% if node.denominazione != "Prestiti" and node.denominazione != "Spese per conto terzi" %}
-                        {% voice_composition node.slug budget_values %}
-                    {% endif %}
-                </div>
-
-                <div class="col-sm-2">
-                   <a href="#{{ node.slug }}" class="pull-right btn btn-default trend-chart-toggle{% if not node.is_leaf_node %} hidden{% endif %}" data-toggle="collapse"
-                      id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
-                       <i class="fa fa-fw fa-signal"></i> Grafico <i class="fa fa-caret-down"></i>
-                       <!--<img class="secondary-graph-toggle" src="{% static 'img/secondary_graph_off.png' %}" />-->
-                   </a>
-                </div>
-            </div>
-
-            <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
-                <div class="row details">
-                    <div class="col-md-12">
-                        {#  secondary graph title #}
-                        <div class="row">
-                            <div class="col-md-8 section_title" style="">
-                                {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
-                            </div>
-                            <div class="col-md-4 section_title" style="">
-                                {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+                <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
+                    <div class="row details">
+                        <div class="col-md-12">
+                            {#  secondary graph title #}
+                            <div class="row">
+                                <div class="col-md-8 section_title" style="">
+                                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                                </div>
+                                <div class="col-md-4 section_title" style="">
+                                    {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        {#  secondary graph  #}
+                        <div class="col-md-12 graph-box"></div>
+                    </div>
                 </div>
-                <div class="row">
-                    {#  secondary graph  #}
-                    <div class="col-md-12 graph-box"></div>
-                </div>
+
             </div>
 
-        </div>
 
+            {% if not node.is_leaf_node %}
+            <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
+                <div class="panel-body">
 
-        {% if not node.is_leaf_node %}
-        <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
-            <div class="panel-body">
+                    <!-- Sub panel level -->
+                    <div class="panel-group" id="tree-{{ node.slug }}">
+                        {{ children }}
+                    </div>
+                    <!-- Sub panel level -->
 
-                <!-- Sub panel level -->
-                <div class="panel-group" id="tree-{{ node.slug }}">
-                    {{ children }}
                 </div>
-                <!-- Sub panel level -->
-
             </div>
+            {% endif %}
         </div>
         {% endif %}
-    </div>
-    {% endif %}
     {% endif %}
     {% endrecursetree %}
 </div>
