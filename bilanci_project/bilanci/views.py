@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
 from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
@@ -73,16 +73,6 @@ class HomeView(TemplateView):
             op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
             cache.set('blog-posts', op_blog_posts)
         context['op_blog_posts'] = op_blog_posts
-        return context
-
-
-class HomeReleaseView(ShareUrlMixin, TemplateView):
-    template_name = "home_release.html"
-    share_url = None
-
-    def get_context_data(self, **kwargs):
-        context = super(HomeReleaseView, self).get_context_data(**kwargs)
-        context['share_url']=self.share_url
         return context
 
 
@@ -1386,7 +1376,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
                 if n_negs == 0 and n_pos == 0:
                     return results
-                
+
                 pos_to_add = n_pos
                 negs_to_add = n_negs
 
@@ -1781,7 +1771,7 @@ class ClassificheRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
-        # redirects to appropriate confronti view based on default parameter for Territori
+        # redirects to Classifiche starting page when coming from navbar
         kwargs['parameter_type'] = 'entrate'
         kwargs['parameter_slug'] = settings.DEFAULT_VOCE_SLUG_CLASSIFICHE
         kwargs['anno'] = settings.CLASSIFICHE_END_YEAR
@@ -1793,12 +1783,66 @@ class ClassificheRedirectView(RedirectView):
         else:
             return url
 
+
+class ClassificheSearchView(RedirectView):
+
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
+
+    def get(self, request, *args, **kwargs):
+        territorio_found = True
+        selected_cluster = request.GET.get('selected_cluster').split(',')
+        selected_regioni = request.GET.get('selected_regioni').split(',')
+        selected_par_type = request.GET.get('selected_par_type')
+        selected_parameter_id = request.GET.get('selected_parameter_id')
+        territorio_id = int(request.GET.get('territorio_id'))
+        selected_year = request.GET.get('selected_year')
+
+        selected_regioni_names = Territorio.objects.filter(pk__in=selected_regioni).values_list('denominazione',flat=True)
+        territori_baseset = list(Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list('pk',flat=True))
+
+        if selected_par_type == 'indicatori':
+            all_ids = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+        else:
+            all_ids = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+
+        try:
+            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)+1
+            territorio_page = (territorio_idx / self.paginate_by)+1
+        except ValueError:
+            territorio_page = 1
+            territorio_found = False
+
+        kwargs['parameter_type'] = selected_par_type
+        kwargs['parameter_slug'] = parameter_slug
+        kwargs['anno'] = selected_year
+
+        try:
+            url = reverse('classifiche-list', args=args , kwargs=kwargs)+\
+                  '?' +"r="+"&r=".join(selected_regioni)+"&c="+"&c=".join(selected_cluster)+'&page='+str(territorio_page)
+
+            if territorio_found:
+                url +='&hl='+str(territorio_id)
+        except NoReverseMatch:
+            url = reverse('404')
+
+
+
+        return HttpResponseRedirect(url)
+
+    def get_redirect_url(self, *args, **kwargs):
+        if True:
+            pass
+        pass
+
+
+
 class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 15
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
     n_comuni = None
-    territori_baseset = None
     parameter_type = None
     parameter = None
     anno = None
@@ -1883,6 +1927,7 @@ class ClassificheListView(ListView):
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
         page = int(self.request.GET.get('page',1))
+
         paginator_offset = ((page - 1) * self.paginate_by) + 1
 
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
@@ -1919,11 +1964,9 @@ class ClassificheListView(ListView):
 
             if self.parameter_type =='indicatori':
                 valore = obj.valore
-                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
 
             else:
                 valore = obj.valore_procapite
-                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
 
             if territorio_id in incarichi_regroup.keys():
                 incarichi = incarichi_regroup[territorio_id]
@@ -1959,8 +2002,18 @@ class ClassificheListView(ListView):
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
-        context['selected_regioni'] = self.selected_regioni if len(self.selected_regioni)>0 else all_regions
-        context['selected_cluster'] = self.selected_cluster if len(self.selected_cluster)>0 else all_clusters
+
+        self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
+        self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
+        self.selected_cluster = [str(k) for k in self.selected_cluster]
+        self.selected_regioni = [str(k) for k in self.selected_regioni]
+
+        context['selected_regioni'] = self.selected_regioni
+        context['selected_cluster'] = self.selected_cluster
+
+        # string version of form flags needed for classifiche search
+        context['selected_regioni_str'] = ','.join(self.selected_regioni)
+        context['selected_cluster_str'] = ','.join(self.selected_cluster)
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
@@ -1973,9 +2026,15 @@ class ClassificheListView(ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
-
+        context['territori_search_form_classifiche'] = TerritoriSearchFormClassifiche()
         context['query_string'] = self.request.META['QUERY_STRING']
 
+        # if there is a territorio to highlight passes the data to context
+        context['highlight_territorio'] = None
+        territorio_highlight = self.request.GET.get('hl',None)
+
+        if territorio_highlight is not None:
+            context['highlight_territorio'] = int(territorio_highlight)
 
         # creates url for share button
         regioni_list=['',]

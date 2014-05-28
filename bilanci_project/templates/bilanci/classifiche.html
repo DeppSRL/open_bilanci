@@ -69,7 +69,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="pull-left">
-                                            {{ selected_parameter.denominazione|upper }}
+                                                {{ selected_parameter.denominazione|upper }}
                                         </h4>
                                     </div>
                                 </div>
@@ -82,18 +82,21 @@
                                         </div>
                                     </div>
                                 {% endif %}
-
-                                {% comment %}
-                                <form role="search" class="form-inline pull-left">
-                                    <div class="form-group search">
-                                        <label class="sr-only" for="city1">Cerca un comune</label>
-                                        <input type="text" class="form-control" id="city1" placeholder="CERCA UN COMUNE">
-                                        <span class="icon sprite-search-alt"></span>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form role="" class="autosubmit" action="{% url 'classifiche-search' %}" method="get">
+                                            <div class="">
+                                             {{ territori_search_form_classifiche.territorio_id}}
+                                            </div>
+                                            <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
+                                            <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />
+                                            <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ selected_parameter.pk|safe }}" />
+                                            <input id="id_selected_regioni" name="selected_regioni" type="hidden" value="{{ selected_regioni_str|safe }}" />
+                                            <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
+                                        </form>
                                     </div>
+                                </div>
 
-                                    <button type="submit" class="btn btn-default">Submit</button>
-                                </form>
-                                {% endcomment %}
                             </div>
                             <div class="panel-body">
                                 {% if n_comuni > 0 %}
@@ -135,7 +138,9 @@
                                     <tbody>
                                         {% if object_list %}
                                             {% for valore_obj in object_list %}
-                                                <tr>
+                                                <tr
+                                                    {% if valore_obj.territorio.pk == highlight_territorio %} class="highlight_territorio"{% endif %}
+                                                >
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
