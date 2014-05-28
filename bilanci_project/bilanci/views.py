@@ -164,16 +164,19 @@ class IncarichiGetterMixin(object):
             }
 
             # truncates date start to timeline start
-            timeline_start = settings.TIMELINE_START_DATE.date()
+            timeline_start_date = settings.TIMELINE_START_DATE.date()
+            timeline_end_date = settings.TIMELINE_END_DATE.date()
 
-            if incarico.data_inizio < timeline_start:
-                dict_widget['start'] = timeline_start.strftime(self.date_fmt)
+            if incarico.data_inizio < timeline_start_date:
+                dict_widget['start'] = timeline_start_date.strftime(self.date_fmt)
             else:
                 dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
 
 
             if incarico.data_fine:
                 dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
+            else:
+                dict_widget['end'] = timeline_end_date.strftime(self.date_fmt)
 
             if incarico.pic_url:
                 dict_widget['icon'] = incarico.pic_url
