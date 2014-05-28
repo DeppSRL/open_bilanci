@@ -101,6 +101,8 @@
 
                 </div>
             </div>
+                {% else %}
+                <div id="{{ node.slug|slugify }}"></div>
             {% endif %}
         </div>
         {% endif %}
