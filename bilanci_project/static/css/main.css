@@ -2799,7 +2799,7 @@ table > tbody > tr.highlight_territorio > td .sprite-trend-up-3,
 }
 .table.table-striped > tbody > tr.highlight_territorio:hover > td,
 #results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td {
-  background-color: #4c5864;
+  background-color: #4c5864!important;
 }
 .table.table-striped > tbody > tr.highlight_territorio:hover > td span.h2,
 #results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td span.h2,
