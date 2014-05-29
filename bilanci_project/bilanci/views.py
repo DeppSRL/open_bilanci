@@ -1,4 +1,4 @@
-from itertools import groupby, ifilter
+from itertools import groupby, ifilter, repeat
 from operator import itemgetter
 import os
 import re
@@ -8,12 +8,16 @@ import feedparser
 import zmq
 import requests
 from collections import OrderedDict
+
+from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
+from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
@@ -69,16 +73,6 @@ class HomeView(TemplateView):
             op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
             cache.set('blog-posts', op_blog_posts)
         context['op_blog_posts'] = op_blog_posts
-        return context
-
-
-class HomeReleaseView(ShareUrlMixin, TemplateView):
-    template_name = "home_release.html"
-    share_url = None
-
-    def get_context_data(self, **kwargs):
-        context = super(HomeReleaseView, self).get_context_data(**kwargs)
-        context['share_url']=self.share_url
         return context
 
 
@@ -170,16 +164,19 @@ class IncarichiGetterMixin(object):
             }
 
             # truncates date start to timeline start
-            timeline_start = settings.TIMELINE_START_DATE.date()
+            timeline_start_date = settings.TIMELINE_START_DATE.date()
+            timeline_end_date = settings.TIMELINE_END_DATE.date()
 
-            if incarico.data_inizio < timeline_start:
-                dict_widget['start'] = timeline_start.strftime(self.date_fmt)
+            if incarico.data_inizio < timeline_start_date:
+                dict_widget['start'] = timeline_start_date.strftime(self.date_fmt)
             else:
                 dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
 
 
             if incarico.data_fine:
                 dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
+            else:
+                dict_widget['end'] = timeline_end_date.strftime(self.date_fmt)
 
             if incarico.pic_url:
                 dict_widget['icon'] = incarico.pic_url
@@ -454,7 +451,7 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":[incarichi_set],
+                    "timeSpans":incarichi_set,
                     'data':indicatori_set,
                     'legend':{'title':None, 'items':legend_set}
                 }
@@ -772,7 +769,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
 
 
-    def compose_partial_data(self, main_values_regroup, variations, totale_level, bugfix=False):
+    def compose_partial_data(self, main_values_regroup, variations, totale_level,):
         composition_data = []
 
         ##
@@ -810,6 +807,11 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                     value_dict['layer2'] = sample_obj['voce__parent__pk']
                     value_dict['layer3'] = sample_obj['voce__pk']
 
+                #     sets the value to mark the circle as a parent of other voce or not
+                voce = Voce.objects.get(pk=sample_obj['voce__pk'])
+                value_dict['is_parent'] = not voce.is_leaf_node()
+
+
             value_dict['andamento']=0
             # if the value considered is a total value then sets the appropriate flag
             if main_value_denominazione == self.totale_label:
@@ -834,17 +836,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             composition_data.append(value_dict)
 
-        # if bugfix is true then duplicates voce with name prestiti, entrate conto terzi in the next level
-        if bugfix:
-            prestiti = [k for k in ifilter(lambda x: x['label']==u'Prestiti', composition_data)][0]
-            prestiti_fake = prestiti.copy()
-            prestiti_fake['layer2']=0
-            entr_ct = [k for k in ifilter(lambda x: x['label']==u'Entrate per conto terzi', composition_data)][0]
-            entrct_fake = entr_ct.copy()
-            entrct_fake['layer2']=0
-            composition_data.append(prestiti_fake)
-            composition_data.append(entrct_fake)
-
         return composition_data
 
     def create_context_entrate(self):
@@ -862,7 +853,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level, bugfix=True))
+        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
         s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
         e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
@@ -970,7 +961,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-        context['active_layers'] = 1
+        context['active_layers'] = 2
 
         return context
 
@@ -1178,7 +1169,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
 
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
-
+        incarichi_set_1.extend(incarichi_set_2)
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
         parameter_type = kwargs['parameter_type']
@@ -1221,7 +1212,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":[incarichi_set_1, incarichi_set_2],
+                    "timeSpans":incarichi_set_1,
                     'data':data,
                     'legend':{'title':None,'items':legend}
                 }
@@ -1360,24 +1351,56 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return values_regroup
 
-    def get_chi_guardagna_perde(self, value_set, guadagna=False):
+    def get_chi_guardagna_perde(self, value_set, ):
         results=[]
-        if guadagna:
-            value_set = value_set[::-1]
+        values_not_null=[]
+        n_total_elements = 4
+        n_half_elements = n_total_elements/2
+        n_negs=0
+        n_pos=0
+        negs_to_add=2
+        pos_to_add=2
 
-        for element in value_set:
+        for value in value_set:
+            if value['variation'] is not None:
+                if value['variation'] < 0:
+                    n_negs+=1
+                elif value['variation'] > 0:
+                    n_pos +=1
 
-            if element['variation'] is None:
-                continue
-            if guadagna:
-                if element['variation']>0:
-                    results.append(element)
+                values_not_null.append(value)
+
+
+        # sets how many pos or neg values are needed to have a grand total
+        # of 4 elements in the result list
+        if n_negs < 2 or n_pos < 2:
+
+            if n_negs < n_half_elements and n_pos < n_half_elements:
+
+                if n_negs == 0 and n_pos == 0:
+                    return results
+
+                pos_to_add = n_pos
+                negs_to_add = n_negs
+
             else:
-                if element['variation']<0:
-                    results.append(element)
+                if n_negs < n_half_elements:
+                    negs_to_add = n_negs
+                    pos_to_add = n_total_elements-n_negs
+                else:
+                    pos_to_add = n_pos
+                    negs_to_add = n_total_elements-n_pos
 
-            if len(results) == 2:
-                return results
+        pos_values = values_not_null[-pos_to_add:]
+        neg_values = values_not_null[:negs_to_add]
+
+        results.extend(pos_values[::-1])
+        results.extend(neg_values[::-1])
+
+        # if results < n_total elements, fills in with none values
+        if len(results) < n_total_elements:
+            diff = n_total_elements-len(results)
+            results.extend(repeat(None,diff))
 
         return results
 
@@ -1537,9 +1560,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
-
-        context['entrate_chiperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
-        context['entrate_chiguadagna'] = self.get_chi_guardagna_perde(variations_e_sorted,guadagna=True)
+        context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
 
         # spese data
         main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
@@ -1548,9 +1569,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
-
-        context['spese_chiperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
-        context['spese_chiguadagna'] = self.get_chi_guardagna_perde(variations_s_sorted, guadagna=True)
+        context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year
@@ -1755,7 +1774,7 @@ class ClassificheRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
-        # redirects to appropriate confronti view based on default parameter for Territori
+        # redirects to Classifiche starting page when coming from navbar
         kwargs['parameter_type'] = 'entrate'
         kwargs['parameter_slug'] = settings.DEFAULT_VOCE_SLUG_CLASSIFICHE
         kwargs['anno'] = settings.CLASSIFICHE_END_YEAR
@@ -1767,10 +1786,70 @@ class ClassificheRedirectView(RedirectView):
         else:
             return url
 
+
+class ClassificheSearchView(RedirectView):
+
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
+
+    def get(self, request, *args, **kwargs):
+        ##
+        # catches the user search for a territorio,
+        # redirects to the correct classifiche list page highlighting the chosen territorio
+        ##
+
+        territorio_found = True
+        selected_cluster = request.GET.get('selected_cluster').split(',')
+        selected_regioni = request.GET.get('selected_regioni').split(',')
+        selected_par_type = request.GET.get('selected_par_type')
+        selected_parameter_id = request.GET.get('selected_parameter_id')
+        territorio_id = int(request.GET.get('territorio_id'))
+        selected_year = request.GET.get('selected_year')
+
+        selected_regioni_names = Territorio.objects.filter(pk__in=selected_regioni).values_list('denominazione',flat=True)
+        territori_baseset = list(Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list('pk',flat=True))
+
+        if selected_par_type == 'indicatori':
+            all_ids = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+        else:
+            all_ids = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+
+        try:
+            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)
+            territorio_page = (territorio_idx / self.paginate_by)+1
+        except ValueError:
+            territorio_page = 1
+            territorio_found = False
+
+        kwargs['parameter_type'] = selected_par_type
+        kwargs['parameter_slug'] = parameter_slug
+        kwargs['anno'] = selected_year
+
+        try:
+            url = reverse('classifiche-list', args=args , kwargs=kwargs)+\
+                  '?' +"r="+"&r=".join(selected_regioni)+"&c="+"&c=".join(selected_cluster)+'&page='+str(territorio_page)
+
+            if territorio_found:
+                url +='&hl='+str(territorio_id)
+        except NoReverseMatch:
+            url = reverse('404')
+
+
+
+        return HttpResponseRedirect(url)
+
+    def get_redirect_url(self, *args, **kwargs):
+        if True:
+            pass
+        pass
+
+
+
 class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 15
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
     n_comuni = None
     parameter_type = None
     parameter = None
@@ -1803,61 +1882,52 @@ class ClassificheListView(ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-        # catches session variables if any
-        # if len(self.request.session.get('selected_regioni',[])):
-        #     self.selected_regioni = [int(k) for k in self.request.session['selected_regioni']]
-        # if len(self.request.session.get('selected_cluster',[])):
-        #     self.selected_cluster = self.request.session['selected_cluster']
-
-
         selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
-
 
         selected_cluster_get = self.request.GET.getlist('c')
         if len(selected_cluster_get):
             self.selected_cluster = selected_cluster_get
 
-        page = int(self.request.GET.get('page', '1'))
-
         return super(ClassificheListView, self).get(self, request, *args, **kwargs)
 
     def get_queryset(self):
-
-        # construct the queryset based on the type of parameter (voce/indicatore) and
-        # the comparison set on which the variation will be computed
+        # read current and previous years' lit of Territorio ids, sorted by descending procapite
+        #in order to create the paginated Classifica page, with the delta on positions from previous year
+        self.curr_year = self.anno_int
+        self.prev_year = self.anno_int - 1
 
         if self.parameter_type == 'indicatori':
-            base_queryset = ValoreIndicatore.objects.filter(indicatore = self.parameter).order_by('-valore')
-
+            self.curr_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            self.prev_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.prev_year)
         else:
-            base_queryset = ValoreBilancio.objects.filter(voce = self.parameter).order_by('-valore_procapite')
-
+            self.curr_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            self.prev_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.prev_year)
 
         ##
         # Filters on regioni / cluster
         ##
 
         # initial territori_baseset is the complete list of comuni
-        territori_baseset = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
+        territori_baseset = Territorio.objects.comuni
 
         if len(self.selected_regioni):
             # this passege is necessary because in the regione field of territorio there is the name of the region
-            selected_regioni_names = list(Territorio.objects.\
-                filter(pk__in=self.selected_regioni, territorio=Territorio.TERRITORIO.R).values_list('denominazione',flat=True))
-
+            selected_regioni_names = list(
+                Territorio.objects.regioni.filter(pk__in=self.selected_regioni).values_list('denominazione',flat=True)
+            )
             territori_baseset = territori_baseset.filter(regione__in=selected_regioni_names)
-
 
         if len(self.selected_cluster):
             territori_baseset = territori_baseset.filter(cluster__in=self.selected_cluster)
 
+        territori_ids = list(territori_baseset.values_list('id', flat=True))
 
-        self.queryset =  base_queryset.\
-                        filter(anno = self.anno, territorio__in=territori_baseset).select_related('territorio')
+        self.curr_ids =  [id for id in self.curr_ids if id in territori_ids]
+        self.prev_ids =  [id for id in self.prev_ids if id in territori_ids]
 
-
+        self.queryset = self.curr_ids
         return self.queryset
 
     def get_context_data(self, **kwargs):
@@ -1865,93 +1935,93 @@ class ClassificheListView(ListView):
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
         page = int(self.request.GET.get('page',1))
-        ordinal_position = ((page - 1) * self.paginate_by) + 1
-        comparison_year = self.anno_int - 1
+
+        paginator_offset = ((page - 1) * self.paginate_by) + 1
+
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
-        all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).values_list('cluster',flat=True)
+        all_clusters = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).values_list('cluster',flat=True)
 
         context = super(ClassificheListView, self).get_context_data( **kwargs)
 
         # creates context data based on the paginated queryset
         paginated_queryset = context['object_list']
-        queryset_territori = list(paginated_queryset.values_list('territorio',flat=True))
-
-
-        # create comparison set to calculate variation from last yr
-        if self.parameter_type == 'indicatori':
-
-            comparison_set = list(ValoreIndicatore.objects.\
-                                filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
-                                values('valore','territorio__pk','territorio__denominazione'))
-        else:
-
-            comparison_set = list(ValoreBilancio.objects.\
-                                filter(territorio__in = queryset_territori, anno = comparison_year).select_related('territorio').\
-                                values('valore_procapite','territorio__pk','territorio__denominazione'))
-
-        self.n_comuni = self.queryset.count()
 
         # regroups incarichi politici based on territorio
-
-        incarichi_set = Incarico.get_incarichi_attivi_set(queryset_territori, self.anno).select_related('territorio')
+        incarichi_set = Incarico.get_incarichi_attivi_set(paginated_queryset, self.curr_year).select_related('territorio')
         incarichi_territorio_keygen = lambda x: x.territorio.pk
         incarichi_regroup = dict((k,list(v)) for k,v in groupby(incarichi_set, key=incarichi_territorio_keygen))
 
-        # regroups comparison values based on territorio
-        regroup_territorio_keygen = lambda x: x['territorio__pk']
-        comparison_regroup = dict((k,list(v)[0]) for k,v in groupby(comparison_set, key=regroup_territorio_keygen))
+        # re-hydrate only objects in page
+        filters = {
+            'anno': self.curr_year,
+            "territorio__id__in": paginated_queryset,
+        }
+        if self.parameter_type == 'indicatori':
+            filters['indicatore__id'] = self.parameter.id
+            objects = list(ValoreIndicatore.objects.filter(**filters).select_related())
+        else:
+            filters['voce__id'] = self.parameter.id
+            objects = list(ValoreBilancio.objects.filter(**filters).select_related())
+        objects_dict = dict((obj.territorio_id, obj) for obj in objects)
 
-
-
-        for valoreObj in paginated_queryset:
-            valore_template = None
+        # build context for objects in page, there are no db-access at this point
+        for ordinal_position, territorio_id in enumerate(paginated_queryset, start=paginator_offset):
             incarichi = []
-            comparison_value=0
-            variazione = 0
+
+            obj = objects_dict[territorio_id]
 
             if self.parameter_type =='indicatori':
-                valore_template = valoreObj.valore
-                comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
+                valore = obj.valore
 
             else:
-                valore_template = valoreObj.valore_procapite
-                comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
+                valore = obj.valore_procapite
 
-
-            if comparison_value is not None:
-                variazione = valore_template - comparison_value
-
-            if valoreObj.territorio.pk in incarichi_regroup.keys():
-                incarichi = incarichi_regroup[valoreObj.territorio.pk]
+            if territorio_id in incarichi_regroup.keys():
+                incarichi = incarichi_regroup[territorio_id]
 
             territorio_dict = {
                 'territorio':{
-                    'denominazione': valoreObj.territorio.denominazione,
-                    'slug': valoreObj.territorio.slug,
-                    'prov': valoreObj.territorio.prov,
-                    'regione': valoreObj.territorio.regione,
-                    'pk': valoreObj.territorio.pk,
+                    'denominazione': obj.territorio.denominazione,
+                    'slug': obj.territorio.slug,
+                    'prov': obj.territorio.prov,
+                    'regione': obj.territorio.regione,
+                    'pk': obj.territorio.pk,
                     },
-                'valore': valore_template,
+                'valore': valore,
+                'variazione': 0,
                 'incarichi_attivi': incarichi,
-                'variazione':variazione,
-                'position': ordinal_position
-                }
+                'position': ordinal_position,
+                'prev_position': ordinal_position,
+            }
 
-            ordinal_position+=1
+            # adjust prev position and variation if values are found
+            if territorio_id in self.prev_ids:
+                territorio_dict['variazione'] = self.prev_ids.index(territorio_id) - self.curr_ids.index(territorio_id)
+                territorio_dict['prev_position'] = self.prev_ids.index(territorio_id) + 1
+
 
             object_list.append( territorio_dict )
 
 
         # updates obj list
         context['object_list'] = object_list
-        context['n_comuni'] = self.n_comuni
+        context['n_comuni'] = len(self.queryset)
 
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
-        context['selected_regioni'] = self.selected_regioni if len(self.selected_regioni)>0 else all_regions
-        context['selected_cluster'] = self.selected_cluster if len(self.selected_cluster)>0 else all_clusters
+
+        self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
+        self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
+
+        context['selected_regioni'] = self.selected_regioni
+        context['selected_cluster'] = self.selected_cluster
+        selected_regioni_str = [str(k) for k in self.selected_regioni]
+        selected_cluster_str = [str(k) for k in self.selected_cluster]
+
+        # string version of form flags needed for classifiche search
+        context['selected_regioni_str'] = ','.join(selected_regioni_str)
+        context['selected_cluster_str'] = ','.join(selected_cluster_str)
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
@@ -1964,21 +2034,26 @@ class ClassificheListView(ListView):
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
+        context['territori_search_form_classifiche'] = TerritoriSearchFormClassifiche()
+        context['query_string'] = "r="+"&r=".join(selected_regioni_str)+"&c="+"&c=".join(selected_cluster_str)
 
-        context['query_string'] = self.request.META['QUERY_STRING']
+        # if there is a territorio to highlight passes the data to context
+        context['highlight_territorio'] = None
+        territorio_highlight = self.request.GET.get('hl',None)
 
+        if territorio_highlight is not None:
+            context['highlight_territorio'] = int(territorio_highlight)
 
         # creates url for share button
         regioni_list=['',]
         regioni_list.extend([str(r) for r in self.selected_regioni])
         cluster_list=['',]
         cluster_list.extend(self.selected_cluster)
+
         # gets current page url
         long_url = self.request.build_absolute_uri(
             reverse('classifiche-list', kwargs={'anno':self.anno,'parameter_type':self.parameter_type, 'parameter_slug':self.parameter.slug})
             )+'?' + "&r=".join(regioni_list)+"&c=".join(cluster_list)+'&page='+str(context['page_obj'].number)
-
-
         # checks if short url is already in the db, otherwise asks to google to shorten the url
 
         short_url_obj=None
@@ -1989,13 +2064,17 @@ class ClassificheListView(ListView):
 
             payload = { 'longUrl': long_url+'&key='+settings.GOOGLE_SHORTENER_API_KEY }
             headers = { 'content-type': 'application/json' }
-            short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
-            if short_url_req.status_code == requests.codes.ok:
-                short_url = short_url_req.json().get('id')
-                short_url_obj = ShortUrl()
-                short_url_obj.short_url = short_url
-                short_url_obj.long_url = long_url
-                short_url_obj.save()
+            try:
+                short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+                if short_url_req.status_code == requests.codes.ok:
+                    short_url = short_url_req.json().get('id')
+                    short_url_obj = ShortUrl()
+                    short_url_obj.short_url = short_url
+                    short_url_obj.long_url = long_url
+                    short_url_obj.save()
+            except (ConnectionError, Timeout, SSLError, ProxyError):
+                pass
+
 
         if short_url_obj:
             context['share_url'] = short_url_obj.short_url

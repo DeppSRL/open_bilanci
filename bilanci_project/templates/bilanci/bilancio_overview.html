@@ -53,28 +53,16 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=entrate_chiguadagna type="guadagna" %}
+                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde  %}
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=spese_chiguadagna type="guadagna" %}
+                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde  %}
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-sm-6">
-                    <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=entrate_chiperde type="perde" %}
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=spese_chiperde type="perde" %}
-                    </div>
-                </div>
-            </div>
 
         </div>
     </div> <!-- /#balance -->

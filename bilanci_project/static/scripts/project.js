@@ -34,22 +34,11 @@
         });
 
 
-        if(location.hash == '#composizione' || location.hash == ""){
-            //open composizione
-            $('#partial-tabs a[href="#composizione"]').tab('show');
-        }
-        else{
-            //open dettaglio
-             $('#partial-tabs a[href="#dettaglio"]').tab('show');
-            // enable nested accordion
-            setupNestedAccordion(location.hash);
-        }
-
     });
 }(jQuery);
 
 
-var setupNestedAccordion = function(startElement) {
+var setupNestedAccordion = function() {
 
     var panels_tree = $('.panel-tree');
 
@@ -106,11 +95,31 @@ var setupNestedAccordion = function(startElement) {
         e.preventDefault();
     });
 
+};
+
+var autoOpenNestedAccordion = function(startElement) {
+
+    var panels_tree = $('.panel-tree');
     // auto open accordion
     if ( startElement != undefined ) {
+
         // expand parents if exists
         $(startElement, panels_tree).parents('.collapse').collapse('show');
         $(startElement, panels_tree).collapse('show');
     }
-};
 
+}
+
+function goToClassByScroll(classname){
+      // Scroll
+    $('html,body').animate({
+        scrollTop: $("."+classname).offset().top},
+        'slow');
+}
+
+function goToIdByScroll(div_id){
+      // Scroll
+    $('html,body').animate({
+        scrollTop: $(div_id).offset().top-100},
+        'slow');
+}

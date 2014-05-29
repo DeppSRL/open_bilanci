@@ -69,7 +69,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="pull-left">
-                                            {{ selected_parameter.denominazione|upper }}
+                                                {{ selected_parameter.denominazione|upper }}
                                         </h4>
                                     </div>
                                 </div>
@@ -82,18 +82,21 @@
                                         </div>
                                     </div>
                                 {% endif %}
-
-                                {% comment %}
-                                <form role="search" class="form-inline pull-left">
-                                    <div class="form-group search">
-                                        <label class="sr-only" for="city1">Cerca un comune</label>
-                                        <input type="text" class="form-control" id="city1" placeholder="CERCA UN COMUNE">
-                                        <span class="icon sprite-search-alt"></span>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form role="" class="autosubmit" action="{% url 'classifiche-search' %}" method="get">
+                                            <div class="">
+                                             {{ territori_search_form_classifiche.territorio_id}}
+                                            </div>
+                                            <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
+                                            <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />
+                                            <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ selected_parameter.pk|safe }}" />
+                                            <input id="id_selected_regioni" name="selected_regioni" type="hidden" value="{{ selected_regioni_str|safe }}" />
+                                            <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
+                                        </form>
                                     </div>
+                                </div>
 
-                                    <button type="submit" class="btn btn-default">Submit</button>
-                                </form>
-                                {% endcomment %}
                             </div>
                             <div class="panel-body">
                                 {% if n_comuni > 0 %}
@@ -135,7 +138,9 @@
                                     <tbody>
                                         {% if object_list %}
                                             {% for valore_obj in object_list %}
-                                                <tr>
+                                                <tr
+                                                    {% if valore_obj.territorio.pk == highlight_territorio %} class="highlight_territorio"{% endif %}
+                                                >
                                                     <td class="col-sm-1 rate">
                                                         <span class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
@@ -146,8 +151,20 @@
                                                         </span>
                                                     </td>
                                                     <td class="col-sm-9 text">
-{#                                                        <h4><a href="#" title="vai all’andamento dell’indicatore per questo comune">{{ valore_obj.territorio.denominazione }}</a></h4>#}
-                                                        <h4><a href="{% url 'bilanci-overview' slug=valore_obj.territorio.slug %}" >{{ valore_obj.territorio.denominazione }}</a></h4>
+                                                        <h4>
+                                                            <a
+                                                                {% if selected_par_type == 'indicatori' %}
+                                                                    href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
+                                                                {% elif selected_par_type == 'entrate' %}
+                                                                    href="{% url 'bilanci-entrate' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
+                                                                {% else %}
+                                                                    href="{% url 'bilanci-spese' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
+                                                                {% endif %}
+                                                                    >
+                                                                {{ valore_obj.territorio.denominazione }}
+                                                            </a>
+                                                        </h4>
+
                                                         <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
 
                                                         <div class="media" style="font-size: 13px;">
@@ -161,15 +178,15 @@
 
                                                     <td class="col-sm-1 trend">
                                                         {% spaceless %}
-                                                            <span title="Variazione rispetto all'anno precedente"
+                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
                                                             {% if valore_obj.variazione == 0 %}
                                                                 class="icon sprite-trend"
-                                                                {% elif valore_obj.variazione > 0 %}
-                                                                    class="icon sprite-trend-up-3"
-                                                                    {% else  %}
-                                                                        class="icon sprite-trend-down-3"
+                                                            {% elif valore_obj.variazione > 0 %}
+                                                                class="icon sprite-trend-up-3"
+                                                            {% else  %}
+                                                                class="icon sprite-trend-down-3"
                                                             {% endif %}
-                                                                    >
+                                                            >
                                                             </span>
                                                         {% endspaceless %}
 
@@ -282,6 +299,11 @@
 
             init_selector(selector_init_obj);
             init_parameter_menu('classifiche');
+
+            if ($('.highlight_territorio').length == 1){
+                goToClassByScroll('highlight_territorio');
+            }
+
 
 
         });

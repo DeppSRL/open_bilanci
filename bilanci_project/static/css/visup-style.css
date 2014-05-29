@@ -221,6 +221,7 @@
 	stroke: #b9c6c4;
 	stroke-width: 1px;
 	shape-rendering: crispEdges;
+	pointer-events: none;
 }
 
 .visup-timeline-line {

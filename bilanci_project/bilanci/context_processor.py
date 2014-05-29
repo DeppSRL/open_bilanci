@@ -1,7 +1,7 @@
 __author__ = 'stefano'
 from django.conf import settings
 from django.contrib.sites.models import get_current_site
-from .forms import TerritoriSearchForm, TerritoriComparisonSearchForm
+from .forms import TerritoriSearchForm
 
 def main_settings(request):
     """

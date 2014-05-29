@@ -2777,3 +2777,37 @@ a[rel=info-popover]:visited {
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+table > tbody > tr.highlight_territorio > td,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td {
+  background-color: #2a3037;
+}
+table > tbody > tr.highlight_territorio > td span.h2,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td span.h2,
+table > tbody > tr.highlight_territorio > td span.h3,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td span.h3,
+table > tbody > tr.highlight_territorio > td a,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td a,
+table > tbody > tr.highlight_territorio > td p,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td p {
+  color: white!important;
+}
+table > tbody > tr.highlight_territorio > td .sprite-trend-up-3,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td .sprite-trend-up-3 {
+  background-position: -285px -186px;
+  width: 44px;
+  height: 43px;
+}
+.table.table-striped > tbody > tr.highlight_territorio:hover > td,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td {
+  background-color: #4c5864!important;
+}
+.table.table-striped > tbody > tr.highlight_territorio:hover > td span.h2,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td span.h2,
+.table.table-striped > tbody > tr.highlight_territorio:hover > td span.h3,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td span.h3,
+.table.table-striped > tbody > tr.highlight_territorio:hover > td a,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td a,
+.table.table-striped > tbody > tr.highlight_territorio:hover > td p,
+#results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td p {
+  color: white!important;
+}
