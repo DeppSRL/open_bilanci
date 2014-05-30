@@ -2496,6 +2496,12 @@ a[rel=info-popover]:visited {
 .timeline-multiline {
   margin-bottom: 60px;
 }
+.panel-tree.totale-generale .panel {
+  border-top: 1px solid #5e6a77;
+}
+.panel-tree.totale-generale.panel-group {
+  margin-bottom: 0px;
+}
 .panel-tree a {
   color: #2a3036;
 }
