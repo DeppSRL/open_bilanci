@@ -28,6 +28,10 @@ class Command(BaseCommand):
                     dest='cities',
                     default='',
                     help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+        make_option('--start-from',
+                    dest='start_from',
+                    default='',
+                    help='Start importing cities from such city. Use codfinloc: GARAGUSO--4170470090'),
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
@@ -84,14 +88,27 @@ class Command(BaseCommand):
         # cities
         ###
         cities_codes = options['cities']
-        if not cities_codes:
-            raise Exception("Missing cities parameter")
+        start_from = options['start_from']
 
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        cities = mapper.get_cities(cities_codes)
-        if cities_codes.lower() != 'all':
-            self.logger.info("Processing cities: {0}".format(cities))
 
+        if not cities_codes:
+            if start_from:
+                cities_codes = 'all'
+                cities = mapper.get_cities(cities_codes)
+                try:
+                    cities = cities[cities.index(start_from):]
+                except ValueError:
+                    raise Exception("Start-from city not found in cities complete list")
+                else:
+                    self.logger.info("Processing cities starting from: {0}".format(start_from))
+            else:
+                raise Exception("Missing cities parameter or start-from parameter")
+
+        else:
+            cities = mapper.get_cities(cities_codes)
+            if cities_codes.lower() != 'all':
+                self.logger.info("Processing cities: {0}".format(cities))
 
         ###
         # years
