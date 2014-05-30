@@ -2010,6 +2010,13 @@ class ClassificheListView(ListView):
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
+        context['selected_parameter_name'] = self.parameter.denominazione
+
+        if self.parameter != 'indicatori':
+            if self.parameter.slug == 'consuntivo-entrate-cassa':
+                context['selected_parameter_name'] = 'Totale entrate'
+            if self.parameter.slug == 'consuntivo-spese-cassa':
+                context['selected_parameter_name'] = 'Totale spese'
 
         self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
         self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
@@ -2028,9 +2035,15 @@ class ClassificheListView(ListView):
         context['selector_start_year'] = settings.CLASSIFICHE_START_YEAR
         context['selector_end_year'] = settings.CLASSIFICHE_END_YEAR
 
+        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
+        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
+
+        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
+        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
+
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
+        context['entrate_list'] = entrate_list
+        context['spese_list'] = spese_list
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
