@@ -2153,11 +2153,17 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto
 
-
         # defines the lists of possible confrontation parameters
+
+        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
+        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
+
+        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
+        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
+
         context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
+        context['entrate_list'] = entrate_list
+        context['spese_list'] = spese_list
         context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
@@ -2176,7 +2182,13 @@ class ConfrontiEntrateView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
         context['parameter_type'] = "entrate"
-        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+
+        context['parameter_name'] = parameter.denominazione
+        if parameter.slug == 'consuntivo-entrate-cassa':
+            context['parameter_name'] = u'Totale entrate'
+
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
@@ -2184,7 +2196,12 @@ class ConfrontiSpeseView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
         context['parameter_type'] = "spese"
-        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+
+        context['parameter_name'] = parameter.denominazione
+        if parameter.slug == 'consuntivo-spese-cassa':
+            context['parameter_name'] = u'Totale spese'
 
 
         return context
@@ -2194,8 +2211,9 @@ class ConfrontiIndicatoriView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
         context['parameter_type'] = "indicatori"
-        context['parameter'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
-
+        parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+        context['parameter_name'] = parameter.denominazione
 
         return context
 
