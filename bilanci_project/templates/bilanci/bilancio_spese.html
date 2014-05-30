@@ -2,6 +2,8 @@
 {% load humanize %}
 {% load section_title %}
 {% load section_values_type %}
+{% load voice_values %}
+
 
 {% block content_header %}
 
@@ -25,6 +27,29 @@
     </div>
 {% endblock %}
 
+{% block totale_generale %}
+
+    <div class="panel-group panel-tree totale-generale">
+        <div class="panel">
+            <div class="panel-heading">
+                <div class="row">
+                    {% if fun_int_current_view == 'funzioni' %}
+                        <div class="col-sm-4 entry">
+                    {% else %}
+                        <div class="col-sm-6 entry">
+                    {% endif %}
+                        <span style="text-transform: uppercase">TOTALE {{ selected_section|upper }}</span>
+                    </div>
+
+                    <div class="col-sm-3 actions">
+                        {% voice_values bilancio_rootnode.slug budget_values %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
 
 {% block bilanci_accordion %}
 
