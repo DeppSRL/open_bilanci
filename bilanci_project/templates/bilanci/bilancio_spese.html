@@ -12,13 +12,6 @@
             <h3>{% section_title bold_text="DETTAGLIO SPESE" main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}</h3>
         </div>
 
-{#        switch funzioni interventi #}
-        <div class="col-md-3 section_title" >
-
-            <a href="{{ fun_int_switch.url }}#dettaglio" class="btn btn-sm btn-default fun-int pull-right">mostra {{ fun_int_switch.label }}</a>
-
-        </div>
-
         <div class="col-md-4 section_title" >
             {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
         </div>
@@ -33,16 +26,21 @@
         <div class="panel">
             <div class="panel-heading">
                 <div class="row">
-                    {% if fun_int_current_view == 'funzioni' %}
-                        <div class="col-sm-4 entry">
-                    {% else %}
-                        <div class="col-sm-6 entry">
-                    {% endif %}
+                    <div class="{% if fun_int_current_view == 'funzioni' %}col-sm-4{% else %}col-sm-6{% endif %} entry">
                         <span style="text-transform: uppercase">TOTALE {{ selected_section|upper }}</span>
                     </div>
 
                     <div class="col-sm-3 actions">
                         {% voice_values bilancio_rootnode.slug budget_values %}
+                    </div>
+                </div>
+
+                {#        switch funzioni interventi #}
+                <div class="row">
+                    <div class="col-md-3" style="font-weight: bold;font-size: 11px;">
+                        <a href="{{ fun_int_switch.url }}#dettaglio">
+                            MOSTRA PER {% if fun_int_current_view == 'funzioni' %}INTERVENTI{% else %}FUNZIONI{% endif %}
+                        </a>
                     </div>
                 </div>
             </div>
