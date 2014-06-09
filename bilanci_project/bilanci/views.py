@@ -1328,10 +1328,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             comparison_value = comparison_value_dict.get('valore',None)
 
             variation_dict = {
-                       'denominazione' :main_denominazione_strip,
-                       'variation': self.calculate_variation(
-                                        main_value,
-                                        comparison_value
+                'slug': main_value_dict['voce__slug'],
+                'denominazione' :main_denominazione_strip,
+                'variation': self.calculate_variation(
+                                main_value,
+                                comparison_value
                        )
                     }
 

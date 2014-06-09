@@ -53,12 +53,12 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde  %}
+                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde type='entrate' territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde  %}
+                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde type='spese' territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
                     </div>
                 </div>
             </div>

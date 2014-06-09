@@ -15,9 +15,13 @@
                     <tr>
                         <td class="col-sm-7 ">
                             <h5>
-{#                                <a title="" data-toggle="tooltip" href="{% url 'bilanci-entrate' slug='roma-comune-rm' %}" data-original-title="vai alla pagina di dettaglio della voce">#}
-                                    {{ voce.denominazione|upper }}
-{#                                </a>#}
+                                {% spaceless %}
+                                    <a title="" data-toggle="tooltip" data-original-title="vai alla pagina di dettaglio della voce"
+                                       href="{% if type == 'entrate' %}{% url 'bilanci-entrate' slug=territorio.slug %}{% else %}{% url 'bilanci-spese' slug=territorio.slug %}{% endif %}?{{ selected_year }}&type={{ tipo_bilancio }}&values_type={{ values_type }}&cas_com_type={{ cas_com_type }}#{{ voce.slug }}"
+                                            >
+                                        {{ voce.denominazione|upper }}
+                                    </a>
+                                {% endspaceless %}
                             </h5>
                         </td>
                         <td class="col-sm-1 trend">
