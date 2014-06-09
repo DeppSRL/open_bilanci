@@ -628,8 +628,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         return variations
 
 
-
-
     def get(self, request, *args, **kwargs):
 
         ##
@@ -653,14 +651,18 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
 
         # identifies the bilancio for comparison
-        self.comp_bilancio_type = 'preventivo'
-        self.comp_bilancio_year = self.main_bilancio_year
-        self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = self.comp_bilancio_type )
+
 
         if self.main_bilancio_type == 'preventivo':
+
             self.comp_bilancio_type = 'consuntivo'
             self.cas_com_type = "cassa"
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = verification_voice)
+        else:
+            self.comp_bilancio_type = 'preventivo'
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
 
 
         if self.comp_bilancio_year is None:
@@ -1326,10 +1328,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             comparison_value = comparison_value_dict.get('valore',None)
 
             variation_dict = {
-                       'denominazione' :main_denominazione_strip,
-                       'variation': self.calculate_variation(
-                                        main_value,
-                                        comparison_value
+                'slug': main_value_dict['voce__slug'],
+                'denominazione' :main_denominazione_strip,
+                'variation': self.calculate_variation(
+                                main_value,
+                                comparison_value
                        )
                     }
 
@@ -1428,14 +1431,17 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.main_bilancio_year = int(self.year)
         if self.main_bilancio_type == 'preventivo':
             self.comp_bilancio_type = 'consuntivo'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = verification_voice )
 
         else:
             self.comp_bilancio_type = 'preventivo'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
 
         if self.comp_bilancio_year is None:
             self.comparison_not_available = True
+
 
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
