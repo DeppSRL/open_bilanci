@@ -5,7 +5,7 @@
 {% load section_title %}
 
 {% block page_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter.denominazione }}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter_name }}
 {% endblock %}
 
 {% block helpbox_1 %}
@@ -82,7 +82,7 @@
             <div class="panel panel-default panel-nobg">
                 <div class="panel-body">
                     <div class='col-md-12'>
-                        <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter.denominazione   %}</h3>
+                        <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter_name %}</h3>
 
                         {% include 'commons/_lines_chart_over_the_years.html' %}
                     </div>
