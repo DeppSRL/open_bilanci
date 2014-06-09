@@ -1708,7 +1708,25 @@ class BilancioDetailView(BilancioOverView):
         else:
             context['bilancio_type_title'] = 'consuntivi'
 
-
+        # chi guadagna / perde
+        if self.selected_section == 'entrate':
+            # entrate data
+            main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type,include_totale=False)
+            comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type, self.cas_com_type,include_totale=False)
+            main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
+            comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
+            variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
+            variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
+            context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
+        else:
+            # spese data
+            main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
+            comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type, include_totale=False)
+            main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
+            comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
+            variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
+            variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
+            context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
         return context
 
