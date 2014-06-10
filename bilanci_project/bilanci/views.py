@@ -2119,6 +2119,24 @@ class ClassificheListView(ListView):
         return context
 
 
+class MappeTemplateView(TemplateView):
+
+    ##
+    # Shows simple map page
+    ##
+
+    template_name = "bilanci/mappe.html"
+
+    def get_context_data(self, **kwargs):
+
+
+        context = super(MappeTemplateView, self).get_context_data(**kwargs)
+
+
+        return context
+
+
+
 class ConfrontiHomeView(TemplateView):
 
     ##
