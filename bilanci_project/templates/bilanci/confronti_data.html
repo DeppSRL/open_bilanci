@@ -123,7 +123,7 @@
             {% if parameter_type == 'indicatori' %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"%","%");
             {% else %}
-                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"Euro", "Euro");
+                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro");
             {% endif %}
 
             // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
