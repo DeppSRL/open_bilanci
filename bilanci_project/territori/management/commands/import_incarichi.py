@@ -118,11 +118,6 @@ class Command(BaseCommand):
 
         self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
 
-        if delete:
-            self.logger.info(u"Deleting all Incarico...".format(dryrun))
-            Incarico.objects.all().delete()
-            self.logger.info(u"Done.".format(dryrun))
-
         nomi_capoluoghi = list(
             Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).
                 values_list('denominazione', flat=True)
@@ -164,9 +159,18 @@ class Command(BaseCommand):
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
 
         if territori_type != 'others':
+            if delete:
+                self.logger.info(u"Deleting all Incarico for capoluoghi".format(dryrun))
+                Incarico.objects.filter(territorio__in=capoluoghi_provincia).delete()
+                self.logger.info(u"Done.")
+
             self.process_cities(capoluoghi_provincia, dryrun)
 
         if territori_type !='capoluoghi':
+            if delete:
+                self.logger.info(u"Deleting all Incarico for altri territori".format(dryrun))
+                Incarico.objects.filter(territorio__in=altri_territori).delete()
+                self.logger.info(u"Done.".format(dryrun))
             self.process_cities(altri_territori, dryrun)
 
         self.log_errors()
