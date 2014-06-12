@@ -362,8 +362,8 @@ class Command(BaseCommand):
             # check for data integrity
 
             if len(incarichi_set) == 0:
-                self.logger.warning('Incarichi missing for {0}'.format(unidecode(territorio.denominazione)).upper())
-                return
+                self.logger.error('No incarico available for city: {0}, skipping'.format(unidecode(territorio.denominazione)).upper())
+                continue
 
 
             self.date_integrity_check(incarichi_set)
