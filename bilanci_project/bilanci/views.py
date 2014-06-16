@@ -1171,7 +1171,13 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
 
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
-        incarichi_set_1.extend(incarichi_set_2)
+
+        if incarichi_set_1:
+            incarichi_set_1.extend(incarichi_set_2)
+            incarichi = incarichi_set_1
+        else:
+            incarichi = incarichi_set_2
+
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
         parameter_type = kwargs['parameter_type']
@@ -1214,7 +1220,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":incarichi_set_1,
+                    "timeSpans":incarichi,
                     'data':data,
                     'legend':{'title':None,'items':legend}
                 }
@@ -1636,7 +1642,7 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
             ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
         ])
 
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
 
         # creates the query string to call the IncarichiIndicatori Json view in template
         context['selected_indicators'] = selected_indicators_slugs
@@ -2065,7 +2071,7 @@ class ClassificheListView(ListView):
         spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
         spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
 
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
         context['entrate_list'] = entrate_list
         context['spese_list'] = spese_list
 
@@ -2216,7 +2222,7 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
         spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
         spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
 
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
         context['entrate_list'] = entrate_list
         context['spese_list'] = spese_list
         context['share_url'] = self.share_url
