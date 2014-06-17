@@ -1690,6 +1690,7 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
                     }
                 )
 
+        context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
         context['last_indicatore_yr'] = last_indicatore_yr
         context['indicatore_position'] = indicatore_position
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
