@@ -71,7 +71,7 @@ class HomeView(TemplateView):
         op_blog_posts = cache.get('blog-posts')
         if op_blog_posts is None:
             op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
-            cache.set('blog-posts', op_blog_posts)
+            cache.set('blog-posts', op_blog_posts, timeout=900)
         context['op_blog_posts'] = op_blog_posts
         return context
 
