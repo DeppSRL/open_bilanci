@@ -1385,7 +1385,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
     def get_chi_guardagna_perde(self, value_set, ):
         results=[]
-        values_not_null=[]
+        values_not_null =  []
+        pos_values = []
+        neg_values = []
         n_total_elements = 4
         n_half_elements = n_total_elements/2
         n_negs=0
@@ -1423,8 +1425,10 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                     pos_to_add = n_pos
                     negs_to_add = n_total_elements-n_pos
 
-        pos_values = values_not_null[-pos_to_add:]
-        neg_values = values_not_null[:negs_to_add]
+        if pos_to_add > 0:
+            pos_values = values_not_null[-pos_to_add:]
+        if negs_to_add > 0:
+            neg_values = values_not_null[:negs_to_add]
 
         results.extend(pos_values[::-1])
         results.extend(neg_values[::-1])
