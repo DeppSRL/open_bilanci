@@ -490,58 +490,20 @@ class CalculateVariationsMixin(object):
             return None
 
 
-
-    def get_slugset_entrate(self, bilancio_type, cas_com_type, widget_type="overview", include_totale = True):
-        slugset = []
-        ##
-        # overview widget
-        ##
-        if widget_type == 'overview':
-            if bilancio_type == "preventivo":
-                rootnode_slug = "preventivo-entrate"
-                totale_slug = rootnode_slug
-            else:
-                if cas_com_type == 'cassa':
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-cassa'
-                else:
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-accertamenti'
-
-            rootnode = Voce.objects.get(slug=rootnode_slug)
-            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
-
-        ##
-        # entrate widget
-        ##
+    def get_rootnode_slug_entrate(self,  bilancio_type, cas_com_type):
+        if bilancio_type == "preventivo":
+            rootnode_slug = "preventivo-entrate"
         else:
-            if bilancio_type == "preventivo":
-                rootnode_slug = totale_slug = 'preventivo-entrate'
-                rootnode = Voce.objects.get(slug=rootnode_slug)
-                # gets 1 and 2nd level descendants from root
-                slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
-
+            if cas_com_type == 'cassa':
+                rootnode_slug = 'consuntivo-entrate-cassa'
             else:
+                rootnode_slug = 'consuntivo-entrate-accertamenti'
 
-                if cas_com_type == 'cassa':
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-cassa'
-                else:
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-accertamenti'
-
-                rootnode = Voce.objects.get(slug=rootnode_slug)
-
-                # gets 1 and 2nd level descendants from root
-                slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
-
-        if include_totale:
-            slugset.append(totale_slug)
-
-        return slugset, totale_slug
+        totale_slug = rootnode_slug
+        return rootnode_slug, totale_slug
 
 
-    def get_slugset_spese(self, bilancio_type, cas_com_type, include_totale=True):
-
-        ##
-        # overview widget and spese widget
-        ##
+    def get_rootnode_slug_spese(self, bilancio_type, cas_com_type):
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
@@ -552,8 +514,69 @@ class CalculateVariationsMixin(object):
             else:
                 totale_slug = bilancio_type+'-spese-impegni'
 
-            rootnode_slug = totale_slug+self.somma_funzioni_affix
+        rootnode_slug = totale_slug+self.somma_funzioni_affix
 
+        return rootnode_slug, totale_slug
+
+    def get_slugset_entrate_widget(self, bilancio_type, cas_com_type, widget_type="overview", include_totale = True):
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_entrate(bilancio_type,cas_com_type)
+        rootnode = Voce.objects.get(slug=rootnode_slug)
+
+        if widget_type == 'overview':
+
+            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
+
+        else:
+            # gets 1 and 2nd level descendants from root
+            slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
+
+        if include_totale:
+            slugset.append(totale_slug)
+
+        return slugset, totale_slug
+
+    def get_slugset_entrate_chiguadagnaperde(self, bilancio_type, cas_com_type, page_type = "overview"):
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_entrate(bilancio_type,cas_com_type)
+        rootnode = Voce.objects.get(slug=rootnode_slug)
+        if page_type == 'overview':
+            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
+        else:
+            # gets 1 and 2nd level descendants from root
+            descendants = list(rootnode.get_descendants(include_self=False).order_by('slug').filter(level__lte=rootnode.level+2,))
+            slugset = []
+            # gets only voce without children
+            for d in descendants:
+                if d.is_leaf_node():
+                    slugset.append(d.slug)
+
+        return slugset
+
+
+    def get_slugset_spese_chiguadagnaperde(self, bilancio_type, cas_com_type, page_type = "overview"):
+
+        ##
+        # overview widget and spese widget
+        ##
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
+        rootnode = Voce.objects.get(slug = rootnode_slug)
+        slugset = list(rootnode.get_children().values_list('slug', flat=True))
+        slugset.append(totale_slug+'-prestiti')
+        slugset.append(totale_slug+'-spese-per-conto-terzi')
+
+        return slugset
+
+
+
+    def get_slugset_spese_widget(self, bilancio_type, cas_com_type, include_totale=True):
+
+        ##
+        # overview widget and spese widget
+        ##
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
         rootnode = Voce.objects.get(slug = rootnode_slug)
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
         slugset.append(totale_slug+'-prestiti')
@@ -845,14 +868,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context = {}
         context["type"]= "ENTRATE"
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
@@ -909,14 +932,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context = {}
         context["type"]= "SPESE"
         # spese data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_s).level
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
@@ -972,15 +995,15 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         context = {}
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e)
 
         # spese data
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type, self.cas_com_type)
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
@@ -1566,8 +1589,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # chi guadagna / perde
 
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type,include_totale=False)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type, self.cas_com_type,include_totale=False)
+        main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type,self.cas_com_type, page_type='overview')
+        comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type, page_type='overview')
         main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
         comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
@@ -1575,8 +1598,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
 
         # spese data
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type, include_totale=False)
+        main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
+        comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
         main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
         comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
@@ -1717,8 +1740,8 @@ class BilancioDetailView(BilancioOverView):
         # chi guadagna / perde
         if self.selected_section == 'entrate':
             # entrate data
-            main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type,include_totale=False)
-            comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type, self.cas_com_type,include_totale=False)
+            main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type,self.cas_com_type,page_type="entrate")
+            comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type,page_type="entrate")
             main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
             comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
             variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
@@ -1726,8 +1749,8 @@ class BilancioDetailView(BilancioOverView):
             context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
         else:
             # spese data
-            main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
-            comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type, include_totale=False)
+            main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
+            comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
             main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
             comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
             variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
