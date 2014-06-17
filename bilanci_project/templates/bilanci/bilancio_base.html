@@ -199,6 +199,11 @@
 
 {% block extra_js %}
 
+    <!-- Raphael -->
+    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+
     <!-- visup base and yr selector -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>

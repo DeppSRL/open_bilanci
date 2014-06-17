@@ -1,0 +1,54 @@
+<hr class="no-border">
+
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+
+        <div class="media pull-right">
+            <figure class="pull-right img-circle borded">
+{#                <img class="media-object" src="http://cambelt.co/42x42/AS?color=a0180d" alt="avatar">#}
+            </figure>
+            <div class="media-body pull-left text-right">
+                <p class="h4"><a href="#">N. Cognome</a></p>
+                <p>
+                    Lista<br>
+                    <span class="small">
+                    Sindaco dal.. al..
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <h3 class="panel-title">
+            {{ territorio.denominazione }}
+        </h3>
+        <p>Posizione in classifica per tutti gli indicatori</p>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <tbody>
+                {% for ip in indicatore_position %}
+
+                    <tr>
+                        <td class="col-sm-1 rate">
+                            <span class="h2">{{ ip.position }}&deg;</span>
+                        </td>
+                        <td class="col-sm-9 text">
+                            <h4 class="alt">
+                                <a href="{% url 'classifiche-list' parameter_type='indicatori' parameter_slug=ip.indicatore_slug anno=last_indicatore_yr %}" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
+                                    {{ ip.indicatore_denominazione|upper }}
+                                </a>
+                            </h4>
+                        </td>
+                        <td class="col-sm-2">
+                            {#  ranking graph    #}
+{#                            <div class="chart" id="rank-{{forloop.counter }}" data-chart-type="rank" data-chart-scale="1.5" data-chart-width="150" data-chart-height="30" data-chart-value="1"></div>#}
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>

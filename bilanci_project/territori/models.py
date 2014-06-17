@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.conf import settings
 from model_utils import Choices
 from django.contrib.gis.db import models
@@ -217,6 +218,15 @@ class Territorio(models.Model):
             return best_year
 
 
+    def latest_year_indicatore(self, slug):
+        available_years = list(self.valoreindicatore_set.filter(indicatore__slug=slug).values_list('anno', flat=True).order_by('anno'))
+
+        if not available_years:
+            return None
+
+        return available_years[-1]
+
+
     def nearest_valid_population(self, year):
         """
         Fetch resident population data from context.
@@ -340,10 +350,12 @@ class Incarico(models.Model):
         dec_31_date = datetime.strptime(str(anno)+"-12-31", date_fmt).date()
 
         return Incarico.objects.\
-                filter(territorio=territorio,
-                data_inizio__lte = dec_31_date,
-                data_fine__gte = jan_1_date,
+                filter(
+                Q(territorio=territorio),
+                Q(data_inizio__lte = dec_31_date),
+                Q(data_fine__gte = jan_1_date) | Q(data_fine__isnull=True),
                 )
+
 
     @staticmethod
     def get_incarichi_attivi_set(territorio_set, anno):
@@ -352,10 +364,11 @@ class Incarico(models.Model):
         dec_31_date = datetime.strptime(str(anno)+"-12-31", date_fmt).date()
 
         return Incarico.objects.\
-                filter(territorio__in=territorio_set,
-                data_inizio__lte = dec_31_date,
-                data_fine__gte = jan_1_date,
+                filter(Q(territorio__in=territorio_set),
+                Q(data_inizio__lte = dec_31_date),
+                Q(data_fine__gte = jan_1_date) | Q(data_fine__isnull=True),
                 )
+
 
 
 
