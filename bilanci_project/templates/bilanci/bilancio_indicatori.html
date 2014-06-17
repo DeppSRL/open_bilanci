@@ -24,7 +24,6 @@
 {% block bilancio_settings_menu %}{% endblock %}
 
 
-
 {% block bilanci_content %}
     <div class="tab-pane fade in" id="dettaglio">
         <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO"   %}</h3>
@@ -34,7 +33,7 @@
         </div>
     </div>
 
-    {% include 'bilanci/miniclass_indicatori.html' with territorio=territorio indicatore_position=indicatore_position last_indicatore_yr=last_indicatore_yr %}
+    {% include 'bilanci/miniclass_indicatori.html' with territorio=territorio indicatore_position=indicatore_position last_indicatore_yr=last_indicatore_yr incarichi_attivi=incarichi_attivi %}
 
 {% endblock %}
 
