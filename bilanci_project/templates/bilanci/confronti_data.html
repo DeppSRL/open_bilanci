@@ -3,6 +3,7 @@
 {% load confronti_helpbox %}
 {% load confronti_parameter_list %}
 {% load section_title %}
+{% load section_values_type %}
 
 {% block page_title %}
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter_name }}
@@ -81,10 +82,21 @@
         <div class="col-md-12">
             <div class="panel panel-default panel-nobg">
                 <div class="panel-body">
-                    <div class='col-md-12'>
-                        <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter_name %}</h3>
+                    <div class="row">
+                        <div class='{% if parameter_type != 'indicatori' %}col-md-6{% else %}col-md-12{% endif %}'>
+                            <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter_name %}</h3>
+                        </div>
 
-                        {% include 'commons/_lines_chart_over_the_years.html' %}
+                        {% if parameter_type != 'indicatori' %}
+                            <div class='col-md-6'>
+                                {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <div class='col-md-12'>
+                            {% include 'commons/_lines_chart_over_the_years.html' %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,7 +123,7 @@
             {% if parameter_type == 'indicatori' %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"%","%");
             {% else %}
-                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"Euro", "Euro");
+                init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro");
             {% endif %}
 
             // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page

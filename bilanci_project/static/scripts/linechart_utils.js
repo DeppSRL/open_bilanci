@@ -72,7 +72,7 @@ function init_secondary_linechart(event){
                     start: timeline_start_year,
                     end: timeline_end_year,
                     circleRadius: 9,
-                    axisUnit: "EURO",
+                    axisUnit: "€ p.c.",
                     tooltipUnit: "EURO",
                     format: "%Y",
                     visible: true
@@ -92,7 +92,7 @@ function init_secondary_linechart(event){
 function show_main_linechart(timeline_start_year, timeline_end_year){
 
     if(dettaglio_shown==false){
-        init_main_linechart( timeline_start_year , timeline_end_year,"EURO","EURO");
+        init_main_linechart( timeline_start_year , timeline_end_year,"€ p.c.", "Euro");
         feed_main_linechart();
         linechart.resize();
         dettaglio_shown=true;
