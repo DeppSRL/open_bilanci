@@ -16,3 +16,4 @@ function toggle_checkboxes(source) {
     cluster[i].checked = source.checked;
   }
 }
+

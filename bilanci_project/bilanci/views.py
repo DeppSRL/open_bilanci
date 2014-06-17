@@ -1,4 +1,4 @@
-from itertools import groupby, ifilter
+from itertools import groupby, ifilter, repeat
 from operator import itemgetter
 import os
 import re
@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
 from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
@@ -73,16 +73,6 @@ class HomeView(TemplateView):
             op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
             cache.set('blog-posts', op_blog_posts, timeout=900)
         context['op_blog_posts'] = op_blog_posts
-        return context
-
-
-class HomeReleaseView(ShareUrlMixin, TemplateView):
-    template_name = "home_release.html"
-    share_url = None
-
-    def get_context_data(self, **kwargs):
-        context = super(HomeReleaseView, self).get_context_data(**kwargs)
-        context['share_url']=self.share_url
         return context
 
 
@@ -174,16 +164,19 @@ class IncarichiGetterMixin(object):
             }
 
             # truncates date start to timeline start
-            timeline_start = settings.TIMELINE_START_DATE.date()
+            timeline_start_date = settings.TIMELINE_START_DATE.date()
+            timeline_end_date = settings.TIMELINE_END_DATE.date()
 
-            if incarico.data_inizio < timeline_start:
-                dict_widget['start'] = timeline_start.strftime(self.date_fmt)
+            if incarico.data_inizio < timeline_start_date:
+                dict_widget['start'] = timeline_start_date.strftime(self.date_fmt)
             else:
                 dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
 
 
             if incarico.data_fine:
                 dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
+            else:
+                dict_widget['end'] = timeline_end_date.strftime(self.date_fmt)
 
             if incarico.pic_url:
                 dict_widget['icon'] = incarico.pic_url
@@ -497,58 +490,20 @@ class CalculateVariationsMixin(object):
             return None
 
 
-
-    def get_slugset_entrate(self, bilancio_type, cas_com_type, widget_type="overview", include_totale = True):
-        slugset = []
-        ##
-        # overview widget
-        ##
-        if widget_type == 'overview':
-            if bilancio_type == "preventivo":
-                rootnode_slug = "preventivo-entrate"
-                totale_slug = rootnode_slug
-            else:
-                if cas_com_type == 'cassa':
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-cassa'
-                else:
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-accertamenti'
-
-            rootnode = Voce.objects.get(slug=rootnode_slug)
-            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
-
-        ##
-        # entrate widget
-        ##
+    def get_rootnode_slug_entrate(self,  bilancio_type, cas_com_type):
+        if bilancio_type == "preventivo":
+            rootnode_slug = "preventivo-entrate"
         else:
-            if bilancio_type == "preventivo":
-                rootnode_slug = totale_slug = 'preventivo-entrate'
-                rootnode = Voce.objects.get(slug=rootnode_slug)
-                # gets 1 and 2nd level descendants from root
-                slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
-
+            if cas_com_type == 'cassa':
+                rootnode_slug = 'consuntivo-entrate-cassa'
             else:
+                rootnode_slug = 'consuntivo-entrate-accertamenti'
 
-                if cas_com_type == 'cassa':
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-cassa'
-                else:
-                    rootnode_slug = totale_slug = 'consuntivo-entrate-accertamenti'
-
-                rootnode = Voce.objects.get(slug=rootnode_slug)
-
-                # gets 1 and 2nd level descendants from root
-                slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
-
-        if include_totale:
-            slugset.append(totale_slug)
-
-        return slugset, totale_slug
+        totale_slug = rootnode_slug
+        return rootnode_slug, totale_slug
 
 
-    def get_slugset_spese(self, bilancio_type, cas_com_type, include_totale=True):
-
-        ##
-        # overview widget and spese widget
-        ##
+    def get_rootnode_slug_spese(self, bilancio_type, cas_com_type):
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
@@ -559,8 +514,69 @@ class CalculateVariationsMixin(object):
             else:
                 totale_slug = bilancio_type+'-spese-impegni'
 
-            rootnode_slug = totale_slug+self.somma_funzioni_affix
+        rootnode_slug = totale_slug+self.somma_funzioni_affix
 
+        return rootnode_slug, totale_slug
+
+    def get_slugset_entrate_widget(self, bilancio_type, cas_com_type, widget_type="overview", include_totale = True):
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_entrate(bilancio_type,cas_com_type)
+        rootnode = Voce.objects.get(slug=rootnode_slug)
+
+        if widget_type == 'overview':
+
+            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
+
+        else:
+            # gets 1 and 2nd level descendants from root
+            slugset = list(rootnode.get_descendants(include_self=False).filter(level__lte=rootnode.level+2).values_list('slug', flat=True))
+
+        if include_totale:
+            slugset.append(totale_slug)
+
+        return slugset, totale_slug
+
+    def get_slugset_entrate_chiguadagnaperde(self, bilancio_type, cas_com_type, page_type = "overview"):
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_entrate(bilancio_type,cas_com_type)
+        rootnode = Voce.objects.get(slug=rootnode_slug)
+        if page_type == 'overview':
+            slugset = list(rootnode.get_children().order_by('slug').values_list('slug',flat=True))
+        else:
+            # gets 1 and 2nd level descendants from root
+            descendants = list(rootnode.get_descendants(include_self=False).order_by('slug').filter(level__lte=rootnode.level+2,))
+            slugset = []
+            # gets only voce without children
+            for d in descendants:
+                if d.is_leaf_node():
+                    slugset.append(d.slug)
+
+        return slugset
+
+
+    def get_slugset_spese_chiguadagnaperde(self, bilancio_type, cas_com_type, page_type = "overview"):
+
+        ##
+        # overview widget and spese widget
+        ##
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
+        rootnode = Voce.objects.get(slug = rootnode_slug)
+        slugset = list(rootnode.get_children().values_list('slug', flat=True))
+        slugset.append(totale_slug+'-prestiti')
+        slugset.append(totale_slug+'-spese-per-conto-terzi')
+
+        return slugset
+
+
+
+    def get_slugset_spese_widget(self, bilancio_type, cas_com_type, include_totale=True):
+
+        ##
+        # overview widget and spese widget
+        ##
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
         rootnode = Voce.objects.get(slug = rootnode_slug)
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
         slugset.append(totale_slug+'-prestiti')
@@ -635,8 +651,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         return variations
 
 
-
-
     def get(self, request, *args, **kwargs):
 
         ##
@@ -660,14 +674,18 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         self.territorio = get_object_or_404(Territorio, slug = territorio_slug)
 
         # identifies the bilancio for comparison
-        self.comp_bilancio_type = 'preventivo'
-        self.comp_bilancio_year = self.main_bilancio_year
-        self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = self.comp_bilancio_type )
+
 
         if self.main_bilancio_type == 'preventivo':
+
             self.comp_bilancio_type = 'consuntivo'
             self.cas_com_type = "cassa"
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = verification_voice)
+        else:
+            self.comp_bilancio_type = 'preventivo'
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
 
 
         if self.comp_bilancio_year is None:
@@ -850,14 +868,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context = {}
         context["type"]= "ENTRATE"
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_e).level
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
@@ -914,14 +932,14 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context = {}
         context["type"]= "SPESE"
         # spese data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type,self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
         totale_level = Voce.objects.get(slug=main_tot_s).level
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
@@ -968,7 +986,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
         context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
         context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-        context['active_layers'] = 2
+        context['active_layers'] = 1
 
         return context
 
@@ -977,15 +995,15 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         context = {}
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
         main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
         comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e)
 
         # spese data
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type)
+        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
+        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type, self.cas_com_type)
         main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
         comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
@@ -1176,7 +1194,13 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
 
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
-        incarichi_set_1.extend(incarichi_set_2)
+
+        if incarichi_set_1:
+            incarichi_set_1.extend(incarichi_set_2)
+            incarichi = incarichi_set_1
+        else:
+            incarichi = incarichi_set_2
+
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
         parameter_type = kwargs['parameter_type']
@@ -1219,7 +1243,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         return HttpResponse(
             content=json.dumps(
                 {
-                    "timeSpans":incarichi_set_1,
+                    "timeSpans":incarichi,
                     'data':data,
                     'legend':{'title':None,'items':legend}
                 }
@@ -1333,10 +1357,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             comparison_value = comparison_value_dict.get('valore',None)
 
             variation_dict = {
-                       'denominazione' :main_denominazione_strip,
-                       'variation': self.calculate_variation(
-                                        main_value,
-                                        comparison_value
+                'slug': main_value_dict['voce__slug'],
+                'denominazione' :main_denominazione_strip,
+                'variation': self.calculate_variation(
+                                main_value,
+                                comparison_value
                        )
                     }
 
@@ -1358,24 +1383,60 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return values_regroup
 
-    def get_chi_guardagna_perde(self, value_set, guadagna=False):
+    def get_chi_guardagna_perde(self, value_set, ):
         results=[]
-        if guadagna:
-            value_set = value_set[::-1]
+        values_not_null =  []
+        pos_values = []
+        neg_values = []
+        n_total_elements = 4
+        n_half_elements = n_total_elements/2
+        n_negs=0
+        n_pos=0
+        negs_to_add=2
+        pos_to_add=2
 
-        for element in value_set:
+        for value in value_set:
+            if value['variation'] is not None:
+                if value['variation'] < 0:
+                    n_negs+=1
+                elif value['variation'] > 0:
+                    n_pos +=1
 
-            if element['variation'] is None:
-                continue
-            if guadagna:
-                if element['variation']>0:
-                    results.append(element)
+                values_not_null.append(value)
+
+
+        # sets how many pos or neg values are needed to have a grand total
+        # of 4 elements in the result list
+        if n_negs < 2 or n_pos < 2:
+
+            if n_negs < n_half_elements and n_pos < n_half_elements:
+
+                if n_negs == 0 and n_pos == 0:
+                    return results
+
+                pos_to_add = n_pos
+                negs_to_add = n_negs
+
             else:
-                if element['variation']<0:
-                    results.append(element)
+                if n_negs < n_half_elements:
+                    negs_to_add = n_negs
+                    pos_to_add = n_total_elements-n_negs
+                else:
+                    pos_to_add = n_pos
+                    negs_to_add = n_total_elements-n_pos
 
-            if len(results) == 2:
-                return results
+        if pos_to_add > 0:
+            pos_values = values_not_null[-pos_to_add:]
+        if negs_to_add > 0:
+            neg_values = values_not_null[:negs_to_add]
+
+        results.extend(pos_values[::-1])
+        results.extend(neg_values[::-1])
+
+        # if results < n_total elements, fills in with none values
+        if len(results) < n_total_elements:
+            diff = n_total_elements-len(results)
+            results.extend(repeat(None,diff))
 
         return results
 
@@ -1403,14 +1464,17 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.main_bilancio_year = int(self.year)
         if self.main_bilancio_type == 'preventivo':
             self.comp_bilancio_type = 'consuntivo'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = verification_voice )
 
         else:
             self.comp_bilancio_type = 'preventivo'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = self.comp_bilancio_type )
+            verification_voice = self.comp_bilancio_type+'-entrate'
+            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
 
         if self.comp_bilancio_year is None:
             self.comparison_not_available = True
+
 
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
@@ -1529,26 +1593,22 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # chi guadagna / perde
 
         # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate(self.main_bilancio_type,self.cas_com_type,include_totale=False)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate(self.comp_bilancio_type, self.cas_com_type,include_totale=False)
+        main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type,self.cas_com_type, page_type='overview')
+        comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type, page_type='overview')
         main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
         comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
         variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
         variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
-
-        context['entrate_chiperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
-        context['entrate_chiguadagna'] = self.get_chi_guardagna_perde(variations_e_sorted,guadagna=True)
+        context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
 
         # spese data
-        main_ss_s, main_tot_s = self.get_slugset_spese(self.main_bilancio_type, self.cas_com_type, include_totale=False)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese(self.comp_bilancio_type, self.cas_com_type, include_totale=False)
+        main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
+        comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
         main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
         comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
         variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
-
-        context['spese_chiperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
-        context['spese_chiguadagna'] = self.get_chi_guardagna_perde(variations_s_sorted, guadagna=True)
+        context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year
@@ -1609,7 +1669,7 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
             ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
         ])
 
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
+        context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
 
         # creates the query string to call the IncarichiIndicatori Json view in template
         context['selected_indicators'] = selected_indicators_slugs
@@ -1681,7 +1741,25 @@ class BilancioDetailView(BilancioOverView):
         else:
             context['bilancio_type_title'] = 'consuntivi'
 
-
+        # chi guadagna / perde
+        if self.selected_section == 'entrate':
+            # entrate data
+            main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type,self.cas_com_type,page_type="entrate")
+            comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type,page_type="entrate")
+            main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
+            comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
+            variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
+            variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
+            context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
+        else:
+            # spese data
+            main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
+            comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
+            main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
+            comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
+            variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
+            variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
+            context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
         return context
 
@@ -1753,7 +1831,7 @@ class ClassificheRedirectView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
 
-        # redirects to appropriate confronti view based on default parameter for Territori
+        # redirects to Classifiche starting page when coming from navbar
         kwargs['parameter_type'] = 'entrate'
         kwargs['parameter_slug'] = settings.DEFAULT_VOCE_SLUG_CLASSIFICHE
         kwargs['anno'] = settings.CLASSIFICHE_END_YEAR
@@ -1765,12 +1843,71 @@ class ClassificheRedirectView(RedirectView):
         else:
             return url
 
+
+class ClassificheSearchView(RedirectView):
+
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
+
+    def get(self, request, *args, **kwargs):
+        ##
+        # catches the user search for a territorio,
+        # redirects to the correct classifiche list page highlighting the chosen territorio
+        ##
+
+        territorio_found = True
+        selected_cluster = request.GET.get('selected_cluster').split(',')
+        selected_regioni = request.GET.get('selected_regioni').split(',')
+        selected_par_type = request.GET.get('selected_par_type')
+        selected_parameter_id = request.GET.get('selected_parameter_id')
+        territorio_id = int(request.GET.get('territorio_id'))
+        selected_year = request.GET.get('selected_year')
+
+        selected_regioni_names = Territorio.objects.filter(pk__in=selected_regioni).values_list('denominazione',flat=True)
+        territori_baseset = list(Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list('pk',flat=True))
+
+        if selected_par_type == 'indicatori':
+            all_ids = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+        else:
+            all_ids = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+
+        try:
+            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)
+            territorio_page = (territorio_idx / self.paginate_by)+1
+        except ValueError:
+            territorio_page = 1
+            territorio_found = False
+
+        kwargs['parameter_type'] = selected_par_type
+        kwargs['parameter_slug'] = parameter_slug
+        kwargs['anno'] = selected_year
+
+        try:
+            url = reverse('classifiche-list', args=args , kwargs=kwargs)+\
+                  '?' +"r="+"&r=".join(selected_regioni)+"&c="+"&c=".join(selected_cluster)+'&page='+str(territorio_page)
+
+            if territorio_found:
+                url +='&hl='+str(territorio_id)
+        except NoReverseMatch:
+            url = reverse('404')
+
+
+
+        return HttpResponseRedirect(url)
+
+    def get_redirect_url(self, *args, **kwargs):
+        if True:
+            pass
+        pass
+
+
+
 class ClassificheListView(ListView):
 
     template_name = 'bilanci/classifiche.html'
-    paginate_by = 15
+    paginate_by = settings.CLASSIFICHE_PAGINATE_BY
     n_comuni = None
-    territori_baseset = None
     parameter_type = None
     parameter = None
     anno = None
@@ -1855,6 +1992,7 @@ class ClassificheListView(ListView):
         # enrich the Queryset in object_list with Political context data and variation value
         object_list = []
         page = int(self.request.GET.get('page',1))
+
         paginator_offset = ((page - 1) * self.paginate_by) + 1
 
         all_regions = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True)
@@ -1891,11 +2029,9 @@ class ClassificheListView(ListView):
 
             if self.parameter_type =='indicatori':
                 valore = obj.valore
-                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore',None)
 
             else:
                 valore = obj.valore_procapite
-                # comparison_value = comparison_regroup.get(valoreObj.territorio.pk,{}).get('valore_procapite',None)
 
             if territorio_id in incarichi_regroup.keys():
                 incarichi = incarichi_regroup[territorio_id]
@@ -1931,23 +2067,52 @@ class ClassificheListView(ListView):
         # defines the lists of possible confrontation parameters
         context['selected_par_type'] = self.parameter_type
         context['selected_parameter'] = self.parameter
-        context['selected_regioni'] = self.selected_regioni if len(self.selected_regioni)>0 else all_regions
-        context['selected_cluster'] = self.selected_cluster if len(self.selected_cluster)>0 else all_clusters
+        context['selected_parameter_name'] = self.parameter.denominazione
+
+        if self.parameter != 'indicatori':
+            if self.parameter.slug == 'consuntivo-entrate-cassa':
+                context['selected_parameter_name'] = 'Totale entrate'
+            if self.parameter.slug == 'consuntivo-spese-cassa':
+                context['selected_parameter_name'] = 'Totale spese'
+
+        self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
+        self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
+
+        context['selected_regioni'] = self.selected_regioni
+        context['selected_cluster'] = self.selected_cluster
+        selected_regioni_str = [str(k) for k in self.selected_regioni]
+        selected_cluster_str = [str(k) for k in self.selected_cluster]
+
+        # string version of form flags needed for classifiche search
+        context['selected_regioni_str'] = ','.join(selected_regioni_str)
+        context['selected_cluster_str'] = ','.join(selected_cluster_str)
 
         context['selected_year'] = self.anno
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
         context['selector_start_year'] = settings.CLASSIFICHE_START_YEAR
         context['selector_end_year'] = settings.CLASSIFICHE_END_YEAR
 
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
+        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
+        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
+
+        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
+        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
+
+        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
+        context['entrate_list'] = entrate_list
+        context['spese_list'] = spese_list
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
+        context['territori_search_form_classifiche'] = TerritoriSearchFormClassifiche()
+        context['query_string'] = "r="+"&r=".join(selected_regioni_str)+"&c="+"&c=".join(selected_cluster_str)
 
-        context['query_string'] = self.request.META['QUERY_STRING']
+        # if there is a territorio to highlight passes the data to context
+        context['highlight_territorio'] = None
+        territorio_highlight = self.request.GET.get('hl',None)
 
+        if territorio_highlight is not None:
+            context['highlight_territorio'] = int(territorio_highlight)
 
         # creates url for share button
         regioni_list=['',]
@@ -1985,6 +2150,24 @@ class ClassificheListView(ListView):
             context['share_url'] = short_url_obj.short_url
 
         return context
+
+
+class MappeTemplateView(TemplateView):
+
+    ##
+    # Shows simple map page
+    ##
+
+    template_name = "bilanci/mappe.html"
+
+    def get_context_data(self, **kwargs):
+
+
+        context = super(MappeTemplateView, self).get_context_data(**kwargs)
+
+
+        return context
+
 
 
 class ConfrontiHomeView(TemplateView):
@@ -2058,11 +2241,17 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto
 
-
         # defines the lists of possible confrontation parameters
-        context['indicator_list'] = Indicatore.objects.all().order_by('denominazione')
-        context['entrate_list'] = Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug')
-        context['spese_list'] = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug')
+
+        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
+        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
+
+        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
+        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
+
+        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
+        context['entrate_list'] = entrate_list
+        context['spese_list'] = spese_list
         context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
@@ -2081,7 +2270,13 @@ class ConfrontiEntrateView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
         context['parameter_type'] = "entrate"
-        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+
+        context['parameter_name'] = parameter.denominazione
+        if parameter.slug == 'consuntivo-entrate-cassa':
+            context['parameter_name'] = u'Totale entrate'
+
         return context
 
 class ConfrontiSpeseView(ConfrontiView):
@@ -2089,7 +2284,12 @@ class ConfrontiSpeseView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
         context['parameter_type'] = "spese"
-        context['parameter'] = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+
+        context['parameter_name'] = parameter.denominazione
+        if parameter.slug == 'consuntivo-spese-cassa':
+            context['parameter_name'] = u'Totale spese'
 
 
         return context
@@ -2099,8 +2299,9 @@ class ConfrontiIndicatoriView(ConfrontiView):
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
         context['parameter_type'] = "indicatori"
-        context['parameter'] = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
-
+        parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['parameter'] = parameter
+        context['parameter_name'] = parameter.denominazione
 
         return context
 

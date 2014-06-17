@@ -95,6 +95,7 @@ class Indicatore(models.Model):
     denominazione = models.CharField(max_length=100)
     descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
+    published = models.BooleanField(default=True, blank=False, null=False)
 
     class Meta:
         verbose_name_plural = u'Indicatori'

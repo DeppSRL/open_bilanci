@@ -118,11 +118,6 @@ class Command(BaseCommand):
 
         self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
 
-        if delete:
-            self.logger.info(u"Deleting all Incarico...".format(dryrun))
-            Incarico.objects.all().delete()
-            self.logger.info(u"Done.".format(dryrun))
-
         nomi_capoluoghi = list(
             Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).
                 values_list('denominazione', flat=True)
@@ -164,9 +159,18 @@ class Command(BaseCommand):
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
 
         if territori_type != 'others':
+            if delete:
+                self.logger.info(u"Deleting all Incarico for capoluoghi".format(dryrun))
+                Incarico.objects.filter(territorio__in=capoluoghi_provincia).delete()
+                self.logger.info(u"Done.")
+
             self.process_cities(capoluoghi_provincia, dryrun)
 
         if territori_type !='capoluoghi':
+            if delete:
+                self.logger.info(u"Deleting all Incarico for altri territori".format(dryrun))
+                Incarico.objects.filter(territorio__in=altri_territori).delete()
+                self.logger.info(u"Done.".format(dryrun))
             self.process_cities(altri_territori, dryrun)
 
         self.log_errors()
@@ -197,7 +201,8 @@ class Command(BaseCommand):
 
     def date_integrity_check(self, incarichi_set):
 
-        # check & log incarico.lenght > 5 yrs, check & log incarico timespan > 60days
+        # check & log if incarico.lenght > 5 yrs
+        # check & log if timespan between incarico1 and incarico2 > 60days
 
         added_ids=[]
         for idx, incarico in enumerate(incarichi_set):
@@ -288,15 +293,17 @@ class Command(BaseCommand):
         # fills in incarichi_clean_set
         for outer_idx, incarico_outer in enumerate(incarichi_set):
             if incarico_outer['charge_type'] == u'Commissario':
+                if outer_idx not in same_period_commissari_id:
 
-                for inner_idx, incarico_inner in enumerate(incarichi_set):
-                    if inner_idx != outer_idx and incarico_inner['charge_type'] == u'Commissario':
-                        if incarico_inner['date_start'] == incarico_outer['date_start']\
-                            and incarico_inner['date_end'] == incarico_outer['date_end']:
-                            
-                            same_period_commissari_id.append(inner_idx)
-                            self.logger.debug("Merge commissario {0} with {1}: same date_start/date_end".\
-                                format(self.format_incarico(incarico_inner), self.format_incarico(incarico_outer)))
+                    for inner_idx, incarico_inner in enumerate(incarichi_set):
+                        if inner_idx != outer_idx and incarico_inner['charge_type'] == u'Commissario':
+                            if inner_idx not in same_period_commissari_id:
+                                if incarico_inner['date_start'] == incarico_outer['date_start']\
+                                    and incarico_inner['date_end'] == incarico_outer['date_end']:
+
+                                    same_period_commissari_id.append(inner_idx)
+                                    self.logger.debug("Merge commissario {0} with {1}: same date_start/date_end".\
+                                        format(self.format_incarico(incarico_inner), self.format_incarico(incarico_outer)))
 
         
         for idx, incarico in enumerate(incarichi_set):
@@ -355,8 +362,8 @@ class Command(BaseCommand):
             # check for data integrity
 
             if len(incarichi_set) == 0:
-                self.logger.warning('Incarichi missing for {0}'.format(unidecode(territorio.denominazione)).upper())
-                return
+                self.logger.error('No incarico available for city: {0}, skipping'.format(unidecode(territorio.denominazione)).upper())
+                continue
 
 
             self.date_integrity_check(incarichi_set)

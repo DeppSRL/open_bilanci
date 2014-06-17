@@ -283,3 +283,56 @@ class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
         sp = self.get_val(data_dict, city, year, 'sp')
         si = self.get_val(data_dict, city, year, 'si')
         return 100.0 * sp  / si
+
+
+class GradoRigiditaStrutturaleSpesaIndicator(BaseIndicator):
+    """
+    (consuntivo-spese-cassa-spese-correnti-interventi-personale + consuntivo-spese-cassa-prestiti) /
+    (consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-entrate-extratributarie + consuntivo-entrate-cassa-contributi-pubblici) * 100
+    """
+
+    slug = 'grado-rigidita-strutturale-spesa'
+    label = u'Grado di rigidità strutturale della spesa'
+    used_voci_slugs = {
+        'scip': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
+        'scp':  'consuntivo-spese-cassa-prestiti',
+        'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'ecee': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'eccp': 'consuntivo-entrate-cassa-contributi-pubblici',
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        scip = self.get_val(data_dict, city, year, 'scip')
+        scp = self.get_val(data_dict, city, year, 'scp')
+        ecit = self.get_val(data_dict, city, year, 'ecit')
+        ecee = self.get_val(data_dict, city, year, 'ecee')
+        eccp = self.get_val(data_dict, city, year, 'eccp')
+
+        return ((scip + scp )/(ecit + ecee + eccp))*100.0
+        
+        
+class EquilibrioParteCorrenteIndicator(BaseIndicator):
+
+    """
+    [(consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-contributi-pubblici + consuntivo-entrate-cassa-entrate-extratributarie) /
+    consuntivo-spese-cassa-spese-correnti] * 100
+    """
+
+    slug = 'equilibrio-parte-corrente'
+    label = u'Equilibrio di parte corrente'
+    used_voci_slugs = {
+        'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'eccp':  'consuntivo-entrate-cassa-contributi-pubblici',
+        'ecee': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'scsc': 'consuntivo-spese-cassa-spese-correnti',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+        
+        ecit = self.get_val(data_dict, city, year, 'ecit')
+        eccp = self.get_val(data_dict, city, year, 'eccp')
+        ecee = self.get_val(data_dict, city, year, 'ecee')
+        scsc = self.get_val(data_dict, city, year, 'scsc')
+        
+        return ((ecit + eccp + ecee)/scsc)*100.0
