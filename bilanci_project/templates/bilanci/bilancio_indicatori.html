@@ -32,8 +32,9 @@
         <div id="indicatori-selezionati">
             {% include 'commons/_lines_chart_over_the_years.html' %}
         </div>
-
     </div>
+
+    {% include 'bilanci/miniclass_indicatori.html' with territorio=territorio indicatore_position=indicatore_position last_indicatore_yr=last_indicatore_yr %}
 
 {% endblock %}
 

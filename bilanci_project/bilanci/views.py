@@ -1659,6 +1659,39 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
         # get Comune context data from db
         year = settings.SELECTOR_DEFAULT_YEAR
 
+        # construct data for mini classifiche
+        indicatori = Indicatore.objects.filter(published=True).values('pk','denominazione','slug')
+        last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
+        # initial territori_baseset is the complete list of comuni in the same cluster as self.territorio
+        territori_baseset = Territorio.objects.comuni.filter(cluster = self.territorio.cluster)
+
+        territori_ids = list(territori_baseset.values_list('id', flat=True))
+
+        indicatore_position = []
+
+        for indicatore in indicatori:
+
+            indicatore_all_ids = ValoreIndicatore.objects.get_classifica_ids(indicatore['pk'], last_indicatore_yr)
+            # filters results on territori in the considered cluster
+            indicatore_cluster_ids =  [id for id in indicatore_all_ids if id in territori_ids]
+
+            try:
+                position = indicatore_cluster_ids.index(self.territorio.pk)+1
+            except ValueError:
+                pass
+
+            else:
+
+                indicatore_position.append(
+                    {
+                        'indicatore_denominazione': indicatore['denominazione'],
+                        'indicatore_slug': indicatore['slug'],
+                        'position': position
+                    }
+                )
+
+        context['last_indicatore_yr'] = last_indicatore_yr
+        context['indicatore_position'] = indicatore_position
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
 
@@ -1670,7 +1703,6 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
         ])
 
         context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
-
         # creates the query string to call the IncarichiIndicatori Json view in template
         context['selected_indicators'] = selected_indicators_slugs
         context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)

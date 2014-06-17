@@ -217,6 +217,15 @@ class Territorio(models.Model):
             return best_year
 
 
+    def latest_year_indicatore(self, slug):
+        available_years = list(self.valoreindicatore_set.filter(indicatore__slug=slug).values_list('anno', flat=True).order_by('anno'))
+
+        if not available_years:
+            return None
+
+        return available_years[-1]
+
+
     def nearest_valid_population(self, year):
         """
         Fetch resident population data from context.
