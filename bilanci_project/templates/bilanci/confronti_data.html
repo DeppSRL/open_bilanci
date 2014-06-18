@@ -100,13 +100,35 @@
                     </div>
                 </div>
             </div>
+            {#  miniclassifiche indicatori    #}
+            {% if parameter_type == 'indicatori' %}
+                <div class="panel panel-default panel-nobg">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% include 'bilanci/miniclass_confronti.html' with territorio=territorio_1 territorio_cluster=territorio_1_cluster indicatore_position=indicatore_positions_1 last_indicatore_yr=last_indicatore_yr incarichi_attivi=incarichi_attivi_1 active_indicator_slug=parameter.slug %}
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'bilanci/miniclass_confronti.html' with territorio=territorio_2 territorio_cluster=territorio_2_cluster indicatore_position=indicatore_positions_2 last_indicatore_yr=last_indicatore_yr incarichi_attivi=incarichi_attivi_2 active_indicator_slug=parameter.slug %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div><!-- /#results -->
+
+
 {% endblock %}
 
 
 {% block extra_js %}
 
+
+    <!-- Raphael -->
+    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
 
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>

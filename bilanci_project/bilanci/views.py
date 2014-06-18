@@ -62,6 +62,43 @@ class ShareUrlMixin(object):
         return super(ShareUrlMixin, self).get(request, *args, **kwargs)
 
 
+class MiniClassificheMixin(object):
+
+    def get_indicatore_positions(self, territorio, anno):
+        # construct data for mini classifiche
+        indicatori = Indicatore.objects.filter(published=True).values('pk','denominazione','slug')
+
+        # initial territori_baseset is the complete list of comuni in the same cluster as territorio
+        territori_baseset = Territorio.objects.comuni.filter(cluster = territorio.cluster)
+
+        territori_ids = list(territori_baseset.values_list('id', flat=True))
+
+        indicatore_position = []
+
+        for indicatore in indicatori:
+
+            indicatore_all_ids = ValoreIndicatore.objects.get_classifica_ids(indicatore['pk'], anno)
+            # filters results on territori in the considered cluster
+            indicatore_cluster_ids =  [id for id in indicatore_all_ids if id in territori_ids]
+
+            try:
+                position = indicatore_cluster_ids.index(territorio.pk)+1
+            except ValueError:
+                pass
+
+            else:
+
+                indicatore_position.append(
+                    {
+                        'indicatore_denominazione': indicatore['denominazione'],
+                        'indicatore_slug': indicatore['slug'],
+                        'position': position
+                    }
+                )
+
+        return indicatore_position
+
+
 class HomeView(TemplateView):
     template_name = "home.html"
 
@@ -1623,7 +1660,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return context
 
-class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -1659,40 +1696,11 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
         # get Comune context data from db
         year = settings.SELECTOR_DEFAULT_YEAR
 
-        # construct data for mini classifiche
-        indicatori = Indicatore.objects.filter(published=True).values('pk','denominazione','slug')
         last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
-        # initial territori_baseset is the complete list of comuni in the same cluster as self.territorio
-        territori_baseset = Territorio.objects.comuni.filter(cluster = self.territorio.cluster)
-
-        territori_ids = list(territori_baseset.values_list('id', flat=True))
-
-        indicatore_position = []
-
-        for indicatore in indicatori:
-
-            indicatore_all_ids = ValoreIndicatore.objects.get_classifica_ids(indicatore['pk'], last_indicatore_yr)
-            # filters results on territori in the considered cluster
-            indicatore_cluster_ids =  [id for id in indicatore_all_ids if id in territori_ids]
-
-            try:
-                position = indicatore_cluster_ids.index(self.territorio.pk)+1
-            except ValueError:
-                pass
-
-            else:
-
-                indicatore_position.append(
-                    {
-                        'indicatore_denominazione': indicatore['denominazione'],
-                        'indicatore_slug': indicatore['slug'],
-                        'position': position
-                    }
-                )
 
         context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
         context['last_indicatore_yr'] = last_indicatore_yr
-        context['indicatore_position'] = indicatore_position
+        context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
         context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
@@ -2328,7 +2336,7 @@ class ConfrontiSpeseView(ConfrontiView):
 
         return context
 
-class ConfrontiIndicatoriView(ConfrontiView):
+class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
@@ -2336,6 +2344,23 @@ class ConfrontiIndicatoriView(ConfrontiView):
         parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
         context['parameter'] = parameter
         context['parameter_name'] = parameter.denominazione
+        context['territorio_1_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_1.cluster).denominazione
+        context['territorio_2_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_2.cluster).denominazione
+
+        # construct data for miniclassifiche
+
+        last_indicatore_yr_1 = self.territorio_1.latest_year_indicatore(slug='autonomia-finanziaria')
+        last_indicatore_yr_2 = self.territorio_2.latest_year_indicatore(slug='autonomia-finanziaria')
+
+        last_indicatore_yr = last_indicatore_yr_1
+        if last_indicatore_yr_1 > last_indicatore_yr_2:
+            last_indicatore_yr = last_indicatore_yr_2
+
+        context['last_indicatore_yr'] = last_indicatore_yr
+        context['indicatore_positions_1'] = self.get_indicatore_positions(territorio=self.territorio_1, anno = last_indicatore_yr)
+        context['indicatore_positions_2'] = self.get_indicatore_positions(territorio=self.territorio_2, anno = last_indicatore_yr)
+        context['incarichi_attivi_1'] = Incarico.get_incarichi_attivi(territorio = self.territorio_1, anno=last_indicatore_yr)
+        context['incarichi_attivi_2'] = Incarico.get_incarichi_attivi(territorio = self.territorio_2, anno=last_indicatore_yr)
 
         return context
 
