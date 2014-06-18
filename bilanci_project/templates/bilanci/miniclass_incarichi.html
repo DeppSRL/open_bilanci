@@ -26,10 +26,10 @@
     {{ incarichi_attivi|length }} incarichi attivi per il Comune di
     {{ territorio.denominazione }}
 
-
-    <div id="incarichi_attivi-{{ territorio.pk }}" style="display: none">
+    <div id="incarichi_attivi-{{ territorio.pk }}" >
         <ul>
         {% for incarico in incarichi_attivi  %}
+
             <li>
                 <a target="_blank" href="{{ incarico.op_link }}">
                     {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
