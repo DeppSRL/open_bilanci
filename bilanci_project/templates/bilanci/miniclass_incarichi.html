@@ -20,10 +20,13 @@
         {% elif incarichi_attivi.0.party_acronym %}
             <p >{{ incarichi_attivi.0.party_acronym|title}}</p>
         {% endif %}
+        <p class="small">Sindaco dal {{ incarichi_attivi.0.data_inizio }}
+            {% if incarichi_attivi.0.data_fine %}al {{ incarichi_attivi.0.data_fine }}{% endif %}
+        </p>
 
     </div>
 {% elif incarichi_attivi|length > 1%}
-    {{ incarichi_attivi|length }} incarichi attivi per il Comune di
+    {{ incarichi_attivi|length }} incarichi per il Comune di
     {{ territorio.denominazione }}
 
     <div id="incarichi_attivi-{{ territorio.pk }}" >
@@ -39,6 +42,7 @@
                 {% elif incarico.party_acronym %}
                     ({{ incarico.party_acronym|title}})
                 {% endif %}
+                {{ incarico.data_inizio }} - {{ incarico.data_fine|default_if_none:"presente" }}
             </li>
         {% endfor %}
         </ul>
