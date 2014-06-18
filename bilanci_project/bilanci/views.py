@@ -1695,6 +1695,7 @@ class BilancioIndicatoriView(ShareUrlMixin, DetailView, IndicatorSlugVerifierMix
         context['indicatore_position'] = indicatore_position
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
+        context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),

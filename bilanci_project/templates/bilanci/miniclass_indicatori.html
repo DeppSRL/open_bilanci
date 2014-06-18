@@ -4,25 +4,13 @@
     <div class="panel-heading clearfix">
 
         <div class="media pull-right">
-{#            <figure class="pull-right img-circle borded">#}
-{#                <img class="media-object" src="http://cambelt.co/42x42/AS?color=a0180d" alt="avatar">#}
-{#            </figure>#}
-{#            <div class="media-body pull-left text-right">#}
-{#                <p class="h4"><a href="#">N. Cognome</a></p>#}
-{#                <p>#}
-{#                    Lista<br>#}
-{#                    <span class="small">#}
-{#                    Sindaco dal.. al..#}
-{#                    </span>#}
-{#                </p>#}
-{#            </div>#}
              {% include 'bilanci/miniclass_incarichi.html' with incarichi_attivi=incarichi_attivi territorio=territorio %}
         </div>
 
         <h3 class="panel-title">
             {{ territorio.denominazione }}
         </h3>
-        <p>Posizione in classifica per tutti gli indicatori</p>
+        <p>Posizione in classifica per l'anno {{ last_indicatore_yr }} per tutti gli indicatori per il cluster: {{ territorio_cluster }}</p>
     </div>
 
     <div class="table-responsive">
