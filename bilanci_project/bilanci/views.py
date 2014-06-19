@@ -1249,7 +1249,7 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
                 data_set_1 = self.get_indicatore_struct(territorio_1, indicatore, line_id=1, line_color = territorio_1_color)
                 data_set_2 = self.get_indicatore_struct(territorio_2, indicatore, line_id=2, line_color = territorio_2_color)
 
-            elif parameter_type == 'entrate' or parameter_type == 'spese':
+            elif parameter_type == 'entrate' or parameter_type == 'spese-funzioni' or parameter_type == 'spese-interventi':
                 voce_bilancio = get_object_or_404(Voce, slug = parameter_slug)
                 # gets voce value for the territorio over the period set
                 data_set_1 = self.get_voce_struct(territorio_1, voce_bilancio, line_id=1, line_color = territorio_1_color, per_capita=True)
@@ -2285,15 +2285,27 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
 
         # defines the lists of possible confrontation parameters
 
-        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
-        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
+        entrate_list = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione')
 
-        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
-        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
+        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants().order_by('denominazione')
 
-        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
-        context['entrate_list'] = entrate_list
-        context['spese_list'] = spese_list
+        # spese_prestiti = Voce.objects.filter(slug='consuntivo-spese-cassa-prestiti').values_list('pk',flat=True)
+        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
+        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
+        spese_interventi_correnti.extend(spese_interventi_investimenti)
+        # spese_interventi_correnti.extend(spese_prestiti)
+
+        spese_interventi_list = Voce.objects.filter(pk__in=spese_interventi_correnti).order_by('denominazione')
+
+        indicator_list = Indicatore.objects.filter(published = True).order_by('denominazione')
+
+        context['parameter_list'] = {
+            'indicatori': indicator_list,
+            'entrate':entrate_list,
+            'spese_funzioni': spese_funzioni_list,
+            'spese_interventi': spese_interventi_list
+        }
+
         context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
@@ -2306,44 +2318,47 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
         return context
 
 
-
-class ConfrontiEntrateView(ConfrontiView):
+class ConfrontiBilancioView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
-        context = super(ConfrontiEntrateView, self).get_context_data( **kwargs)
-        context['parameter_type'] = "entrate"
-        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
-        context['parameter'] = parameter
+        context = super(ConfrontiBilancioView, self).get_context_data( **kwargs)
+        context['selected_section'] = self.get_parameter_type()
+        selected_parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
+        context['selected_parameter'] = selected_parameter
 
-        context['parameter_name'] = parameter.denominazione
-        if parameter.slug == 'consuntivo-entrate-cassa':
-            context['parameter_name'] = u'Totale entrate'
+        context['selected_parameter_name'] = selected_parameter.denominazione
+        if selected_parameter.slug == 'consuntivo-spese-cassa':
+            context['selected_parameter_name'] = u'Totale spese'
+        elif selected_parameter.slug == 'consuntivo-entrate-cassa':
+            context['selected_parameter_name'] = u'Totale entrate'
 
         return context
 
-class ConfrontiSpeseView(ConfrontiView):
 
-    def get_context_data(self, **kwargs):
-        context = super(ConfrontiSpeseView, self).get_context_data( **kwargs)
-        context['parameter_type'] = "spese"
-        parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
-        context['parameter'] = parameter
+class ConfrontiEntrateView(ConfrontiBilancioView):
 
-        context['parameter_name'] = parameter.denominazione
-        if parameter.slug == 'consuntivo-spese-cassa':
-            context['parameter_name'] = u'Totale spese'
+    def get_parameter_type(self):
+        return 'entrate'
 
+class ConfrontiSpeseInterventiView(ConfrontiBilancioView):
 
-        return context
+    def get_parameter_type(self):
+        return 'spese-interventi'
+
+class ConfrontiSpeseFunzioniView(ConfrontiBilancioView):
+
+    def get_parameter_type(self):
+        return 'spese-funzioni'
+
 
 class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
-        context['parameter_type'] = "indicatori"
-        parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
-        context['parameter'] = parameter
-        context['parameter_name'] = parameter.denominazione
+        context['selected_section'] = "indicatori"
+        selected_parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
+        context['selected_parameter'] = selected_parameter
+        context['selected_parameter_name'] = selected_parameter.denominazione
         context['territorio_1_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_1.cluster).denominazione
         context['territorio_2_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_2.cluster).denominazione
 

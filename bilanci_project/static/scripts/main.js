@@ -1,34 +1,37 @@
 /**
  * Main scripts
- * @author mleone
- * @version 1.5.7
+ * @author mleone <manuel.leone@gmail.com>
+ * @version 1.6.0
  **/
 
 $(document).ready(function(){
 
     // Main vars
-    var $window   = $( window ),
-        $lock     = $( '#lock' ),
-        $main     = $( '#main-content'),
-        $sidebar  = $( '#sidebar' ),
-        $content  = $( '#content' ),
-        $results  = $( '#results' ),
-        $comments = $( '#comments' ),
-        $controls = $( '#side-controls' ),
-        $settings = $( '#settings' ),
-        $sidemenu = $( '#side-menu' ),
-        mapPage  = ( $( '#map-canvas' ).length ? true : false ),
+    var $window         = $( window ),
+        $lock           = $( '#lock' ),
+        $main           = $( '#main-content'),
+        $sidebar        = $( '#sidebar' ),
+        $content        = $( '#content' ),
+        $results        = $( '#results' ),
+        $comments       = $( '#comments' ),
+        $controls       = $( '#side-controls' ),
+        $settings       = $( '#settings' ),
+        $sidemenu       = $( '#side-menu' ),
+        mapPage         = ( $( '#map-canvas' ).length ? true : false ),
+        pageHasControls = ( $( '#side-controls-wrapper' ).length ? true : false ),
 
         options    = {
             'env': 'production', // Environment. Values: production, development
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
-            'offset': ( mapPage ? 180 : 112 ), // Top offset.
+            'offset': ( !mapPage ? 100 : 180 ), // Top offset in map page and other pages
             'collapsibleMenu': {
-                'closeOthers': true // On click collapse other items. Values: true, false
+                'closeOthers': false, // On click collapse other items. Values: true, false
+                'startCollapsed': false // Collapsed by default. Values: true, false
             },
             'pushMenu': {
                 'scroll': true, // Push menu scrolling. Values: true, false
-                'scrollto': false // On click scroll page to menu position. Values: true, false
+                'scrollto': false, // On click scroll page to menu position. Values: true, false
+                'startOpened': false // Opened by default. Values: true, false
             }
         };
 
@@ -84,8 +87,6 @@ $(document).ready(function(){
             home.$body.stop().animate( { scrollTop : top }, home.animspeed, home.animeasing );
         }
     }
-
-
 
 
     // Function to get the Max value in Array
@@ -186,13 +187,18 @@ $(document).ready(function(){
     // Collapsible menu
     function setupCollapsibleMenu( $container )
     {
-        $container.find( '.panel-collapse' ).on( 'click', function(e){
+
+        var $togglers = $container.find( '.panel-collapse' ),
+            $toggler = null,
+            $submenu = null,
+            $pin = null,
+            selected = 0;
+
+        $togglers.on( 'click', function(e){
             e.preventDefault();
-            var $togglers = $container.find( '.panel-collapse' ),
-                $toggler = $( this ),
-                $submenu = $toggler.next( 'ul' ),
-                $pin = null,
-                selected = 0;
+            $toggler = $( this );
+            $submenu = $toggler.next( 'ul' );
+            selected = 0;
 
             $togglers.each(function( i, el ){
 
@@ -203,16 +209,65 @@ $(document).ready(function(){
                     }
                 } else {
                     $toggler.toggleClass( 'collapse' );
-                        $submenu.toggleClass( 'hidden' );
+                    $submenu.toggleClass( 'hidden' );
                 }
 
                 selected = $( el ).next( 'ul' ).find( 'input:checked' ).length;
-                $pin = $( el ).prev();
+                $pin = $( el ).prev( 'i.pin' );
 
                 if (selected > 0) {
                     $pin.removeClass( 'hidden' );
                 } else {
                     $pin.addClass( 'hidden' );
+                }
+            });
+        });
+    }
+
+    // Multilevel Collapsible menu
+    function setupMultiLevelCollapsibleMenu( $container )
+    {
+        var $items     = $container.find('div.multi-level-menu' ).find( 'ul.nav li' ),
+            $item      = null,
+            $togglers  = $items.find( 'a.toggler' ),
+            $toggler   = null,
+            $submenu   = null;
+
+        // on init
+        if ( !options.collapsibleMenu.startCollapsed ) {
+            $items.each(function( i, el ){
+                $item = $( this );
+                if ( $item.hasClass( 'active' ) ) {
+                    $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
+                    $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                }
+            });
+        }
+
+        // on click
+        $togglers.on( 'click', function(e){
+            e.preventDefault();
+            $toggler = $( this );
+            $submenu = $toggler.nextAll( 'ul.nav' );
+
+            $togglers.each(function( i, el ){
+                if ( !$toggler.is($( el )) ) {
+                    if ( options.collapsibleMenu.closeOthers ) {
+                        $( el ).find( 'ul.nav' ).addClass( 'hidden' );
+                    }
+                } else {
+                    if ( !$submenu.hasClass( 'hidden' ) ) {
+                        $toggler.parent( 'li' ).find( 'ul.nav' ).addClass( 'hidden' );
+                        $toggler.parent( 'li' ).find( 'i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+                    } else {
+                        $toggler.find( 'i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                        $submenu.removeClass( 'hidden' );
+
+                        if ( options.collapsibleMenu.closeOthers ) {
+                            $toggler.parent( 'li' ).siblings().find( 'ul.nav' ).addClass( 'hidden' );
+                            $toggler.parent( 'li' ).siblings().find( 'i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+                        }
+                    }
                 }
             });
         });
@@ -269,21 +324,10 @@ $(document).ready(function(){
                 .addClass( clss.content.on );
         });
 
-
-        $sidebar.find( 'ul.dropdown-menu li a' ).on( 'click', function( e ){
-            e.preventDefault();
-
-            var $this = $( this ),
-                $dropdown = $this.parents( '.dropdown' ),
-                $btn = $dropdown.find( 'button' );
-
-            $btn.html( '<span class="caret pull-right" />' + $this.text() );
-            $dropdown.removeClass('open');
-
-            $sidebar.find( 'ul.menu' ).addClass( 'hidden' );
-            $sidebar.find( $this.attr( 'href' ) ).removeClass( 'hidden' );
-
-        });
+        // Push menu opened by default
+        if ( options.pushMenu.startOpened ) {
+            $opener.trigger( 'click' );
+        }
 
         setupCollapsibleMenu( $sidebar );
     }
@@ -304,19 +348,21 @@ $(document).ready(function(){
 
         $closer.on( 'click', function( e ){
             e.preventDefault();
-            $panel.css({ left: -1 * (delta + 20) });
+            $panel.css({ left: "-120%" });
             $controls.css({ left: -2 });
         });
 
-        // Check for map page
-        if ( mapPage ) {
-            $opener = $( '#open-menu-schede, #open-menu-indicatori, #open-menu-filtri' );
+        // Check for controls
+        if ( pageHasControls ) {
+            $opener = $( '#side-controls > a' );
             $closer = null;
 
             $opener.on( 'click', function( e ){
                 e.preventDefault();
 
-                var $this = $( this ),
+                $opener.removeClass( 'invisible' );
+
+                var $this = $( this ).addClass( 'invisible' ),
                     $target = $( $this.attr( 'href' ) ),
                     $closer = $target.find( 'a.close-menu' );
 
@@ -326,11 +372,18 @@ $(document).ready(function(){
 
                 $closer.on( 'click', function( e ){
                     e.preventDefault();
+                    $this.removeClass( 'invisible' );
                     $target.addClass('hidden');
                 });
             });
 
-            setupCollapsibleMenu( $( '#menu-indicatori' ) );
+            setupCollapsibleMenu( $panel );
+            setupMultiLevelCollapsibleMenu( $panel );
+        }
+
+        // Settings menu opened by default
+        if ( options.pushMenu.startOpened ) {
+            $opener.trigger( 'click' );
         }
 
     }
@@ -358,6 +411,27 @@ $(document).ready(function(){
 
             $el.css( 'top', y );
         }
+    }
+
+
+    function changeSubMenu()
+    {
+        var $dropdown =  $( 'div.submenu-change' ),
+            $btn = $dropdown.find( 'button' );
+            $this = null;
+
+        $dropdown.find( 'li > a').on( 'click', function( e ){
+            e.preventDefault();
+
+            $this = $( this );
+
+            $btn.html( '<span class="caret pull-right" />' + $this.text() );
+            $dropdown.removeClass('open');
+
+            $dropdown.parent().parent().find( 'ul.menu' ).addClass( 'hidden' );
+            $dropdown.parent().parent().find( $this.attr( 'href' ) ).removeClass( 'hidden' );
+
+        });
     }
 
     // Side controls
@@ -392,12 +466,14 @@ $(document).ready(function(){
 
         setupPushMenu();
         setupSettingsMenu();
+        changeSubMenu();
     }
 
     // Tooltips
     function setupTooltips()
     {
-        $( '[data-toggle="tooltip"]' ).tooltip( {placement: 'right', container: 'body'} );
+        $( '[data-toggle="tooltip"]' ).tooltip({ placement: 'right', container: 'body' });
+        $( '[data-toggle="popover"]' ).popover({ placement: 'right', html: true });
     }
 
     // Donut chart
@@ -554,8 +630,6 @@ $(document).ready(function(){
                 });
             });
         }
-
-
     }
 
     // Add charts
@@ -599,7 +673,7 @@ $(document).ready(function(){
         });
     }
 
-
+    // Parallax background
     function parallax()
     {
         $('section[data-type="background"]').each(function(){
@@ -623,7 +697,7 @@ $(document).ready(function(){
     {
         setupTooltips();
         setupScrollbox();
-        //setupCollapsibleTable();
+        setupCollapsibleTable();
         setupSideControls();
         parallax();
 
@@ -640,7 +714,7 @@ $(document).ready(function(){
 
     // Dev
     if ( options.env === 'development' ) {
-        $( 'body' ).append( '<script src="scripts/live.js"></script>' );
+        $( 'body' ).append( '<script src="scripts/vendor/live.js"></script>' );
     }
 
 

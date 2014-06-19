@@ -1,0 +1,30 @@
+<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
+        >
+    {% for node in nodes %}
+        <li {% if parameter_type == selected_section and node.slug == selected_parameter_slug %}class="active"{% endif %}>
+
+
+            {# initialize the url for parameter list menu   #}
+            {% if parameter_type == 'indicatori' %}
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% else %}
+
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% endif %}
+
+                {{ node.denominazione }}
+            </a>
+
+            {#  tooltip #}
+            <a href="#"
+                class=tip"
+                rel="info-popover"
+                data-toggle="popover"
+                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"
+                data-original-title="Tooltip">
+                    <i class="fa fa-question-circle"></i>
+            </a>
+        </li>
+
+    {% endfor %}
+</ul>

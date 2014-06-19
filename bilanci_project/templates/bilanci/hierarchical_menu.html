@@ -1,0 +1,46 @@
+<div id="side-controls-wrapper">
+    <div id="side-controls">
+        <a href="#menu-selezione" role="button" class="slider-arrow show grouped" id="open-menu-selezione"><span class="icon sprite-open-menu-selezione"></span></a>
+    </div>
+
+    <div id="settings" class="closed alt">
+
+        <div class="panel panel-default hidden" id="menu-selezione">
+            <div class="panel-heading">
+                <a href="#" role="button" href="#" class="pull-right close-menu"><span class="icon sprite-close-menu-selezione"></span></a>
+                <h3 class="panel-title">Seleziona</h3>
+            </div>
+
+            <div class="panel-body">
+                <div class="dropdown submenu-change">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span class="caret pull-right"></span>
+
+                        {% if selected_section == 'entrate' or selected_section == 'indicatori' %}
+                            {{ selected_section|upper }}
+                        {% elif selected_section == 'spese-funzioni' %}
+                            SPESE PER FUNZIONI
+                        {% else %}
+                            SPESE PER INTERVENTI
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-indicatori">INDICATORI</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-entrate">ENTRATE</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-spese-funzioni">SPESE PER FUNZIONI</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-spese-interventi">SPESE PER INTERVENTI</a></li>
+                    </ul>
+                </div>
+
+                <div class="multi-level-menu">
+                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='indicatori' nodes=parameter_list.indicatori selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='entrate' nodes=parameter_list.entrate selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='spese-funzioni' nodes=parameter_list.spese_funzioni selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='spese-interventi' nodes=parameter_list.spese_interventi selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                </div>
+            </div>
+        </div>
+
+
+    </div><!-- /#settings -->
+</div><!-- /#side-controls-wrapper -->

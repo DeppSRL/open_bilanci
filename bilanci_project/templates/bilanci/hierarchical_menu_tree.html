@@ -1,0 +1,45 @@
+{% load mptt_tags %}
+<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
+    {% recursetree nodes %}
+        <li {% if parameter_type == selected_section and node.slug == selected_parameter_slug %}class="active"{% endif %}
+                >
+
+            {% if not node.is_leaf_node %}
+                <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
+            {% endif %}
+
+            {# initialize the url for parameter list menu   #}
+            {% if parameter_type == 'entrate' %}
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% else %}
+
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% endif %}
+
+                {% if node.slug == 'consuntivo-entrate-cassa' %}
+                    Entrate
+                {% else %}
+                    {{ node.denominazione }}
+                {% endif %}
+
+            </a>
+
+
+            {# tooltip           #}
+            <a href="#"
+                class=tip"
+                rel="info-popover"
+                data-toggle="popover"
+                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"
+                data-original-title="Tooltip">
+                    <i class="fa fa-question-circle"></i>
+            </a>
+
+            {% if not node.is_leaf_node %}
+                <ul class="nav nav-stacked hidden">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>
