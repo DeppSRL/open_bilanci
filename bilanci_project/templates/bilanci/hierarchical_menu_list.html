@@ -1,26 +1,18 @@
-<ul class="nav nav-stacked menu {% if id != parameter_type %}hidden{% endif %}" id="submenu-{{ id }}"
+<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
         >
     {% for node in nodes %}
         <li>
 
-            <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
-
             {# initialize the url for parameter list menu   #}
-            {% if parameter_list_type == 'indicatori' %}
-                href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                {% else %}
-                {% if parameter_list_type == 'entrate'%}
-                    href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                    {% else %}
-                    {% if parameter_list_type == 'spese' %}
-                        href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
-                    {% endif %}
-                {% endif %}
+            {% if parameter_type == 'indicatori' %}
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% else %}
+
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
             {% endif %}
-                >
 
-
-            <a href="#">{{ node.denominazione }}</a>
+                {{ node.denominazione }}
+            </a>
 
             {#  tooltip #}
             <a href="#"

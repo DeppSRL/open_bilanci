@@ -6,7 +6,7 @@
 {% load section_values_type %}
 
 {% block page_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter_name }}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ selected_parameter_name }}
 {% endblock %}
 
 {% block helpbox_1 %}
@@ -15,15 +15,6 @@
 
 {% block helpbox_2 %}
     {% confronti_helpbox territorio_2  contesto_2 %}
-{% endblock %}
-
-{% block confronti_parameter_menu_toggle %}
-
-    {# menu handle is hidden on pageload   #}
-{#    <div id="side-controls" style="display: block; left: -50px; top: 343px;">#}
-{#        <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>#}
-{#    </div>#}
-
 {% endblock %}
 
 {% block share_box %}
@@ -45,7 +36,7 @@
 
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
-    {% include 'bilanci/hierarchical_menu.html' with parameter_list=parameter_list terr_1_slug=territorio_1.slug terr_2_slug=territorio_2.slug par_type=parameter_type par_slug=parameter.slug %}
+    {% include 'bilanci/hierarchical_menu.html' with parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_section=selected_section selected_parameter_slug=selected_parameter.slug %}
 {% endblock %}
 
 {% block results %}
@@ -56,11 +47,11 @@
 
                     {#  section title / values_type                   #}
                     <div class="row">
-                        <div class='{% if parameter_type != 'indicatori' %}col-md-6{% else %}col-md-12{% endif %}'>
-                            <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter_name %}</h3>
+                        <div class='{% if selected_section != 'indicatori' %}col-md-6{% else %}col-md-12{% endif %}'>
+                            <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=selected_parameter_name %}</h3>
                         </div>
 
-                        {% if parameter_type != 'indicatori' %}
+                        {% if selected_section != 'indicatori' %}
                             <div class='col-md-6'>
                                 {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
                             </div>
@@ -76,7 +67,7 @@
                 </div>
             </div>
             {#  miniclassifiche indicatori    #}
-            {% if parameter_type == 'indicatori' %}
+            {% if selected_section == 'indicatori' %}
                 <div class="panel panel-default panel-nobg">
                     <div class="panel-body">
                         <div class="row">
@@ -116,7 +107,7 @@
         $(document).ready(function(){
 
             init_confronti_page();
-            {% if parameter_type == 'indicatori' %}
+            {% if selected_section == 'indicatori' %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"%","%");
             {% else %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro");
@@ -131,7 +122,7 @@
 
         //    initialize the line graph with data
 
-        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=parameter.slug %}",
+        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=selected_section parameter_slug=selected_parameter.slug %}",
             function (i) {
             linechart.data(i)
         });

@@ -15,7 +15,7 @@
                 <div class="dropdown submenu-change">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                         <span class="caret pull-right"></span>
-                        {{ parameter_type|upper }}
+                        {{ selected_section|upper }}
                     </button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-indicatori">INDICATORI</a></li>
@@ -26,10 +26,10 @@
                 </div>
 
                 <div class="multi-level-menu">
-                    {% include 'bilanci/hierarchical_menu_list.html' with id='indicatori' nodes=parameter_list.indicatori parameter_type=parameter_type %}
-                    {% include 'bilanci/hierarchical_menu_tree.html' with id='entrate' nodes=parameter_list.entrate parameter_type=parameter_type %}
-                    {% include 'bilanci/hierarchical_menu_tree.html' with id='spese-funzioni' nodes=parameter_list.spese_funzioni parameter_type=parameter_type %}
-                    {% include 'bilanci/hierarchical_menu_list.html' with id='spese-interventi' nodes=parameter_list.spese_interventi parameter_type=parameter_type %}
+                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='indicatori' nodes=parameter_list.indicatori selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='entrate' nodes=parameter_list.entrate selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='spese-funzioni' nodes=parameter_list.spese_funzioni selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='spese-interventi' nodes=parameter_list.spese_interventi selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
                 </div>
             </div>
         </div>

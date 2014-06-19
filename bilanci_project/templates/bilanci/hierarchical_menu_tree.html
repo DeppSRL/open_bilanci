@@ -1,5 +1,5 @@
 {% load mptt_tags %}
-<ul class="nav nav-stacked menu {% if id != parameter_type %}hidden{% endif %}" id="submenu-{{ id }}">
+<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
     {% recursetree nodes %}
         <li>
 
@@ -7,7 +7,19 @@
                 <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
             {% endif %}
 
-            <a href="#">{{ node.denominazione }}</a>
+            {# initialize the url for parameter list menu   #}
+            {% if parameter_type == 'entrate' %}
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% else %}
+
+                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+            {% endif %}
+
+                {{ node.denominazione }}
+            </a>
+
+
+            {# tooltip           #}
             <a href="#"
                 class=tip"
                 rel="info-popover"
