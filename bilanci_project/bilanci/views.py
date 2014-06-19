@@ -2289,9 +2289,11 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
 
         spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants().order_by('denominazione')
 
+        # spese_prestiti = Voce.objects.filter(slug='consuntivo-spese-cassa-prestiti').values_list('pk',flat=True)
         spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
         spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
         spese_interventi_correnti.extend(spese_interventi_investimenti)
+        # spese_interventi_correnti.extend(spese_prestiti)
 
         spese_interventi_list = Voce.objects.filter(pk__in=spese_interventi_correnti).order_by('denominazione')
 

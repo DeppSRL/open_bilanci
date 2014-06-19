@@ -15,7 +15,14 @@
                 <div class="dropdown submenu-change">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                         <span class="caret pull-right"></span>
-                        {{ selected_section|upper }}
+
+                        {% if selected_section == 'entrate' or selected_section == 'indicatori' %}
+                            {{ selected_section|upper }}
+                        {% elif selected_section == 'spese-funzioni' %}
+                            SPESE PER FUNZIONI
+                        {% else %}
+                            SPESE PER INTERVENTI
+                        {% endif %}
                     </button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li role="presentation"><a role="menuitem" tabindex="-1" href="#submenu-indicatori">INDICATORI</a></li>
