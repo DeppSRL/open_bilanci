@@ -467,6 +467,8 @@ TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}
 # voce bilancio slugs of funzioni sum branches
 PREVENTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'preventivo-spese-spese-somma-funzioni'
 CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzioni'
+CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-per-investimenti-interventi'
+CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-correnti-interventi'
 
 CLASSIFICHE_PAGINATE_BY = 15
 EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')

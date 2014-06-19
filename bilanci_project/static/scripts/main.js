@@ -25,8 +25,8 @@ $(document).ready(function(){
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
             'offset': ( !mapPage ? 100 : 180 ), // Top offset in map page and other pages
             'collapsibleMenu': {
-                'closeOthers': true, // On click collapse other items. Values: true, false
-                'startCollapsed': true // Collapsed by default. Values: true, false
+                'closeOthers': false, // On click collapse other items. Values: true, false
+                'startCollapsed': false // Collapsed by default. Values: true, false
             },
             'pushMenu': {
                 'scroll': true, // Push menu scrolling. Values: true, false

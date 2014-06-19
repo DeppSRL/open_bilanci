@@ -1,0 +1,37 @@
+<ul class="nav nav-stacked menu {% if id != parameter_type %}hidden{% endif %}" id="submenu-{{ id }}"
+        >
+    {% for node in nodes %}
+        <li>
+
+            <a id="{{ parameter_list_type }}/{{ parameter.slug }}"
+
+            {# initialize the url for parameter list menu   #}
+            {% if parameter_list_type == 'indicatori' %}
+                href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                {% else %}
+                {% if parameter_list_type == 'entrate'%}
+                    href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                    {% else %}
+                    {% if parameter_list_type == 'spese' %}
+                        href="{% url 'confronti-spese' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=parameter.slug %}"
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+                >
+
+
+            <a href="#">{{ node.denominazione }}</a>
+
+            {#  tooltip #}
+            <a href="#"
+                class=tip"
+                rel="info-popover"
+                data-toggle="popover"
+                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"
+                data-original-title="Contributi pubblici">
+                    <i class="fa fa-question-circle"></i>
+            </a>
+        </li>
+
+    {% endfor %}
+</ul>

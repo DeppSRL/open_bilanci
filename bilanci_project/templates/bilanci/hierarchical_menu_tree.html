@@ -1,0 +1,27 @@
+{% load mptt_tags %}
+<ul class="nav nav-stacked menu {% if id != parameter_type %}hidden{% endif %}" id="submenu-{{ id }}">
+    {% recursetree nodes %}
+        <li>
+
+            {% if not node.is_leaf_node %}
+                <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
+            {% endif %}
+
+            <a href="#">{{ node.denominazione }}</a>
+            <a href="#"
+                class=tip"
+                rel="info-popover"
+                data-toggle="popover"
+                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"
+                data-original-title="Contributi pubblici">
+                    <i class="fa fa-question-circle"></i>
+            </a>
+
+            {% if not node.is_leaf_node %}
+                <ul class="nav nav-stacked hidden">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>

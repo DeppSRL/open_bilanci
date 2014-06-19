@@ -45,37 +45,7 @@
 
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
-{#    <aside id="sidebar" class="hidden">#}
-{##}
-{#        <form id="parameter-list-form"  method="get">#}
-{#            <div class="panel panel-default" id="side-menu">#}
-{#                <div class="panel-body" id="confronti_parameter_container">#}
-{##}
-{#                    <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>#}
-{##}
-{##}
-{#                    <h3 class="menu-title" style="margin-bottom:20px;">#}
-{#                        Seleziona#}
-{#                    </h3>#}
-{#                    <div class="dropdown" >#}
-{##}
-{#                         <select id="confronti-dropdown" class="parameter-dropdown">#}
-{#                              <option value="indicatori" selected="selected">INDICATORI</option>#}
-{#                              <option value="entrate">ENTRATE</option>#}
-{#                              <option value="spese">SPESE</option>#}
-{#                         </select>#}
-{#                        <div class="separator"></div>#}
-{##}
-{#                        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}#}
-{#                        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}#}
-{#                        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#        </form>#}
-{##}
-{#    </aside>#}
-    {% include 'bilanci/hierarchical_menu.html' %}
+    {% include 'bilanci/hierarchical_menu.html' with parameter_list=parameter_list terr_1_slug=territorio_1.slug terr_2_slug=territorio_2.slug par_type=parameter_type par_slug=parameter.slug %}
 {% endblock %}
 
 {% block results %}
