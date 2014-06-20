@@ -40,11 +40,13 @@
                     <a target="_blank" href="{{ incarico.op_link }}">
                         {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
                     </a>
-                    {% if incarico.party_name %}
-                        ({{ incarico.party_name|title}})
-                    {% elif incarico.party_acronym %}
-                        ({{ incarico.party_acronym|title}})
-                    {% endif %}
+                    <p>
+                        {% if incarico.party_name %}
+                            ({{ incarico.party_name|title}})
+                        {% elif incarico.party_acronym %}
+                            ({{ incarico.party_acronym|title}})
+                        {% endif %}
+                    </p>
                 </li>
             {% endfor %}
             </ul>

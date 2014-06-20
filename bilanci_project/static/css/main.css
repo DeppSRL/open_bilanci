@@ -2899,6 +2899,10 @@ table > tbody > tr.highlight_territorio > td p,
 #results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td p {
   color: white!important;
 }
+table > tbody > tr.highlight_territorio > td li,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td li {
+  color: white;
+}
 table > tbody > tr.highlight_territorio > td .sprite-trend-up-3,
 #results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td .sprite-trend-up-3 {
   background-position: -285px -186px;
