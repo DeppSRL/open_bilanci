@@ -104,19 +104,20 @@ class HierarchicalMenuMixin(object):
     def get_parameter_list(self):
         # defines the parameter list shown in the hierarchical menu
 
-        entrate_list = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione')
+        entrate_list = [Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione'),]
 
-        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants().order_by('denominazione')
+        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione')
 
-        # spese_prestiti = Voce.objects.filter(slug='consuntivo-spese-cassa-prestiti').values_list('pk',flat=True)
-        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
-        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
-        spese_interventi_correnti.extend(spese_interventi_investimenti)
-        # spese_interventi_correnti.extend(spese_prestiti)
+        spese_prestiti = Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti')
 
-        spese_interventi_list = Voce.objects.filter(pk__in=spese_interventi_correnti).order_by('denominazione')
+        spese_funzioni_list = [spese_funzioni_list, spese_prestiti]
 
-        indicator_list = Indicatore.objects.filter(published = True).order_by('denominazione')
+        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_descendants(include_self=True))
+        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_descendants(include_self=True))
+
+        spese_interventi_list = [spese_interventi_correnti, spese_interventi_investimenti, spese_prestiti]
+
+        indicator_list = [Indicatore.objects.filter(published = True).order_by('denominazione'),]
 
         return {
             'indicatori': indicator_list,
@@ -2139,12 +2140,6 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
         context['selected_parameter'] = self.parameter
         context['selected_parameter_name'] = self.parameter.denominazione
 
-        if self.parameter != 'indicatori':
-            if self.parameter.slug == 'consuntivo-entrate-cassa':
-                context['selected_parameter_name'] = 'Totale entrate'
-            if self.parameter.slug == 'consuntivo-spese-cassa':
-                context['selected_parameter_name'] = 'Totale spese'
-
         self.selected_regioni = list(self.selected_regioni) if len(self.selected_regioni)>0 else list(all_regions)
         self.selected_cluster = list(self.selected_cluster) if len(self.selected_cluster)>0 else list(all_clusters)
 
@@ -2330,6 +2325,12 @@ class ConfrontiBilancioView(ConfrontiView):
             context['selected_parameter_name'] = u'Totale spese'
         elif selected_parameter.slug == 'consuntivo-entrate-cassa':
             context['selected_parameter_name'] = u'Totale entrate'
+        elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-somma-funzioni':
+            context['selected_parameter_name'] = u'FUNZIONI'
+        elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-per-investimenti-interventi':
+            context['selected_parameter_name'] = u'Interventi - Spese per investimenti'
+        elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-correnti-interventi':
+            context['selected_parameter_name'] = u'Interventi - Spese correnti'
 
         return context
 

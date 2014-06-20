@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
-{% load classifiche_parameter_list %}
 {% load classifiche_incarichi_politici %}
 {% load digg_paginator %}
 {% load section_title %}
@@ -77,7 +76,19 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="pull-left">
-                                            {{ selected_parameter_name|upper }}
+                                            {% if selected_parameter.slug == 'consuntivo-entrate-cassa' %}
+                                                TOTALE ENTRATE
+                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa' %}
+                                                TOTALE SPESE
+                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-somma-funzioni'  %}
+                                                FUNZIONI
+                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-per-investimenti-interventi' %}
+                                                Interventi - Spese per investimenti
+                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-correnti-interventi' %}
+                                                Interventi - Spese correnti
+                                            {% else %}
+                                                {{ selected_parameter.denominazione|upper }}
+                                            {% endif %}
                                         </h4>
                                     </div>
                                 </div>
