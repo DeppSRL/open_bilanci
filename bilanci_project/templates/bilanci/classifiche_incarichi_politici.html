@@ -24,12 +24,14 @@
 
         </div>
     {% else %}
-        {{ valore_obj.incarichi_attivi|length }} incarichi attivi per il Comune di
-        {{ valore_obj.territorio.denominazione }},
-        {# creates link to hide/show incarichi list        #}
-        <a id="incarichi_attivi-link-{{ valore_obj.territorio.pk }}" target="_blank" href="" >
-            clicca qui per vederli
-        </a>
+        <p>
+            {{ valore_obj.incarichi_attivi|length }} incarichi attivi per il Comune di
+            {{ valore_obj.territorio.denominazione }},
+            {# creates link to hide/show incarichi list        #}
+            <a id="incarichi_attivi-link-{{ valore_obj.territorio.pk }}" target="_blank" href="" >
+                clicca qui per vederli
+            </a>
+        </p>
 
         <div id="incarichi_attivi-{{ valore_obj.territorio.pk }}" style="display: none">
             <ul>
