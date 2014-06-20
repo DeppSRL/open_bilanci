@@ -6,10 +6,10 @@
 
             {# initialize the url for parameter list menu   #}
             {% if parameter_type == 'indicatori' %}
-                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
             {% else %}
 
-                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
             {% endif %}
 
                 {{ node.denominazione }}
