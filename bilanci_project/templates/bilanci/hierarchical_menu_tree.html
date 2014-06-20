@@ -1,4 +1,5 @@
 {% load mptt_tags %}
+{% load popover_info  %}
 <ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
     {% recursetree nodes %}
         <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
@@ -34,14 +35,15 @@
 
 
             {# tooltip           #}
-            <a href="#"
-                class=tip"
-                rel="info-popover"
-                data-toggle="popover"
-                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"
-                data-original-title="Tooltip">
-                    <i class="fa fa-question-circle"></i>
-            </a>
+{#            <a href="#"#}
+{#                class=tip"#}
+{#                rel="info-popover"#}
+{#                data-toggle="popover"#}
+{#                data-content="<p>Lorem ipsum <a href='#'>link</a>.</p>"#}
+{#                data-original-title="Tooltip">#}
+{#                    <i class="fa fa-question-circle"></i>#}
+{#            </a>#}
+            {% popover_info node.slug %}
 
             {% if not node.is_leaf_node %}
                 <ul class="nav nav-stacked hidden">
