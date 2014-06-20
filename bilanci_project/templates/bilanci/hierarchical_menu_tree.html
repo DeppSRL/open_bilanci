@@ -10,10 +10,10 @@
 
             {# initialize the url for parameter list menu   #}
             {% if parameter_type == 'entrate' %}
-                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
             {% else %}
 
-                <a id="{{ id }}/{{ node.slug }}" href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
             {% endif %}
 
                 {% if node.slug == 'consuntivo-entrate-cassa' %}
