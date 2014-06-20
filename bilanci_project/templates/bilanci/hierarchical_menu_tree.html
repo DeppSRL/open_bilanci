@@ -1,7 +1,7 @@
 {% load mptt_tags %}
-<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
+<ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
     {% recursetree nodes %}
-        <li {% if parameter_type == selected_section and node.slug == selected_parameter_slug %}class="active"{% endif %}
+        <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
                 >
 
             {% if not node.is_leaf_node %}

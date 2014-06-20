@@ -1,7 +1,7 @@
-<ul class="nav nav-stacked menu {% if parameter_type != selected_section %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
+<ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
         >
     {% for node in nodes %}
-        <li {% if parameter_type == selected_section and node.slug == selected_parameter_slug %}class="active"{% endif %}>
+        <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}>
 
 
             {# sets the url for parameter list menu   #}

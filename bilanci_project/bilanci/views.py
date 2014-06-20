@@ -2321,7 +2321,7 @@ class ConfrontiBilancioView(ConfrontiView):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiBilancioView, self).get_context_data( **kwargs)
-        context['selected_section'] = self.get_parameter_type()
+        context['selected_par_type'] = self.get_parameter_type()
         selected_parameter = get_object_or_404(Voce, slug = kwargs['parameter_slug'])
         context['selected_parameter'] = selected_parameter
 
@@ -2354,7 +2354,7 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ConfrontiIndicatoriView, self).get_context_data( **kwargs)
-        context['selected_section'] = "indicatori"
+        context['selected_par_type'] = "indicatori"
         selected_parameter = get_object_or_404(Indicatore, slug = kwargs['parameter_slug'])
         context['selected_parameter'] = selected_parameter
         context['selected_parameter_name'] = selected_parameter.denominazione

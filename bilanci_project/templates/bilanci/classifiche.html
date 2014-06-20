@@ -77,7 +77,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="pull-left">
-                                                {{ selected_parameter_name|upper }}
+                                            {{ selected_parameter_name|upper }}
                                         </h4>
                                     </div>
                                 </div>
@@ -232,7 +232,7 @@
             </div>
 
         {# parameter hierarchical menu #}
-        {% include 'bilanci/hierarchical_menu.html' with page_type='classifiche' parameter_list=parameter_list selected_section=selected_section selected_parameter_slug=selected_parameter.slug %}
+        {% include 'bilanci/hierarchical_menu.html' with page_type='classifiche' parameter_list=parameter_list selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
 
         </div> <!-- ./row -->
     </div><!-- /.panel-body -->
