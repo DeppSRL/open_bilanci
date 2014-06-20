@@ -51,11 +51,11 @@ urlpatterns = patterns('',
         ConfrontiEntrateView.as_view(), name='confronti-entrate'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese_funzioni/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese-funzioni/(?P<parameter_slug>[-\w]+)',
         ConfrontiSpeseFunzioniView.as_view(), name='confronti-spese-funzioni'
         ),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese_interventi/(?P<parameter_slug>[-\w]+)',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/spese-interventi/(?P<parameter_slug>[-\w]+)',
         ConfrontiSpeseInterventiView.as_view(), name='confronti-spese-interventi'
         ),
 
