@@ -1,7 +1,18 @@
 {% load popover_info  %}
 <ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
         >
-    {% for node in nodes %}
+
+     {% if parameter_type == 'spese-interventi' %}
+         <li {% if parameter_type == selected_par_type and selected_parameter_slug == 'consuntivo-spese-cassa' %}class="active"{% endif %}
+                    >
+            <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
+            <a>Spese</a>
+
+            <ul class="nav nav-stacked hidden">
+     {% endif %}
+
+    {% for p in parameter_list %}
+    {% for node in p%}
         <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}>
 
 
@@ -30,4 +41,11 @@
         </li>
 
     {% endfor %}
+    {% endfor %}
+
+    {% if parameter_type == 'spese-interventi' %}
+            </ul>
+        </li>
+    {% endif %}
+
 </ul>
