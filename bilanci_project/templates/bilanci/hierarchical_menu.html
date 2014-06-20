@@ -33,10 +33,10 @@
                 </div>
 
                 <div class="multi-level-menu" id="hierarchical_menu">
-                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='indicatori' nodes=parameter_list.indicatori selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
-                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='entrate' nodes=parameter_list.entrate selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
-                    {% include 'bilanci/hierarchical_menu_tree.html' with parameter_type='spese-funzioni' nodes=parameter_list.spese_funzioni selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
-                    {% include 'bilanci/hierarchical_menu_list.html' with parameter_type='spese-interventi' nodes=parameter_list.spese_interventi selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_list.html' with page_type=page_type parameter_type='indicatori' nodes=parameter_list.indicatori selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with page_type=page_type parameter_type='entrate' nodes=parameter_list.entrate selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_tree.html' with page_type=page_type parameter_type='spese-funzioni' nodes=parameter_list.spese_funzioni selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
+                    {% include 'bilanci/hierarchical_menu_list.html' with page_type=page_type parameter_type='spese-interventi' nodes=parameter_list.spese_interventi selected_section=selected_section selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
                 </div>
             </div>
         </div>

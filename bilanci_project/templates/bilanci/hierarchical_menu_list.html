@@ -4,15 +4,24 @@
         <li {% if parameter_type == selected_section and node.slug == selected_parameter_slug %}class="active"{% endif %}>
 
 
-            {# initialize the url for parameter list menu   #}
-            {% if parameter_type == 'indicatori' %}
-                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
-            {% else %}
+            {# sets the url for parameter list menu   #}
+            {% if page_type == 'confronti' %}
 
-                <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                {% if parameter_type == 'indicatori' %}
+                    <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                {% else %}
+
+                    <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                {% endif %}
+
+            {% elif page_type == 'classifiche' %}
+
+                <a id="{{ parameter_type }}/{{ node.slug }}"
+                                    href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}" >
             {% endif %}
 
                 {{ node.denominazione }}
+
             </a>
 
             {#  tooltip #}

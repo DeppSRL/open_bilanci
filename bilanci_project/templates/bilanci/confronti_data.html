@@ -35,7 +35,7 @@
 
 {# comparison list menu  #}
 {% block confronti_parameter_menu %}
-    {% include 'bilanci/hierarchical_menu.html' with parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_section=selected_section selected_parameter_slug=selected_parameter.slug %}
+    {% include 'bilanci/hierarchical_menu.html' with page_type='confronti' parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_section=selected_section selected_parameter_slug=selected_parameter.slug %}
 {% endblock %}
 
 {% block results %}

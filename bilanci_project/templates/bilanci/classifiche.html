@@ -64,6 +64,10 @@
                                         <h4 class="panel-title pull-left">
                                             {% if selected_par_type == 'indicatori' %}
                                                 INDICATORE
+                                            {% elif selected_par_type == 'spese-funzioni' %}
+                                                SPESE PER FUNZIONI
+                                            {% elif selected_par_type == 'spese-interventi' %}
+                                                SPESE PER INTERVENTI
                                             {% else %}
                                                 {{ selected_par_type|upper }}
                                             {% endif %}
@@ -227,56 +231,19 @@
                 {% endblock %}
             </div>
 
-            {# menu handle is hidden on pageload   #}
-            <div id="side-controls" style="display: block; left: -50px; top: 343px;">
-                <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>
-            </div>
-
-            {# comparison list menu  #}
-            <aside id="sidebar" class="classifiche_parameter_container hidden">
-                <form id="parameter-list-form"  method="get">
-                    <div class="panel panel-default" id="side-menu">
-                        <div class="panel-body" id="classifiche_parameter_container">
-
-                            <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
-
-                            <h3 class="menu-title" style="margin-bottom:20px;">
-                                Seleziona
-                            </h3>
-                            <div class="dropdown" >
-
-                                <select id="classifiche-dropdown" class="parameter-dropdown">
-                                    <option value="indicatori">INDICATORI</option>
-                                    <option value="entrate">ENTRATE</option>
-                                    <option value="spese">SPESE</option>
-                                </select>
-                                <div class="separator"></div>
-
-                                {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
-                                {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
-                                {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </aside>
-
+        {# parameter hierarchical menu #}
+        {% include 'bilanci/hierarchical_menu.html' with page_type='classifiche' parameter_list=parameter_list selected_section=selected_section selected_parameter_slug=selected_parameter.slug %}
 
         </div> <!-- ./row -->
-
-
     </div><!-- /.panel-body -->
 {% endblock %}
 
 
-
 {% block extra_js %}
-
 
     <!-- visup js -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/classifiche_utils.js' %}" type="text/javascript"></script>
 

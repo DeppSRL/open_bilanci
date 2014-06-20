@@ -99,6 +99,34 @@ class MiniClassificheMixin(object):
         return indicatore_position
 
 
+class HierarchicalMenuMixin(object):
+
+    def get_parameter_list(self):
+        # defines the parameter list shown in the hierarchical menu
+
+        entrate_list = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione')
+
+        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants().order_by('denominazione')
+
+        # spese_prestiti = Voce.objects.filter(slug='consuntivo-spese-cassa-prestiti').values_list('pk',flat=True)
+        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
+        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
+        spese_interventi_correnti.extend(spese_interventi_investimenti)
+        # spese_interventi_correnti.extend(spese_prestiti)
+
+        spese_interventi_list = Voce.objects.filter(pk__in=spese_interventi_correnti).order_by('denominazione')
+
+        indicator_list = Indicatore.objects.filter(published = True).order_by('denominazione')
+
+        return {
+            'indicatori': indicator_list,
+            'entrate':entrate_list,
+            'spese_funzioni': spese_funzioni_list,
+            'spese_interventi': spese_interventi_list
+        }
+
+
+
 class HomeView(TemplateView):
     template_name = "home.html"
 
@@ -1945,7 +1973,7 @@ class ClassificheSearchView(RedirectView):
 
 
 
-class ClassificheListView(ListView):
+class ClassificheListView(HierarchicalMenuMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
@@ -1969,7 +1997,7 @@ class ClassificheListView(ListView):
 
         if self.parameter_type == 'indicatori':
             self.parameter = get_object_or_404(Indicatore, slug = parameter_slug)
-        elif self.parameter_type == 'entrate' or self.parameter_type == 'spese':
+        elif self.parameter_type == 'entrate' or self.parameter_type == 'spese-interventi' or self.parameter_type == 'spese-funzioni':
             self.parameter = get_object_or_404(Voce, slug = parameter_slug)
         else:
             return reverse('404')
@@ -2134,15 +2162,8 @@ class ClassificheListView(ListView):
         context['selector_start_year'] = settings.CLASSIFICHE_START_YEAR
         context['selector_end_year'] = settings.CLASSIFICHE_END_YEAR
 
-        entrate_list = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_children().order_by('slug').values('denominazione','slug'))
-        entrate_list.append({'slug':'consuntivo-entrate-cassa','denominazione': u'Totale entrate'})
-
-        spese_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_children().order_by('slug').values('denominazione','slug'))
-        spese_list.append({'slug': 'consuntivo-spese-cassa', 'denominazione': u'Totale spese'})
-
-        context['indicator_list'] = Indicatore.objects.filter(published = True).order_by('denominazione')
-        context['entrate_list'] = entrate_list
-        context['spese_list'] = spese_list
+        # get parameter list for hierarchical menu
+        context['parameter_list'] = self.get_parameter_list()
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
@@ -2246,7 +2267,7 @@ class ConfrontiRedirectView(RedirectView):
             return url
 
 
-class ConfrontiView(ShareUrlMixin, TemplateView):
+class ConfrontiView(ShareUrlMixin, HierarchicalMenuMixin, TemplateView):
 
     template_name = "bilanci/confronti_data.html"
     share_url = None
@@ -2283,29 +2304,7 @@ class ConfrontiView(ShareUrlMixin, TemplateView):
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto
 
-        # defines the lists of possible confrontation parameters
-
-        entrate_list = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione')
-
-        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants().order_by('denominazione')
-
-        # spese_prestiti = Voce.objects.filter(slug='consuntivo-spese-cassa-prestiti').values_list('pk',flat=True)
-        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
-        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_children().values_list('pk',flat=True))
-        spese_interventi_correnti.extend(spese_interventi_investimenti)
-        # spese_interventi_correnti.extend(spese_prestiti)
-
-        spese_interventi_list = Voce.objects.filter(pk__in=spese_interventi_correnti).order_by('denominazione')
-
-        indicator_list = Indicatore.objects.filter(published = True).order_by('denominazione')
-
-        context['parameter_list'] = {
-            'indicatori': indicator_list,
-            'entrate':entrate_list,
-            'spese_funzioni': spese_funzioni_list,
-            'spese_interventi': spese_interventi_list
-        }
-
+        context['parameter_list'] = self.get_parameter_list()
         context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(
