@@ -51,5 +51,21 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
+        # open input file
+        soup = BeautifulSoup(open(input_file),"xml")
+        x = True
 
-        soup = BeautifulSoup(open(input_file))
+        # get finloc, year, tipo bilancio
+        certificato = soup.certificato
+        codiceEnte = certificato['codiceEnte']
+        anno = certificato['anno']
+        tipoCertificato = certificato['tipoCertificato']
+
+        # get all elements
+        colonne_set = soup.find_all('colonne')
+        for colonne in colonne_set:
+            print "Quadro:{0} voce:{1}".format(colonne['quadro'], colonne['voce'])
+
+            for colonna in colonne.contents:
+                if colonna != u'\n':
+                    print "colonna n:{0} value:{1}".format(colonna['num'], colonna.string)
