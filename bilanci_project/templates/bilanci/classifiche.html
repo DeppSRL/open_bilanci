@@ -104,8 +104,8 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <form role="" class="autosubmit" action="{% url 'classifiche-search' %}" method="get">
-                                            <div class="">
-                                             {{ territori_search_form_classifiche.territorio_id}}
+                                            <div>
+                                                {{ territori_search_form_classifiche.territorio_id}}
                                             </div>
                                             <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
                                             <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />

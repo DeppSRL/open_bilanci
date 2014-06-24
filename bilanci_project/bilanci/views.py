@@ -91,6 +91,7 @@ class MiniClassificheMixin(object):
                 indicatore_position.append(
                     {
                         'indicatore_denominazione': indicatore['denominazione'],
+                        'indicatore_pk': indicatore['pk'],
                         'indicatore_slug': indicatore['slug'],
                         'position': position
                     }
@@ -1732,7 +1733,11 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
+        context['territorio_pk'] =self.territorio.pk
         context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
+        context['selected_cluster_str'] = str(self.territorio.cluster)
+        context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
+
 
         context['menu_voices'] = OrderedDict([
             ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
