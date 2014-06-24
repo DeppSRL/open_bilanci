@@ -1,16 +1,27 @@
 <hr class="no-border">
 
 <div class="panel panel-default">
-    <div class="panel-heading clearfix">
+    <div class="panel-heading clearfix" style="border-bottom: 0!important;">
 
-        <div class="media pull-right">
-             {% include 'bilanci/miniclass_incarichi.html' with incarichi_attivi=incarichi_attivi territorio=territorio %}
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="panel-title" style="margin-bottom: 5px;">
+                    {{ territorio.denominazione }}
+                </h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 media miniclass-incarichi miniclass-border" >
+                 {% include 'bilanci/miniclass_incarichi.html' with incarichi_attivi=incarichi_attivi territorio=territorio %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 miniclass-border">
+                <h3 class="miniclass">INDICATORI {{ last_indicatore_yr  }}</h3>
+                <p>Posizione in classifica su <strong>{{ n_comuni_cluster }}</strong> Comuni {{ territorio_cluster|lower }}</p>
+            </div>
         </div>
 
-        <h3 class="panel-title">
-            {{ territorio.denominazione }}
-        </h3>
-        <p>Posizione in classifica per l'anno {{ last_indicatore_yr }} per tutti gli indicatori per il cluster: {{ territorio_cluster }}</p>
     </div>
 
     <div class="table-responsive">
@@ -18,7 +29,7 @@
             <tbody>
                 {% for ip in indicatore_position %}
 
-                    <tr>
+                    <tr class="miniclass-border">
                         <td class="col-sm-1 rate">
                             <span class="h2">{{ ip.position }}&deg;</span>
                         </td>
@@ -38,7 +49,7 @@
                                 </form>
                             </h4>
                         </td>
-                        <td class="col-sm-2">
+                        <td class="col-sm-2 ">
                             {#  ranking graph    #}
 {#                            <div class="chart" id="rank-{{forloop.counter }}" data-chart-type="rank" data-chart-scale="1.5" data-chart-width="150" data-chart-height="30" data-chart-value="1"></div>#}
                         </td>

@@ -2923,3 +2923,21 @@ table > tbody > tr.highlight_territorio > td .sprite-trend-up-3,
 #results .table-striped > tbody > tr.highlight_territorio:nth-child(2n+1):hover > td p {
   color: white!important;
 }
+h3.miniclass {
+  margin-bottom: 5px;
+}
+div.miniclass-incarichi {
+  margin-bottom: 20px;
+}
+.miniclass-border {
+  border-bottom: 1px solid #333333;
+  border-top: 0!important;
+  border-collapse: collapse;
+}
+.table > tbody > tr.miniclass-border td {
+  border-top: 0;
+  border-bottom: 0;
+}
+.table > tbody > tr.miniclass-border:last-child {
+  border-bottom: 0;
+}

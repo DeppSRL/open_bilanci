@@ -1735,6 +1735,7 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         context['territorio_opid'] =self.territorio.op_id
         context['territorio_pk'] =self.territorio.pk
         context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
+        context['n_comuni_cluster'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
         context['selected_cluster_str'] = str(self.territorio.cluster)
         context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
 
