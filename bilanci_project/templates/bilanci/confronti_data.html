@@ -71,10 +71,11 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-md-6">
-                                {% include 'bilanci/miniclass_confronti.html' with territorio=territorio_1 territorio_cluster=territorio_1_cluster indicatore_position=indicatore_positions_1 last_indicatore_yr=last_indicatore_yr incarichi_attivi=incarichi_attivi_1 active_indicator_slug=parameter.slug %}
+                                {% include 'bilanci/miniclass_indicatori.html' with territorio=territorio_1 territorio_cluster=territorio_1_cluster indicatore_position=indicatore_positions_1 incarichi_attivi=incarichi_attivi_1 active_indicator_slug=parameter.slug selected_cluster_str=selected_cluster_str_1 %}
+
                             </div>
                             <div class="col-md-6">
-                                {% include 'bilanci/miniclass_confronti.html' with territorio=territorio_2 territorio_cluster=territorio_2_cluster indicatore_position=indicatore_positions_2 last_indicatore_yr=last_indicatore_yr incarichi_attivi=incarichi_attivi_2 active_indicator_slug=parameter.slug %}
+                                {% include 'bilanci/miniclass_indicatori.html' with territorio=territorio_2 territorio_cluster=territorio_2_cluster indicatore_position=indicatore_positions_2 incarichi_attivi=incarichi_attivi_2 active_indicator_slug=parameter.slug selected_cluster_str=selected_cluster_str_2%}
                             </div>
                         </div>
                     </div>

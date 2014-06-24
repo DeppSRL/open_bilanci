@@ -10,7 +10,7 @@
                 </h3>
             </div>
         </div>
-    
+
         {# incarichi attivi        #}
         {% if incarichi_attivi|length > 0 %}
             <div class="row">
@@ -35,33 +35,32 @@
                 {% for ip in indicatore_position %}
 
                     <tr class="miniclass-border">
-                        <form name="miniclass_form_{{ ip.indicatore_pk|safe }}" class="" action="{% url 'classifiche-search' %}" method="get">
-                            <input id="id_selected_year" name="selected_year" type="hidden" value="{{ last_indicatore_yr|safe }}" />
-                            <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="indicatori" />
-                            <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ ip.indicatore_pk|safe }}" />
-                            <input id="id_selected_regioni" name="selected_regioni" type="hidden" value="{{ selected_regioni_str|safe }}" />
-                            <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
-                            <input id="id_territorio_id" name="territorio_id" type="hidden" value="{{ territorio_pk|safe }}" />
+                        <td class="col-sm-12 rate">
 
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-12">
+                                    <span>
+                                        <form name="miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}" class="" action="{% url 'classifiche-search' %}" method="get">
+                                            <input id="id_selected_year" name="selected_year" type="hidden" value="{{ last_indicatore_yr|safe }}" />
+                                            <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="indicatori" />
+                                            <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ ip.indicatore_pk|safe }}" />
+                                            <input id="id_selected_regioni" name="selected_regioni" type="hidden" value="{{ selected_regioni_str|safe }}" />
+                                            <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
+                                            <input id="id_territorio_id" name="territorio_id" type="hidden" value="{{ territorio.pk|safe }}" />
 
-                            <td class="col-sm-12 rate">
-
-                                <div class="row" style="margin-bottom: 10px;">
-                                    <div class="col-md-12">
-                                        <span>
-                                            <a onclick="document.miniclass_form_{{ ip.indicatore_pk|safe }}.submit()"   data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
+                                            <a href onclick="document.miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}.submit();return false;" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
                                                 <strong>{{ ip.indicatore_denominazione|upper }}</strong>
                                             </a>
-                                        </span>
-                                    </div>
+                                        </form>
+                                    </span>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <span class="h2">{{ ip.position }}&deg;</span>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span class="h2">{{ ip.position }}&deg;</span>
                                 </div>
-                            </td>
-                        </form>
+                            </div>
+                        </td>
 
 {#                        <td class="col-sm-2 ">#}
                             {#  ranking graph    #}
