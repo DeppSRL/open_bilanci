@@ -2938,6 +2938,14 @@ div.miniclass-incarichi {
   border-top: 0;
   border-bottom: 0;
 }
+.table > tbody > tr.miniclass-border td a {
+  color: #2a3036;
+  font-size: 16px;
+}
 .table > tbody > tr.miniclass-border:last-child {
   border-bottom: 0;
+}
+#miniclass-indicatori .panel-heading {
+  border-bottom: 0!important;
+  padding-bottom: 0;
 }
