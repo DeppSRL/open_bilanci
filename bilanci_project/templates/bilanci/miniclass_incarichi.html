@@ -1,34 +1,43 @@
 {% load staticfiles %}
-{% if incarichi_attivi|length == 1 %}
 
-    <figure class="pull-left img-circle">
-        {% if  incarichi_attivi.0.pic_url %}
-            <img class="media-object" src="{{ incarichi_attivi.0.pic_url}}" alt="avatar">
-        {% else %}
-            <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt="avatar">
-        {% endif %}
-    </figure>
-{% endif %}
 
 <div id="incarichi_attivi-{{ territorio.pk }}" >
     <div class="row">
         {% for incarico in incarichi_attivi  %}
-            <div class="col-md-4">
+
+            {% if incarichi_attivi|length == 1  %}
+                <div class="col-md-1" style="margin-right: 5px;">
+
+
+                        {% if  incarichi_attivi.0.pic_url %}
+                            <div class="visup-span-icon" style="border-color:rgb(185, 198, 196);background-image: url('{{ incarichi_attivi.0.pic_url|safe }}');">
+                        {% else %}
+                            <div class="visup-span-icon" style="border-color:rgb(185, 198, 196);background-image: url('{% static 'img/incarico_dummy.png' %}');">
+                        {% endif %}
+
+                        </div>
+
+                </div>
+
+                <div class="col-md-10">
+            {% else %}
+                <div class="col-md-5" >
+            {% endif %}
                 <p class="h4" style="font-weight: bold;">
                     <a target="_blank" href="{{ incarico.op_link }}">
-                        {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
+                        {{ incarico.cognome|title }}
                     </a>
                 </p>
-
-                {% if incarico.party_name %}
-                    {{ incarico.party_name|upper}}<br/>
-                {% elif incarico.party_acronym %}
-                    {{ incarico.party_acronym|upper}}
-                {% endif %}
-                <p>{{ incarico.data_inizio }}
-                    {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
-                </p>
-
+                <span class="small">
+                    {% if incarico.party_name %}
+                        {{ incarico.party_name|upper}}<br/>
+                    {% elif incarico.party_acronym %}
+                        {{ incarico.party_acronym|upper}}
+                    {% endif %}
+                    <p>{{ incarico.data_inizio }}
+                        {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
+                    </p>
+                </span>
             </div>
         {% endfor %}
     </div>

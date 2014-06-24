@@ -1733,7 +1733,6 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
         context['comune_context'] = Contesto.get_context(int(year),self.territorio)
         context['territorio_opid'] =self.territorio.op_id
-        context['territorio_pk'] =self.territorio.pk
         context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
         context['n_comuni_cluster'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
         context['selected_cluster_str'] = str(self.territorio.cluster)
@@ -2367,6 +2366,14 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
         context['selected_parameter_name'] = selected_parameter.denominazione
         context['territorio_1_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_1.cluster).denominazione
         context['territorio_2_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio_2.cluster).denominazione
+        
+        context['n_comuni_cluster_1'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio_1.cluster).count()
+        context['selected_cluster_str_1'] = str(self.territorio_1.cluster)
+        context['n_comuni_cluster_2'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio_2.cluster).count()
+        context['selected_cluster_str_2'] = str(self.territorio_2.cluster)
+
+        context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
+
 
         # construct data for miniclassifiche
 
