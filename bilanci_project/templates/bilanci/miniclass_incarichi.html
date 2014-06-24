@@ -16,12 +16,12 @@
         </p>
 
         {% if incarichi_attivi.0.party_name %}
-            <p >{{ incarichi_attivi.0.party_name|title}}</p>
+            {{ incarichi_attivi.0.party_name|title}}<br/>
         {% elif incarichi_attivi.0.party_acronym %}
-            <p >{{ incarichi_attivi.0.party_acronym|title}}</p>
+            {{ incarichi_attivi.0.party_acronym|title}}
         {% endif %}
-        <p class="small">Sindaco dal {{ incarichi_attivi.0.data_inizio }}
-            {% if incarichi_attivi.0.data_fine %}al {{ incarichi_attivi.0.data_fine }}{% endif %}
+        <p>{{ incarichi_attivi.0.data_inizio }}
+            {% if incarichi_attivi.0.data_fine %} - {{ incarichi_attivi.0.data_fine }}{% endif %}
         </p>
 
     </div>
