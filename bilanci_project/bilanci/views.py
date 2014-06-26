@@ -1940,7 +1940,7 @@ class ClassificheRedirectView(RedirectView):
             return url
 
 
-class ClassificheSearchView(RedirectView):
+class ClassificheSearchView(MiniClassificheMixin, RedirectView):
 
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
 
@@ -1962,14 +1962,15 @@ class ClassificheSearchView(RedirectView):
         territori_baseset = list(Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list('pk',flat=True))
 
         if selected_par_type == 'indicatori':
-            all_ids = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            all_ids_values = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
             parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
         else:
-            all_ids = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            all_ids_values = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
             parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
 
+        # calculate territorio page
         try:
-            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)
+            territorio_idx =  [element['territorio__id'] for element in all_ids_values if element['territorio__id'] in territori_baseset].index(territorio_id)
             territorio_page = (territorio_idx / self.paginate_by)+1
         except ValueError:
             territorio_page = 1
