@@ -33,7 +33,7 @@ class ValoriManager(models.Manager):
         if ids is None:
             ids = list(
                 self.filter(**filters).order_by(self.orderby_label).\
-                  values_list('territorio__id', flat=True)
+                  values('territorio__id', 'valore')
             )
             cache.set(key, ids)
 

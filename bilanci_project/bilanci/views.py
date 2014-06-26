@@ -64,14 +64,40 @@ class ShareUrlMixin(object):
 
 class MiniClassificheMixin(object):
 
+
+    def get_positions(self, element_list, territori_ids):
+
+        # calculates positions for values considering that if two (or more) territorio
+        # have the same value for indicatore / voce their position will be the same
+
+        positions = {}
+
+        # filter the whole list based on which territori are the baseset for this classifica
+        filtered_list = [element for element in element_list if element['territorio__id'] in territori_ids]
+
+        for idx, element in enumerate(filtered_list):
+            territorio_id = element['territorio__id']
+            if idx == 0:
+                positions[territorio_id] = 1
+            else:
+                previous_id = filtered_list[idx-1]['territorio__id']
+                previous_value = filtered_list[idx-1]['valore']
+
+                if round(element['valore'],2) == round(previous_value,2):
+                    positions[territorio_id] = positions[previous_id]
+                else:
+                    positions[territorio_id] = positions[previous_id] + 1
+
+        return positions
+
+
     def get_indicatore_positions(self, territorio, anno):
         # construct data for mini classifiche
         indicatori = Indicatore.objects.filter(published=True).values('pk','denominazione','slug')
 
         # initial territori_baseset is the complete list of comuni in the same cluster as territorio
-        territori_baseset = Territorio.objects.comuni.filter(cluster = territorio.cluster)
-
-        territori_ids = list(territori_baseset.values_list('id', flat=True))
+        territori_cluster = Territorio.objects.comuni.filter(cluster = territorio.cluster)
+        territori_cluster_id = list(territori_cluster.values_list('id', flat=True))
 
         indicatore_position = []
 
@@ -79,23 +105,17 @@ class MiniClassificheMixin(object):
 
             indicatore_all_ids = ValoreIndicatore.objects.get_classifica_ids(indicatore['pk'], anno)
             # filters results on territori in the considered cluster
-            indicatore_cluster_ids =  [id for id in indicatore_all_ids if id in territori_ids]
+            position = self.get_positions(indicatore_all_ids, territori_cluster_id)
 
-            try:
-                position = indicatore_cluster_ids.index(territorio.pk)+1
-            except ValueError:
-                pass
 
-            else:
-
-                indicatore_position.append(
-                    {
-                        'indicatore_denominazione': indicatore['denominazione'],
-                        'indicatore_pk': indicatore['pk'],
-                        'indicatore_slug': indicatore['slug'],
-                        'position': position
-                    }
-                )
+            indicatore_position.append(
+                {
+                    'indicatore_denominazione': indicatore['denominazione'],
+                    'indicatore_pk': indicatore['pk'],
+                    'indicatore_slug': indicatore['slug'],
+                    'position': position[territorio.pk]
+                }
+            )
 
         return indicatore_position
 
@@ -1920,7 +1940,7 @@ class ClassificheRedirectView(RedirectView):
             return url
 
 
-class ClassificheSearchView(RedirectView):
+class ClassificheSearchView(MiniClassificheMixin, RedirectView):
 
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
 
@@ -1942,14 +1962,15 @@ class ClassificheSearchView(RedirectView):
         territori_baseset = list(Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list('pk',flat=True))
 
         if selected_par_type == 'indicatori':
-            all_ids = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            all_ids_values = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
             parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
         else:
-            all_ids = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
+            all_ids_values = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
             parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
 
+        # calculate territorio page
         try:
-            territorio_idx =  [id for id in all_ids if id in territori_baseset].index(territorio_id)
+            territorio_idx =  [element['territorio__id'] for element in all_ids_values if element['territorio__id'] in territori_baseset].index(territorio_id)
             territorio_page = (territorio_idx / self.paginate_by)+1
         except ValueError:
             territorio_page = 1
@@ -1979,7 +2000,7 @@ class ClassificheSearchView(RedirectView):
 
 
 
-class ClassificheListView(HierarchicalMenuMixin, ListView):
+class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
@@ -1991,6 +2012,8 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
     reset_pages = False
     selected_regioni = []
     selected_cluster = []
+    positions = {}
+    prev_positions = {}
 
 
     def get(self, request, *args, **kwargs):
@@ -2032,11 +2055,15 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
         self.prev_year = self.anno_int - 1
 
         if self.parameter_type == 'indicatori':
-            self.curr_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.curr_year)
-            self.prev_ids = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.prev_year)
+            curr_id_values_all = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            prev_id_values_all = ValoreIndicatore.objects.get_classifica_ids(self.parameter.id, self.prev_year)
         else:
-            self.curr_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.curr_year)
-            self.prev_ids = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.prev_year)
+            curr_id_values_all = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.curr_year)
+            prev_id_values_all = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.prev_year)
+
+
+        # gets only the territorio__id in the right order
+        curr_id_all = [k['territorio__id'] for k in curr_id_values_all]
 
         ##
         # Filters on regioni / cluster
@@ -2057,9 +2084,12 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
 
         territori_ids = list(territori_baseset.values_list('id', flat=True))
 
-        self.curr_ids =  [id for id in self.curr_ids if id in territori_ids]
-        self.prev_ids =  [id for id in self.prev_ids if id in territori_ids]
+        # gets all the ids of the territori selected filtering the whole set
+        self.curr_ids =  [id for id in curr_id_all if id in territori_ids]
 
+
+        self.positions = self.get_positions(curr_id_values_all, territori_ids)
+        self.prev_positions = self.get_positions(prev_id_values_all, territori_ids)
         self.queryset = self.curr_ids
         return self.queryset
 
@@ -2123,15 +2153,13 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
                 'valore': valore,
                 'variazione': 0,
                 'incarichi_attivi': incarichi,
-                'position': ordinal_position,
-                'prev_position': ordinal_position,
+                'position': self.positions[territorio_id],
+                'prev_position': self.prev_positions[territorio_id],
             }
 
             # adjust prev position and variation if values are found
-            if territorio_id in self.prev_ids:
-                territorio_dict['variazione'] = self.prev_ids.index(territorio_id) - self.curr_ids.index(territorio_id)
-                territorio_dict['prev_position'] = self.prev_ids.index(territorio_id) + 1
-
+            if territorio_id in self.positions and territorio_id in self.prev_positions:
+                territorio_dict['variazione'] = self.prev_positions[territorio_id] - self.positions[territorio_id]
 
             object_list.append( territorio_dict )
 
