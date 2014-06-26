@@ -64,14 +64,40 @@ class ShareUrlMixin(object):
 
 class MiniClassificheMixin(object):
 
+
+    def get_positions(self, element_list, territori_ids):
+
+        # calculates positions for values considering that if two (or more) territorio
+        # have the same value for indicatore / voce their position will be the same
+
+        positions = {}
+
+        # filter the whole list based on which territori are the baseset for this classifica
+        filtered_list = [element for element in element_list if element['territorio__id'] in territori_ids]
+
+        for idx, element in enumerate(filtered_list):
+            territorio_id = element['territorio__id']
+            if idx == 0:
+                positions[territorio_id] = 1
+            else:
+                previous_id = filtered_list[idx-1]['territorio__id']
+                previous_value = filtered_list[idx-1]['valore']
+
+                if round(element['valore'],2) == round(previous_value,2):
+                    positions[territorio_id] = positions[previous_id]
+                else:
+                    positions[territorio_id] = positions[previous_id] + 1
+
+        return positions
+
+
     def get_indicatore_positions(self, territorio, anno):
         # construct data for mini classifiche
         indicatori = Indicatore.objects.filter(published=True).values('pk','denominazione','slug')
 
         # initial territori_baseset is the complete list of comuni in the same cluster as territorio
-        territori_baseset = Territorio.objects.comuni.filter(cluster = territorio.cluster)
-
-        territori_ids = list(territori_baseset.values_list('id', flat=True))
+        territori_cluster = Territorio.objects.comuni.filter(cluster = territorio.cluster)
+        territori_cluster_id = list(territori_cluster.values_list('id', flat=True))
 
         indicatore_position = []
 
@@ -79,23 +105,17 @@ class MiniClassificheMixin(object):
 
             indicatore_all_ids = ValoreIndicatore.objects.get_classifica_ids(indicatore['pk'], anno)
             # filters results on territori in the considered cluster
-            indicatore_cluster_ids =  [id for id in indicatore_all_ids if id in territori_ids]
+            position = self.get_positions(indicatore_all_ids, territori_cluster_id)
 
-            try:
-                position = indicatore_cluster_ids.index(territorio.pk)+1
-            except ValueError:
-                pass
 
-            else:
-
-                indicatore_position.append(
-                    {
-                        'indicatore_denominazione': indicatore['denominazione'],
-                        'indicatore_pk': indicatore['pk'],
-                        'indicatore_slug': indicatore['slug'],
-                        'position': position
-                    }
-                )
+            indicatore_position.append(
+                {
+                    'indicatore_denominazione': indicatore['denominazione'],
+                    'indicatore_pk': indicatore['pk'],
+                    'indicatore_slug': indicatore['slug'],
+                    'position': position[territorio.pk]
+                }
+            )
 
         return indicatore_position
 
@@ -1979,7 +1999,7 @@ class ClassificheSearchView(RedirectView):
 
 
 
-class ClassificheListView(HierarchicalMenuMixin, ListView):
+class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView):
 
     template_name = 'bilanci/classifiche.html'
     paginate_by = settings.CLASSIFICHE_PAGINATE_BY
@@ -2066,32 +2086,9 @@ class ClassificheListView(HierarchicalMenuMixin, ListView):
         # gets all the ids of the territori selected filtering the whole set
         self.curr_ids =  [id for id in curr_id_all if id in territori_ids]
 
-        # calculates positions for values considering that if two (or more) territorio
-        # have the same value for indicatore / voce their position will be the same
 
-        def get_positions(element_list, territori_ids):
-            positions = {}
-
-            # filter the whole list based on which territori are the baseset for this classifica
-            filtered_list = [element for element in element_list if element['territorio__id'] in territori_ids]
-
-            for idx, element in enumerate(filtered_list):
-                id = element['territorio__id']
-                if idx == 0:
-                    positions[id] = 1
-                else:
-                    previous_id = element_list[idx-1]['territorio__id']
-                    previous_value = element_list[idx-1]['valore']
-
-                    if round(element['valore'],2) == round(previous_value,2):
-                        positions[id] = positions[previous_id]
-                    else:
-                        positions[id] = positions[previous_id] + 1
-
-            return positions
-
-        self.positions = get_positions(curr_id_values_all, territori_ids)
-        self.prev_positions = get_positions(prev_id_values_all, territori_ids)
+        self.positions = self.get_positions(curr_id_values_all, territori_ids)
+        self.prev_positions = self.get_positions(prev_id_values_all, territori_ids)
         self.queryset = self.curr_ids
         return self.queryset
 
