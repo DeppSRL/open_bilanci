@@ -149,8 +149,8 @@ titoli and for voci):
 + when the process is finished the couchdb view results have to be merged with the existing
   google drive documents on titoli / voci normalization.
   To perform the task simply run
-  .. code-block:: bash
   
+  .. code-block:: bash
   
     python merge_keys.py -s [localhost | staging] -t [titoli | voci] -tb [preventivo |consuntivo] -o OUTPUT_CSV_FILE
     
