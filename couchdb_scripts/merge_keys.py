@@ -36,27 +36,34 @@ def write_csv(result_set, output_filename, translation_type):
 
             udw.writerow(csv_dict)
         else:
-            logging.error("Error: number of keys in settings != number of keys in Json file, exiting...")
+            logging.error("Error: number of keys in settings ({0}) != number of keys in Json file({1}), exiting...".format(len(csv_header),len(json_row),))
             return
 
     logging.info("Finished writing file: "+output_filename)
 
-def merge(view_data, worksheet):
+def merge(view_data, worksheet, is_titoli):
 
     #get json data from couchdb view
     #transform json view into table
     #get data from google drive spreadsheet
     #merge the two tables
 
-    titoli_couch=[]
+    data_couch=[]
     keys_result_set = []
     data_result_set = []
     gdoc = {}
+    voci_separation_token = '///'
 
 
     # get data from couch view -> create list of titolo keys
     for row in view_data['rows']:
-        titoli_couch.append(row['key'][0])
+        if is_titoli:
+            data_couch.append(row['key'][0])
+        else:
+            tipo_b_quadro_titolo = row['key'][0]
+            voce = row['key'][1]
+            result = tipo_b_quadro_titolo+voci_separation_token+voce
+            data_couch.append(result)
 
     # get data from gdoc
     # create a list of keys (tipobilancio_quadro_titolo)
@@ -64,15 +71,25 @@ def merge(view_data, worksheet):
     for row in worksheet:
         keys = [row[0], row[1].zfill(2), row[2]]
         key = "_".join(keys)
+        if not is_titoli:
+            key = key + voci_separation_token + row[3]
+
         keys_result_set.append(key)
-        keys.append(row[3])
+
+        # adds the coloumn with normalized data to the gdoc dict
+        if is_titoli:
+            keys.append(row[3])
+        else:
+            keys.append(row[3])
+            keys.append(row[4])
+
         gdoc[key] = keys
 
     # checks that every key in titoli_couch is present in titoli_gdoc
     # if not so, adds the key to the result set
-    for key in titoli_couch:
+    for key in data_couch:
         if key not in gdoc.keys():
-            logging.debug('Append "{0}" to the result set'.format(key))
+            logging.debug(u'Append "{0}" to the result set'.format(key))
             keys_result_set.append(key)
 
 
@@ -84,11 +101,21 @@ def merge(view_data, worksheet):
     # else: adds to the csv the tuple (tipobilancio,quadro,titolo,'')
     for key in sorted_keys_set:
         if key in gdoc.keys():
-            data_result_set.append(gdoc[key])
+            values = gdoc[key]
+            data_result_set.append(values)
+
         else:
-            values = key.split("_")
+            if is_titoli:
+                values = key.split("_")
+            else:
+                # splits tipobilancio, quadro, titolo, voce
+                values_set = key.split(voci_separation_token)
+                values = values_set[0].split("_")
+                values.append(values_set[1])
+
             values.append('')
             data_result_set.append(values)
+
 
     return data_result_set
 
@@ -152,11 +179,13 @@ def main(argv):
                     passw =settings_local.accepted_servers[server_name]['password']
             auth = (user,passw)
 
-
+            is_titoli = None
             # set source db name / destination db name
             if translation_type == 'voci':
+                is_titoli = False
                 source_db_name = settings_local.accepted_servers[server_name]['normalized_titoli_db_name']
             else:
+                is_titoli = True
                 source_db_name = settings_local.accepted_servers[server_name]['raw_db_name']
 
             view_name = '{0}_{1}'.format(translation_type, tipo_bilancio)
@@ -175,7 +204,7 @@ def main(argv):
             logging.info("Done")
 
 
-            result_set = merge(view_data=r.json(), worksheet=worksheet)
+            result_set = merge(view_data=r.json(), worksheet=worksheet, is_titoli=is_titoli)
             write_csv(result_set=result_set, output_filename=output_filename, translation_type=translation_type)
 
 
