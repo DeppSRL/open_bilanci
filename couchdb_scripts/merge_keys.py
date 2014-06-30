@@ -121,7 +121,7 @@ def main(argv):
         )
 
     args = parser.parse_args()
-    output_filename = 'output/'+args.output
+    output_filename = args.output
     server_name= args.server_name
     tipo_bilancio= args.tipo_bilancio
     translation_type = args.type
