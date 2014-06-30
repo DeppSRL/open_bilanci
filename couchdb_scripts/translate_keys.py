@@ -72,24 +72,25 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet, ov
                                 for titolo_name, titolo_object in quadro_object.iteritems():
                                     # per ogni titolo presente, se il titolo e' nella translation map
                                     # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
+                                    
+                                    if quadro_name in translation_map[bilancio_name].keys():
+                                        if titolo_name in translation_map[bilancio_name][quadro_name].keys():
+                                            titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
+                                        else:
+                                            titolo_name_translated = titolo_name
 
-                                    if titolo_name in translation_map[bilancio_name][quadro_name].keys():
-                                        titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
-                                    else:
-                                        titolo_name_translated = titolo_name
+                                        # crea il dizionario con il nome tradotto
+                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
+                                        # crea i meta
+                                        if 'meta' in titolo_object.keys():
+                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
+                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
 
-                                    # crea il dizionario con il nome tradotto
-                                    destination_document[bilancio_name][quadro_name][titolo_name_translated]={}
-                                    # crea i meta
-                                    if 'meta' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']={}
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['meta']=titolo_object['meta']
-
-                                    # passa i dati sul nuovo oggetto
-                                    if 'data' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
-                                        destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
-                                                    titolo_object['data']
+                                        # passa i dati sul nuovo oggetto
+                                        if 'data' in titolo_object.keys():
+                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]['data']={}
+                                            destination_document[bilancio_name][quadro_name][titolo_name_translated]['data'] =\
+                                                        titolo_object['data']
 
 
                     # controlla che alcune voci di titoli non siano andate perse nella traduzione
