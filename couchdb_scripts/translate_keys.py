@@ -7,6 +7,7 @@ DEPRECATED. Superseeded by the couch_translate_keys management task.
 
 import sys
 import couchdb
+from couchdb.http import ResourceConflict
 import gspread
 import argparse
 from pprint import pprint
@@ -72,7 +73,7 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet, ov
                                 for titolo_name, titolo_object in quadro_object.iteritems():
                                     # per ogni titolo presente, se il titolo e' nella translation map
                                     # applica la trasformazione, poi copia il contenuto nell'oggetto di destinazione
-                                    
+
                                     if quadro_name in translation_map[bilancio_name].keys():
                                         if titolo_name in translation_map[bilancio_name][quadro_name].keys():
                                             titolo_name_translated = translation_map[bilancio_name][quadro_name][titolo_name]
@@ -99,6 +100,8 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet, ov
                             if len(destination_document[bilancio_name][quadro_name].keys()) != len(source_document[bilancio_name][quadro_name].keys()):
                                 print "Error: Different number of keys for doc_id:"+id_object['id']
 
+                    if overwrite_flag:
+                        destination_document['_rev'] = source_document['_rev']
                 else:
                     # se il documennto e' un design doc, lo copia nella sua interezza
                     print "Copying design document id:"+id_object['id']
@@ -109,7 +112,10 @@ def translate_titoli(source_db, destination_db, id_list_response, list_sheet, ov
 
 
                 # scrive il nuovo oggetto nel db di destinazione
-                destination_db.save(destination_document)
+                try:
+                    destination_db.save(destination_document)
+                except ResourceConflict:
+                    destination_db.update(documents = [destination_document])
 
     else:
         print "Error: document list is empty"
