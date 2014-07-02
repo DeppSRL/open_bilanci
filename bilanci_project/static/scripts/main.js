@@ -26,7 +26,8 @@ $(document).ready(function(){
             'offset': ( !mapPage ? 100 : 180 ), // Top offset in map page and other pages
             'collapsibleMenu': {
                 'closeOthers': false, // On click collapse other items. Values: true, false
-                'startCollapsed': false // Collapsed by default. Values: true, false
+                'startCollapsed': false, // Collapsed by default. Values: true, false
+                'openChild': false // Open the child. Values: true, false
             },
             'pushMenu': {
                 'scroll': true, // Push menu scrolling. Values: true, false
@@ -237,10 +238,30 @@ $(document).ready(function(){
         if ( !options.collapsibleMenu.startCollapsed ) {
             $items.each(function( i, el ){
                 $item = $( this );
-                if ( $item.hasClass( 'active' ) ) {
-                    $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
+				
+				$submenu = $togglers.nextAll( 'ul.nav' );
+				
+				if($submenu.hasClass('hidden')) {
+					$submenu.parent('li').find( 'i' ).addClass('bo');
+				}
+				
+				if ( $item.hasClass( 'active' ) ) {
+            $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
+					
+            $item.parent('ul li').find( '> a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+            
+            if( options.collapsibleMenu.openChild ) {
+                        $item.find( 'ul.nav.hidden' ).removeClass( 'hidden' );
+                        $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                      }
+        } else {
+                if( !options.collapsibleMenu.openChild ) {
+
                     $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                    $('div.multi-level-menu ul.nav li ul.nav li ul.nav li > a i').removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
                 }
+				}
+				
             });
         }
 
@@ -249,6 +270,7 @@ $(document).ready(function(){
             e.preventDefault();
             $toggler = $( this );
             $submenu = $toggler.nextAll( 'ul.nav' );
+
 
             $togglers.each(function( i, el ){
                 if ( !$toggler.is($( el )) ) {
