@@ -21,7 +21,7 @@ $(document).ready(function(){
         pageHasControls = ( $( '#side-controls-wrapper' ).length ? true : false ),
 
         options    = {
-            'env': 'development', // Environment. Values: production, development
+            'env': 'production', // Environment. Values: production, development
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
             'offset': ( !mapPage ? 100 : 180 ), // Top offset in map page and other pages
             'collapsibleMenu': {
