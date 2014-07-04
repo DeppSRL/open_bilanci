@@ -2,50 +2,36 @@
 <ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
         >
 
-     {% if parameter_type == 'spese-interventi' %}
-         <li {% if parameter_type == selected_par_type and selected_parameter_slug == 'consuntivo-spese-cassa' %}class="active"{% endif %}
-                    >
-            <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
-            <a>Spese</a>
-
-            <ul class="nav nav-stacked hidden">
-     {% endif %}
-
     {% for p in parameter_list %}
-    {% for node in p%}
-        <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}>
+        {% for node in p%}
+            <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}>
 
 
-            {# sets the url for parameter list menu   #}
-            {% if page_type == 'confronti' %}
+                {# sets the url for parameter list menu   #}
+                {% if page_type == 'confronti' %}
 
-                {% if parameter_type == 'indicatori' %}
-                    <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
-                {% else %}
+                    {% if parameter_type == 'indicatori' %}
+                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                    {% else %}
 
-                    <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                    {% endif %}
+
+                {% elif page_type == 'classifiche' %}
+
+                    <a id="{{ parameter_type }}/{{ node.slug }}"
+                                        href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}" >
                 {% endif %}
 
-            {% elif page_type == 'classifiche' %}
+                    {{ node.denominazione }}
 
-                <a id="{{ parameter_type }}/{{ node.slug }}"
-                                    href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}" >
-            {% endif %}
+                </a>
 
-                {{ node.denominazione }}
+                {#  tooltip #}
+                {% popover_info node.slug %}
+            </li>
 
-            </a>
-
-            {#  tooltip #}
-            {% popover_info node.slug %}
-        </li>
-
+        {% endfor %}
     {% endfor %}
-    {% endfor %}
-
-    {% if parameter_type == 'spese-interventi' %}
-            </ul>
-        </li>
-    {% endif %}
 
 </ul>

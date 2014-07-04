@@ -259,6 +259,9 @@ var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.activ
                 } else {
                     $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
                 }
+                
+                    $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children().removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+
             });
             
             
