@@ -80,14 +80,13 @@
         <script src="{% static 'scripts/vendor/bootstrap/js/bootstrap.js' %}"></script>
         <!-- Enscroll -->
         <script src="{% static  'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
-
-        <!-- Html designer scripts -->
-        <script src="{% static 'scripts/main.js' %}"></script>
         <!-- Project scripts -->
         <script src="{% static 'scripts/project.js' %}"></script>
         <script src="{% static 'scripts/select2_locale_it.js' %}"></script>
 
         {% block extra_js %}{% endblock extra_js %}
+        <!-- Html designer scripts -->
+        <script src="{% static 'scripts/main.js' %}"></script>
 
         {% block google_analytics %}{% include 'commons/ga.html' %}{% endblock%}
 

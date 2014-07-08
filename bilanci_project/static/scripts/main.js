@@ -259,19 +259,19 @@ var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.activ
                 } else {
                     $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
                 }
-                
-                    $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children().removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
 
             });
             
-            
-            $li_active.each(function( i, el ){
-                $li_active.find( 'li > a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
-                 if( options.collapsibleMenu.openChild ) {
-                    $li_active.find( 'li.active > a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
-                }
+            // $( 'div.multi-level-menu ul.nav > a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+            $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children().removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
 
-            });
+            //$li_active.each(function( i, el ){
+            //    $li_active.find( 'li > a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+            //     if( options.collapsibleMenu.openChild ) {
+            //        $li_active.find( 'li.active > a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+            //    }
+            //
+            //});
 
         }
 
@@ -498,6 +498,7 @@ var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.activ
 
         setupPushMenu();
         setupSettingsMenu();
+
         changeSubMenu();
     }
 
