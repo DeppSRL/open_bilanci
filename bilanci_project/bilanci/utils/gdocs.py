@@ -331,7 +331,7 @@ def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilanc
     # open the list worksheet
     list_sheet = None
     try:
-        list_sheet = connection.open_by_key('0An-5r4iUtWq7dEZIejhYNXBpczRNOE9NeDB0MnVzTVE')
+        list_sheet = connection.open_by_key(gdoc_keys[bilancio_type_year])
     except exceptions.SpreadsheetNotFound:
         raise Exception("Error: gdoc url not found: {0}".format(
             gdoc_keys[bilancio_type_year]
