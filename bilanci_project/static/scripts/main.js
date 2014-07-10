@@ -19,7 +19,8 @@ $(document).ready(function(){
         $sidemenu       = $( '#side-menu' ),
         mapPage         = ( $( '#map-canvas' ).length ? true : false ),
         pageHasControls = ( $( '#side-controls-wrapper' ).length ? true : false ),
-
+        frameHeight = 500,
+        
         options    = {
             'env': 'production', // Environment. Values: production, development
             'autoScroll': !mapPage, // Side controls automatic scrolling. Values: true, false
@@ -234,27 +235,49 @@ $(document).ready(function(){
             $toggler   = null,
             $submenu   = null;
 var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.active' ).parent();
+        
+        //height menu
+        $("#menu-selezione .panel-body").css("max-height", frameHeight + "px");
 
+        $( 'div.multi-level-menu ul.nav li ul li:not(:has(ul))' ).each(function( i, el ){
+            $(this).css("padding-left", "28px");
+        });
 
+        $("#submenu-indicatori li").each(function( i, el ){
+            $(this).removeClass("fa-plus-circle");
+        });
+
+        
         // on init
         if ( !options.collapsibleMenu.startCollapsed ) {
             $items.each(function( i, el ){
                 $item = $( this );
             
-                $submenu = $togglers.nextAll( 'ul.nav' );
-                
-                if($submenu.hasClass('hidden')) {
-                  $submenu.parent('li').find( 'i' ).addClass('bo');
-                }
+                //$submenu = $togglers.nextAll( 'ul.nav' );
+                //if($submenu.hasClass('hidden')) {
+                //  $submenu.parent('li').find( 'i' ).addClass('bo');
+                //}
                 
                 if ( $item.hasClass( 'active' ) ) {
                     $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
-                  
                     $item.parent('ul li').find( '> a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
                     
                     if( options.collapsibleMenu.openChild ) {
-                                $item.find( 'ul.nav.hidden' ).removeClass( 'hidden' );
+                                $( 'div.multi-level-menu li.active > ul').removeClass('hidden');
+                                //$( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).each(function( i, el ){
+                                $( 'div.multi-level-menu li.active > ul li > ul' ).each(function( i, el ){
+                                    if ($(this).parent().parent().parent().hasClass('active')) {
+                                        console.log("test");
+                                        $( this ).removeClass( 'hidden' );
+                                    }
+                                });
+                                
+                                
+                               // $( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).removeClass( 'hidden' );
+                                //$item.find( 'ul.nav.hidden' ).removeClass( 'hidden' );
                                 $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                    } else {
+                        $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
                     }
                 } else {
                     $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
@@ -498,7 +521,6 @@ var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.activ
 
         setupPushMenu();
         setupSettingsMenu();
-
         changeSubMenu();
     }
 
