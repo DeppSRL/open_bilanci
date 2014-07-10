@@ -328,7 +328,8 @@ GDOC_KEYS= {
     'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
     'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
-    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY')
+    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY'),
+    'bilancio_consuntivo_2013':env('GDOC_BILANCIO_CONSUNTIVO_2013')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
