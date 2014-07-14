@@ -145,25 +145,70 @@ class Command(BaseCommand):
             # writes the current voce_slug in the db
             if n_colonne_quadro > 0:
 
-                first_colonna_slug = colonne_quadro[0][4]
-                for colonna in colonne_quadro:
+                if quadro_cod == '04' or quadro_cod == '05':
+                    # deal with funzioni / interventi
 
-                    ##
-                    # generate a slug for each colonna based on the slug of the first colonna:
-                    # example: if the slug in the voci sheet is
-                    # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati (Q02)
-                    # and Q02 has three colonna: accertamenti, riscossioni-in-conto-competenza, riscossioni-in-conto-residui
-                    # then 3 slugs will be generated using "accertamenti" as the reference string to be replaced
-                    # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati
-                    # consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse-imposte-casa-e-fabbricati
-                    # consuntivo-entrate-riscossioni-in-conto-residui-imposte-e-tasse-imposte-casa-e-fabbricati
-                    ##
+                    if denominazione_voce.lower() != 'totale':
+                        ##
+                        # FUNZIONI:
+                        # for each funzione the grand total is the only data that gets imported, so the
+                        # code for the total column is found and associated with the funzione
+                        ##
 
-                    colonna_cod = colonna[2]
-                    denominazione_colonna = colonna[3]
-                    colonna_slug = colonna[4]
-                    colonna_voce_slug = voce_slug.replace(first_colonna_slug, colonna_slug)
-                    self.save_voce_codice(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
+                        # finds the colonna with label 'totale' and gets the colonna code
+                        colonna_totale = None
+                        for colonna in colonne_quadro:
+                            if colonna[3].lower() == 'totale':
+                                colonna_totale = colonna
+
+                        if colonna_totale:
+                            colonna_totale_cod = colonna_totale[2]
+                        else:
+                            self.logger.error(u'Colonna totale not found for Q:{0}, cod_voce:{1}, voce_slug {2}. Skipping'.\
+                                format(quadro_cod,voce_cod,voce_slug))
+                            continue
+
+                        self.save_voce_codice(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
+
+                    else:
+
+                        ##
+                        # INTERVENTI:
+                        # similarly to funzioni the only data associated with interventi is the grand total so once
+                        # the "Totale" row is reached all the interventi cols are associated with the row code and saved
+                        ##
+
+                        for colonna in colonne_quadro:
+                            colonna_cod = colonna[2]
+                            denominazione_colonna = colonna[3]
+                            colonna_slug = colonna[4]
+
+                            colonna_voce_slug = "{0}-{1}".format(voce_slug, colonna_slug)
+                            self.save_voce_codice(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
+
+                else:
+
+                    first_colonna_slug = colonne_quadro[0][4]
+                    for colonna in colonne_quadro:
+
+                        ##
+                        # generate a slug for each colonna based on the slug of the first colonna:
+                        # example: if the slug in the voci sheet is
+                        # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati (Q02)
+                        # and Q02 has three colonna: accertamenti, riscossioni-in-conto-competenza, riscossioni-in-conto-residui
+                        # then 3 slugs will be generated using "accertamenti" as the reference string to be replaced
+                        # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati
+                        # consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse-imposte-casa-e-fabbricati
+                        # consuntivo-entrate-riscossioni-in-conto-residui-imposte-e-tasse-imposte-casa-e-fabbricati
+                        ##
+
+                        colonna_cod = colonna[2]
+                        denominazione_colonna = colonna[3]
+                        colonna_slug = colonna[4]
+
+                        colonna_voce_slug = voce_slug.replace(first_colonna_slug, colonna_slug)
+
+                        self.save_voce_codice(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
 
             else:
 
