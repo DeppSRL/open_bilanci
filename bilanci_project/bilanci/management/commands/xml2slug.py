@@ -132,7 +132,7 @@ class Command(BaseCommand):
             voce_slug = voce[6]
 
             if not voce_slug:
-                self.logger.debug(u"Voce slug not present for voce:{0}".format(denominazione_voce))
+                # self.logger.debug(u"Voce slug not present for voce:{0}".format(denominazione_voce))
                 continue
 
             colonne_quadro = []
@@ -145,17 +145,30 @@ class Command(BaseCommand):
             # writes the current voce_slug in the db
             if n_colonne_quadro > 0:
 
+                first_colonna_slug = colonne_quadro[0][4]
                 for colonna in colonne_quadro:
-                    pass
+
+                    ##
+                    # generate a slug for each colonna based on the slug of the first colonna:
+                    # example: if the slug in the voci sheet is
+                    # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati (Q02)
+                    # and Q02 has three colonna: accertamenti, riscossioni-in-conto-competenza, riscossioni-in-conto-residui
+                    # then 3 slugs will be generated using "accertamenti" as the reference string to be replaced
+                    # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati
+                    # consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse-imposte-casa-e-fabbricati
+                    # consuntivo-entrate-riscossioni-in-conto-residui-imposte-e-tasse-imposte-casa-e-fabbricati
+                    ##
+
+                    colonna_cod = colonna[2]
+                    denominazione_colonna = colonna[3]
+                    colonna_slug = colonna[4]
+                    colonna_voce_slug = voce_slug.replace(first_colonna_slug, colonna_slug)
+                    self.save_voce_codice(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
 
             else:
 
                 self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'',denominazione_voce,'')
 
-
-
-            self.logger.debug(u"Voce:{0}, Q:{1} con n.colonne:{2}".format(denominazione_voce, quadro_cod, n_colonne_quadro))
-
-
+            # self.logger.debug(u"Voce:{0}, Q:{1} con n.colonne:{2}".format(denominazione_voce, quadro_cod, n_colonne_quadro))
 
         return
