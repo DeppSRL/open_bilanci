@@ -47,11 +47,10 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    dryrun = False
     bilancio_year = None
 
-    def save_voce_codice(self, voce_slug, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
-
-        cod_voce = CodiceVoce()
+    def save_voce_codice(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
 
         try:
             voce = Voce.objects.get(slug = voce_slug)
@@ -59,13 +58,22 @@ class Command(BaseCommand):
             self.logger.error("Voce with slug:{0} is not present in DB and Codice voce cannot be saved")
             return
 
-        cod_voce.voce = voce
-        cod_voce.anno = self.bilancio_year
-        cod_voce.colonna_cod = colonna_cod
-        cod_voce.quadro_cod = quadro_cod
-        cod_voce.denominazione_voce = denominazione_voce
-        cod_voce.denominazione_colonna = denominazione_colonna
-        cod_voce.save()
+        if self.dryrun is False:
+
+            cod_voce, created = CodiceVoce.objects.get_or_create(
+                voce = voce,
+                voce_cod = voce_cod,
+                anno = self.bilancio_year,
+                colonna_cod = colonna_cod,
+                quadro_cod = quadro_cod,
+                denominazione_voce = denominazione_voce,
+                denominazione_colonna = denominazione_colonna
+            )
+
+            if created:
+                self.logger.info("CodiceVoce created: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+
+
         return
 
 
@@ -80,7 +88,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        dryrun = options['dryrun']
+        self.dryrun = options['dryrun']
         force_google = options['force_google']
         self.bilancio_year = options['year']
         type = options['type']
@@ -119,6 +127,7 @@ class Command(BaseCommand):
         for voce in voci:
             denominazione_voce = voce[3]
             quadro_cod = voce[4]
+            voce_cod = voce[5]
             quadro_denominazione_voce = voce[0]
             voce_slug = voce[6]
 
@@ -141,7 +150,7 @@ class Command(BaseCommand):
 
             else:
 
-                self.save_voce_codice(voce_slug,quadro_cod,'',denominazione_voce,'')
+                self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'',denominazione_voce,'')
 
 
 

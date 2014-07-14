@@ -129,3 +129,9 @@ class CodiceVoce(models.Model):
     colonna_cod = models.CharField(max_length=5, null=False, blank=False, default='')
     denominazione_voce = models.TextField(max_length=1000)
     denominazione_colonna = models.TextField(max_length=100)
+
+    class Meta:
+        verbose_name_plural = u'Codici voce'
+
+    def __unicode__(self):
+        return u"%s - %s %s-%s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)

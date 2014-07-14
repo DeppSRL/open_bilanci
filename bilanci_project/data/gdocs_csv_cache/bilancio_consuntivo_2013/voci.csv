@@ -680,63 +680,14 @@ solidarietà comunale (FSC)";"";"TOTALE A PAREGGIO ( spese correnti + spesa per 
 "QUADRO 10 - DATI RELATIVI AI DEBITI FUORI BILANCIO (2)";"";"";"Acquisizione di beni e servizi";"10";"025";""
 "QUADRO 10 - DATI RELATIVI AI DEBITI FUORI BILANCIO (2)";"";"";"Totale";"10";"065";""
 "QUADRO 10 BIS - ESECUZIONE FORZATA (2)";"";"";"Procedimenti di esecuzione forzata";"10";"070";""
-"QUADRO 50";"";"";"Valore negativo del risultato contabile di gestione superiore 
-in termini di valore assoluto al 5 per cento rispetto alle entrate correnti
- (a tali fini al risultato contabile si aggiunge l'avanzo di amministrazione 
-utilizzato per le spese di investimento);";"50";"010";""
-"QUADRO 50";"";"";"Volume dei residui attivi di nuova formazione provenienti dalla gestione di
- competenza e relativi ai titoli I e III, con l’esclusione delle risorse a
- titolo di fondo sperimentale di riequilibrio di cui all’articolo
- 2 del decreto legislativo n. 23 del 2011 o di fondo di solidarietà di cui 
-all’articolo 1, comma 380 della legge 24 dicembre 2012 n. 228, superiori 
-al 42 per cento rispetto ai valori di accertamento delle entrate dei
- medesimi titoli I e III esclusi gli accertamenti delle predette risorse a
- titolo di fondo sperimentale di riequilibrio o di fondo di solidarietà;";"50";"020";""
-"QUADRO 50";"";"";"Ammontare dei residui attivi provenienti dalla gestione dei residui attivi 
-e di cui al titolo I e al titolo III superiore al 65 per cento, ad esclusione
- eventuali residui da risorse a titolo di fondo sperimentale di riequilibrio 
-di cui all’articolo 2 del decreto legislativo n. 23 o di fondo di solidarietà 
-di cui all’articolo 1 comma 380 della legge 24 dicembre 2012 n. 228, 
-rapportata agli accertamenti della gestione di competenza delle entrate
- dei medesimi titoli I e III ad esclusione degli accertamenti delle predette
- risorse a titolo di fondo sperimentale di riequilibrio o di fondo di solidarietà;";"50";"030";""
-"QUADRO 50";"";"";"Volume dei residui passivi complessivi provenienti dal titolo I superiori al 
-40 per cento degli impegni della medesima spesa corrente;";"50";"040";""
-"QUADRO 50";"";"";"Esistenza di procedimenti di esecuzione forzata superiore allo 0,5 per 
-cento delle spese correnti anche se non hanno prodotto vincoli a seguito 
-delle disposizioni di cui all’articolo 159 del tuoel;";"50";"050";""
-"QUADRO 50";"";"";"Volume complessivo delle spese di personale a vario titolo rapportato 
-al volume complessivo delle entrate correnti desumibili dai titoli I, II e III 
-superiore al 40 per cento per i comuni inferiori a 5.000 abitanti, 
-superiore al 39 per cento per i comuni da 5.000 a 29.999 abitanti
- e superiore al 38 per cento per i comuni oltre i 29.999 abitanti; 
-tale valore è calcolato al netto dei contributi regionali nonché di altri
- enti pubblici finalizzati a finanziare spese di personale per cui il valore di 
-tali contributi va detratto sia al numeratore che 
-al denominatore del parametro;";"50";"060";""
-"QUADRO 50";"";"";"Consistenza dei debiti di finanziamento non assistiti da contribuzioni
- superiore al 150 per cento rispetto alle entrate correnti per gli enti che
- presentano un risultato contabile di gestione positivo e superioreal 120 per
- cento per gli enti che presentano un risultato contabile di gestione 
-negativo, fermo restando il rispetto del limite di indebitamento
- di cui all’articolo 204 del tuoel con le modifiche di cui di cui all’art. 8
-, comma 1 della legge 12 novembre 2011, n. 183, a
- decorrere dall’1 gennaio 2012;";"50";"070";""
-"QUADRO 50";"";"";"Consistenza dei debiti fuori bilancio riconosciuti nel corso 
-dell’esercizio superiore all’1 per cento rispetto ai valori 
-di accertamento delle entrate correnti, fermo restando che 
-l’indice si considera negativo 
-ove tale soglia venga superata in tutti gli ultimi tre esercizi finanziari;";"50";"080";""
-"QUADRO 50";"";"";"Eventuale esistenza al 31 dicembre di anticipazioni di tesoreria 
-non rimborsate superiori al 5 per cento rispetto alle entrate correnti;";"50";"090";""
-"QUADRO 50";"";"";"Ripiano squilibri in sede di provvedimento di salvaguardia di cui all’art. 193
- del tuoel con misure di alienazione di beni patrimoniali e/o avanzo di 
-amministrazione superiore al 5% dei valori della spesa corrente, fermo 
-restando quanto previsto dall’articolo 1, 
-commi 443 e 444 della legge 24 dicembre 2012 n. 228 a decorrere
- dall’1 gennaio 2013; ove sussistano i presupposti di legge
- per finanziare il riequilibrio in più esercizi finanziari, viene
- considerato al numeratore del parametro l’intero importo finanziato con
- misure di alienazione di beni patrimoniali, oltre che di avanzo 
-di amministrazione, anche se destinato a finanziare lo squilibrio nei 
-successivi esercizi finanziari (2).";"50";"100";""
+"QUADRO 50";"";"";"Valore negativo del risultato contabile di gestione superiore in termini di valore assoluto al 5 per cento rispetto alle entrate correnti (a tali fini al risultato contabile si aggiunge l'avanzo di amministrazione utilizzato per le spese di investimento);";"50";"010";""
+"QUADRO 50";"";"";"Volume dei residui attivi di nuova formazione provenienti dalla gestione di competenza e relativi ai titoli I e III, con l’esclusione delle risorse a titolo di fondo sperimentale di riequilibrio di cui all’articolo 2 del decreto legislativo n. 23 del 2011 o di fondo di solidarietà di cui all’articolo 1, comma 380 della legge 24 dicembre 2012 n. 228, superiori al 42 per cento rispetto ai valori di accertamento delle entrate dei medesimi titoli I e III esclusi gli accertamenti delle predette risorse a titolo di fondo sperimentale di riequilibrio o di fondo di solidarietà;";"50";"020";""
+"QUADRO 50";"";"";"Ammontare dei residui attivi provenienti dalla gestione dei residui attivi e di cui al titolo I e al titolo III superiore al 65 per cento, ad esclusione eventuali residui da risorse a titolo di fondo sperimentale di riequilibrio di cui all’articolo 2 del decreto legislativo n. 23 o di fondo di solidarietà di cui all’articolo 1 comma 380 della legge 24 dicembre 2012 n. 228, rapportata agli accertamenti della gestione di competenza delle entrate dei medesimi titoli I e III ad esclusione degli accertamenti delle predette risorse a titolo di fondo sperimentale di riequilibrio o di fondo di solidarietà;";"50";"030";""
+"QUADRO 50";"";"";"Volume dei residui passivi complessivi provenienti dal titolo I superiori al 40 per cento degli impegni della medesima spesa corrente;";"50";"040";""
+"QUADRO 50";"";"";"Esistenza di procedimenti di esecuzione forzata superiore allo 0,5 per cento delle spese correnti anche se non hanno prodotto vincoli a seguito delle disposizioni di cui all’articolo 159 del tuoel;";"50";"050";""
+"QUADRO 50";"";"";"Volume complessivo delle spese di personale a vario titolo rapportato al volume complessivo delle entrate correnti desumibili dai titoli I, II e III superiore al 40 per cento per i comuni inferiori a 5.000 abitanti, superiore al 39 per cento per i comuni da 5.000 a 29.999 abitanti e superiore al 38 per cento per i comuni oltre i 29.999 abitanti; tale valore è calcolato al netto dei contributi regionali nonché di altri enti pubblici finalizzati a finanziare spese di personale per cui il valore di tali contributi va detratto sia al numeratore che al denominatore del parametro;";"50";"060";""
+"QUADRO 50";"";"";"Consistenza dei debiti di finanziamento non assistiti da contribuzioni superiore al 150 per cento rispetto alle entrate correnti per gli enti che presentano un risultato contabile di gestione positivo e superioreal 120 per cento per gli enti che presentano un risultato contabile di gestione negativo, fermo restando il rispetto del limite di indebitamento di cui all’articolo 204 del tuoel con le modifiche di cui di cui all’art. 8, comma 1 della legge 12 novembre 2011, n. 183, a decorrere dall’1 gennaio 2012;";"50";"070";""
+"QUADRO 50";"";"";"Consistenza dei debiti fuori bilancio riconosciuti nel corso dell’esercizio superiore all’1 per cento rispetto ai valori di accertamento delle entrate correnti, fermo restando che
+l’indice si considera negativo ove tale soglia venga superata in tutti gli ultimi tre esercizi finanziari;";"50";"080";""
+"QUADRO 50";"";"";"Eventuale esistenza al 31 dicembre di anticipazioni di tesoreria non rimborsate superiori al 5 per cento rispetto alle entrate correnti;";"50";"090";""
+"QUADRO 50";"";"";"Ripiano squilibri in sede di provvedimento di salvaguardia di cui all’art. 193 del tuoel con misure di alienazione di beni patrimoniali e/o avanzo di amministrazione superiore al 5% dei valori della spesa corrente, fermo restando quanto previsto dall’articolo 1, commi 443 e 444 della legge 24 dicembre 2012 n. 228 a decorrere dall’1 gennaio 2013; ove sussistano i presupposti di legge per finanziare il riequilibrio in più esercizi finanziari, viene considerato al numeratore del parametro l’intero importo finanziato con misure di alienazione di beni patrimoniali, oltre che di avanzo di amministrazione, anche se destinato a finanziare lo squilibrio nei successivi esercizi finanziari (2).";"50";"100";"consuntivo-entrate-accertamenti-imposte-e-tasse-tasse-altre-tasse"
