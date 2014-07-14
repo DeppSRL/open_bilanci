@@ -134,4 +134,7 @@ class CodiceVoce(models.Model):
         verbose_name_plural = u'Codici voce'
 
     def __unicode__(self):
-        return u"%s - %s %s-%s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)
+        if self.colonna_cod:
+            return u"%s - %s %s-%s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)
+        else:
+            return u"%s - %s %s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod,)

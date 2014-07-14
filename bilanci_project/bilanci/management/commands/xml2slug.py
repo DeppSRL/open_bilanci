@@ -55,7 +55,7 @@ class Command(BaseCommand):
         try:
             voce = Voce.objects.get(slug = voce_slug)
         except ObjectDoesNotExist:
-            self.logger.error("Voce with slug:{0} is not present in DB and Codice voce cannot be saved")
+            self.logger.error("Voce with slug:{0} is not present in DB and Codice voce cannot be saved".format(voce_slug))
             return
 
         if self.dryrun is False:
@@ -182,9 +182,9 @@ class Command(BaseCommand):
                             colonna_cod = colonna[2]
                             denominazione_colonna = colonna[3]
                             colonna_slug = colonna[4]
-
-                            colonna_voce_slug = "{0}-{1}".format(voce_slug, colonna_slug)
-                            self.save_voce_codice(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
+                            if denominazione_colonna.lower() != 'totale':
+                                colonna_voce_slug = "{0}-{1}".format(voce_slug, colonna_slug)
+                                self.save_voce_codice(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
 
                 else:
 
@@ -212,7 +212,7 @@ class Command(BaseCommand):
 
             else:
 
-                self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'',denominazione_voce,'')
+                self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
 
             # self.logger.debug(u"Voce:{0}, Q:{1} con n.colonne:{2}".format(denominazione_voce, quadro_cod, n_colonne_quadro))
 
