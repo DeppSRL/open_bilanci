@@ -214,6 +214,4 @@ class Command(BaseCommand):
 
                 self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
 
-            # self.logger.debug(u"Voce:{0}, Q:{1} con n.colonne:{2}".format(denominazione_voce, quadro_cod, n_colonne_quadro))
-
         return
