@@ -124,6 +124,8 @@ class ValoreIndicatore(models.Model):
 class CodiceVoce(models.Model):
     voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
     anno = models.PositiveSmallIntegerField(db_index=True)
-    quadro = models.PositiveSmallIntegerField(db_index=True)
-    colonna = models.PositiveSmallIntegerField(db_index=True)
-    denominazione = models.TextField(max_length=1000)
+    quadro_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    voce_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    colonna_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    denominazione_voce = models.TextField(max_length=1000)
+    denominazione_colonna = models.TextField(max_length=100)

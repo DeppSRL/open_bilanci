@@ -359,7 +359,7 @@ def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilanc
         'colonne': colonne,
     }
 
-def get_bilancio_codes_map(connection=None, bilancio_type_year="bilancio_consuntivo_2013", force_google=False, n_header_lines=0, ):
+def get_bilancio_codes_map(bilancio_type, bilancio_year, connection=None, force_google=False, n_header_lines=0, ):
     """
     Try a local CSV version of the documents, or retrieve them from google
 
@@ -369,7 +369,9 @@ def get_bilancio_codes_map(connection=None, bilancio_type_year="bilancio_consunt
 
     Return a dict of the sheets
     """
+
     ret = None
+    bilancio_type_year = "bilancio_{0}_{1}".format(bilancio_type, bilancio_year)
     if force_google == False:
         ret = read_from_csv(bilancio_type_year)
 
