@@ -144,23 +144,21 @@ titoli and for voci):
     # load one of the view in view in couchdb_scripts/views in a given couchdb instance
     python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
     python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
-    # browse to the view and wait for view generation to finisc (status)
+    # browse to the view and wait for view generation to finish (status)
+    
 
-    # save views to json files (may take time, if launched for the first time)
-    curl -o output/[titoli|voci]_consuntivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_consuntivo/_view/[titoli|voci]_consuntivo?group_level=4
-    curl -o output/[titoli|voci]_preventivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_preventivo/_view/[titoli|voci]_preventivo?group_level=4
-
-+ the results of the view documents are converted from json to csv with the script ``json2csv.py``:
-
++ when the process is finished the couchdb view results have to be merged with the existing
+  google drive documents on titoli / voci normalization.
+  To perform the task simply run
+  
   .. code-block:: bash
+  
+    python merge_keys.py -s [localhost | staging] -t [titoli | voci] -tb [preventivo |consuntivo] -o OUTPUT_CSV_FILE
+    
++ The script generates a csv file that merges the existing google drive normalization spreadsheet and the couchdb view results.
 
-
-    # convert json file to csv (the name is unchanged)
-    python json2csv.py -f=output/[titoli|voci]_consuntivo.json -t=[titoli|voci]
-    python json2csv.py -f=output/[titoli|voci]_preventivo.json -t=[titoli|voci]
-
-+ the csv file is uploaded to **Google Drive**, creating a new spreadsheet
-  and skilled operators perform the many-to-one key mapping, based on keys typography:
++ The csv file is uploaded to **Google Drive**, creating a new sheet in the before mentioned spreadsheet
+  and not-so-skilled operators can copy-paste the results into the original sheet following the procedure:
 
   .. code-block:: bash
 
@@ -178,7 +176,6 @@ titoli and for voci):
 
     # remove temporary sheets
 
-    # let the skilled operators operate (skillfully)
 
 + the mapping is read and used by the normalization management task,
   to create a new normalized couchdb database:
