@@ -158,7 +158,12 @@ class HomeView(TemplateView):
         op_blog_posts = cache.get('blog-posts')
         if op_blog_posts is None:
             op_blog_posts = feedparser.parse('http://blog.openpolis.it/categorie/%s/feed/' % settings.OP_BLOG_CATEGORY).entries[:3]
-            cache.set('blog-posts', op_blog_posts, timeout=900)
+            for post in op_blog_posts:
+                try:
+                    post['excerpt'] = post.content[0].value.split('<span id="more-')[0]
+                except:
+                    pass
+            cache.set('blog-posts', op_blog_posts, timeout=120)
         context['op_blog_posts'] = op_blog_posts
         return context
 
