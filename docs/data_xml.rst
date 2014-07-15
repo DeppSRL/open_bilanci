@@ -54,14 +54,33 @@ The spreadsheet has to have 3 sheets called *Voci*, *Colonne*, *slug*.
 
 The *Voci* sheet will have the following columns:
 
-quadro_denominazione,	titolo_denominazione,	cat_cod	voce_denominazione,	quadro_cod,	voce_cod,	voce_slug
+
+====================  ====================  =======  ==================  ==========  ========  =========
+Voci
+--------------------------------------------------------------------------------------------------------
+ 
+quadro_denominazione  titolo_denominazione  cad_cod  voce_denominazione  quadro_cod  voce_cod  voce_slug
+
+====================  ====================  =======  ==================  ==========  ========  ========= 
+
 
 The *Colonne* sheet will have the following columns:
 
-quadro_denominazione, quadro_cod, col_cod, col_denominazione, slug
+====================  ==========  =======  =================  ====
+Colonne
+------------------------------------------------------------------
+ 
+quadro_denominazione  quadro_cod  col_cod  col_denominazione  slug
+
+====================  ==========  =======  =================  ==== 
+
+
 
 The *slug* sheet will have the following columns:
 
-slug
-
++------+ 
+| slug | 
++======+ 
+| slug | 
++------+ 
 
