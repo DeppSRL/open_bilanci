@@ -1,5 +1,6 @@
-Data
-====
+Data import from html to Postgres through Couch
+===============================================
+
 Data are fetched from the source as HTML files (no images, styles, or js scripts).
 This is done in order to prevent damage whenever tehy should disappear from the source.
 
@@ -8,10 +9,10 @@ HTML files are then parsed into couchdb documents. All tables are transformed in
 Budget titles and labels are normalized, by finding the MCD, defining a mapping and replicating the
 raw couchdb. This is a 2 steps process.
 
-The final product of the normalization process is a normalized database on couchdb that 
+The final product of the normalization process is a normalized database on couchdb that
 can be now reduced to a simplified form using a dedicated script (simplify.py).
 
-Due to application needs and operational functionalities the non-relational database is transferred to a 
+Due to application needs and operational functionalities the non-relational database is transferred to a
 relational Postgres db using the couch2pg.py script. The Postgres instance is the application db on which
 the application relies to build HTML pages, compute indicators and cluster averages.
 
@@ -31,15 +32,15 @@ HTML documents are parsed with the ``scrapy`` parser:
 
     cd /home/open_bilanci/scraper_project
     scrapy crawl bilanci_pages
-    
+
 Possible parameters for the scraper are the following
 
 .. code-block:: bash
 
    scrapy crawl bilanci_pages -a cities=CITY_NAME -a years=YEAR -a type=BILANCIO_TYPE
-   
-   
-Bilancio type parameter can have the following values: 
+
+
+Bilancio type parameter can have the following values:
 
 - c | C for Consuntivo
 - p | P for Preventivo
@@ -61,7 +62,7 @@ what to scrape (years and cities) and where to put the results:
 
     START_YEAR_SPIDER = 2002
     END_YEAR_SPIDER = 2003
-    
+
 The settings can be overridden and selected cities and years can be fetched:
 
 .. code-block:: bash
@@ -70,8 +71,8 @@ The settings can be overridden and selected cities and years can be fetched:
     scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
     scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
     scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
- 
-    
+
+
 
 Mirror
 ------
@@ -114,7 +115,7 @@ Data are parsed from HTML into the couchdb local server with the html2couch mana
     cd /home/open_bilanci/bilanci_project
     python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
     python manage.py html2couch --cities=Roma --years=2003,2004 -v2
-    
+
 The default value for the ``base_url`` parameter is http://finanzalocale.mirror.openpolis.it.
 The couchdb server is always localhost.
 
@@ -277,51 +278,7 @@ The task is performed with the following command
 .. code-block:: bash
 
     python manage.py couch2pg --cities=all --years=2003-2011 -v3
-    
+
 
 All the data contained in the couch db is then copied to Postgres database.
-
-
-Data completion
----------------
-
-Once all the data resides in the application Postgres db there is few data which is needed to be imported to make the db
-functional to Bilanci app:
-
--  Territorio context data taken from Comune bilancio consuntivo
-
-.. code-block:: bash
-
-  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v2
-
--  Territorio Openpolis id, necessary to get political data from Openpolis API
-
-.. code-block:: bash
-
-    python manage.py set_opid -v2
-
-
-Then there are data which need to be computed on the data already present in the db
-
--  median values of bilanci for territori clusters
-
-.. code-block:: bash
-
-    python manage.py median --type=voci --years=2003-2013 -v2
-
-- indicators, and indicators median values (see a description of the indicators computation internals on :ref:`here <indicators>`
-
-.. code-block:: bash
-
-    python manage.py indicators --cities=all --years=2003-2013 -v2
-    python manage.py median --type=indicatori --years=2003-2013 -v2
-
-
-- generating downloadable packages of CSV files
-
-.. code-block:: bash
-
-    python manage.py couch2csv --cities=all --years=2003-2013 --compress -v2
-
-
 
