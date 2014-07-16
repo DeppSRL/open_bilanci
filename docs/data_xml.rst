@@ -32,7 +32,7 @@ Click on the desired link and at the bottom of the page click and download the d
 
 That is the file that associates the official voce codes to bilanci voci.
 
-Copying the values to Google Drive document
+Creating a dedicated Google Drive document
 -------------------------------------------
 
 Create a new Google drive spreadsheet **using the old format of Gdocs** so the document will have a url similar to 
@@ -84,3 +84,112 @@ The *slug* sheet will have the following columns:
 | slug | 
 +------+ 
 
+
+Integrating the Document with Django app
+----------------------------------------
+
+Copy the document key and create a new constant value in the **.env** file
+
+.. code-block:: bash
+
+    GDOC_BILANCIO_BILANCIOTYPE_YEAR=GOOGLE_DOCUMENT_KEY
+    
+    example:
+    
+    GDOC_BILANCIO_CONSUNTIVO_2013=GOOGLE_DOCUMENT_KEY
+
+
+Update the .env.sample file.
+
+Adds the constant in the **settings/base.py** file using the same name but lowercase
+
+.. code-block:: bash
+
+    # Google Docs keys
+    GDOC_KEYS= {
+        'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
+        'voci_map': env('GDOC_VOCI_MAP_KEY'),
+        'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
+        'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY'),
+        'bilancio_consuntivo_2013':env('GDOC_BILANCIO_CONSUNTIVO_2013'),
+        ## INSERT NEW VALUE HERE ##
+        'bilancio_bilanciotype_year':env('GDOC_BILANCIO_BILANCIOTYPE_YEAR'),
+    }
+
+In this way the Google doc is now accessible by management tasks.
+
+
+Copying the values to the Google Drive document
+-----------------------------------------------
+
+Open the pdf file and copy-paste the values in the right cells for *Voci* and *Colonne* sheets.
+
+About the slugs:  get the normalized slugs contained in the Voce table relative to the bilancio type considered.
+Then for the voce that have more than one column keep only the slugs relative to the first column.
+
+Example:
+Insert
+
+
+.. code-block:: bash
+
+    consuntivo-entrate-accertamenti-contributi-pubblici
+
+But skip
+
+
+.. code-block:: bash
+
+    consuntivo-entrate-riscossioni-in-conto-competenza-contributi-pubblici
+    consuntivo-entrate-riscossioni-in-conto-residui-contributi-pubblici
+
+The association script will make automagically the association.
+
+
+Codes - simplified slugs association
+------------------------------------
+
+This step requires that a skilled operator associates the normalized slugs with the voci in the *Voci* sheet 
+keeping in mind the rule aforementioned.
+
+The sheet *Colonne* requires the association of column names with partial slugs.
+
+Example:
+
+
++-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
+| quadro_denominazione                      | quadro_cod | col_cod | col_denominazione         | slug                                | 
++===========================================+============+=========+===========================+=====================================+
+| QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI | 04         | 4       | Utilizzo di beni di terzi | altre-spese-per-interventi-correnti |
++-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
+
+
+Generate the code-slug map
+--------------------------
+
+When the association is over and checked then run the following script to generate the association between official 
+codes and normalized slugs.
+
+.. code-block:: bash
+
+    python manage.py xml2slug --type=[C|P] --year=YEAR  -v3 --force-google
+    
+This management task will access the google document, download the map in a simple csv file and creates the associations that were implicit:
+for example those regarding funzioni / interventi.
+
+The values created will be stored in the CodiceValore table in Postgres DB.
+
+Xml import
+----------
+
+After the association map has been created launch the xml import with
+
+.. code-block:: bash
+
+    python manage.py xml2pg --file=FILEPATH.XML -v2
+    
+There is no need to specify territorio, year or bilancio type because those info are stored in the xml file.
+
+
+
+				
