@@ -10,7 +10,7 @@ functional to Bilanci app:
 
 .. code-block:: bash
 
-  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v2
+  python manage.py context --cities=all --year=2001-2012 -v2
 
 -  Territorio Openpolis id, necessary to get political data from Openpolis API
 
