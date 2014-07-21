@@ -156,12 +156,6 @@ def get_simplified_leaves(connection=None, force_google=False, n_header_lines=0)
     return ret
 
 
-
-
-
-
-
-
 def get_normalized_map_from_google(normalization_type, connection=None, n_header_lines=0):
     """
     get normalized voci or titoli mapping from gdoc spreadsheets
@@ -317,3 +311,73 @@ def get_simplified_leaves_from_google(connection=None, n_header_lines=0):
         'preventivo-spese': preventivo_spese,
         'consuntivo-spese': consuntivo_spese
     }
+
+
+def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilancio_type_year = None ):
+
+    """
+    get the bilancio xml codes from gDoc
+
+    return a dict
+    """
+
+    # get all gdocs keys
+    gdoc_keys = settings.GDOC_KEYS
+
+    if connection is None:
+        connection = get_connection()
+
+
+    # open the list worksheet
+    list_sheet = None
+    try:
+        list_sheet = connection.open_by_key(gdoc_keys[bilancio_type_year])
+    except exceptions.SpreadsheetNotFound:
+        raise Exception("Error: gdoc url not found: {0}".format(
+            gdoc_keys[bilancio_type_year]
+        ))
+
+    logger.info("Bilancio xml code gdoc read. key: {0}".format(
+        gdoc_keys[bilancio_type_year]
+    ))
+
+    # get the voices subtrees from gDoc spreadsheet
+    # skip the first n_headers lines
+    try:
+        logger.info("reading preventivo entrate ...")
+        voci = list_sheet.worksheet("Voci").get_all_values()[n_header_lines:]
+        colonne = list_sheet.worksheet("Colonne").get_all_values()[n_header_lines:]
+
+
+    except URLError:
+        raise Exception("Connection error to Gdrive")
+
+    logger.info("done with reading the list.")
+
+    return {
+        'voci': voci,
+        'colonne': colonne,
+    }
+
+def get_bilancio_codes_map(bilancio_type, bilancio_year, connection=None, force_google=False, n_header_lines=0, ):
+    """
+    Try a local CSV version of the documents, or retrieve them from google
+
+    Always retrieve from google, if instructed to do so.
+
+    Skip header lines when reading from google (csv do not contain header lines).
+
+    Return a dict of the sheets
+    """
+
+    ret = None
+    bilancio_type_year = "bilancio_{0}_{1}".format(bilancio_type, bilancio_year)
+    if force_google == False:
+        ret = read_from_csv(bilancio_type_year)
+
+    if not ret:
+        ret = get_bilancio_codes_from_google(n_header_lines=n_header_lines, bilancio_type_year=bilancio_type_year)
+        write_to_csv(bilancio_type_year, ret)
+
+
+    return ret

@@ -14,11 +14,14 @@ gdoc_keys= {
 
 
 accepted_types={
+    'titoli':{
+        'csv_keys':["tipo","quadro", "titolo"]
+    },
     'voci':{
         'csv_keys':["tipo","quadro","titolo", "voce"],
     },
-    'titoli':{
-        'csv_keys':["tipo","quadro", "titolo"]
+    'simplify':{
+        'csv_keys':["tipo","quadro", "titolo","voce"]
     }
 }
 

@@ -245,7 +245,7 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
         return ret
 
 
-class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
+class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
     """
     (consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse + consuntivo-entrate-riscossioni-in-conto-competenza-entrate-extratributarie) :
     (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
@@ -267,7 +267,7 @@ class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
         return 100.0 * (ecit + ecex) / (eait + eaex)
 
 
-class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
+class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
     """
     (consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti /
      consuntivo-spese-impegni-spese-correnti) * 100

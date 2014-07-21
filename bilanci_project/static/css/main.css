@@ -2949,3 +2949,9 @@ div.miniclass-incarichi {
   border-bottom: 0!important;
   padding-bottom: 0;
 }
+#from-the-blog a.muted {
+  color: #b84a34;
+}
+#from-the-blog h1 a {
+  color: #b84a34;
+}
