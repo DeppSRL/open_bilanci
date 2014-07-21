@@ -36,11 +36,7 @@ def write_csv(result_set, output_filename, translation_type):
 
         if len(json_row) == len(csv_header):
 
-            for (counter, key) in enumerate(csv_header):
-                csv_dict[key]=''
-                csv_dict[key]=json_row[counter]
-
-            udw.writerow(csv_dict)
+            udw.writerow_list(json_row)
         else:
             logging.error("Error: number of keys in settings ({0}) != number of keys in Json file({1}), exiting...".format(len(csv_header),len(json_row),))
             return
@@ -60,11 +56,12 @@ def merge(view_data, worksheet, translation_type):
     gdoc = {}
     voci_separation_token = '///'
 
-    # get data from couch view -> create list of titolo keys
+    # from view_data gets only the key value and append it to a list
     for row in view_data['rows']:
         if translation_type == 'titoli':
             data_couch.append(row['key'][0])
         else:
+            # if voci / simplify is considered the voce value is added
             tipo_b_quadro_titolo = row['key'][0]
             voce = row['key'][1]
             result = tipo_b_quadro_titolo+voci_separation_token+voce
@@ -73,7 +70,8 @@ def merge(view_data, worksheet, translation_type):
     # get data from gdoc
     # create a list of keys (tipobilancio_quadro_titolo)
     # create a list of dicts that stores all the previous info and the normalized titolo name
-    for row in worksheet:
+    # for row in worksheet:
+    for (counter, row) in enumerate(worksheet):
 
         string_key = "_".join([row[0], row[1].zfill(2), row[2]])
         if translation_type != 'titoli':
@@ -121,7 +119,11 @@ def merge(view_data, worksheet, translation_type):
                 values = values_set[0].split("_")
                 values.append(values_set[1])
 
-            values.append('')
+            if translation_type != 'simplify':
+                values.append('')
+            else:
+                values.extend(['','','',''])
+
             data_result_set.append(values)
 
     return data_result_set
@@ -179,7 +181,6 @@ def main(argv):
 
             worksheet = list_sheet.worksheet(tipo_bilancio).get_all_values()[2:]
 
-            is_titoli = None
             # set source db name / destination db name
             if translation_type == 'titoli':
                 source_db_name = settings_local.accepted_servers[server_name]['raw_db_name']
@@ -214,7 +215,7 @@ def main(argv):
                 r = requests.get(server_connection_address, auth=(user,passw))
 
             result_set = merge(view_data=r.json(), worksheet=worksheet, translation_type=translation_type)
-            # write_csv(result_set=result_set, output_filename=output_filename, translation_type=translation_type)
+            write_csv(result_set=result_set, output_filename=output_filename, translation_type=translation_type)
 
 
         else:
