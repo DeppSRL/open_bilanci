@@ -70,9 +70,8 @@ def merge(view_data, worksheet, translation_type):
     # get data from gdoc
     # create a list of keys (tipobilancio_quadro_titolo)
     # create a list of dicts that stores all the previous info and the normalized titolo name
-    # for row in worksheet:
-    for (counter, row) in enumerate(worksheet):
-
+    
+    for row in worksheet:
         string_key = "_".join([row[0], row[1].zfill(2), row[2]])
         if translation_type != 'titoli':
             string_key = string_key + voci_separation_token + row[3]
