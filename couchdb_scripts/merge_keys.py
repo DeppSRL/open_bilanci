@@ -14,7 +14,7 @@ import csv
 import settings_local
 
 
-def write_csv(result_set, output_filename, translation_type):
+def write_csv(result_set, output_filename, translation_type, tipo_bilancio):
 
     csv_file = open(output_filename, "wb+")
     csv_header = settings_local.accepted_types[translation_type]['csv_keys']
@@ -22,7 +22,10 @@ def write_csv(result_set, output_filename, translation_type):
     if translation_type != 'simplify':
         csv_header.append("normalized_"+translation_type)
     else:
-        csv_header.extend(["voce normalizzata","Categoria","titolo","entrate / uscite"])
+        if tipo_bilancio == 'preventivo':
+            csv_header.extend(["voce normalizzata","Categoria","titolo","entrate / spese"])
+        else:
+            csv_header.extend(['','','','','',''])
 
         
     udw = utils.UnicodeDictWriter(csv_file, csv_header, dialect=csv.excel, encoding="utf-8")
@@ -43,7 +46,7 @@ def write_csv(result_set, output_filename, translation_type):
 
     logging.info("Finished writing file: "+output_filename)
 
-def merge(view_data, worksheet, translation_type):
+def merge(view_data, worksheet, translation_type, tipo_bilancio):
 
     #get json data from couchdb view
     #transform json view into table
@@ -86,7 +89,10 @@ def merge(view_data, worksheet, translation_type):
             row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4]]
 
         else:
-            row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7]]
+            if tipo_bilancio == 'preventivo':
+                row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7]]
+            else:
+                row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]]
 
         gdoc[string_key] = row_keys
 
@@ -121,7 +127,10 @@ def merge(view_data, worksheet, translation_type):
             if translation_type != 'simplify':
                 values.append('')
             else:
-                values.extend(['','','',''])
+                if tipo_bilancio == 'preventivo':
+                    values.extend(['','','',''])
+                else:
+                    values.extend(['','','','','',''])
 
             data_result_set.append(values)
 
@@ -213,8 +222,8 @@ def main(argv):
             else:
                 r = requests.get(server_connection_address, auth=(user,passw))
 
-            result_set = merge(view_data=r.json(), worksheet=worksheet, translation_type=translation_type)
-            write_csv(result_set=result_set, output_filename=output_filename, translation_type=translation_type)
+            result_set = merge(view_data=r.json(), worksheet=worksheet, translation_type=translation_type, tipo_bilancio=tipo_bilancio)
+            write_csv(result_set=result_set, output_filename=output_filename, translation_type=translation_type, tipo_bilancio=tipo_bilancio)
 
 
         else:
