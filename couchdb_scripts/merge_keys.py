@@ -53,8 +53,7 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
     #get data from google drive spreadsheet
     #merge the two tables
 
-    data_couch=[]
-    keys_result_set = []
+    couch_key_list=[]
     data_result_set = []
     gdoc = {}
     voci_separation_token = '///'
@@ -62,22 +61,21 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
     # from view_data gets only the key value and append it to a list
     for row in view_data['rows']:
         if translation_type == 'titoli':
-            data_couch.append(row['key'][0])
+            couch_key_list.append(row['key'][0])
         else:
             # if voci / simplify is considered the voce value is added
             tipo_b_quadro_titolo = row['key'][0]
             voce = row['key'][1]
             result = tipo_b_quadro_titolo+voci_separation_token+voce
-            data_couch.append(result)
+            couch_key_list.append(result)
 
     # get data from gdoc
-    # create a list of keys (tipobilancio_quadro_titolo)
     # create a list of dicts that stores all the previous info and the normalized titolo name
     
     for row in worksheet:
-        string_key = "_".join([row[0], row[1].zfill(2), row[2]])
+        couch_key = "_".join([row[0], row[1].zfill(2), row[2]])
         if translation_type != 'titoli':
-            string_key = string_key + voci_separation_token + row[3]
+            couch_key = couch_key + voci_separation_token + row[3]
 
         # adds the coloumn with normalized data to the gdoc dict
         if translation_type == 'titoli':
@@ -92,33 +90,24 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
             else:
                 row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]]
 
-        gdoc[string_key] = row_keys
+        gdoc[couch_key] = row_keys
 
-    # checks that every key in titoli_couch is present in titoli_gdoc
-    # if not so, adds the key to the result set
-    for string_key in data_couch:
-        if string_key not in gdoc.keys():
-            logging.debug(u'Append "{0}" to the result set'.format(string_key))
-            keys_result_set.append(string_key)
+    couch_key_list_sorted =  sorted(couch_key_list)
 
-
-    # orders result set keys in alphabetical order
-    sorted_keys_set =  sorted(keys_result_set)
-
-    # considering the complete set of the keys:
+    # considering the couch keys:
     # if the key was already in the gdoc -> moves all the info to the result csv
     # else: adds to the csv the tuple (tipobilancio,quadro,titolo,'')
-    for string_key in sorted_keys_set:
-        if string_key in gdoc.keys():
-            values = gdoc[string_key]
+    for c_key in couch_key_list_sorted:
+        if c_key in gdoc.keys():
+            values = gdoc[c_key]
             data_result_set.append(values)
 
         else:
             if translation_type == 'titoli':
-                values = string_key.split("_")
+                values = c_key.split("_")
             else:
                 # splits tipobilancio, quadro, titolo, voce
-                values_set = string_key.split(voci_separation_token)
+                values_set = c_key.split(voci_separation_token)
                 values = values_set[0].split("_")
                 values.append(values_set[1])
 
