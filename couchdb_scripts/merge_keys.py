@@ -79,8 +79,6 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
         if translation_type != 'titoli':
             string_key = string_key + voci_separation_token + row[3]
 
-        keys_result_set.append(string_key)
-
         # adds the coloumn with normalized data to the gdoc dict
         if translation_type == 'titoli':
             row_keys = [row[0], row[1].zfill(2), row[2], row[3]]
