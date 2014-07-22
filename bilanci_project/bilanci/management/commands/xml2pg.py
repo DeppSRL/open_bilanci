@@ -7,7 +7,7 @@ from django.core.management import BaseCommand
 from bs4 import BeautifulSoup
 from bilanci.utils.comuni import FLMapper
 from bilanci.models import CodiceVoce, ValoreBilancio, Voce
-from territori.models import Territorio, ObjectDoesNotExist
+from territori.models import Territorio, Contesto, ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -34,6 +34,79 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    territorio = None
+    tipo_certificato = None
+    anno = None
+    xml_colonne_regroup = None
+    popolazione_residente = None
+
+    def import_bilancio(self, soup, popolazione_residente, dryrun):
+
+        ##
+        # CodiceVoce: get all elements for anno, tipo_certificato
+        ##
+        codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato)
+        codici_keygen = lambda x: (x.voce.slug)
+        codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+
+        for voce_slug, codice_list in codici_regroup.iteritems():
+            xml_code_found = True
+            self.logger.info("Getting data for {0}".format(voce_slug))
+
+            valore_totale = 0
+            # adds up all the xml codice needed to calculate a single voce
+            for codice in codice_list:
+                if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.xml_colonne_regroup.keys():
+                    self.logger.error("Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
+                        format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
+                    xml_code_found = False
+                    break
+
+                valore_string = unicode(self.xml_colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
+                if valore_string.lower() != 's' and valore_string.lower() != 'n':
+                    valore_totale += float(valore_string)
+
+
+            if xml_code_found:
+                self.logger.info("Write {0}:{1} on db".format(voce_slug, valore_totale))
+                vb = ValoreBilancio()
+                vb.voce = Voce.objects.get(slug = voce_slug)
+                vb.anno = int(self.anno)
+                vb.territorio = self.territorio
+                vb.valore = valore_totale
+
+                if popolazione_residente is not None:
+                    vb.valore_procapite = valore_totale/float(popolazione_residente)
+
+                if not dryrun:
+                    vb.save()
+
+
+
+        return
+
+    def import_context(self, soup, dryrun):
+
+        popolazione_residente = self.xml_colonne_regroup[('01','001','1')]['valore']
+
+        try:
+            contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+
+        except ObjectDoesNotExist:
+            new_contesto = Contesto()
+            new_contesto.anno = self.anno
+            new_contesto.territorio = self.territorio
+            new_contesto.bil_popolazione_residente = popolazione_residente
+
+            if not dryrun:
+                new_contesto.save()
+        else:
+
+            if contesto_db.bil_popolazione_residente != popolazione_residente:
+                self.logger.error("Popolazione residente in xml file ({0}) != pop.residente stored in db ({1})".\
+                    format(contesto_db.bil_popolazione_residente, popolazione_residente))
+
+        return popolazione_residente
 
 
     def handle(self, *args, **options):
@@ -49,6 +122,7 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
         input_file = options['input_file']
+        popolazione_residente = None
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -62,32 +136,36 @@ class Command(BaseCommand):
 
         # get finloc, year, tipo bilancio
         certificato = soup.certificato
-        anno = certificato['anno']
+        self.anno = certificato['anno']
         tipo_certificato_code = certificato['tipoCertificato']
+
+        valuta = certificato['tipoValuta']
+        if valuta.lower() != 'e':
+            self.logger.error("Valuta is not EURO")
+            return
+
         if tipo_certificato_code == "C":
-            tipo_certificato = 'consuntivo'
+            self.tipo_certificato = 'consuntivo'
         else:
-            tipo_certificato = 'preventivo'
+            self.tipo_certificato = 'preventivo'
 
         # identifies the Comune from the finloc code
         codiceente = certificato['codiceEnte']
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         codfinloc = mapper.get_cities(codiceente)[0]
-        territorio = Territorio.objects.get(cod_finloc = codfinloc)
-        self.logger.info(u"Comune: {0}".format(territorio.cod_finloc))
+        self.territorio = Territorio.objects.get(cod_finloc = codfinloc)
+        self.logger.info(u"Comune: {0}".format(self.territorio.cod_finloc))
 
         ##
-        # XML: get all colonna elements
+        # XML file: get all colonna elements and creates a xml codes map
         ##
 
         colonne_xml = soup.find_all('colonne')
         colonne_list = []
         for colonne_element in colonne_xml:
-            # print "Quadro:{0} voce:{1}".format(colonne_element['quadro'], colonne_element['voce'])
 
             for colonna_element in colonne_element.contents:
                 if colonna_element != u'\n':
-                    # print "colonna n:{0} value:{1}".format(colonna_element['num'], colonna_element.string)
 
                     colonne_list.append({
                         'voce':colonna_element.parent['voce'],
@@ -97,43 +175,21 @@ class Command(BaseCommand):
                         })
 
         colonne_list_keygen = lambda x: (x['quadro'], x['voce'], x['colonna'])
-        colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
-
-        ##
-        # CodiceVoce: get all elements for anno, tipo_certificato
-        ##
-        codici = CodiceVoce.get_bilancio_codes(anno=int(anno), tipo_certificato=tipo_certificato)
-        codici_keygen = lambda x: (x.voce.slug)
-        codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
-
-        for voce_slug, codice_list in codici_regroup.iteritems():
-            xml_code_not_found = False
-            self.logger.info("Getting data for {0}".format(voce_slug))
-
-            valore_totale = 0
-            # adds up all the xml codice needed to calculate a single voce
-            for codice in codice_list:
-                if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in colonne_regroup.keys():
-                    self.logger.error("Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
-                        format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
-                    xml_code_not_found = True
-                    break
-                valore_string = unicode(colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
-                if valore_string.lower() != 's' and valore_string.lower() != 'n':
-                    valore_totale += float(valore_string)
+        self.xml_colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
 
 
-            if not xml_code_not_found and not dryrun:
-                self.logger.info("Write {0}:{1} on db".format(voce_slug, valore_totale))
-                vb = ValoreBilancio()
-                vb.voce = Voce.objects.get(slug = voce_slug)
-                vb.anno = int(anno)
-                vb.territorio = territorio
-                vb.valore = valore_totale
-                # vb.save()
+        if self.tipo_certificato == 'consuntivo':
+            # import territorio context data from xml file and set self.popolazione_residente
+            popolazione_residente = self.import_context(soup, dryrun)
+        else:
+            try:
+                contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+            except ObjectDoesNotExist:
+                self.logger.warning(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
+                    self.territorio.denominazione, self.anno
+                ))
+            else:
+                popolazione_residente = contesto_db.bil_popolazione_residente
 
-            pass
-
-
-
-
+        # import bilancio data into Postgres db, calculate per capita values
+        self.import_bilancio(soup, popolazione_residente, dryrun)
