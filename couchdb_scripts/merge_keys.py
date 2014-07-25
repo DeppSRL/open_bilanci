@@ -85,14 +85,19 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
             row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4]]
 
         else:
+            # simplify
             if tipo_bilancio == 'preventivo':
                 row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7]]
             else:
                 row_keys = [row[0], row[1].zfill(2), row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]]
 
-        gdoc[couch_key] = row_keys
 
-    couch_key_list_sorted =  sorted(couch_key_list)
+        if couch_key not in gdoc.keys():
+            gdoc[couch_key] = [row_keys]
+        else:
+            gdoc[couch_key].append(row_keys)
+
+    couch_key_list_sorted = sorted(couch_key_list)
 
     # considering the couch keys:
     # if the key was already in the gdoc -> moves all the info to the result csv
@@ -100,7 +105,7 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
     for c_key in couch_key_list_sorted:
         if c_key in gdoc.keys():
             values = gdoc[c_key]
-            data_result_set.append(values)
+            data_result_set.extend(values)
 
         else:
             if translation_type == 'titoli':
