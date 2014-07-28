@@ -2,11 +2,11 @@ slug,denominazione,slug_parent
 preventivo-entrate-avanzo-di-amministrazione,Avanzo di amministrazione,preventivo-entrate
 preventivo-spese-disavanzo-di-amministrazione,Disavanzo di amministrazione,preventivo-spese
 preventivo-entrate-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-finanziamenti-breve-termine,Finanziamenti a breve termine,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-emissione-prestiti-obbligazionari,Emissione di prestiti obbligazionari,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-assunzioni-mutui-e-prestiti,Assunzioni di mutui e prestiti,preventivo-entrate-prestiti
-preventivo-spese-prestiti-anticipazioni-cassa,Anticipazioni di cassa,preventivo-spese-prestiti
-preventivo-spese-prestiti-finanziamenti-breve-termine,Finanziamenti a breve termine,preventivo-spese-prestiti
+preventivo-entrate-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-emissione-di-prestiti-obbligazionari,Emissione di prestiti obbligazionari,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,preventivo-entrate-prestiti
+preventivo-spese-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-spese-prestiti
+preventivo-spese-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-spese-prestiti
 preventivo-spese-prestiti-quota-capitale-mutui-prestiti,Quota capitale di mutui e prestiti,preventivo-spese-prestiti
 preventivo-spese-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,preventivo-spese-prestiti
 preventivo-spese-prestiti-quota-capitale-debiti-pluriennali,Quota capitale di debiti pluriennali,preventivo-spese-prestiti
