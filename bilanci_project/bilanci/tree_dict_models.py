@@ -507,6 +507,30 @@ class PreventivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
         self.pop('logger')
         return self
 
+class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
+
+    def build_tree(self, leaves, mapping=None):
+        """
+        Builds a BudgetTreeDict for the consuntivo riassuntivo section.
+
+        When mapping is not passed, an empty tree (default value = 0) is built.
+        """
+
+        # for source_bc in leaves:
+        #     value = None
+        #     if mapping:
+        #         value = self._compute_sum(source_bc, mapping)
+        #
+        #     # add this leaf to the tree, with the computed value
+        #     self.add_leaf(source_bc, value)
+
+        # allows constructs such as
+        # tree = BudgetDictTree().build_tree(leaves, mapping)
+
+
+        self.pop('logger')
+        return self
+
 
 
 class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):

@@ -215,6 +215,16 @@ class Command(BaseCommand):
                             mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
                         )
                         consuntivo_tree.update(consuntivo_spese_tree)
+
+                        # creates branch RIASSUNTIVO
+
+                        consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(logger=self.logger).build_tree(
+                            leaves=simplified_subtrees_leaves['consuntivo-riassuntivo'],
+                            mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
+                        )
+                        # consuntivo_tree.update(consuntivo_riassuntivo_tree)
+
+
                     else:
                         self.logger.warning(u"Could not find consuntivo in source doc [{}]".format(
                             source_doc.get('_id')
