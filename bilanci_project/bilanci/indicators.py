@@ -336,3 +336,75 @@ class EquilibrioParteCorrenteIndicator(BaseIndicator):
         scsc = self.get_val(data_dict, city, year, 'scsc')
         
         return ((ecit + eccp + ecee)/scsc)*100.0
+
+
+
+class SaldoCorrenteLordoIndicator(BaseIndicator):
+
+    """
+    (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-contributi-pubblici +
+        consuntivo-entrate-accertamenti-entrate-extratributarie) - consuntivo-spese-impegni
+
+    """
+
+    slug = 'saldo-corrente-lordo'
+    label = u'Saldo corrente lordo'
+    used_voci_slugs = {
+      'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+      'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
+      'ceaet' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+      'csi' : 'consuntivo-spese-impegni',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        ceait = self.get_val(data_dict, city, year, 'ceait')
+        ceacp = self.get_val(data_dict, city, year, 'ceacp')
+        ceaet = self.get_val(data_dict, city, year, 'ceaet')
+        csi = self.get_val(data_dict, city, year, 'csi')
+
+
+        return ( ceait + ceacp + ceaet ) - csi
+
+
+
+class SaldoNettoDaFinanziarieIndicator(BaseIndicator):
+
+    """
+    (preventivo-entrate-avanzo-di-amministrazione + preventivo-entrate-imposte-e-tasse +
+        preventivo-entrate-contributi-pubblici + preventivo-entrate-entrate-extratributarie +
+        preventivo-entrate-vendite-e-trasferimenti-di-capitali) -
+
+        (preventivo-spese-disavanzo-di-amministrazione + preventivo-spese-spese-correnti +
+        preventivo-spese-spese-per-investimenti)
+
+
+    """
+
+    slug = 'saldo-netto-da-finanziarie'
+    label = u'Saldo netto da finanziarie'
+    used_voci_slugs = {
+        'peaa' : 'preventivo-entrate-avanzo-di-amministrazione',
+        'peit' : 'preventivo-entrate-imposte-e-tasse',
+        'pecp' : 'preventivo-entrate-contributi-pubblici',
+        'peee' : 'preventivo-entrate-entrate-extratributarie',
+        'pevtc' : 'preventivo-entrate-vendite-e-trasferimenti-di-capitali',
+        'psda' : 'preventivo-spese-disavanzo-di-amministrazione',
+        'pssc' : 'preventivo-spese-spese-correnti',
+        'psspi' : 'preventivo-spese-spese-per-investimenti',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        peaa = self.get_val(data_dict, city, year, 'peaa')
+        peit = self.get_val(data_dict, city, year, 'peit')
+        pecp = self.get_val(data_dict, city, year, 'pecp')
+        peee = self.get_val(data_dict, city, year, 'peee')
+        pevtc = self.get_val(data_dict, city, year, 'pevtc')
+        psda = self.get_val(data_dict, city, year, 'psda')
+        pssc = self.get_val(data_dict, city, year, 'pssc')
+        psspi = self.get_val(data_dict, city, year, 'psspi')
+
+        return (peaa + peit + pecp + peee + pevtc) - (psda + pssc + psspi)

@@ -300,6 +300,9 @@ def get_simplified_leaves_from_google(connection=None, n_header_lines=0):
         preventivo_spese = list_sheet.worksheet("Spese prev").get_all_values()[n_header_lines:]
         logger.info("reading consuntivo uscite ...")
         consuntivo_spese = list_sheet.worksheet("Spese cons").get_all_values()[n_header_lines:]
+        logger.info("reading consuntivo riassuntivo ...")
+        consuntivo_riassuntivo = list_sheet.worksheet("Riassuntivo cons").get_all_values()[n_header_lines:]
+
     except URLError:
         raise Exception("Connection error to Gdrive")
 
@@ -309,7 +312,8 @@ def get_simplified_leaves_from_google(connection=None, n_header_lines=0):
         'preventivo-entrate': preventivo_entrate,
         'consuntivo-entrate': consuntivo_entrate,
         'preventivo-spese': preventivo_spese,
-        'consuntivo-spese': consuntivo_spese
+        'consuntivo-spese': consuntivo_spese,
+        'consuntivo-riassuntivo': consuntivo_riassuntivo,
     }
 
 

@@ -318,6 +318,61 @@ class Contesto(models.Model):
 
 
 
+class ParametriDeficitari(models.Model):
+
+    # Deficitary values based on Quadro 50 - Consuntivo
+
+
+    # 1) Valore negativo del risultato contabile di gestione superiore in termini di valore assoluto al 5% rispetto
+    # alle entrate correnti (a tali fini al risultato contabile si aggiunge l'avanzo
+    # di amministrazione utilizzato per le spese di investimento)
+    valore_risultato_contabile = models.BooleanField(blank=False, null=False, default=False)
+
+    # 2) Volume dei residui attivi di nuova formazione provenienti dalla gestione di competenza e relativi
+    # ai titoli I e III, con esclusione dell'addizionale Irpef superiori al 42% dei valori di accertamento delle
+    # entrate dei medesimi titoli I e III esclusi i valori dell'addizionale Irpef
+    volume_residui_attivi = models.BooleanField(blank=False, null=False, default=False)
+
+    # 3) Ammontare dei residui attivi di cui al titolo I e III superiori al 65% (provenienti dalla gestione dei
+    # residui attivi) rapportati agli accertamenti della gestione di competenza delle entrate dei medesimi titolo I e III
+    ammontare_residui_attivi = models.BooleanField(blank=False, null=False, default=False)
+
+    # 4) Volume dei residui passivi complessivi provenienti dal titolo I superiori al 40% degli impegni della medesima spesa corrente
+    volume_residui_passivi = models.BooleanField(blank=False, null=False, default=False)
+
+    # 5) Esistenza di procedimenti di esecuzione forzata superiori allo 0,5% delle spese correnti
+    esistenza_di_procedimenti = models.BooleanField(blank=False, null=False, default=False)
+
+    # 6) Volume complessivo delle spese di personale a vario titolo rapportato al volume complessivo delle entrate
+    # correnti desumibili dai titoli I, II e III superiore al 40% per i comuni inferiori a 5.000 abitanti,
+    # superiore al 39% per i comuni da 5.000 a 29.999 abitanti e superiore al 38% per i comuni oltre i 29.999 abitanti
+    # (al netto dei contributi regionali nonchè di altri enti pubblici finalizzati a finanziare spese di personale)
+    volume_spese_personale = models.BooleanField(blank=False, null=False, default=False)
+
+    # 7) Consistenza dei debiti di finanziamento non assistiti da contribuzioni superiore al 150% rispetto
+    # alle entrate correnti per gli enti che presentano un risultato contabile di gestione positivo superiore al 120%
+    # per gli enti che presentano un risultato contabile di gestione negativo (fermo restando il rispetto del
+    # limite di indebitamento di cui all'art. 204 del touel)
+    consistenza_debiti_finanziamento = models.BooleanField(blank=False, null=False, default=False)
+
+    # 8) Consistenza dei debiti fuori bilancio formatisi nel corso dell'esercizio superiore all'1% rispetto ai valori
+    # di accertamento delle entrate correnti (l'indice si considera negativo ove tale
+    # soglia venga superata in tutti gli ultimi tre anni)
+    consistenza_debiti_fuori_bilancio = models.BooleanField(blank=False, null=False, default=False)
+
+    # 9) Eventuale esistenza al 31 dicembre di anticipazioni di tesoreria non rimborsate superiori al 5%
+    # rispetto alle entrate correnti
+    anticipazioni_tesoreria = models.BooleanField(blank=False, null=False, default=False)
+
+    # 10) Ripiano squilibri in sede di provvedimento di salvaguardia di cui all'art. 193 del touel riferito allo stesso
+    # esercizio con misure di alienazione di beni patrimoniali e/o avanzo di amministrazione superiore
+    # al 5% dei valori della spesa corrente
+    ripiano_squilibri = models.BooleanField(blank=False, null=False, default=False)
+
+    territorio = models.ForeignKey(Territorio, blank=False, null=False)
+    anno = models.PositiveSmallIntegerField(null=False, default=0)
+
+
 class Incarico(models.Model):
 
     ##

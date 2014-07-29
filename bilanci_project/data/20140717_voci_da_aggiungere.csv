@@ -2,14 +2,14 @@ slug,denominazione,slug_parent
 preventivo-entrate-avanzo-di-amministrazione,Avanzo di amministrazione,preventivo-entrate
 preventivo-spese-disavanzo-di-amministrazione,Disavanzo di amministrazione,preventivo-spese
 preventivo-entrate-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-finanziamenti-breve-termine,Finanziamenti a breve termine,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-emissione-prestiti-obbligazionari,Emissione di prestiti obbligazionari,preventivo-entrate-prestiti
-preventivo-entrate-prestiti-assunzioni-mutui-e-prestiti,Assunzioni di mutui e prestiti,preventivo-entrate-prestiti
-preventivo-spese-prestiti-anticipazioni-cassa,Anticipazioni di cassa,preventivo-spese-prestiti
-preventivo-spese-prestiti-finanziamenti-breve-termine,Finanziamenti a breve termine,preventivo-spese-prestiti
-preventivo-spese-prestiti-quota-capitale-mutui-prestiti,Quota capitale di mutui e prestiti,preventivo-spese-prestiti
+preventivo-entrate-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-emissione-di-prestiti-obbligazionari,Emissione di prestiti obbligazionari,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,preventivo-entrate-prestiti
+preventivo-spese-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-spese-prestiti
+preventivo-spese-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-spese-prestiti
+preventivo-spese-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,preventivo-spese-prestiti
 preventivo-spese-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,preventivo-spese-prestiti
-preventivo-spese-prestiti-quota-capitale-debiti-pluriennali,Quota capitale di debiti pluriennali,preventivo-spese-prestiti
+preventivo-spese-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,preventivo-spese-prestiti
 preventivo-spese-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,preventivo-spese-spese-per-investimenti-interventi
 consuntivo-entrate-accertamenti-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-entrate-accertamenti-prestiti
 consuntivo-entrate-accertamenti-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-entrate-accertamenti-prestiti
@@ -88,7 +88,6 @@ consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-residui-attivi,Resid
 consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-residui-passivi,Residui passivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
 consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione,Risultato di amministrazione = (6+7-8),consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
 consuntivo-riassuntivo-risultato-di-amministrazione,Risultato di amministrazione,consuntivo-riassuntivo
-consuntivo-riassuntivo-risultato-di-amministrazione-risultato-di-amministrazione,Risultato di amministrazione (+/-) di cui:,consuntivo-riassuntivo-risultato-di-amministrazione
 consuntivo-riassuntivo-risultato-di-amministrazione-vincolato,Vincolato,consuntivo-riassuntivo-risultato-di-amministrazione
 consuntivo-riassuntivo-risultato-di-amministrazione-per-spese-conto-capitale,Per Spese in Conto Capitale,consuntivo-riassuntivo-risultato-di-amministrazione
 consuntivo-riassuntivo-risultato-di-amministrazione-per-fondo-ammortamento,Per fondo ammortamento,consuntivo-riassuntivo-risultato-di-amministrazione
@@ -101,14 +100,6 @@ consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-s
 consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-correnti-in-sede-di-assestamento,Spese correnti in sede di assestamento,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
 consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-di-investimento,Spese di investimento,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
 consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-estinzione-anticipata-dei-prestiti,Estinzione anticipata dei prestiti,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza,Quadro riassuntivo della gestione di competenza,consuntivo-riassuntivo
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-riscossioni,Riscossioni,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-pagamenti,Pagamenti,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-differenza-riscossioni-pagamenti,Differenza tra riscossioni e pagamenti,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-residui-attivi,Residui attivi,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-residui-passivi,Residui passivi,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-differenza-residui,Differenza tra residui,consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
-consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza-avanzo-o-disavanzo,Avanzo (+) o Disavanzo (-),consuntivo-riassuntivo-quadro-riassuntivo-della-gestione-di-competenza
 consuntivo-riassuntivo-riaccertamento-dei-residui,Riaccertamento dei residui,consuntivo-riassuntivo
 consuntivo-riassuntivo-riaccertamento-dei-residui-eventuale-disavanzo-da-riaccertamento-dei-residui,Eventuale disavanzo da riaccertamento dei residui,consuntivo-riassuntivo-riaccertamento-dei-residui
 consuntivo-riassuntivo-riaccertamento-dei-residui-eventuale-disavanzo-da-riaccertamento-dei-residui-di-cui-di-parte-corrente,Eventuale disavanzo da riaccertamento dei residui di cui di parte corrente,consuntivo-riassuntivo-riaccertamento-dei-residui
