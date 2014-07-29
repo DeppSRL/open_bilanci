@@ -88,6 +88,8 @@ class VoceNotFound(Exception):
 
 
 
+
+
 class EntrateBudgetMixin(object):
     """
     Defines the _compute_sum method for the entrate BudgetTrees
@@ -356,7 +358,7 @@ class BudgetTreeDict(OrderedDict):
                 col_idx = -1
             try:
                 ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
-            except ValueError:
+            except (IndexError, ValueError):
                 ret = 0
 
         return ret
@@ -513,17 +515,44 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
         """
         Builds a BudgetTreeDict for the consuntivo riassuntivo section.
 
+        The leaves of Riassuntivo branch are divided in two sets:
+        * leaves of Gestione finanziaria
+        * other leaves
+
+        The leaves of Gestione finanziaria sub-branch are divided in three sub-sub-branches:
+        * gestione totale
+        * gestione residui
+        * gestione competenza
+
+        The data of each Gestione is stored in the same table but in different columns, for that
+        reason the section dictionary here is used slightly differently compared to the Consuntivo Spese Budget treedict
+
         When mapping is not passed, an empty tree (default value = 0) is built.
         """
+
         self.logger.debug("{0}".format(leaves))
 
+        sections = {
+            'Gestione residui': 0,
+            'Gestione competenza': 1,
+            'Gestione totale': 2,
+        }
 
-        for source_bc in leaves:
+        leaves_gf = []
+        leaves_not_gf = []
 
-            # debug
-            if source_bc[1] == u'gestione finanziaria':
-                continue
+        for leaf in leaves:
+            if leaf[1] == u'Gestione finanziaria':
+                leaves_gf.append(leaf)
+            else:
+                leaves_not_gf.append(leaf)
 
+
+        ##
+        # leaves not in Gestione finanziaria
+        ##
+
+        for source_bc in leaves_not_gf:
             value = None
             if mapping:
                 value = self._compute_sum(source_bc, mapping)
@@ -531,8 +560,24 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
             # add this leaf to the tree, with the computed value
             self.add_leaf(source_bc, value)
 
-        # allows constructs such as
-        # tree = BudgetDictTree().build_tree(leaves, mapping)
+
+        ##
+        # leaves in Gestione finanziaria
+        ##
+
+        for source_bc in leaves_gf:
+
+            section_idx = sections[source_bc[2]]
+            value = None
+            if mapping:
+                value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
+
+            # massage source_bc, before adding the leaf,
+            # since the structure of the tree needs to consider
+            # the sections
+            bc = source_bc[:]
+            # add the leaf to the tree, with the computed value
+            self.add_leaf(bc, value)
 
 
         self.pop('logger')
