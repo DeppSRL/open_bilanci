@@ -220,9 +220,9 @@ class Command(BaseCommand):
 
                         consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(logger=self.logger).build_tree(
                             leaves=simplified_subtrees_leaves['consuntivo-riassuntivo'],
-                            mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
+                            mapping=(voci_map['consuntivo'], source_doc)
                         )
-                        # consuntivo_tree.update(consuntivo_riassuntivo_tree)
+                        consuntivo_tree.update(consuntivo_riassuntivo_tree)
 
 
                     else:

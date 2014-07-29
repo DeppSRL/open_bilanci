@@ -515,14 +515,21 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
         When mapping is not passed, an empty tree (default value = 0) is built.
         """
+        self.logger.debug("{0}".format(leaves))
 
-        # for source_bc in leaves:
-        #     value = None
-        #     if mapping:
-        #         value = self._compute_sum(source_bc, mapping)
-        #
-        #     # add this leaf to the tree, with the computed value
-        #     self.add_leaf(source_bc, value)
+
+        for source_bc in leaves:
+
+            # debug
+            if source_bc[1] == u'gestione finanziaria':
+                continue
+
+            value = None
+            if mapping:
+                value = self._compute_sum(source_bc, mapping)
+
+            # add this leaf to the tree, with the computed value
+            self.add_leaf(source_bc, value)
 
         # allows constructs such as
         # tree = BudgetDictTree().build_tree(leaves, mapping)
