@@ -287,28 +287,36 @@ class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
 
 class GradoRigiditaStrutturaleSpesaIndicator(BaseIndicator):
     """
-    (consuntivo-spese-cassa-spese-correnti-interventi-personale + consuntivo-spese-cassa-prestiti) /
-    (consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-entrate-extratributarie + consuntivo-entrate-cassa-contributi-pubblici) * 100
+    ((consuntivo-spese-cassa-spese-correnti-interventi-personale +
+    consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi +
+    consuntivo-spese-cassa-prestiti-quota-capitale-di-mutui-e-prestiti) /
+    (consuntivo-entrate-cassa-imposte-e-tasse + consuntivo-entrate-cassa-entrate-extratributarie +
+    consuntivo-entrate-cassa-contributi-pubblici) * 100
+
     """
 
     slug = 'grado-rigidita-strutturale-spesa'
     label = u'Grado di rigidità strutturale della spesa'
     used_voci_slugs = {
         'scip': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
-        'scp':  'consuntivo-spese-cassa-prestiti',
-        'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
-        'ecee': 'consuntivo-entrate-cassa-entrate-extratributarie',
-        'eccp': 'consuntivo-entrate-cassa-contributi-pubblici',
+        'csisciipeofd': 'consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
+        'cscpqcdmep': 'consuntivo-spese-cassa-prestiti-quota-capitale-di-mutui-e-prestiti',
+        'ceciet': 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'cecee': 'consuntivo-entrate-cassa-entrate-extratributarie',
+        'ceccp': 'consuntivo-entrate-cassa-contributi-pubblici',
+
     }
 
     def get_formula_result(self, data_dict, city, year):
         scip = self.get_val(data_dict, city, year, 'scip')
-        scp = self.get_val(data_dict, city, year, 'scp')
-        ecit = self.get_val(data_dict, city, year, 'ecit')
-        ecee = self.get_val(data_dict, city, year, 'ecee')
-        eccp = self.get_val(data_dict, city, year, 'eccp')
+        csisciipeofd = self.get_val(data_dict, city, year, 'csisciipeofd')
+        cscpqcdmep = self.get_val(data_dict, city, year, 'cscpqcdmep')
+        ceciet = self.get_val(data_dict, city, year, 'ceciet')
+        cecee = self.get_val(data_dict, city, year, 'cecee')
+        ceccp = self.get_val(data_dict, city, year, 'ceccp')
 
-        return ((scip + scp )/(ecit + ecee + eccp))*100.0
+
+        return ((scip+csisciipeofd+cscpqcdmep)/(ceciet+cecee+ceccp))*100.0
         
         
 class EquilibrioParteCorrenteIndicator(BaseIndicator):
@@ -408,3 +416,193 @@ class SaldoNettoDaFinanziarieIndicator(BaseIndicator):
         psspi = self.get_val(data_dict, city, year, 'psspi')
 
         return (peaa + peit + pecp + peee + pevtc) - (psda + pssc + psspi)
+
+
+
+class AvanzoNettoAmministrazioneIndicator(BaseIndicator):
+
+    """
+    consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione
+
+    """
+
+    slug = 'avanzo-netto-amministrazione'
+    label = u'Avanzo netto Amministrazione'
+    used_voci_slugs = {
+        'trda' : 'consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        trda = self.get_val(data_dict, city, year, 'trda')
+
+        return trda
+
+
+
+class SpesaPerInteresseIndicator(BaseIndicator):
+
+    """
+    consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi
+
+    """
+
+    slug = 'spesa-per-interesse'
+    label = u'Spesa per interesse'
+    used_voci_slugs = {
+        'sciipeofd' : 'consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        sciipeofd = self.get_val(data_dict, city, year, 'sciipeofd')
+
+        return sciipeofd
+
+
+class IndebitamentoNettoGarantitoIndicator(BaseIndicator):
+
+    """
+    (consuntivo-entrate-accertamenti) - (consuntivo-spese-impegni)
+
+    """
+
+    slug = 'indebitamento-netto-garantito'
+    label = u'Indebitamento netto e garantito'
+    used_voci_slugs = {
+        'cea' : 'consuntivo-entrate-accertamenti',
+        'csi' : 'consuntivo-spese-impegni',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        cea = self.get_val(data_dict, city, year, 'cea')
+        csi = self.get_val(data_dict, city, year, 'csi')
+
+        return cea-csi
+
+
+class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
+
+    """
+    consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine
+
+    """
+
+    slug = 'indebitamento-diretto-breve-termine'
+    label = u'Indebitamento diretto a breve termine'
+    used_voci_slugs = {
+        'csipfbt' : 'consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        csipfbt = self.get_val(data_dict, city, year, 'csipfbt')
+
+        return csipfbt
+
+
+
+
+class IndebitamentoDirettoLordoIndicator(BaseIndicator):
+
+    """
+    consuntivo-spese-impegni
+
+    """
+
+    slug = 'indebitamento-diretto-lordo'
+    label = u'Indebitamento diretto lordo'
+    used_voci_slugs = {
+        'csi' : 'consuntivo-spese-impegni',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        csi = self.get_val(data_dict, city, year, 'csi')
+
+        return csi
+
+
+class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
+    """
+         (  {[(consuntivo-entrate-accertamenti - consuntivo-spese-impegni)t1 /
+            (consuntivo-entrate-accertamenti-imposte-e-tasse +
+            consuntivo-entrate-accertamenti-contributi-pubblici +
+            consuntivo-entrate-accertamenti-entrate-extratributarie) (t=3)]
+            /
+            [(consuntivo-entrate-accertamenti - consuntivo-spese-impegni) /
+            (consuntivo-entrate-accertamenti-imposte-e-tasse +
+            consuntivo-entrate-accertamenti-contributi-pubblici +
+            consuntivo-entrate-accertamenti-entrate-extratributarie) (t=1)
+            ]} ^ 1/3
+        ) -1
+
+    """
+    slug = 'variazione-triennale-indebitamento-netto-garantito'
+    label = u"Variazione triennale dell'indebitamento netto e garantito sulle entrate correnti"
+    used_voci_slugs = {
+        'cea' : 'consuntivo-entrate-accertamenti',
+        'csi' : 'consuntivo-spese-impegni',
+        'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici ',
+        'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+    }
+
+    def get_formula_result(self, data_dict, city, year):
+        cea = self.get_val(data_dict, city, year, 'cea')
+        csi = self.get_val(data_dict, city, year, 'csi')
+        ceait = self.get_val(data_dict, city, year, 'ceait')
+        ceacp = self.get_val(data_dict, city, year, 'ceacp')
+        ceaee = self.get_val(data_dict, city, year, 'ceaee')
+
+        ing = cea-csi
+        ec = ceait + ceacp + ceaee
+        return ing / ec
+
+
+    # need to override the get_compute, to compute the 3-years span
+    def compute(self, cities, years, logger=None):
+        data_dict = self.get_data(cities, years)
+
+        ret = OrderedDict([])
+        for city in cities:
+            ret[city] = OrderedDict([])
+            for year in years:
+                n_available_years = 0
+
+                try:
+                    t1 = self.get_formula_result(data_dict, city, year-1)
+                    n_available_years += 1
+                except (KeyError, ZeroDivisionError):
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                    continue
+
+                try:
+                    t3 = self.get_formula_result(data_dict, city, year+1)
+                    n_available_years += 1
+                except (KeyError, ZeroDivisionError):
+                    logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                    continue
+
+                if n_available_years == 2:
+                    ret[city][year] = ((t3 / t1)**(1/3.0))-1
+
+                if logger:
+                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                        city, year, ret[city][year]
+                    ))
+
+        return ret
+
+
