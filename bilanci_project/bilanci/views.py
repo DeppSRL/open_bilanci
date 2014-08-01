@@ -107,15 +107,16 @@ class MiniClassificheMixin(object):
             # filters results on territori in the considered cluster
             position = self.get_positions(indicatore_all_ids, territori_cluster_id)
 
+            if territorio.pk in position:
 
-            indicatore_position.append(
-                {
-                    'indicatore_denominazione': indicatore['denominazione'],
-                    'indicatore_pk': indicatore['pk'],
-                    'indicatore_slug': indicatore['slug'],
-                    'position': position[territorio.pk]
-                }
-            )
+                indicatore_position.append(
+                    {
+                        'indicatore_denominazione': indicatore['denominazione'],
+                        'indicatore_pk': indicatore['pk'],
+                        'indicatore_slug': indicatore['slug'],
+                        'position': position[territorio.pk]
+                    }
+                )
 
         return indicatore_position
 

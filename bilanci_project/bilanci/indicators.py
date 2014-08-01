@@ -79,7 +79,7 @@ class BaseIndicator(object):
         """
         Existing values are overwritten, by default
         """
-        data = self.compute(cities, years)
+        data = self.compute(cities, years, logger=logger)
 
         if not skip_existing:
             ValoreIndicatore.objects.filter(
@@ -531,7 +531,7 @@ class IndebitamentoDirettoLordoIndicator(BaseIndicator):
 
 class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
     """
-         (  {[(consuntivo-entrate-accertamenti - consuntivo-spese-impegni)t1 /
+         [(  {[(consuntivo-entrate-accertamenti - consuntivo-spese-impegni)t1 /
             (consuntivo-entrate-accertamenti-imposte-e-tasse +
             consuntivo-entrate-accertamenti-contributi-pubblici +
             consuntivo-entrate-accertamenti-entrate-extratributarie) (t=3)]
@@ -541,7 +541,7 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
             consuntivo-entrate-accertamenti-contributi-pubblici +
             consuntivo-entrate-accertamenti-entrate-extratributarie) (t=1)
             ]} ^ 1/3
-        ) -1
+        ) -1 ] * 100
 
     """
     slug = 'variazione-triennale-indebitamento-netto-garantito'
@@ -550,7 +550,7 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
         'cea' : 'consuntivo-entrate-accertamenti',
         'csi' : 'consuntivo-spese-impegni',
         'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
-        'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici ',
+        'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
         'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
     }
 
@@ -563,6 +563,8 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
 
         ing = cea-csi
         ec = ceait + ceacp + ceaee
+
+
         return ing / ec
 
 
@@ -573,7 +575,9 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
         ret = OrderedDict([])
         for city in cities:
             ret[city] = OrderedDict([])
+
             for year in years:
+                logger.debug("Calculating year {0}".format(year))
                 n_available_years = 0
 
                 try:
@@ -581,25 +585,37 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
                     n_available_years += 1
                 except (KeyError, ZeroDivisionError):
                     if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti t1.".format(
                             city, year
                         ))
                     continue
+
 
                 try:
                     t3 = self.get_formula_result(data_dict, city, year+1)
                     n_available_years += 1
                 except (KeyError, ZeroDivisionError):
-                    logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
-                        ))
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti t3.".format(
+                                city, year
+                            ))
                     continue
 
+
                 if n_available_years == 2:
-                    ret[city][year] = ((t3 / t1)**(1/3.0))-1
+                    try:
+                        # ret[city][year] = 100.0 *(((t3 / t1)**(1/3.0))-1)
+                        import math
+                        ret[city][year] = (100.0 * math.pow((t3/t1),(1/3.0)) ) -1
+                    except ValueError:
+                        if logger:
+                            logger.warning(u"City: {0}, Year: {1}. Cannot elevate {2} to fractionary power.".format(
+                                city, year, (t3/t1)
+                            ))
+                            continue
 
                 if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                    logger.debug(u"City: {0}, Year: {1}, valore: {2}".format(
                         city, year, ret[city][year]
                     ))
 
