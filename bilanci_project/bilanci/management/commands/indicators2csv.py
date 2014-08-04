@@ -10,7 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
 
-from bilanci.models import Voce, ValoreBilancio, Indicatore
+from bilanci.models import Voce, ValoreBilancio, Indicatore, ValoreIndicatore
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
 from bilanci.utils.zipper import zipdir
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         make_option('--cities',
                     dest='cities',
                     default='',
-                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All" or "capoluoghi"'),
         make_option('--single-file',
                     dest='single_file',
                     action='store_true',
@@ -95,10 +95,17 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
+        # gets capoluoghi privincia finloc list from settings
+        if cities_codes == 'capoluoghi':
+            cities_codes = ','.join(settings.CAPOLUOGHI_PROVINCIA)
+
+
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
+
 
         ###
         # years
@@ -129,8 +136,6 @@ class Command(BaseCommand):
         for indicator_slug in indicators_slugs:
             indicator = Indicatore.objects.get(slug=indicator_slug)
             self.logger.info(u"Indicatore:::: {0} ::::".format(indicator.denominazione))
-
-
 
             if not single_file:
                 # check if files for this indicator exists and skip if
@@ -181,8 +186,12 @@ class Command(BaseCommand):
                     self.logger.debug(",".join(row))
 
             else:
-                indicator_set = indicator.valoreindicatore_set.\
+
+                indicator_set = ValoreIndicatore.objects.filter(territorio__cod_finloc__in=cities, indicatore = indicator).\
                     values_list('indicatore__slug','territorio__cod_finloc', 'territorio__istat_id', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno')
+
+                # indicator_set = indicator.valoreindicatore_set.\
+                #     values_list('indicatore__slug','territorio__cod_finloc', 'territorio__istat_id', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno')
 
                 valori_list = []
                 for t in indicator_set:
