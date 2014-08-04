@@ -379,7 +379,7 @@ class SaldoCorrenteLordoIndicator(BaseIndicator):
         ceacp = self.get_val(data_dict, city, year, 'ceacp')
         ceaet = self.get_val(data_dict, city, year, 'ceaet')
         csi = self.get_val(data_dict, city, year, 'csi')
-        
+
         somma_entrate =  ceait + ceacp + ceaet
 
 
@@ -617,7 +617,6 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
 
                 if n_available_years == 2:
                     try:
-                        # ret[city][year] = 100.0 *(((t3 / t1)**(1/3.0))-1)
                         import math
                         ret[city][year] = (100.0 * math.pow((t3/t1),(1/3.0)) ) -1
                     except ValueError:
@@ -626,6 +625,13 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
                                 city, year, (t3/t1)
                             ))
                             continue
+                    except ZeroDivisionError:
+                        if logger:
+                            logger.warning(u"City: {0}, Year: {1}. Division by zero.".format(
+                                city, year,
+                            ))
+                            continue
+
 
                 if logger:
                     logger.debug(u"City: {0}, Year: {1}, valore: {2}".format(
