@@ -350,8 +350,16 @@ class EquilibrioParteCorrenteIndicator(BaseIndicator):
 class SaldoCorrenteLordoIndicator(BaseIndicator):
 
     """
-    (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-contributi-pubblici +
-        consuntivo-entrate-accertamenti-entrate-extratributarie) - consuntivo-spese-impegni
+
+    {[(consuntivo-entrate-accertamenti-imposte-e-tasse +
+    consuntivo-entrate-accertamenti-contributi-pubblici +
+    consuntivo-entrate-accertamenti-entrate-extratributarie) –
+    consuntivo-spese-impegni] /
+
+    (consuntivo-entrate-accertamenti-imposte-e-tasse +
+    consuntivo-entrate-accertamenti-contributi-pubblici +
+    consuntivo-entrate-accertamenti-entrate-extratributarie)}*100
+
 
     """
 
@@ -371,21 +379,36 @@ class SaldoCorrenteLordoIndicator(BaseIndicator):
         ceacp = self.get_val(data_dict, city, year, 'ceacp')
         ceaet = self.get_val(data_dict, city, year, 'ceaet')
         csi = self.get_val(data_dict, city, year, 'csi')
+        
+        somma_entrate =  ceait + ceacp + ceaet
 
 
-        return ( ceait + ceacp + ceaet ) - csi
+        return ((somma_entrate - csi)/somma_entrate ) * 100.0
 
 
 
 class SaldoNettoDaFinanziarieIndicator(BaseIndicator):
 
     """
-    (preventivo-entrate-avanzo-di-amministrazione + preventivo-entrate-imposte-e-tasse +
-        preventivo-entrate-contributi-pubblici + preventivo-entrate-entrate-extratributarie +
-        preventivo-entrate-vendite-e-trasferimenti-di-capitali) -
 
-        (preventivo-spese-disavanzo-di-amministrazione + preventivo-spese-spese-correnti +
-        preventivo-spese-spese-per-investimenti)
+    {[
+    (preventivo-entrate-avanzo-di-amministrazione +
+    preventivo-entrate-imposte-e-tasse +
+    preventivo-entrate-contributi-pubblici +
+    preventivo-entrate-entrate-extratributarie +
+    preventivo-entrate-vendite-e-trasferimenti-di-capitali) -
+
+    (preventivo-spese-disavanzo-di-amministrazione +
+    preventivo-spese-spese-correnti +
+    preventivo-spese-spese-per-investimenti)
+    ]
+    /
+    (preventivo-entrate-avanzo-di-amministrazione +
+    preventivo-entrate-imposte-e-tasse +
+    preventivo-entrate-contributi-pubblici +
+    preventivo-entrate-entrate-extratributarie +
+    preventivo-entrate-vendite-e-trasferimenti-di-capitali)
+    }*100
 
 
     """
@@ -415,14 +438,17 @@ class SaldoNettoDaFinanziarieIndicator(BaseIndicator):
         pssc = self.get_val(data_dict, city, year, 'pssc')
         psspi = self.get_val(data_dict, city, year, 'psspi')
 
-        return (peaa + peit + pecp + peee + pevtc) - (psda + pssc + psspi)
+        somma_entrate = peaa + peit + pecp + peee + pevtc
+        somma_spese = psda + pssc + psspi
+
+        return ((somma_entrate - somma_spese)/ somma_entrate) * 100.0
 
 
 
 class AvanzoNettoAmministrazioneIndicator(BaseIndicator):
 
     """
-    consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione
+    (Consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione / consuntivo-spese-cassa )*100
 
     """
 
@@ -430,21 +456,23 @@ class AvanzoNettoAmministrazioneIndicator(BaseIndicator):
     label = u'Avanzo netto Amministrazione'
     used_voci_slugs = {
         'trda' : 'consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione',
+        'csc' : 'consuntivo-spese-cassa',
     }
 
 
     def get_formula_result(self, data_dict, city, year):
 
         trda = self.get_val(data_dict, city, year, 'trda')
+        csc = self.get_val(data_dict, city, year, 'csc')
 
-        return trda
+        return (trda / csc) * 100.0
 
 
 
 class SpesaPerInteresseIndicator(BaseIndicator):
 
     """
-    consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi
+    (consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi / consuntivo-spese-impegni )*100
 
     """
 
@@ -452,20 +480,24 @@ class SpesaPerInteresseIndicator(BaseIndicator):
     label = u'Spesa per interesse'
     used_voci_slugs = {
         'sciipeofd' : 'consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
+        'csi' : 'consuntivo-spese-impegni',
     }
 
 
     def get_formula_result(self, data_dict, city, year):
 
         sciipeofd = self.get_val(data_dict, city, year, 'sciipeofd')
+        csi = self.get_val(data_dict, city, year, 'csi')
 
-        return sciipeofd
+        return (sciipeofd / csi) * 100.0
 
 
 class IndebitamentoNettoGarantitoIndicator(BaseIndicator):
 
     """
-    (consuntivo-entrate-accertamenti) - (consuntivo-spese-impegni)
+
+    [(consuntivo-entrate-accertamenti – consuntivo-spese-impegni)/ consuntivo-spese-impegni ]*100
+
 
     """
 
@@ -482,13 +514,14 @@ class IndebitamentoNettoGarantitoIndicator(BaseIndicator):
         cea = self.get_val(data_dict, city, year, 'cea')
         csi = self.get_val(data_dict, city, year, 'csi')
 
-        return cea-csi
+        return ((cea-csi) / csi) *100.0
 
 
 class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
 
     """
-    consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine
+    (Consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine / consuntivo-spese-impegni)*100
+
 
     """
 
@@ -496,37 +529,17 @@ class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
     label = u'Indebitamento diretto a breve termine'
     used_voci_slugs = {
         'csipfbt' : 'consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine',
-    }
-
-
-    def get_formula_result(self, data_dict, city, year):
-
-        csipfbt = self.get_val(data_dict, city, year, 'csipfbt')
-
-        return csipfbt
-
-
-
-
-class IndebitamentoDirettoLordoIndicator(BaseIndicator):
-
-    """
-    consuntivo-spese-impegni
-
-    """
-
-    slug = 'indebitamento-diretto-lordo'
-    label = u'Indebitamento diretto lordo'
-    used_voci_slugs = {
         'csi' : 'consuntivo-spese-impegni',
     }
 
 
     def get_formula_result(self, data_dict, city, year):
 
+        csipfbt = self.get_val(data_dict, city, year, 'csipfbt')
         csi = self.get_val(data_dict, city, year, 'csi')
 
-        return csi
+        return (csipfbt / csi ) *100.0
+
 
 
 class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
