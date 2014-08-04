@@ -2,6 +2,7 @@ from itertools import groupby
 import logging
 from optparse import make_option
 import os
+from pprint import pprint
 import zipfile
 import shutil
 
@@ -34,6 +35,11 @@ class Command(BaseCommand):
                     dest='cities',
                     default='',
                     help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+        make_option('--single-file',
+                    dest='single_file',
+                    action='store_true',
+                    default=False,
+                    help='Outputs all data in a single csv file'),
         make_option('--skip-existing',
                     dest='skip_existing',
                     action='store_true',
@@ -71,8 +77,10 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        valori_complete = []
         dryrun = options['dryrun']
         compress = options['compress']
+        single_file = options['single_file']
         skip_existing = options['skip_existing']
 
         csv_base_path = os.path.abspath(options['csv_base_dir'])
@@ -122,52 +130,82 @@ class Command(BaseCommand):
             indicator = Indicatore.objects.get(slug=indicator_slug)
             self.logger.info(u"Indicatore:::: {0} ::::".format(indicator.denominazione))
 
-            # check if files for this indicator exists and skip if
-            # the skip-existing option was required
-            csv_filename = os.path.join(indicators_path, "{0}.csv".format(indicator_slug))
-            if skip_existing and os.path.exists(csv_filename):
-                self.logger.info(u"Skipping indicator {}, as already processed".format(indicator_slug))
-                continue
 
-            valori = groupby(
-                indicator.valoreindicatore_set.values('territorio__cod_finloc', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno'),
-                lambda x: (x['territorio__cod_finloc'])
-            )
 
-            valori_dict = {}
-            for k, g in valori:
-                valori_dict[k] = dict([(it['anno'], it['valore']) for it in g])
+            if not single_file:
+                # check if files for this indicator exists and skip if
+                # the skip-existing option was required
+                csv_filename = os.path.join(indicators_path, "{0}.csv".format(indicator_slug))
+                if skip_existing and os.path.exists(csv_filename):
+                    self.logger.info(u"Skipping indicator {}, as already processed".format(indicator_slug))
+                    continue
 
+                valori = groupby(
+                    indicator.valoreindicatore_set.values('territorio__cod_finloc', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno'),
+                    lambda x: (x['territorio__cod_finloc'])
+                )
+
+                valori_dict = {}
+                for k, g in valori:
+                    valori_dict[k] = dict([(it['anno'], it['valore']) for it in g])
+
+                # open csv file
+                csv_file = open(csv_filename, 'w')
+                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+
+                # build and emit header
+                row = [ 'City', 'Cluster', 'Region' ]
+                row.extend(map(str, years))
+                csv_writer.writerow(row)
+
+                for city in cities:
+                    if city not in valori_dict:
+                        continue
+
+                    try:
+                        territorio = Territorio.objects.get(cod_finloc=city)
+                    except ObjectDoesNotExist:
+                        self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+
+                    # emit
+                    cluster = territorio.cluster if territorio.cluster else ''
+                    region = territorio.regione if territorio.regione else ''
+                    row = [city, cluster, region]
+                    for year in years:
+                        if year not in valori_dict[city]:
+                            row.append('')
+                        else:
+                            row.append(str(valori_dict[city][year]))
+
+                    csv_writer.writerow(row)
+                    self.logger.debug(",".join(row))
+
+            else:
+                indicator_set = indicator.valoreindicatore_set.\
+                    values_list('indicatore__slug','territorio__cod_finloc', 'territorio__istat_id', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno')
+
+                valori_list = []
+                for t in indicator_set:
+                    valori_list.append([str(element) for element in t])
+
+                valori_complete.extend(valori_list)
+
+
+
+        if single_file:
+        #     write a single file with all indicators and values for cities
+            csv_filename = os.path.join(indicators_path, "indicators.csv")
             # open csv file
             csv_file = open(csv_filename, 'w')
             csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
-
             # build and emit header
-            row = [ 'City', 'Cluster', 'Region' ]
-            row.extend(map(str, years))
+            row = [ 'indicatore', 'territorio','codice_istat' ,'anno', 'valore' ]
             csv_writer.writerow(row)
 
-            for city in cities:
-                if city not in valori_dict:
-                    continue
-
-                try:
-                    territorio = Territorio.objects.get(cod_finloc=city)
-                except ObjectDoesNotExist:
-                    self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
-
-                # emit
-                cluster = territorio.cluster if territorio.cluster else ''
-                region = territorio.regione if territorio.regione else ''
-                row = [city, cluster, region]
-                for year in years:
-                    if year not in valori_dict[city]:
-                        row.append('')
-                    else:
-                        row.append(str(valori_dict[city][year]))
-
+            for row in valori_complete:
+                row[2] = row[2].zfill(6)
                 csv_writer.writerow(row)
-                self.logger.debug(",".join(row))
+
 
         if compress:
             csv_path = os.path.join('data', 'csv')
