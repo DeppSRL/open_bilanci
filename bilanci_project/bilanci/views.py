@@ -600,7 +600,6 @@ class CalculateVariationsMixin(object):
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
-            rootnode_slug = totale_slug+self.somma_funzioni_affix
         else:
             if cas_com_type == 'cassa':
                 totale_slug = bilancio_type+'-spese-cassa'
@@ -674,6 +673,9 @@ class CalculateVariationsMixin(object):
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
         slugset.append(totale_slug+'-prestiti')
         slugset.append(totale_slug+'-spese-per-conto-terzi')
+
+        if bilancio_type == 'preventivo':
+            slugset.append(totale_slug+'-disavanzo-di-amministrazione')
 
         if include_totale:
             slugset.append(totale_slug)
