@@ -38,6 +38,7 @@ couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 scraper_project/scraper/settings.py
 /docs/_build/
+bilanci_project/dati/
 dati/
 /static/
 open_data/

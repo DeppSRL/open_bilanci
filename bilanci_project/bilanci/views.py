@@ -600,7 +600,6 @@ class CalculateVariationsMixin(object):
 
         if bilancio_type == "preventivo":
             totale_slug = "preventivo-spese"
-            rootnode_slug = totale_slug+self.somma_funzioni_affix
         else:
             if cas_com_type == 'cassa':
                 totale_slug = bilancio_type+'-spese-cassa'
@@ -674,6 +673,9 @@ class CalculateVariationsMixin(object):
         slugset = list(rootnode.get_children().values_list('slug', flat=True))
         slugset.append(totale_slug+'-prestiti')
         slugset.append(totale_slug+'-spese-per-conto-terzi')
+
+        if bilancio_type == 'preventivo':
+            slugset.append(totale_slug+'-disavanzo-di-amministrazione')
 
         if include_totale:
             slugset.append(totale_slug)
@@ -1832,7 +1834,28 @@ class BilancioDetailView(BilancioOverView):
             context['show_timeline'] = False
 
         context['bilancio_rootnode'] = bilancio_rootnode
-        context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
+
+        bilancio_tree = bilancio_rootnode.get_descendants(include_self=True)
+
+        # if the bilancio considered is Preventivo
+        # sets the node "avanzo/disavanzo di amministrazione" at the bottom of the list
+
+        if self.main_bilancio_type == 'preventivo':
+            if self.selected_section == 'entrate':
+                bilancio_tree = bilancio_tree.exclude(slug='preventivo-entrate-avanzo-di-amministrazione')
+            elif self.selected_section == 'spese':
+                bilancio_tree = bilancio_tree.exclude(slug='preventivo-spese-disavanzo-di-amministrazione')
+
+        bilancio_tree = list(bilancio_tree)
+
+        if self.main_bilancio_type == 'preventivo':
+            if self.selected_section == 'entrate':
+                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-entrate-avanzo-di-amministrazione'))
+            elif self.selected_section == 'spese':
+                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-spese-disavanzo-di-amministrazione'))
+
+
+        context['bilancio_tree'] =  bilancio_tree
 
         context['query_string'] = query_string
         context['year'] = self.year
