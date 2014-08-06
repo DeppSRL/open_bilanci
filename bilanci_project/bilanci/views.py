@@ -1832,7 +1832,28 @@ class BilancioDetailView(BilancioOverView):
             context['show_timeline'] = False
 
         context['bilancio_rootnode'] = bilancio_rootnode
-        context['bilancio_tree'] =  bilancio_rootnode.get_descendants(include_self=True)
+
+        bilancio_tree = bilancio_rootnode.get_descendants(include_self=True)
+
+        # if the bilancio considered is Preventivo
+        # sets the node "avanzo/disavanzo di amministrazione" at the bottom of the list
+
+        if self.main_bilancio_type == 'preventivo':
+            if self.selected_section == 'entrate':
+                bilancio_tree = bilancio_tree.exclude(slug='preventivo-entrate-avanzo-di-amministrazione')
+            elif self.selected_section == 'spese':
+                bilancio_tree = bilancio_tree.exclude(slug='preventivo-spese-disavanzo-di-amministrazione')
+
+        bilancio_tree = list(bilancio_tree)
+
+        if self.main_bilancio_type == 'preventivo':
+            if self.selected_section == 'entrate':
+                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-entrate-avanzo-di-amministrazione'))
+            elif self.selected_section == 'spese':
+                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-spese-disavanzo-di-amministrazione'))
+
+
+        context['bilancio_tree'] =  bilancio_tree
 
         context['query_string'] = query_string
         context['year'] = self.year
