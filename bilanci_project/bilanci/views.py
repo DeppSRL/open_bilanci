@@ -628,6 +628,32 @@ class CalculateVariationsMixin(object):
 
         return slugset, totale_slug
 
+
+    def get_slugset_spese_widget(self, bilancio_type, cas_com_type, include_totale=True):
+
+        ##
+        # overview widget and spese widget
+        ##
+
+        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
+        rootnode = Voce.objects.get(slug = rootnode_slug)
+        slugset = list(rootnode.get_children().values_list('slug', flat=True))
+        slugset.append(totale_slug+'-spese-per-conto-terzi')
+        # adds Prestiti and its descendants
+        prestiti_descendants = list(Voce.objects.get(slug=totale_slug+'-prestiti').get_descendants(include_self=True).values_list('slug',flat=True))
+        slugset.extend(prestiti_descendants)
+
+
+        if bilancio_type == 'preventivo':
+            slugset.append(totale_slug+'-disavanzo-di-amministrazione')
+
+        if include_totale:
+            slugset.append(totale_slug)
+
+        return slugset, totale_slug
+
+
+
     def get_slugset_entrate_chiguadagnaperde(self, bilancio_type, cas_com_type, page_type = "overview"):
 
         rootnode_slug, totale_slug = self.get_rootnode_slug_entrate(bilancio_type,cas_com_type)
@@ -659,28 +685,6 @@ class CalculateVariationsMixin(object):
         slugset.append(totale_slug+'-spese-per-conto-terzi')
 
         return slugset
-
-
-
-    def get_slugset_spese_widget(self, bilancio_type, cas_com_type, include_totale=True):
-
-        ##
-        # overview widget and spese widget
-        ##
-
-        rootnode_slug, totale_slug = self.get_rootnode_slug_spese(bilancio_type, cas_com_type)
-        rootnode = Voce.objects.get(slug = rootnode_slug)
-        slugset = list(rootnode.get_children().values_list('slug', flat=True))
-        slugset.append(totale_slug+'-prestiti')
-        slugset.append(totale_slug+'-spese-per-conto-terzi')
-
-        if bilancio_type == 'preventivo':
-            slugset.append(totale_slug+'-disavanzo-di-amministrazione')
-
-        if include_totale:
-            slugset.append(totale_slug)
-
-        return slugset, totale_slug
 
 
 
@@ -1226,7 +1230,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         widget1 = widget2 = widget3 = None
         main_regroup_e = main_regroup_s=variations_e=variations_s= None
-
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
 
         ##
@@ -1236,9 +1239,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context['year'] = self.main_bilancio_year
 
         if self.widget_type == "overview":
-
             context.update(self.create_context_overview())
-
 
         elif self.widget_type == "entrate":
             context.update(self.create_context_entrate())
@@ -1246,17 +1247,12 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         else:
             context.update(self.create_context_spese())
 
-
         context['comp_bilancio_type'] = self.comp_bilancio_type
         context['comp_bilancio_year'] = self.comp_bilancio_year
-
-
         context['main_bilancio_type']=self.main_bilancio_type
         context['main_bilancio_year']=self.main_bilancio_year
-
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year
-
         context['cas_com_type']=self.cas_com_type
         context['values_type']=self.values_type
 
@@ -1274,7 +1270,6 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
     ##
 
 
-    
     def get(self, request, **kwargs):
 
         # get territorio_opid from GET parameter
