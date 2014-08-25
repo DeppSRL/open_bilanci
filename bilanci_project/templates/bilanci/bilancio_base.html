@@ -18,30 +18,14 @@
     {# header block with Comune name, inhabitants and share button    #}
     <div class="panel-heading">
         <div id="bilancio-header">
-
-            <!-- AddThis Button BEGIN -->
-            <div class="pull-right share-box">
+            <div class="pull-right download-box">
                 {% if csv_package_file %}
-                <span>Scarica i dati</span>
-                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
-{#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
-                &nbsp;|&nbsp;
+                    <span>SCARICA I DATI</span>
+                    <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
+    {#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
+                    &nbsp;|&nbsp;
                 {% endif %}
 
-                <span>Condividi</span>
-
-                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                     <strong>il bilancio</strong> <span class="fa fa-share-alt"></span>
-                </a>
-                <script type="text/javascript">
-                    var addthis_config = {"data_track_addressbar":false   };
-                    var addthis_share =
-                    {
-                        "url":"{{ share_url|safe }}"
-                    }
-                </script>
-                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-                <!-- AddThis Button END -->
             </div>
 
             <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
@@ -71,8 +55,29 @@
     </div>
     
     <div class="panel-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+            </div>
+            <div class="col-md-4 share-box">
+                <!-- AddThis Button BEGIN -->
+                <div class="pull-right">
+                    <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                     CONDIVIDI IL BILANCIO <span class="fa fa-share-alt"></span>
+                </a>
+                </div>
 
-        <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+                <script type="text/javascript">
+                    var addthis_config = {"data_track_addressbar":false   };
+                    var addthis_share =
+                    {
+                        "url":"{{ share_url|safe }}"
+                    }
+                </script>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+                <!-- AddThis Button END -->
+            </div>
+        </div>
 
         <hr class="no-border">
 
