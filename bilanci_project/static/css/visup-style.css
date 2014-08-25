@@ -12,11 +12,54 @@
 }
 
 .visup-selector-buttons {
+	cursor: pointer;
 	text-align: center;
 	display: inline-block;
 	position: absolute;
 	right: 0px;
-	top: 0px;
+	bottom: 58px;
+	height: 46px;
+}
+
+.visup-selector-buttons select {
+	-webkit-appearance: none;
+	-moz-appearance:    none;
+	appearance:         none;
+	background: #ffffff;
+	width: 100%;
+	color: #2a3037;
+	border: 2px solid #2a3037;
+	padding: 5px 16px 5px 5px;
+	margin-top: 5px;
+	font-size: 10px;
+	font-weight: 300px;
+}
+
+.visup-selector-buttons-head {
+	margin-left: 15px;
+	text-align: left;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.visup-selector-buttons-ddown-container {
+	position: absolute;
+	left: 15px;
+	right: 0px;
+	height: 100%;
+}
+
+.visup-selector-buttons-ddown-icon {
+	position: absolute;
+	bottom: 4px;
+	right: 8px;
+}
+
+.visup-selector-buttons select:focus {
+	-webkit-appearance: none;
+	-moz-appearance:    none;
+	appearance:         none;
+	outline: none;
 }
 
 .visup-selector-button {
@@ -30,7 +73,8 @@
 
 .visup-selector-line {
 	shape-rendering: crispEdges;
-	stroke-width: 5px;
+	stroke-width: 4px;
+	stroke-linecap: round;
 }
 
 .visup-selector-tick {
@@ -39,21 +83,26 @@
 	text-align: center;
 }
 
-.visup-selector-tick-line {
+.visup-selector-tick.disabled .visup-selector-tick-text {
+	color: #b9c6c4 !important;
+}
+
+.visup-selector-tick.disabled .visup-selector-tick-pointer {
+	cursor: auto;
+}
+/*.visup-selector-tick-line {
 	border-radius: 1px;
 	background: #2a3037;
 	height: 8px;
 	width: 2px;
 	margin-left: -1px;
-}
+}*/
 
 .visup-selector-tick-text {
-	border-radius: 5px;
-	padding: 4px 0px;
-	width: 80px;
-	margin-left: -40px;
-	margin-top: 8px;
-	font-size: 18px;
+	width: 60px;
+	margin-left: -30px;
+	font-size: 11px;
+	font-weight: 700;
 }
 
 .visup-selector-tick-pointer {
@@ -61,17 +110,29 @@
 	background-color: transparent;
 	cursor: pointer;
 	border-radius: 5px;
-	width: 80px;
-	height: 80px;
-	margin-left: -40px;
-	margin-top: -80px;
-	font-size: 18px;
+	width: 50px;
+	height: 35px;
+	margin-left: -25px;
+	margin-top: -35px;
 }
 
 .visup-selector-axisX-container {
 	position: relative;
 	height: 45px;
 }
+
+.visup-selector-circle {
+	stroke: #ffffff;
+	stroke-width: 2px;
+}
+
+.visup-selector-circle.disabled {
+	fill: #b9c6c4 !important;
+}
+
+/*.visup-selector-circle.visup-highlighted {
+	fill: #c6d1cf!important;
+}*/
 
 
 /*SPANS*/
@@ -82,9 +143,9 @@
 }
 
 .visup-span-row {
-	height: 70px;
+	height: 40px;
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: 18px;
 }
 
 .visup-span-descriptions {
@@ -96,7 +157,7 @@
 
 .visup-span-bars {
 	position: relative;
-	height: 16px;
+	height: 10px;
 	width: 100%;
 }
 
@@ -104,22 +165,24 @@
 	overflow: hidden;
 	position: absolute;
 	height: 100%;
-	padding-top: 5px;
+	/*padding-top: 5px;*/
+	cursor: pointer;
 }
 
 .visup-span-descr.visup-collide {
-	border-right: 1px solid #c6d1cf;
+	/*border-right: 1px solid #c6d1cf;*/
 }
 
 .visup-span-descr.visup-collide:hover {
-	border-right: 1px solid #c6d1cf;
+	/*border-right: 1px solid #c6d1cf;*/
 	background-color: white;
 	z-index: 2;
 	width: auto !important;
+	padding-right: 20px;
 }
 
 .visup-span-descr.visup-collide:hover .visup-span-descr-labels{
-	padding: 10px 8px 10px 0px;
+	/*padding: 1px 8px 1px 0px;*/
 }
 
 .visup-span-descr.visup-collide:hover .visup-span-label {
@@ -133,29 +196,61 @@
 .visup-span-descr-labels {
 	vertical-align: top;
 	display: inline-block;
-	padding: 10px 0px 10px 0px;
+	padding: 1px 0px 1px 0px;
+}
+
+.visup-span-descr .visup-span-descr-arrow,
+.visup-span-descr.visup-collide:hover .visup-span-descr-arrow,
+.visup-span-descr.visup-span-disabled .visup-span-descr-arrow,
+.visup-span-descr.visup-span-disabled.visup-collide .visup-span-descr-arrow
+.visup-span-descr.visup-span-disabled.visup-collide:hover .visup-span-descr-arrow {
+	display: none;
+}
+
+.visup-span-descr.visup-collide .visup-span-descr-arrow {
+	height: 100%;
+	background: #ffffff;
+	display: inline-block;
+	padding: 6px 7px 0px;
+	position: absolute;
+	width: 20px;
+	/*left: 10px;*/
+	right: 0px;
+}
+
+.visup-span-descr.visup-collide:hover .visup-span-descr-arrow {
+	width: 20px;
+	height: 100%;
+	display: inline-block;
+	padding: 6px 7px 0px;
+	position: absolute;
+	/*left: auto;*/
+	-moz-transform: scaleX(-1);    /* Gecko */
+	-o-transform: scaleX(-1);      /* Operah */
+	-webkit-transform: scaleX(-1); /* webkit */
+	transform: scaleX(-1); 
 }
 
 .visup-span-bar {
 	position: absolute;
 	height: 100%;
-	border-radius: 3px;
+	border-radius: 2px;
 	border-width: 1px;
 	border-style: solid;
 }
 
 .visup-span-bar.disabled {
-	background-color: #b9c6c4 !important;
-	border-color: #b9c6c4 !important;
+	background-color: #ffffff !important;
+	/*border-color: #b9c6c4 !important;*/
 }
 
 .visup-span-icon {
-	margin-right: 8px;
+	margin-right: 4px;
 	background-size: cover;
 	vertical-align: top;
 	display: inline-block;
-	height: 40px;
-	width: 40px;
+	height: 25px;
+	width: 25px;
 	background-color: #2a3037;
 	border-radius: 20px;
 	border: 3px solid;
@@ -165,10 +260,10 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	height: 40%;
-	line-height: 10px;
-	font-size: 10px;
+	line-height: 13px;
+	font-size: 12px;
 	font-weight: 900;
-	color: #cc6633;
+	/*color: #cc6633;*/
 	text-decoration: none;
 	/*max-width: 100px;
 	text-overflow: ellipsis;
@@ -186,8 +281,8 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	height: 40%;
-	font-size: 8px;
-	font-weight: 300;
+	font-size: 9px;
+	font-weight: 400;
 	text-transform: uppercase;
 }
 
