@@ -90,14 +90,15 @@ function init_selector(selector_init_obj){
         timeline: {
             start: start_year,
             end: end_year,
-            circleRadius: 11,
+            circleRadius: 6,
             defaultYear: selected_year
         },
         buttons: {
             button1: "PREVENTIVO",
             button2: "CONSUNTIVO",
             selected: selected_button,
-            visible: visible_buttons
+            visible: visible_buttons,
+            head: "Scegli il bilancio"
         },
         colors: {
             base: "#c6d1cf",
