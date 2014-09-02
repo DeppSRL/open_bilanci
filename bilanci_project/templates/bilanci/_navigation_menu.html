@@ -7,7 +7,11 @@
                         bilancio <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
-                        <li class="dropdown-submenu" {% ifequal active_voice 'entrate' %}class="active"{% endifequal %}>
+
+                        <li class="" {% ifequal selected_section 'bilancio' %}class="active"{% endifequal %}>
+                            <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
+                        </li>
+                        <li class="dropdown-submenu" {% ifequal selected_section 'entrate' %}class="active"{% endifequal %}>
                             <a tabindex="-1" href="#">entrate</a>
                             <ul class="dropdown-menu">
                                 <li>
@@ -22,7 +26,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="dropdown-submenu" {% ifequal active_voice 'spese' %}class="active"{% endifequal %}>
+                        <li class="dropdown-submenu" {% ifequal selected_section 'spese' %}class="active"{% endifequal %}>
                         <a tabindex="-1" href="#">spese</a>
                             <ul class="dropdown-menu">
                                 <li>
