@@ -1539,6 +1539,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         must_redirect = False
         self.territorio = self.get_object()
+        self.selected_section = kwargs.get('section', 'bilancio')
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
 
@@ -1723,9 +1724,6 @@ class BilancioComposizioneView(BilancioOverView):
 class BilancioDettaglioView(BilancioOverView):
 
     template_name = 'bilanci/bilancio_dettaglio.html'
-
-    def get(self, request, *args, **kwargs):
-        context = super(BilancioDettaglioView, self).get(**kwargs)
 
     def get_slug(self):
         cassa_competenza_type = self.cas_com_type
