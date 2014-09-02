@@ -1,29 +1,3 @@
-{#<nav class="navbar navbar-subnav" role="navigation">#}
-{#    <ul class="nav nav-justified">#}
-{#    <ul class="nav navbar-nav">#}
-{#        <li class="">#}
-{#            <a href="{{ menu_voices.bilancio }}{% if query_string %}?{{query_string}}{% endif %}" class="dropdown-toggle" data-toggle="dropdown">#}
-{#                bilancio#}
-{#            </a>#}
-{#            <span class="caret"></span>#}
-    {#        <ul class="dropdown-menu" role="menu">#}
-    {#            {% for voice, url in menu_voices.items %}#}
-    {##}
-    {#                    <li {% ifequal active_voice 'entrate' %}class="active"{% endifequal %}><a>entrate</a></li>#}
-    {#                    <li {% ifequal active_voice 'entrate' %}class="active"{% endifequal %}><a>spese</a></li>#}
-    {##}
-    {##}
-    {#                    <li><a href="{{ url }}{% if query_string and voice != 'indicatori' %}?{{query_string}}{% endif %}">{{ voice }}</a></li>#}
-    {#            {% endfor %}#}
-    {#        </ul>#}
-{#        </li>#}
-{#        <li >#}
-{#            <a href="#">#}
-{#                indicatori#}
-{#            </a>#}
-{#        </li>#}
-{#    </ul>#}
-
 <nav class="navbar navbar-subnav" role="navigation">
     <div class="container">
         <div class="row">
@@ -37,12 +11,12 @@
                             <a tabindex="-1" href="#">entrate</a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="{{ menu_voices.entrate }}{% if query_string %}?{{query_string}}{% endif %}">
+                                    <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
                                         dettaglio
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ menu_voices.entrate }}{% if query_string %}?{{query_string}}{% endif %}">
+                                    <a href="{{ menu_voices.entrate.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
                                         composizione
                                     </a>
                                 </li>
@@ -52,12 +26,12 @@
                         <a tabindex="-1" href="#">spese</a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="{{ menu_voices.spese }}{% if query_string %}?{{query_string}}{% endif %}">
+                                    <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
                                         dettaglio
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ menu_voices.spese }}{% if query_string %}?{{query_string}}{% endif %}">
+                                    <a href="{{ menu_voices.spese.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
                                         composizione
                                     </a>
                                 </li>
@@ -66,7 +40,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="">indicatori</a></li>
+                    <a href="{{ menu_voices.indicatori}}">indicatori</a></li>
                 </li>
             </ul>
         </div>

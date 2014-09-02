@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
-    BilancioSpeseView, BilancioIndicatoriView, BilancioEntrateView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
+    BilancioIndicatoriView, BilancioComposizioneView, BilancioDettaglioView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
     HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView, ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
     ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, BilancioNotFoundView, ClassificheSearchView, MappeTemplateView
 
@@ -21,8 +21,9 @@ urlpatterns = patterns('',
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
-    url(r'^bilanci/(?P<slug>[-\w]+)/entrate$', BilancioEntrateView.as_view(), name='bilanci-entrate'),
-    url(r'^bilanci/(?P<slug>[-\w]+)/spese$', BilancioSpeseView.as_view(), name='bilanci-spese'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/composizione$', BilancioComposizioneView.as_view(), name='bilanci-composizione'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/dettaglio$', BilancioDettaglioView.as_view(), name='bilanci-dettaglio'),
+
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
     # Json view for linegraph voci di bilancio

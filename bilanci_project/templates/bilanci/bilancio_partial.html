@@ -11,13 +11,6 @@
 
 
 {% block bilanci_content %}
-    <!-- Nav Tabs -->
-    <ul id="partial-tabs" class="nav nav-tabs nav-justified">
-        <li><a href="#composizione" data-toggle="tab">COMPOSIZIONE DELLE {{ selected_section|upper }} E PRIORIT&Agrave;</a></li>
-        <li ><a href="#dettaglio" data-toggle="tab">ANDAMENTO NEL TEMPO E DETTAGLIO</a></li>
-    </ul>
-
-    <hr class="no-border">
 
     <!-- Tab panes -->
     <div class="tab-content">
@@ -130,13 +123,13 @@
             'reference_url': ''
         };
 
-        {% if selected_section == 'entrate' %}
-            selector_init_obj['reference_url']="{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";
-        {% else %}
-            selector_init_obj['reference_url']="{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";
-        {% endif %}
-
-        init_selector(selector_init_obj);
+{#        {% if selected_section == 'entrate' %}#}
+{#            selector_init_obj['reference_url']="{% url 'bilanci-entrate' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";#}
+{#        {% else %}#}
+{#            selector_init_obj['reference_url']="{% url 'bilanci-spese' slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}";#}
+{#        {% endif %}#}
+{##}
+{#        init_selector(selector_init_obj);#}
 
         /**
         * set handlers for secondary trend charts (the ones in the accordion)

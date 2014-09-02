@@ -1548,7 +1548,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if self.main_bilancio_type == "preventivo":
             self.cas_com_type = "cassa"
 
-
         # identifies the bilancio for comparison, sets gdp multiplier based on deflator
 
         self.main_bilancio_year = int(self.year)
@@ -1640,10 +1639,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if must_redirect:
             destination_view = 'bilanci-overview'
 
-            if self.selected_section == 'entrate':
-                destination_view = 'bilanci-entrate'
-            elif self.selected_section == 'spese':
-                destination_view = 'bilanci-spese'
 
             return HttpResponseRedirect(
                 reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
@@ -1668,7 +1663,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['tipo_bilancio'] = self.main_bilancio_type
         context['selected_bilancio_type'] = self.main_bilancio_type
 
-        menu_voices_kwargs = {'slug': self.territorio.slug}
+        entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
+        spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
 
         context['selected_section']=self.selected_section
         # get Comune context data from db
@@ -1705,89 +1701,58 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['share_url']=self.share_url
 
         context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
-            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
-            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
-            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
+            ('bilancio', reverse('bilanci-overview', kwargs={'slug':self.territorio.slug})),
+            ('entrate', OrderedDict([
+                ('dettaglio', reverse('bilanci-dettaglio', kwargs=entrate_kwargs)),
+                ('composizione', reverse('bilanci-composizione', kwargs=entrate_kwargs)),
+            ])),
+            ('spese', OrderedDict([
+                ('dettaglio', reverse('bilanci-dettaglio', kwargs=spese_kwargs)),
+                ('composizione', reverse('bilanci-composizione', kwargs=spese_kwargs)),
+            ])),
+            ('indicatori', reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug}))
         ])
 
         return context
 
-class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
-    model = Territorio
-    context_object_name = "territorio"
-    template_name = 'bilanci/bilancio_indicatori.html'
-    selected_section = "indicatori"
-    share_url = None
-    territorio = None
-    
+
+class BilancioComposizioneView(BilancioOverView):
+    template_name = 'bilanci/bilancio_composizione.html'
+    pass
+
+class BilancioDettaglioView(BilancioOverView):
+
+    template_name = 'bilanci/bilancio_dettaglio.html'
+
     def get(self, request, *args, **kwargs):
-
-        ##
-        # if parameter is missing redirects to a page for default indicator
-        ##
-        self.territorio = self.get_object()
-
-        if self.request.GET.get('slug') is None:
-            return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
-                                        + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
-
-        return super(BilancioIndicatoriView, self).get(request, *args, **kwargs)
-
-
-
-    def get_context_data(self, **kwargs ):
-
-        context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
-        
-        menu_voices_kwargs = {'slug':self.territorio.slug}
-
-        # get selected indicatori slug list from request and verifies them
-        selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
-
-        context['selected_section']=self.selected_section
-        # get Comune context data from db
-        year = settings.SELECTOR_DEFAULT_YEAR
-
-        last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
-
-        context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
-        context['last_indicatore_yr'] = last_indicatore_yr
-        context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
-        context['comune_context'] = Contesto.get_context(int(year),self.territorio)
-        context['territorio_opid'] =self.territorio.op_id
-        context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
-        context['n_comuni_cluster'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
-        context['selected_cluster_str'] = str(self.territorio.cluster)
-        context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
-
-
-        context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overview', kwargs=menu_voices_kwargs)),
-            ('entrate', reverse('bilanci-entrate', kwargs=menu_voices_kwargs)),
-            ('spese', reverse('bilanci-spese', kwargs=menu_voices_kwargs)),
-            ('indicatori', reverse('bilanci-indicatori', kwargs=menu_voices_kwargs))
-        ])
-
-        context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
-        # creates the query string to call the IncarichiIndicatori Json view in template
-        context['selected_indicators'] = selected_indicators_slugs
-        context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)
-        context['share_url']=self.share_url
-        return context
-
-
-class BilancioDetailView(BilancioOverView):
+        context = super(BilancioDettaglioView, self).get(**kwargs)
 
     def get_slug(self):
-        raise Exception("Not implemented in base class.")
+        cassa_competenza_type = self.cas_com_type
+        if self.cas_com_type == 'competenza':
+            if self.selected_section == 'entrate':
+                cassa_competenza_type = 'accertamenti'
+            else:
+                cassa_competenza_type = 'impegni'
+
+        if self.main_bilancio_type == 'preventivo':
+            return "{0}-{1}".format(
+                self.main_bilancio_type,
+                self.selected_section
+            )
+        else:
+            return "{0}-{1}-{2}".format(
+                self.main_bilancio_type,
+                self.selected_section,
+                cassa_competenza_type
+            )
+
 
     def get_context_data(self, **kwargs ):
 
-        context = super(BilancioDetailView, self).get_context_data(**kwargs)
+        context = super(BilancioDettaglioView, self).get_context_data(**kwargs)
         territorio = self.get_object()
         query_string = self.request.META['QUERY_STRING']
-
         voce_slug = self.get_slug()
 
         # gets the tree structure from db
@@ -1820,7 +1785,6 @@ class BilancioDetailView(BilancioOverView):
             'absolute': dict(absolute_values),
             'percapita': dict(percapita_values)
         }
-
 
         # checks if political context data is available to show/hide timeline widget in the template
         context['show_timeline'] = True
@@ -1881,70 +1845,98 @@ class BilancioDetailView(BilancioOverView):
             variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
             context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
-        return context
+            # Extend the context with funzioni/interventi view and switch variables
 
-
-class BilancioEntrateView(BilancioDetailView):
-    template_name = 'bilanci/bilancio_entrate.html'
-    selected_section = "entrate"
-
-    def get_slug(self):
-        cassa_competenza_type = self.cas_com_type
-        if self.cas_com_type == 'competenza':
-            cassa_competenza_type = 'accertamenti'
-
-        if self.main_bilancio_type == 'preventivo':
-            return "{0}-{1}".format(self.main_bilancio_type,"entrate")
-        else:
-            return "{0}-{1}".format(
-                self.main_bilancio_type,
-                "entrate-{0}".format(cassa_competenza_type)
-            )
-
-
-
-class BilancioSpeseView(BilancioDetailView):
-    template_name = 'bilanci/bilancio_spese.html'
-    selected_section = "spese"
-
-    def get_slug(self):
-        cassa_competenza_type = self.cas_com_type
-        if self.cas_com_type == 'competenza':
-            cassa_competenza_type = 'impegni'
-
-        if self.main_bilancio_type == 'preventivo':
-            return "{0}-{1}".format(self.main_bilancio_type,"spese")
-        else:
-            return "{0}-{1}".format(
-                self.main_bilancio_type,
-                "spese-{0}".format(cassa_competenza_type)
-            )
-
-
-    def get_context_data(self, **kwargs):
-        """
-        Extend the context with funzioni/interventi view and switch variables
-        """
-
-        context = super(BilancioSpeseView, self).get_context_data(**kwargs)
-
-        full_path = self.request.get_full_path()
-        if not 'fun_int_view' in full_path:
-            fun_int_switch_url = full_path + "&fun_int_view=interventi"
-        else:
-            if self.fun_int_view == 'funzioni':
-                fun_int_switch_url = full_path.replace("&fun_int_view=funzioni", "&fun_int_view=interventi")
+            full_path = self.request.get_full_path()
+            if not 'fun_int_view' in full_path:
+                fun_int_switch_url = full_path + "&fun_int_view=interventi"
             else:
-                fun_int_switch_url = full_path.replace("&fun_int_view=interventi", "&fun_int_view=funzioni")
+                if self.fun_int_view == 'funzioni':
+                    fun_int_switch_url = full_path.replace("&fun_int_view=funzioni", "&fun_int_view=interventi")
+                else:
+                    fun_int_switch_url = full_path.replace("&fun_int_view=interventi", "&fun_int_view=funzioni")
 
 
-        context['fun_int_current_view'] = self.fun_int_view
-        context['fun_int_switch'] = {
-            'label': 'interventi' if self.fun_int_view == 'funzioni' else 'funzioni',
-            'url': fun_int_switch_url
-        }
+            context['fun_int_current_view'] = self.fun_int_view
+            context['fun_int_switch'] = {
+                'label': 'interventi' if self.fun_int_view == 'funzioni' else 'funzioni',
+                'url': fun_int_switch_url
+            }
 
         return context
+
+
+class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
+    model = Territorio
+    context_object_name = "territorio"
+    template_name = 'bilanci/bilancio_indicatori.html'
+    selected_section = "indicatori"
+    share_url = None
+    territorio = None
+
+    def get(self, request, *args, **kwargs):
+
+        ##
+        # if parameter is missing redirects to a page for default indicator
+        ##
+        self.territorio = self.get_object()
+
+        if self.request.GET.get('slug') is None:
+            return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
+                                        + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
+
+        return super(BilancioIndicatoriView, self).get(request, *args, **kwargs)
+
+
+
+    def get_context_data(self, **kwargs ):
+
+        context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
+
+        entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
+        spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
+        
+        # get selected indicatori slug list from request and verifies them
+        selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
+
+        context['selected_section']=self.selected_section
+        # get Comune context data from db
+        year = settings.SELECTOR_DEFAULT_YEAR
+
+        last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
+
+        context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
+        context['last_indicatore_yr'] = last_indicatore_yr
+        context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
+        context['comune_context'] = Contesto.get_context(int(year),self.territorio)
+        context['territorio_opid'] =self.territorio.op_id
+        context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
+        context['n_comuni_cluster'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
+        context['selected_cluster_str'] = str(self.territorio.cluster)
+        context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
+
+
+        context['menu_voices'] = OrderedDict([
+            ('bilancio', reverse('bilanci-overview', kwargs={'slug':self.territorio.slug})),
+            ('entrate', OrderedDict([
+                ('dettaglio', reverse('bilanci-dettaglio', kwargs=entrate_kwargs)),
+                ('composizione', reverse('bilanci-composizione', kwargs=entrate_kwargs)),
+            ])),
+            ('spese', OrderedDict([
+                ('dettaglio', reverse('bilanci-dettaglio', kwargs=spese_kwargs)),
+                ('composizione', reverse('bilanci-composizione', kwargs=spese_kwargs)),
+            ])),
+            ('indicatori', reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug}))
+        ])
+
+        context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
+        # creates the query string to call the IncarichiIndicatori Json view in template
+        context['selected_indicators'] = selected_indicators_slugs
+        context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)
+        context['share_url']=self.share_url
+        return context
+
+
 
 
 class ClassificheRedirectView(RedirectView):
