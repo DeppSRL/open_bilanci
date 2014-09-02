@@ -1895,7 +1895,7 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
 
         entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
         spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
-        
+
         # get selected indicatori slug list from request and verifies them
         selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
 

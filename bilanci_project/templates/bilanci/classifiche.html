@@ -172,14 +172,12 @@
                                                     <td class="col-sm-9 text">
                                                         <h4>
                                                             <a
-{#                                                                {% if selected_par_type == 'indicatori' %}#}
-{#                                                                    href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"#}
-{#                                                                {% elif selected_par_type == 'entrate' %}#}
-{#                                                                    href="{% url 'bilanci-entrate' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"#}
-{#                                                                {% else %}#}
-{#                                                                    href="{% url 'bilanci-spese' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"#}
-{#                                                                {% endif %}#}
-{#                                                                    >#}
+                                                                {% if selected_par_type == 'indicatori' %}
+                                                                    href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
+                                                                {% else %}
+                                                                    href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section=selected_par_type %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
+                                                                {% endif %}
+                                                                    >
                                                                 {{ valore_obj.territorio.denominazione }}
                                                             </a>
                                                         </h4>
