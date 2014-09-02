@@ -11,30 +11,30 @@
                         <li class="" {% ifequal selected_section 'bilancio' %}class="active"{% endifequal %}>
                             <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
                         </li>
-                        <li class="dropdown-submenu" {% ifequal selected_section 'entrate' %}class="active"{% endifequal %}>
+                        <li class="dropdown-submenu {% ifequal selected_section "entrate" %}active{% endifequal %}">
                             <a tabindex="-1" href="#">entrate</a>
                             <ul class="dropdown-menu">
-                                <li>
+                                <li {% if selected_section == 'entrate' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
                                     <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
                                         dettaglio
                                     </a>
                                 </li>
-                                <li>
+                                <li {% if selected_section == 'entrate' and selected_subsection == 'composizione' %}class="active"{% endif %}>
                                     <a href="{{ menu_voices.entrate.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
                                         composizione
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="dropdown-submenu" {% ifequal selected_section 'spese' %}class="active"{% endifequal %}>
+                        <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active"{% endifequal %}">
                         <a tabindex="-1" href="#">spese</a>
                             <ul class="dropdown-menu">
-                                <li>
+                                <li {% if selected_section == 'spese' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
                                     <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
                                         dettaglio
                                     </a>
                                 </li>
-                                <li>
+                                <li {% if selected_section == 'spese' and selected_subsection == 'composizione' %}class="active"{% endif %}>
                                     <a href="{{ menu_voices.spese.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
                                         composizione
                                     </a>
@@ -43,7 +43,7 @@
                         </li>
                     </ul>
                 </li>
-                <li>
+                <li {% ifequal selected_section 'indicatori' %}class="active"{% endifequal %}>
                     <a href="{{ menu_voices.indicatori}}">indicatori</a></li>
                 </li>
             </ul>

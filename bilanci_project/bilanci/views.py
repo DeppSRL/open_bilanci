@@ -1667,7 +1667,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
         spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
 
-        context['selected_section']=self.selected_section
+        context['selected_section'] = self.selected_section
         # get Comune context data from db
         context['comune_context'] = Contesto.get_context(int(self.year), self.territorio)
         context['territorio_opid'] = self.territorio.op_id
@@ -1719,7 +1719,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 class BilancioComposizioneView(BilancioOverView):
     template_name = 'bilanci/bilancio_composizione.html'
-    pass
+
+    def get_context_data(self, **kwargs ):
+        context = super(BilancioComposizioneView, self).get_context_data(**kwargs)
+        context['selected_subsection'] = 'composizione'
+        return context
 
 class BilancioDettaglioView(BilancioOverView):
 
@@ -1817,6 +1821,7 @@ class BilancioDettaglioView(BilancioOverView):
         context['query_string'] = query_string
         context['year'] = self.year
         context['bilancio_type'] = self.main_bilancio_type
+        context['selected_subsection'] = 'dettaglio'
 
         if self.main_bilancio_type == 'preventivo':
             context['bilancio_type_title'] = 'preventivi'
