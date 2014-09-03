@@ -147,34 +147,19 @@
             **/
             $('#results').find('.chart-container').on('shown.bs.collapse', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
 
-            $('a[data-toggle="tab"][href="#dettaglio"]').on("shown.bs.tab",function(){
-                {# fixes graph size on tab switch   #}
-
-                show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
-
-            });
-
             {# adds anchor #composizione / #dettaglio to page url   #}
             $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
 
-            if(location.hash == '#composizione' || location.hash == ""){
-                //open composizione
-                $('#partial-tabs a[href="#composizione"]').tab('show');
-            }
-            else{
 
-                //open dettaglio
-                $('#partial-tabs a[href="#dettaglio"]').tab('show');
-                // initialize main_linechart
-                show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
-                // enable nested accordion
-                setupNestedAccordion();
-                var lhash = location.hash
-                var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
+            // initialize main_linechart
+            show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            // enable nested accordion
+            setupNestedAccordion();
+            var lhash = location.hash;
+            var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
 
-                autoOpenNestedAccordion(startElement);
-                goToIdByScroll(startElement.replace("#","#heading-"));
-            }
+            autoOpenNestedAccordion(startElement);
+            goToIdByScroll(startElement.replace("#","#heading-"));
 
         });
 

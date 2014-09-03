@@ -774,7 +774,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         # identifies the bilancio for comparison
 
-
         if self.main_bilancio_type == 'preventivo':
 
             self.comp_bilancio_type = 'consuntivo'
@@ -1540,7 +1539,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         must_redirect = False
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'bilancio')
-        self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
+        self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
 
         self.values_type = self.request.GET.get('values_type', 'real')
@@ -1586,7 +1585,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
-        must_redirect = (len(qs.split('&')) < 4) or must_redirect
+        must_redirect = len(qs.split('&')) < 3
 
         ##
         # based on the type of bilancio and the selected section
@@ -1640,7 +1639,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if must_redirect:
             destination_view = 'bilanci-overview'
 
-
             return HttpResponseRedirect(
                 reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
                 "?year={0}&type={1}&values_type={2}&cas_com_type={3}".\
@@ -1650,7 +1648,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                         self.values_type,
                         self.cas_com_type
                     )
-            )
+                )
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
 
@@ -1750,7 +1748,30 @@ class BilancioComposizioneView(BilancioOverView):
 
 class BilancioDettaglioView(BilancioOverView):
 
+    model = Territorio
+
     template_name = 'bilanci/bilancio_dettaglio.html'
+
+    def get(self, request, *args, **kwargs):
+
+        ##
+        # if year or type parameter are missing redirects to a page for default year / default bilancio type
+        ##
+
+        must_redirect = False
+        self.territorio = self.get_object()
+        self.selected_section = kwargs.get('section', 'bilancio')
+        self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
+        self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
+
+        self.values_type = self.request.GET.get('values_type', 'real')
+        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+
+        if self.main_bilancio_type == "preventivo":
+            self.cas_com_type = "cassa"
+
+        return super(BilancioDettaglioView, self).get(request, *args, **kwargs)
+
 
     def get_slug(self):
         cassa_competenza_type = self.cas_com_type
