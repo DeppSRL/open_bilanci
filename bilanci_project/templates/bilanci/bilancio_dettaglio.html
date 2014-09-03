@@ -88,6 +88,12 @@
 
 {% block extra_js_dettaglio %}
 
+
+    <!-- Raphael -->
+    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+
     <script type="text/javascript">
 
         function feed_main_linechart(){
@@ -141,7 +147,6 @@
 
        $(document).ready(function(){
 
-
             /**
             * set handlers for secondary trend charts (the ones in the accordion)
             **/
@@ -150,16 +155,19 @@
             {# adds anchor #composizione / #dettaglio to page url   #}
             $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
 
-
             // initialize main_linechart
             show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
             // enable nested accordion
             setupNestedAccordion();
             var lhash = location.hash;
-            var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
 
-            autoOpenNestedAccordion(startElement);
-            goToIdByScroll(startElement.replace("#","#heading-"));
+            // if a voce slug is in the hash then scrool to that voce in the accordion
+            if(lhash != ''){
+                var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
+                autoOpenNestedAccordion(startElement);
+                goToIdByScroll(startElement.replace("#","#heading-"));
+            }
+
 
         });
 
