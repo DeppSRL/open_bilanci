@@ -51,9 +51,133 @@
                         {% voice_values bilancio_rootnode.slug budget_values %}
                     </div>
                 </div>
+
+                {#        switch funzioni interventi #}
+                {% if selected_section == 'spese' %}
+
+                    <div class="row">
+                        <div class="col-md-3" style="font-weight: bold;font-size: 11px;">
+                            <a href="{{ fun_int_switch.url }}#dettaglio">
+                                MOSTRA PER {% if fun_int_current_view == 'funzioni' %}INTERVENTI{% else %}FUNZIONI{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
 
-    {% include 'bilanci/_accordion_entrate.html' %}
+    {#    accordion #}
+
+    {%  if selected_section == 'entrate' %}
+
+        {% include 'bilanci/_accordion_entrate.html' %}
+
+    {% else %}
+
+        {% if fun_int_current_view == 'interventi' %}
+            {% include 'bilanci/_accordion_spese_interventi.html' %}
+        {% else %}
+            {% include 'bilanci/_accordion_spese_funzioni.html' %}
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js_dettaglio %}
+
+    <script type="text/javascript">
+
+        function feed_main_linechart(){
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
+                    "?values_type={{ values_type }}",
+                    function (i) {
+                linechart.data(i);
+                linechart.year({{ selected_year }});
+            });
+
+        }
+
+       function feed_secondary_linechart(voce_slug){
+           {%  comment %}
+
+             if voce_slug is from spese funzioni (preventivo / consuntivo) then the graph to be visualized
+             is the graph relative to  spese somma funzioni.
+             example: consuntivo-spese-impegni-spese-correnti-funzioni-amministrazione -> consuntivo-spese-impegni-spese-somma-funzioni-amministrazione
+
+           {% endcomment %}
+
+            if (window.location.search.indexOf("fun_int_view") == -1 ||
+                window.location.search.indexOf("fun_int_view=funzioni") != -1) {
+                if (voce_slug.indexOf("preventivo-spese-spese-correnti") == 0 ||
+                        voce_slug.indexOf("consuntivo-spese-cassa-spese-correnti") == 0 ||
+                        voce_slug.indexOf("consuntivo-spese-impegni-spese-correnti") == 0 ){
+
+                        if(voce_slug == "preventivo-spese-spese-correnti" ||
+                                voce_slug == "consuntivo-spese-cassa-spese-correnti" ||
+                                voce_slug == "consuntivo-spese-impegni-spese-correnti" ){
+
+                            voce_slug=voce_slug.replace("spese-correnti", "spese-somma-funzioni");
+                        }
+                        else{
+                            voce_slug=voce_slug.replace("spese-correnti", "spese-somma");
+                            }
+                }
+            }
+
+            d3.json(
+                "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug +
+                    "?values_type={{ values_type }}",
+                function (i) {
+                    secondary_linechart.data(i);
+                    secondary_linechart.resize();
+                    secondary_linechart.year({{ selected_year }});
+                }
+            );
+        }
+
+
+       $(document).ready(function(){
+
+
+            /**
+            * set handlers for secondary trend charts (the ones in the accordion)
+            **/
+            $('#results').find('.chart-container').on('shown.bs.collapse', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
+
+            $('a[data-toggle="tab"][href="#dettaglio"]').on("shown.bs.tab",function(){
+                {# fixes graph size on tab switch   #}
+
+                show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+
+            });
+
+            {# adds anchor #composizione / #dettaglio to page url   #}
+            $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
+
+            if(location.hash == '#composizione' || location.hash == ""){
+                //open composizione
+                $('#partial-tabs a[href="#composizione"]').tab('show');
+            }
+            else{
+
+                //open dettaglio
+                $('#partial-tabs a[href="#dettaglio"]').tab('show');
+                // initialize main_linechart
+                show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+                // enable nested accordion
+                setupNestedAccordion();
+                var lhash = location.hash
+                var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
+
+                autoOpenNestedAccordion(startElement);
+                goToIdByScroll(startElement.replace("#","#heading-"));
+            }
+
+        });
+
+    </script>
+
 {% endblock %}

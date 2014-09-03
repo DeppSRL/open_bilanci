@@ -91,22 +91,16 @@
 
 
             init_selector(selector_init_obj);
-{#              starts sindaci timeline           #}
-            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro", false);
-            feed_main_linechart();
+
             });
 
-        function feed_main_linechart(){
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}" +
-                    "?values_type={{ values_type }}",
-                    function (i) {
-                        linechart.data(i);
-                        {# selectes the considered yr in the sindaci timeline   #}
-                        linechart.year({{ selected_year }});
-                });
-        }
+
 
     </script>
+
+
+    {% block extra_js_composizione %}{% endblock %}
+    {% block extra_js_dettaglio %}{% endblock %}
 
 {% endblock %}
 
