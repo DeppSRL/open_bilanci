@@ -8,7 +8,7 @@
                     </a>
                     <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
 
-                        <li class="" {% ifequal selected_section 'bilancio' %}class="active"{% endifequal %}>
+                        <li {% ifequal selected_section 'bilancio' %}class="active"{% endifequal %}>
                             <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
                         </li>
                         <li class="dropdown-submenu {% ifequal selected_section "entrate" %}active{% endifequal %}">
