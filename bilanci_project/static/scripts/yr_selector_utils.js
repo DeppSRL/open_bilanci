@@ -128,8 +128,6 @@ function init_selector(selector_init_obj){
             year_selector.on("clickButton1", clicked_button);
     }
 
-
-
 }
 
 

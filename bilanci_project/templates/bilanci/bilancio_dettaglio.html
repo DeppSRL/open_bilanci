@@ -1,0 +1,176 @@
+{%  extends "bilanci/bilancio_overview.html" %}
+{% load staticfiles %}
+{% load section_title %}
+{% load section_values_type %}
+{% load voice_values %}
+{% load popover_info %}
+
+
+{% block bilanci_content %}
+    <div class="row">
+        <div class="col-md-7 section_title" style="">
+            <h3>{% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title %}</h3>
+        </div>
+        <div class="col-md-5 section_title" style="">
+            {% if tipo_bilancio == "consuntivo" %}
+                {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True%}
+            {% else %}
+                {% section_values_type values_type=values_type tooltip=True per_capita=True%}
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% include 'commons/_lines_chart_over_the_years.html' %}
+
+    <hr class="no-border">
+
+    {#    content header #}
+    <div class="row">
+        <div class="col-md-5 section_title" >
+            <h3>{% section_title bold_text="DETTAGLIO" selected_section=selected_section main_bilancio_type=tipo_bilancio main_bilancio_year=year  %}</h3>
+        </div>
+
+        <div class="col-md-5 section_title" >
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+        </div>
+
+
+    </div>
+
+    {#  totale generale   #}
+    <div class="panel-group panel-tree totale-generale">
+        <div class="panel">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-sm-6 entry" id="consuntivo-entrate-cassa">
+                        <span style="text-transform: uppercase">TOTALE {{ selected_section|upper }}</span>
+                    </div>
+
+                    <div class="col-sm-3 actions">
+                        {% voice_values bilancio_rootnode.slug budget_values %}
+                    </div>
+                </div>
+
+                {#        switch funzioni interventi #}
+                {% if selected_section == 'spese' %}
+
+                    <div class="row">
+                        <div class="col-md-3" style="font-weight: bold;font-size: 11px;">
+                            <a href="{{ fun_int_switch.url }}#dettaglio">
+                                MOSTRA PER {% if fun_int_current_view == 'funzioni' %}INTERVENTI{% else %}FUNZIONI{% endif %}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    {#    accordion #}
+
+    {%  if selected_section == 'entrate' %}
+
+        {% include 'bilanci/_accordion_entrate.html' %}
+
+    {% else %}
+
+        {% if fun_int_current_view == 'interventi' %}
+            {% include 'bilanci/_accordion_spese_interventi.html' %}
+        {% else %}
+            {% include 'bilanci/_accordion_spese_funzioni.html' %}
+        {% endif %}
+
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js_dettaglio %}
+
+
+    <!-- Raphael -->
+    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
+    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
+
+    <script type="text/javascript">
+
+        function feed_main_linechart(){
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
+                    "?values_type={{ values_type }}",
+                    function (i) {
+                linechart.data(i);
+                linechart.year({{ selected_year }});
+            });
+
+        }
+
+       function feed_secondary_linechart(voce_slug){
+           {%  comment %}
+
+             if voce_slug is from spese funzioni (preventivo / consuntivo) then the graph to be visualized
+             is the graph relative to  spese somma funzioni.
+             example: consuntivo-spese-impegni-spese-correnti-funzioni-amministrazione -> consuntivo-spese-impegni-spese-somma-funzioni-amministrazione
+
+           {% endcomment %}
+
+            if (window.location.search.indexOf("fun_int_view") == -1 ||
+                window.location.search.indexOf("fun_int_view=funzioni") != -1) {
+                if (voce_slug.indexOf("preventivo-spese-spese-correnti") == 0 ||
+                        voce_slug.indexOf("consuntivo-spese-cassa-spese-correnti") == 0 ||
+                        voce_slug.indexOf("consuntivo-spese-impegni-spese-correnti") == 0 ){
+
+                        if(voce_slug == "preventivo-spese-spese-correnti" ||
+                                voce_slug == "consuntivo-spese-cassa-spese-correnti" ||
+                                voce_slug == "consuntivo-spese-impegni-spese-correnti" ){
+
+                            voce_slug=voce_slug.replace("spese-correnti", "spese-somma-funzioni");
+                        }
+                        else{
+                            voce_slug=voce_slug.replace("spese-correnti", "spese-somma");
+                            }
+                }
+            }
+
+            d3.json(
+                "/incarichi_voce/{{ territorio.op_id }}/" + voce_slug +
+                    "?values_type={{ values_type }}",
+                function (i) {
+                    secondary_linechart.data(i);
+                    secondary_linechart.resize();
+                    secondary_linechart.year({{ selected_year }});
+                }
+            );
+        }
+
+
+       $(document).ready(function(){
+
+            /**
+            * set handlers for secondary trend charts (the ones in the accordion)
+            **/
+            $('#results').find('.chart-container').on('shown.bs.collapse', { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
+
+            {# adds anchor #composizione / #dettaglio to page url   #}
+            $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
+
+            // initialize main_linechart
+            show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
+            // enable nested accordion
+            setupNestedAccordion();
+            var lhash = location.hash;
+
+            // if a voce slug is in the hash then scrool to that voce in the accordion
+            if(lhash != ''){
+                var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
+                autoOpenNestedAccordion(startElement);
+                goToIdByScroll(startElement.replace("#","#heading-"));
+            }
+
+
+        });
+
+    </script>
+
+{% endblock %}

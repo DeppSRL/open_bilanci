@@ -5,7 +5,6 @@
 {% load chi_guadagna_perde %}
 {% load popover_info %}
 
-
 {% block page_title %}
     Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
 {% endblock %}
@@ -29,7 +28,7 @@
     <div class="row" >
         <div class="col-md-12">
            Qual è la politica di chi amministra il Comune? Quali sono le sue priorità?<br/>
-Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e come si distribuiscono
+            Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e come si distribuiscono
             <span style="font-weight: bold; color:#7d8e17">GLI AUMENTI</span> in alto
             e <span style="font-weight: bold; color:#9b2d1b">LE RIDUZIONI</span> in basso. {% popover_info 'widget-bilancio' %}
         </div>
@@ -90,26 +89,25 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
                 'reference_url': "{% url "bilanci-overview" slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
             };
 
-
             init_selector(selector_init_obj);
-            {#  starts sindaci timeline           #}
-            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro", false);
-            feed_main_linechart();
-            });
 
-        function feed_main_linechart(){
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}" +
-                    "?values_type={{ values_type }}",
-                    function (i) {
-                linechart.data(i)
-                {#  selectes the considered yr in the sindaci timeline   #}
-                linechart.year({{ selected_year }});
-            });
+            {# add sindaci timeline to yr selector: causes a BUG            #}
+{#            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}",#}
+{#                    function (i) {#}
+{##}
+{#                year_selector.data({#}
+{#                  "timeSpans": i['timeSpans']#}
+{#                });#}
+{#            });#}
 
-        }
 
+        });
 
     </script>
+
+
+    {% block extra_js_composizione %}{% endblock %}
+    {% block extra_js_dettaglio %}{% endblock %}
 
 {% endblock %}
 

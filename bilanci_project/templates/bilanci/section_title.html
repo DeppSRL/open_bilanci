@@ -1,7 +1,7 @@
 {%spaceless %}
 <div class="section_title" >
     {#  display title text  #}
-    <strong>{{ bold_text|default_if_none:''|upper }} {{ main_bilancio_type|default_if_none:''|upper }} {{ main_bilancio_year|default_if_none:'' }}
+    <strong>{{ bold_text|default_if_none:''|upper }} {{ selected_section|default_if_none:""|upper }} {{ main_bilancio_type|default_if_none:''|upper }} {{ main_bilancio_year|default_if_none:'' }}
             {{ secondary_bold_text|default_if_none:''|upper }}
     </strong>
 

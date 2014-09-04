@@ -2743,15 +2743,15 @@ a[rel=info-popover]:visited {
 #bilancio-header p .year {
   display: none;
 }
-.share-box {
+.share-box,
+.download-box {
   text-transform: uppercase;
-  font-size: 13px;
   color: #2a3036;
 }
 .share {
-  font-size: 13px !important;
   padding: 9px 4px;
   color: #cc6633;
+  font-size: 16px;
 }
 .share:hover {
   color: #2a3036;

@@ -18,30 +18,14 @@
     {# header block with Comune name, inhabitants and share button    #}
     <div class="panel-heading">
         <div id="bilancio-header">
-
-            <!-- AddThis Button BEGIN -->
-            <div class="pull-right share-box">
+            <div class="pull-right download-box">
                 {% if csv_package_file %}
-                <span>Scarica i dati</span>
-                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
-{#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
-                &nbsp;|&nbsp;
+                    <span>SCARICA I DATI</span>
+                    <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
+    {#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
+                    &nbsp;|&nbsp;
                 {% endif %}
 
-                <span>Condividi</span>
-
-                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                     <strong>il bilancio</strong> <span class="fa fa-share-alt"></span>
-                </a>
-                <script type="text/javascript">
-                    var addthis_config = {"data_track_addressbar":false   };
-                    var addthis_share =
-                    {
-                        "url":"{{ share_url|safe }}"
-                    }
-                </script>
-                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-                <!-- AddThis Button END -->
             </div>
 
             <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
@@ -64,26 +48,38 @@
             </p>
 
             {% block bilanci_navigation_menu %}
-                {% include 'bilanci/_navigation_menu.html' with active_voice=selected_section %}
+                {% include 'bilanci/_navigation_menu.html' with selected_section=selected_section %}
             {% endblock %}
 
         </div>
     </div>
     
     <div class="panel-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+            </div>
+            <div class="col-md-4 share-box">
+                <!-- AddThis Button BEGIN -->
+                <div class="pull-right">
+                    <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
+                     CONDIVIDI IL BILANCIO <span class="fa fa-share-alt"></span>
+                </a>
+                </div>
 
-        <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+                <script type="text/javascript">
+                    var addthis_config = {"data_track_addressbar":false   };
+                    var addthis_share =
+                    {
+                        "url":"{{ share_url|safe }}"
+                    }
+                </script>
+                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
+                <!-- AddThis Button END -->
+            </div>
+        </div>
 
         <hr class="no-border">
-
-        {% if selected_section == 'bilancio' %}
-            {#            sindaci timeline for bilancio overview #}
-            <div class="row" xmlns="http://www.w3.org/1999/html">
-                <div class="col-md-11 " style="margin-left: 30px; padding-right: 70px;">
-                    {% include 'commons/_lines_chart_over_the_years.html' %}
-                </div>
-            </div>
-        {% endif %}
 
         <div class="row">
             <div id="content" class="col-sm-12">
@@ -97,100 +93,99 @@
                     </div>
                 {% endblock %}
 
-            <div id="results" class="row">
-                <div class="col-sm-12">
-                    {% block bilanci_content %}
+                <div id="results" class="row">
+                    <div class="col-sm-12">
+                        {% block bilanci_content %}
 
-                    {% endblock %}
+                        {% endblock %}
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        {#  here goes the Menu for bilanci-indicatori page       #}
-        {% block bilancio_settings_menu %}
-            <div id="side-controls">
-                <a href="#" role="button" class="slider-arrow show" id="open-settings"><span class="icon sprite-open-menu"></span></a>
-            </div>
-            <div id="settings" class="closed">
-                <form id="settings-list-form" method="get">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <a href="#" role="button" href="#" class="pull-right slider-arrow close" id="hide-settings"><span class="icon sprite-close-menu"></span></a>
-                            <h3 class="panel-title">Impostazioni</h3>
-                            <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
-                            <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
-                        </div>
-                        <ul class="list-group">
-                            <li class="list-group-item label">MOSTRA PER</li>
-                            <li class="list-group-item">
-                                <div class="row">
+            {#  side settings menu #}
+            {% block bilancio_settings_menu %}
+                <div id="side-controls">
+                    <a href="#" role="button" class="slider-arrow show" id="open-settings"><span class="icon sprite-open-menu"></span></a>
+                </div>
+                <div id="settings" class="closed">
+                    <form id="settings-list-form" method="get">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <a href="#" role="button" href="#" class="pull-right slider-arrow close" id="hide-settings"><span class="icon sprite-close-menu"></span></a>
+                                <h3 class="panel-title">Impostazioni</h3>
+                                <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
+                                <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
+                            </div>
+                            <ul class="list-group">
+                                <li class="list-group-item label">MOSTRA PER</li>
+                                <li class="list-group-item">
+                                    <div class="row">
 
-                                    {# if bilancio_type is preventivo disables cassa/competenza selection menu    #}
-                                    {% if selected_bilancio_type == "preventivo" %}
-
-                                        <div class="col-md-6">
-                                            <input type="radio" value="cassa" id="cas_com_type_cassa" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa {% popover_info 'cassa' %}</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="radio" value="competenza" id="cas_com_type_competenza" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza {% popover_info 'competenza' %}</label>
-                                        </div>
-
-                                        {% else %}
+                                        {# if bilancio_type is preventivo disables cassa/competenza selection menu    #}
+                                        {% if selected_bilancio_type == "preventivo" %}
 
                                             <div class="col-md-6">
-                                                <input type="radio" value="cassa"
-                                                       {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
-                                                       id="cas_com_type_cassa" name="cas_com_type">
-                                                <label for="cas_com_type_cassa" >Cassa {% popover_info 'cassa' %}</label>
+                                                <input type="radio" value="cassa" id="cas_com_type_cassa" name="cas_com_type" disabled />
+                                                <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa {% popover_info 'cassa' %}</label>
                                             </div>
                                             <div class="col-md-6">
-                                                <input type="radio" value="competenza"
-                                                       {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
-                                                       id="cas_com_type_competenza" name="cas_com_type">
-                                                <label for="cas_com_type_competenza">Competenza {% popover_info 'compentenza' %}</label>
+                                                <input type="radio" value="competenza" id="cas_com_type_competenza" name="cas_com_type" disabled />
+                                                <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza {% popover_info 'competenza' %}</label>
                                             </div>
 
-                                    {% endif %}
-                                </div>
-                            </li>
-                        </ul>
-                        <ul class="list-group">
-                            <li class="list-group-item label">VALORI</li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="radio" value="real"
-                                               {% if values_type == "real" %}checked="checked"{% endif %}
-                                               id="values_type_real" name="values_type">
-                                        <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
+                                            {% else %}
+
+                                                <div class="col-md-6">
+                                                    <input type="radio" value="cassa"
+                                                           {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
+                                                           id="cas_com_type_cassa" name="cas_com_type">
+                                                    <label for="cas_com_type_cassa" >Cassa {% popover_info 'cassa' %}</label>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="radio" value="competenza"
+                                                           {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
+                                                           id="cas_com_type_competenza" name="cas_com_type">
+                                                    <label for="cas_com_type_competenza">Competenza {% popover_info 'compentenza' %}</label>
+                                                </div>
+
+                                        {% endif %}
                                     </div>
-                                    <div class="col-md-6">
-                                        <input type="radio" value="nominal"
-                                               {% if values_type == "nominal" %}checked="checked"{% endif %}
-                                               id="values_type_nominal" name="values_type">
-                                        <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
+                                </li>
+                            </ul>
+                            <ul class="list-group">
+                                <li class="list-group-item label">VALORI</li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="radio" value="real"
+                                                   {% if values_type == "real" %}checked="checked"{% endif %}
+                                                   id="values_type_real" name="values_type">
+                                            <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="radio" value="nominal"
+                                                   {% if values_type == "nominal" %}checked="checked"{% endif %}
+                                                   id="values_type_nominal" name="values_type">
+                                            <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="panel-footer text-center">
-                            <input type="submit" class="btn btn-default" value="Aggiorna">
+                                </li>
+                            </ul>
+                            <div class="panel-footer text-center">
+                                <input type="submit" class="btn btn-default" value="Aggiorna">
+                            </div>
+
                         </div>
+                    </form>
+                </div>
+            {% endblock %}
 
-                    </div>
-                </form>
-            </div>
-        {% endblock %}
-
-        {% block bilancio_indicatori_selection_menu %}{% endblock %}
+            {% block bilancio_indicatori_selection_menu %}{% endblock %}
         </div>
 
         {#  here goes the handle for Menu for bilanci-indicatori page       #}
         {% block bilancio_indicatori_selection_toggle_menu %}{% endblock %}
-
 
 
     </div>
@@ -198,11 +193,6 @@
 {% endblock %}
 
 {% block extra_js %}
-
-    <!-- Raphael -->
-    <script src="{% static 'scripts/vendor/raphael/raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.raphael.js' %}"></script>
-    <script src="{% static 'scripts/vendor/g.raphael/g.pie.js' %}"></script>
 
     <!-- visup base and yr selector -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>

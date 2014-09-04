@@ -1,0 +1,59 @@
+{%  extends "bilanci/bilancio_overview.html" %}
+{% load staticfiles %}
+{% load section_title %}
+{% load section_values_type %}
+{% load voice_values %}
+{% load popover_info %}
+{% load chi_guadagna_perde %}
+
+
+{% block bilanci_content %}
+    <div class="tab-pane fade in" id="composizione">
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-md-12">
+                    {% if tipo_bilancio == "consuntivo" %}
+                        {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+                    {% else %}
+                        {% section_values_type values_type=values_type tooltip=True %}
+                    {% endif %}
+                    <h3 style="margin-top: 0; font-size: 18px;">
+                        {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+                    </h3>
+                </div>
+            </div>
+
+            <div class="row" >
+                <div class="col-md-12">
+                Qual è la politica di chi amministra il Comune? Quali sono le sue priorità?<br/>
+                Fai click sulla bolla per vedere la composizione delle {{ selected_section|title }} e come si distribuiscono
+                <span style="font-weight: bold; color:#7d8e17">GLI AUMENTI</span> in alto
+                e <span style="font-weight: bold; color:#9b2d1b">LE RIDUZIONI</span> in basso. {% popover_info 'widget-bilancio' %}
+                </div>
+            </div>
+            {#            composition widget#}
+            <div class="tab-content composition-widget-container">
+                <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
+                    src="{% url 'composition-widget' widget_type=selected_section territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}">
+
+                </iframe>
+            </div>
+            <div id="balance" class="row">
+                <div class="col-md-12">
+                    <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }} </strong>
+                        <br class="hidden-lg">&nbsp;A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
+                    </h3>
+                    <div class="row">
+                        <div class="col-sm-12"><h4>{{ selected_section|upper }}</h4></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                {% chi_guadagna_perde voce_set=chiguadagnaperde type=selected_section territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- /#balance -->
+
+    </div>
+{% endblock %}
