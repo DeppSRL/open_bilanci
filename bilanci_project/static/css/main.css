@@ -2542,7 +2542,8 @@ form ul li label {
   margin-bottom: 0px;
 }
 #main-content .scrollbox {
-  height: 410px;
+  height: auto!important;
+  max-height: 300px!important;
 }
 #sidebar .dropdown > .separator {
   height: 1px;

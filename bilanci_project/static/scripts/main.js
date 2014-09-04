@@ -234,7 +234,7 @@ $(document).ready(function(){
             $togglers  = $items.find( 'a.toggler' ),
             $toggler   = null,
             $submenu   = null;
-var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.active' ).parent();
+        var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.active' ).parent();
         
         //height menu
         $("#menu-selezione .panel-body").css("max-height", frameHeight + "px");
