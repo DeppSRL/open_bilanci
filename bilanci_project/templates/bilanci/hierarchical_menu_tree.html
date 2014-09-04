@@ -30,7 +30,7 @@
             <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
                     >
 
-                {% if not node.is_leaf_node %}
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' %}
                     <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
                 {% endif %}
 
