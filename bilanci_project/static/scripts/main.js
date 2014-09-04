@@ -265,12 +265,15 @@ var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.activ
                     if( options.collapsibleMenu.openChild ) {
                                 $( 'div.multi-level-menu li.active > ul').removeClass('hidden');
                                 //$( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).each(function( i, el ){
-                                $( 'div.multi-level-menu li.active > ul li > ul' ).each(function( i, el ){
-                                    if ($(this).parent().parent().parent().hasClass('active')) {
-                                        console.log("test");
-                                        $( this ).removeClass( 'hidden' );
-                                    }
-                                });
+
+//                        STEFANO FIX
+//                                $( 'div.multi-level-menu li.active > ul li > ul' ).each(function( i, el ){
+//                                    if ($(this).parent().parent().parent().hasClass('active')) {
+//                                        console.log("test");
+//                                        $( this ).removeClass( 'hidden' );
+//                                    }
+//                                });
+//                        STEFANO FIX END
                                 
                                 
                                // $( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).removeClass( 'hidden' );

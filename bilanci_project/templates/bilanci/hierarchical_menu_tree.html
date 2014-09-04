@@ -30,25 +30,41 @@
             <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
                     >
 
-                {% if not node.is_leaf_node %}
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' %}
                     <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
                 {% endif %}
 
                 {# sets the url for parameter list menu   #}
-                {% if page_type == 'confronti' %}
 
-                    {% if parameter_type == 'entrate' %}
-                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                <a id="{{ parameter_type }}/{{ node.slug }}"
+                    {#  avoids setting a href for spese / interventi in the menu   #}
+                    {% if node.slug != 'consuntivo-spese-cassa-spese-somma-funzioni' and node.slug != 'consuntivo-spese-cassa-spese-per-investimenti-interventi' and node.slug != 'consuntivo-spese-cassa-spese-correnti-interventi' %}
+
+                        {% if page_type == 'confronti' %}
+
+                            {% if parameter_type == 'entrate' %}
+
+                                href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}"
+
+                            {% else %}
+
+                                href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}"
+
+                            {% endif %}
+
+                        {% elif page_type == 'classifiche' %}
+
+                            href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}"
+
+                        {% endif %}
+
                     {% else %}
 
-                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
-                    {% endif %}
+                        href="#"
 
-                {% elif page_type == 'classifiche' %}
+                   {% endif %}
 
-                    <a id="{{ parameter_type }}/{{ node.slug }}"
-                                        href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}" >
-                {% endif %}
+                >
 
                     {% if node.slug == 'consuntivo-entrate-cassa' %}
                         Entrate
