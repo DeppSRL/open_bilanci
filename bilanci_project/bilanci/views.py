@@ -124,9 +124,10 @@ class MiniClassificheMixin(object):
 class HierarchicalMenuMixin(object):
 
     def get_parameter_list(self):
-        # defines the parameter list shown in the hierarchical menu
-
-        entrate_list = [Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).order_by('denominazione'),]
+        # defines the parameter list shown in the hierarchical menu and avoids showing descendants of Prestiti for Entrate/Spese
+        entrate_prestiti_descendants = Voce.objects.get(slug = 'consuntivo-entrate-cassa-prestiti').get_descendants(include_self=False).values_list('slug', flat=True)
+        entrate_set = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).exclude(slug__in=entrate_prestiti_descendants).order_by('denominazione')
+        entrate_list = [entrate_set,]
 
         spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione')
 

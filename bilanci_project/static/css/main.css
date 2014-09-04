@@ -2830,6 +2830,7 @@ a[rel=info-popover]:visited {
 }
 #settings {
   z-index: 1009 !important;
+  width: 320px;
 }
 #settings .list-group-item label {
   font-size: 14px;

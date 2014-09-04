@@ -241,6 +241,7 @@ $(document).ready(function(){
 
         $( 'div.multi-level-menu ul.nav li ul li:not(:has(ul))' ).each(function( i, el ){
             $(this).css("padding-left", "28px");
+            console.log('applied padding');
         });
 
         $("#submenu-indicatori li").each(function( i, el ){
