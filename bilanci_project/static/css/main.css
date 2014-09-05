@@ -2542,7 +2542,8 @@ form ul li label {
   margin-bottom: 0px;
 }
 #main-content .scrollbox {
-  height: 250px;
+  height: auto!important;
+  max-height: 300px!important;
 }
 #sidebar .dropdown > .separator {
   height: 1px;
@@ -2829,6 +2830,7 @@ a[rel=info-popover]:visited {
 }
 #settings {
   z-index: 1009 !important;
+  width: 320px;
 }
 #settings .list-group-item label {
   font-size: 14px;

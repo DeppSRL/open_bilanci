@@ -32,7 +32,7 @@
                     </ul>
                 </div>
 
-                <div class="multi-level-menu" id="hierarchical_menu">
+                <div class="multi-level-menu scrollbox" id="hierarchical_menu">
                     {% include 'bilanci/hierarchical_menu_list.html' with page_type=page_type parameter_type='indicatori' parameter_list=parameter_list.indicatori selected_par_type=selected_par_type selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
                     {% include 'bilanci/hierarchical_menu_tree.html' with page_type=page_type parameter_type='entrate' parameter_list=parameter_list.entrate selected_par_type=selected_par_type selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}
                     {% include 'bilanci/hierarchical_menu_tree.html' with page_type=page_type parameter_type='spese-funzioni' parameter_list=parameter_list.spese_funzioni selected_par_type=selected_par_type selected_parameter_slug=selected_parameter_slug territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug %}

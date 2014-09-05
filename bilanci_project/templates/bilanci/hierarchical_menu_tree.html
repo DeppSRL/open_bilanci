@@ -4,8 +4,10 @@
 
 {#    if parameter_type == spese funzioni then creates the fake "Spese" general node   #}
     {% if parameter_type == 'spese-funzioni' or parameter_type == 'spese-interventi' %}
-        <li {% if parameter_type == selected_par_type  and selected_parameter_slug == 'consuntivo-spese-cassa' %}class="active"{% endif %}
-                    >
+        <li class="openbydefault
+                {% if parameter_type == selected_par_type  and selected_parameter_slug == 'consuntivo-spese-cassa' %}active{% endif %}
+                "
+                >
             <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
 
 
@@ -27,11 +29,20 @@
 
     {% for nodes in parameter_list %}
         {% recursetree nodes %}
-            <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
+            <li 
+                class="
+                    {% if node.slug == 'consuntivo-entrate-cassa' %}openbydefault{% endif %}
+                    {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}active{% endif %}
+                    "
                     >
 
-                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' %}
-                    <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' and node.slug != 'consuntivo-entrate-cassa-prestiti' %}
+                    <a href="#" class="toggler">
+                        <i
+                            class="fa fa-plus-circle">
+
+                        </i>
+                    </a>
                 {% endif %}
 
                 {# sets the url for parameter list menu   #}
@@ -84,7 +95,7 @@
                 {# tooltip           #}
                 {% popover_info node.slug %}
 
-                {% if not node.is_leaf_node %}
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' and node.slug != 'consuntivo-entrate-cassa-prestiti' %}
                     <ul class="nav nav-stacked hidden">
                         {{ children }}
                     </ul>

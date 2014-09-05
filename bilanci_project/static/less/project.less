@@ -84,7 +84,8 @@ display: inline;
 }
 
 #main-content .scrollbox {
-  height: 250px;
+  height: auto!important;
+  max-height: 300px!important;
 }
 
 #sidebar {
@@ -365,6 +366,7 @@ a[rel=info-popover] {
 }
 #settings {
   z-index: 1009 !important;
+  width: 320px;
   .list-group-item label { font-size: 14px; }
   .list-group-item:last-child { border-bottom: 0;}
   .panel-footer { background-color: @boxBg; border-top: 0; text-align: left; }
