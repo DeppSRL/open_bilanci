@@ -234,6 +234,7 @@ $(document).ready(function(){
             $togglers  = $items.find( 'a.toggler' ),
             $toggler   = null,
             $submenu   = null;
+        var $parent_nodes;
         var $li_active = $container.find('div.multi-level-menu' ).find( 'ul.nav li.active' ).parent();
         
         //height menu
@@ -253,7 +254,7 @@ $(document).ready(function(){
             $items.each(function( i, el ){
                 $item = $( this );
             
-                if ( $item.hasClass( 'active' ) ) {
+                if ( $item.hasClass( 'active' )  ) {
 
                     //if an element is active put the minus sign to the parents
                     $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
@@ -270,16 +271,18 @@ $(document).ready(function(){
                         $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
                     }
                 } else {
-//                    $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
-                    console.log('add minus:'+$item[0].id);
+                    ;
                 }
 
             });
             
             $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children('i').removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
-            console.log('add plus');
 
         }
+        // expand parent nodes that should be openbydefault: spese (funzioni/interventi) and entrate
+        $parent_nodes = $('.openbydefault');
+        $parent_nodes.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+        $parent_nodes.find('> ul.nav.hidden').removeClass( 'hidden' );
 
         // on click
         $togglers.on( 'click', function(e){

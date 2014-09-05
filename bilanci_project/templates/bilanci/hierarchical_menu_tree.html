@@ -4,10 +4,11 @@
 
 {#    if parameter_type == spese funzioni then creates the fake "Spese" general node   #}
     {% if parameter_type == 'spese-funzioni' or parameter_type == 'spese-interventi' %}
-        <li {% if parameter_type == selected_par_type  and selected_parameter_slug == 'consuntivo-spese-cassa' %}class="active"{% endif %}
-            {#                DEBUG #}
-            id="consuntivo-spese-cassa-{{ parameter_type }}" >
-            <a href="#" class="toggler"><i id="consuntivo-spese-cassa-{{ parameter_type }}" class="fa fa-plus-circle"></i></a>
+        <li class="openbydefault
+                {% if parameter_type == selected_par_type  and selected_parameter_slug == 'consuntivo-spese-cassa' %}active{% endif %}
+                "
+                >
+            <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
 
 
             {# sets the url for parameter list menu   #}
@@ -28,17 +29,16 @@
 
     {% for nodes in parameter_list %}
         {% recursetree nodes %}
-            <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}
-
-{#                DEBUG #}
-                id="{{ node.slug }}"
+            <li 
+                class="
+                    {% if node.slug == 'consuntivo-entrate-cassa' %}openbydefault{% endif %}
+                    {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}active{% endif %}
+                    "
                     >
 
                 {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' and node.slug != 'consuntivo-entrate-cassa-prestiti' %}
                     <a href="#" class="toggler">
                         <i
-                            {#                DEBUG #}
-                            id="{{ node.slug }}"
                             class="fa fa-plus-circle">
 
                         </i>
