@@ -241,7 +241,6 @@ $(document).ready(function(){
 
         $( 'div.multi-level-menu ul.nav li ul li:not(:has(ul))' ).each(function( i, el ){
             $(this).css("padding-left", "28px");
-            console.log('applied padding');
         });
 
         $("#submenu-indicatori li").each(function( i, el ){
@@ -254,51 +253,31 @@ $(document).ready(function(){
             $items.each(function( i, el ){
                 $item = $( this );
             
-                //$submenu = $togglers.nextAll( 'ul.nav' );
-                //if($submenu.hasClass('hidden')) {
-                //  $submenu.parent('li').find( 'i' ).addClass('bo');
-                //}
-                
                 if ( $item.hasClass( 'active' ) ) {
-                    $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
-                    $item.parent('ul li').find( '> a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
-                    
-                    if( options.collapsibleMenu.openChild ) {
-                                $( 'div.multi-level-menu li.active > ul').removeClass('hidden');
-                                //$( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).each(function( i, el ){
 
-//                        STEFANO FIX
-//                                $( 'div.multi-level-menu li.active > ul li > ul' ).each(function( i, el ){
-//                                    if ($(this).parent().parent().parent().hasClass('active')) {
-//                                        console.log("test");
-//                                        $( this ).removeClass( 'hidden' );
-//                                    }
-//                                });
-//                        STEFANO FIX END
-                                
-                                
-                               // $( 'div.multi-level-menu ul.nav li.active > ul li > ul' ).removeClass( 'hidden' );
-                                //$item.find( 'ul.nav.hidden' ).removeClass( 'hidden' );
-                                $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                    //if an element is active put the minus sign to the parents
+                    $item.parents( 'ul.nav.hidden' ).removeClass( 'hidden' );
+                    $item.parents('ul li').find('> a i').removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+
+                    if( options.collapsibleMenu.openChild ) {
+                        // open children of active node
+                        $( 'div.multi-level-menu li.active > ul').removeClass('hidden');
+
+//                        remove plus sign to Active voice
+                        $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+
                     } else {
                         $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
                     }
                 } else {
-                    $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+//                    $item.find( '> a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
+                    console.log('add minus:'+$item[0].id);
                 }
 
             });
             
-            // $( 'div.multi-level-menu ul.nav > a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
-            $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children().removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
-
-            //$li_active.each(function( i, el ){
-            //    $li_active.find( 'li > a i' ).removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
-            //     if( options.collapsibleMenu.openChild ) {
-            //        $li_active.find( 'li.active > a i' ).removeClass( 'fa-plus-circle').addClass( 'fa-minus-circle' );
-            //    }
-            //
-            //});
+            $( 'div.multi-level-menu ul.nav.hidden' ).prev().prev().prev().children('i').removeClass( 'fa-minus-circle').addClass( 'fa-plus-circle' );
+            console.log('add plus');
 
         }
 
