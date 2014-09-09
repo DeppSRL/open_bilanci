@@ -1402,7 +1402,8 @@ a:visited {
 #side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a:hover {
   text-decoration: underline;
 }
-#side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a:hover > i.fa-plus-circle {
+#side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a:hover > i.fa-plus-circle,
+#side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a:hover > i.fa-minus-circle {
   color: #2a3036;
 }
 #side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a i.fa-question-circle {
