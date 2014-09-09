@@ -347,7 +347,17 @@ a[rel=info-popover] {
     li {
       background-color: @textColor;
       &:last-child { border-right: 0; }
-      a { padding-top: 6px; padding-bottom: 6px; font-size: .8em; font-weight: bold; }
+      a {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        font-size: .8em;
+        font-weight: bold;
+        color:white;
+
+        &:hover{
+          background-color: #428bca;
+        }
+      }
     }
   }
   > p.details {

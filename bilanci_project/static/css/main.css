@@ -2813,6 +2813,10 @@ a[rel=info-popover]:visited {
   padding-bottom: 6px;
   font-size: .8em;
   font-weight: bold;
+  color: white;
+}
+#bilancio-header.affix .navbar-subnav li a:hover {
+  background-color: #428bca;
 }
 #bilancio-header.affix > p.details {
   display: inline-block;
