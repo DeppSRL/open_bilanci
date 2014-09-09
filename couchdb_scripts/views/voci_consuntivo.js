@@ -4,7 +4,7 @@
 
 function (doc) {
 var considered_keys= [ "consuntivo", "preventivo" ];
-var considered_quadro=['01','02','03','04','05','09','10','50'];
+var considered_quadro=['01','02','03','04','05','08','09','10','11','12','50'];
 var tipo_bilancio = considered_keys[0];
     if(doc!==null){
               if(tipo_bilancio in doc){
