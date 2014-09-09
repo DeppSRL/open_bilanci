@@ -71,8 +71,6 @@ var setupNestedAccordion = function() {
                 'font-weight': 'inherit',
                 'text-decoration': 'none'
             });
-            // hide secondary line chart button
-          heading.find('.trend-chart-toggle').addClass('hidden');
             // hide graph
             heading.parent().find('.chart-container.in').collapse('hide');
 
