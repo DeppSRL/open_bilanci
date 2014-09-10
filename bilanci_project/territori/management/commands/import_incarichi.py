@@ -275,6 +275,13 @@ class Command(BaseCommand):
 
                                         overlapping_incarichi.append((incarico_inner, incarico_considered))
 
+                    # if the inner incarico has no end date and neither has the considered incarico,
+                    # they are overlapping: there cannot be 2+ incarico open at the same time for the same
+                    # person
+
+                    elif not considered_end:
+                        overlapping_incarichi.append((incarico_inner, incarico_considered))
+
 
         if len(overlapping_incarichi) > 0:
             return False, overlapping_incarichi
