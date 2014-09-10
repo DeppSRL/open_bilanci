@@ -159,6 +159,13 @@ class Command(BaseCommand):
         # connect to google account and fetch tree mapping and simple tree structure
         normalized_map = gdocs.get_normalized_map(translation_type, n_header_lines=2, force_google=force_google)
 
+        normalized_titoli_sheet = {'preventivo' : [row[2] for row in normalized_map['preventivo']],
+                                   'consuntivo' : [row[2] for row in normalized_map['consuntivo']],
+                                   }
+        normalized_voci_sheet = {  'preventivo' : [(row[2], row[3]) for row in normalized_map['preventivo']],
+                                   'consuntivo' : [(row[2], row[3]) for row in normalized_map['consuntivo']],
+                                   }
+
         # copying design documents
         if design_documents:
             self.logger.info(u"Copying design documents")
@@ -195,35 +202,35 @@ class Command(BaseCommand):
                     # create destination document, to REPLACE old one
                     destination_document = {'_id': doc_id}
 
-                    for bilancio_name in ['preventivo', 'consuntivo']:
-                        if bilancio_name in source_document.keys():
-                            bilancio_object = source_document[bilancio_name]
-                            destination_document[bilancio_name] = {}
+                    for bilancio_type in ['preventivo', 'consuntivo']:
+                        if bilancio_type in source_document.keys():
+                            bilancio_object = source_document[bilancio_type]
+                            destination_document[bilancio_type] = {}
 
                             for quadro_name, quadro_object in bilancio_object.iteritems():
-                                destination_document[bilancio_name][quadro_name] = {}
+                                destination_document[bilancio_type][quadro_name] = {}
 
                                 for titolo_name, titolo_object in quadro_object.iteritems():
 
                                     if translation_type == 't':
                                         # for each titolo, apply translation_map, if valid
                                         try:
-                                            idx = [row[2] for row in normalized_map[bilancio_name]].index(titolo_name)
-                                            titolo_name = normalized_map[bilancio_name][idx][3]
+                                            idx = normalized_titoli_sheet[bilancio_type].index(titolo_name)
+                                            titolo_name = normalized_map[bilancio_type][idx][3]
                                         except ValueError:
                                             pass
 
                                     # create dest doc titolo dictionary
-                                    destination_document[bilancio_name][quadro_name][titolo_name] = {}
+                                    destination_document[bilancio_type][quadro_name][titolo_name] = {}
 
                                     # copy meta
                                     if 'meta' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = {}
-                                        destination_document[bilancio_name][quadro_name][titolo_name]['meta'] = titolo_object['meta']
+                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = {}
+                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = titolo_object['meta']
 
                                     # copy data (normalize voci if needed)
                                     if 'data' in titolo_object.keys():
-                                        destination_document[bilancio_name][quadro_name][titolo_name]['data'] = {}
+                                        destination_document[bilancio_type][quadro_name][titolo_name]['data'] = {}
 
                                         if translation_type == 'v':
                                             # voci translation
@@ -236,18 +243,18 @@ class Command(BaseCommand):
 
                                                 # for each voce, apply translation_map, if valid
                                                 try:
-                                                    idx = [(row[2], row[3]) for row in normalized_map[bilancio_name]].index((titolo_name,voce_name))
-                                                    voce_name = normalized_map[bilancio_name][idx][4]
+                                                    idx = normalized_voci_sheet[bilancio_type].index((titolo_name,voce_name))
+                                                    voce_name = normalized_map[bilancio_type][idx][4]
                                                 except ValueError:
                                                     pass
 
                                                 # create voice dictionary with normalized name
-                                                destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = {}
-                                                destination_document[bilancio_name][quadro_name][titolo_name]['data'][voce_name] = voce_obj
+                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = {}
+                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = voce_obj
 
                                         else:
                                             # copy all voci in data, with no normalization
-                                            destination_document[bilancio_name][quadro_name][titolo_name]['data'] = titolo_object['data']
+                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'] = titolo_object['data']
 
 
                     # overwrite detination document
