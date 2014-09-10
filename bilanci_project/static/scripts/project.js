@@ -97,13 +97,13 @@ var setupNestedAccordion = function() {
 
 var autoOpenNestedAccordion = function(startElement) {
 
-    var panels_tree = $('.panel-tree');
     // auto open accordion
     if ( startElement != undefined ) {
 
         // expand parents if exists
-        $(startElement, panels_tree).parents('.collapse').collapse('show');
-        $(startElement, panels_tree).collapse('show');
+        $(startElement).parents('.collapse').collapse('show');
+        $(startElement).collapse('show');
+        $(startElement).addClass('highlighted');
     }
 
 }

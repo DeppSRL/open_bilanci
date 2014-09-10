@@ -164,8 +164,9 @@
             // if a voce slug is in the hash then scrool to that voce in the accordion
             if(lhash != ''){
                 var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
-                autoOpenNestedAccordion(startElement);
-                goToIdByScroll(startElement.replace("#","#heading-"));
+                var targetElement =startElement.replace("#","#heading-");
+                autoOpenNestedAccordion(targetElement);
+                goToIdByScroll(targetElement);
             }
 
 
