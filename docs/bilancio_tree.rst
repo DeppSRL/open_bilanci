@@ -37,3 +37,12 @@ from the old tree to the new one.
 .. code-block:: bash
 
     https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=30
+
+
+3. Create a CSV file describing the new Voce objects to be created in the Postgres db. The file must have the following columns: slug,denominazione,slug_parent
+
+4. Update the Voce table in the Postgres db using the following script
+
+.. code-block:: bash
+
+    python manage.py update_bilancio_tree -v2 --file=PATH/TO/FILE.CSV
