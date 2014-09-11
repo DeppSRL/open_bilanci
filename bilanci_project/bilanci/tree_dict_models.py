@@ -532,7 +532,7 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
         self.logger.debug("{0}".format(leaves))
 
-        sections = {
+        gestione_finanziaria_sections = {
             'Gestione residui': 0,
             'Gestione competenza': 1,
             'Gestione totale': 2,
@@ -549,7 +549,7 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
 
         ##
-        # leaves not in Gestione finanziaria
+        # deals with leaves not in Gestione finanziaria
         ##
 
         for source_bc in leaves_not_gf:
@@ -562,12 +562,12 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
 
         ##
-        # leaves in Gestione finanziaria
+        # deals with leaves in Gestione finanziaria
         ##
 
         for source_bc in leaves_gf:
 
-            section_idx = sections[source_bc[2]]
+            section_idx = gestione_finanziaria_sections[source_bc[2]]
             value = None
             if mapping:
                 value = self._compute_sum(source_bc, mapping, col_idx=section_idx)

@@ -2,6 +2,7 @@
 
 import logging
 from optparse import make_option
+from couchdb.http import ResourceNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.utils import couch
@@ -142,16 +143,25 @@ class Command(BaseCommand):
 
 
         self.logger.info("Connecting to source db: {0}".format(couchdb_source_name))
-        couchdb_source = couch.connect(
-            couchdb_source_name,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+        try:
+            couchdb_source = couch.connect(
+                couchdb_source_name,
+                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+            )
+        except ResourceNotFound:
+            self.logger.error("Could not find source db. Quitting")
+            return
 
         self.logger.info("Connecting to destination db: {0}".format(couchdb_dest_name))
-        couchdb_dest = couch.connect(
-            couchdb_dest_name,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+
+        try:
+            couchdb_dest = couch.connect(
+                couchdb_dest_name,
+                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+            )
+        except ResourceNotFound:
+            self.logger.error("Could not find destination db. Quitting")
+            return
 
         ###
         #   Mapping files from gdoc

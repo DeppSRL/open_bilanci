@@ -106,9 +106,10 @@ class Command(BaseCommand):
             self.logger.info(u"Updated tree correctly: {0} nodes created, {1} nodes already existed".format(c_new_nodes,c_not_created))
 
 
-        # Corrects branches with name "Istruzione " => "Istruzione"
-        self.logger.info(u"Updated tree branches with name 'Istruzione ' to 'Istruzione'")
-        if not dryrun:
-            Voce.objects.filter(denominazione="Istruzione ").update(denominazione='Istruzione')
+        if Voce.objects.filter(denominazione="Istruzione ").count():
+            # if needed Corrects branches with name "Istruzione " => "Istruzione"
+            self.logger.info(u"Updated tree branches with name 'Istruzione ' to 'Istruzione'")
+            if not dryrun:
+                Voce.objects.filter(denominazione="Istruzione ").update(denominazione='Istruzione')
         
         return
