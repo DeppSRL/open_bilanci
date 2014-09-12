@@ -32,11 +32,30 @@ from the old tree to the new one.
     https://docs.google.com/spreadsheet/ccc?key=0ApDnbg0qraKMdHVDUEtlLWVzYWJkNUhWVE5lei1lTVE#gid=0
 
 
-2. Associate the normalized Voci with the new leaves in the simplified tree in the Semplificazione bilancio depp Google doc
+2. Associate the normalized Voci with the new leaves in the simplified tree in the Semplificazione bilancio depp Google doc.
 
 .. code-block:: bash
 
     https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=30
+
+**Note/1 : if different voce slug are to be associated with different column on a single table row in the bilancio then
+the following procedure must be followed:**
+
+* Add a row in the Semplificazione bilancio spreadsheet as follows
+
++--------------------+---------------------+
+| Albero originale   | Albero semplificato | 
++====================+=====================+
+| Normalized voce row| Simplified voce 1   |
++--------------------+---------------------+
+| Normalized voce row| Simplified voce 2   |
++--------------------+---------------------+
+
+*  Modify the simplify procedure assigning the right column while creating the simplified bilancio object modifying the 
+  build_tree function of the appropriate class (Preventivo, Consuntivo, Riassuntivo)
+
+**Note/2: If a new branch is needed modify carefully the Simplify script procedure, see line 188 simplify.py**
+
 
 
 3. Create a CSV file describing the new Voce objects to be created in the Postgres db. The file must have the following columns: slug,denominazione,slug_parent
