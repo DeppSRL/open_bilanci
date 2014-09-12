@@ -51,8 +51,7 @@ the following procedure must be followed:**
 | Normalized voce row| Simplified voce 2   |
 +--------------------+---------------------+
 
-*  Modify the simplify procedure assigning the right column while creating the simplified bilancio object modifying the 
-  build_tree function of the appropriate class (Preventivo, Consuntivo, Riassuntivo)
+*  Modify the simplify procedure assigning the right column while creating the simplified bilancio object modifying the *build_tree* function of the appropriate class (Preventivo, Consuntivo, Riassuntivo)
 
 **Note/2: If a new branch is needed modify carefully the Simplify script procedure, see line 188 simplify.py**
 
