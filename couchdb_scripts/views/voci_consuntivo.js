@@ -20,8 +20,9 @@ var tipo_bilancio = considered_keys[0];
                             if(funzione.indexOf("- ") == 0){
                              funzione = funzione.replace("- ","");
                              }
-//                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
-                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione],1);
+                             if(funzione!=''){
+                                emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
+                             }
                          }
 
                      }
