@@ -532,105 +532,46 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
         self.logger.debug("{0}".format(leaves))
 
-        gestione_finanziaria_sections = {
-            'Gestione residui': 0,
-            'Gestione competenza': 1,
-            'Gestione totale': 2,
+
+        residui_mapping = {
+            'iniziali': 0,
+            'iniziali a': 0,
+            'riscossi': 1,
+            'riscossi b': 1,
+            'pagati': 1,
+            'pagati b': 1,
         }
 
-        residui_sections = {
-            'Iniziali': 0,
-            'Iniziali a': 0,
-            'Riscossi': 1,
-            'Riscossi b': 1,
-            'Pagati': 1,
-            'Pagati b': 1,
+
+        columns_mapping = {
+            u'Gestione finanziaria':
+                {
+                'gestione residui': 0,
+                'gestione competenza': 1,
+                'gestione totale': 2,
+                },
+            u'Debito':{
+                'consistenza iniziale': 0,
+                'consistenza iniziale (a)': 0,
+                'consistenza finale': 6,
+                'consistenza finale (a+b-d-f)': 6,
+                },
+            u'Residui attivi':  residui_mapping,
+            u'Residui passivi': residui_mapping,
+
         }
 
-        debito_sections = {
-            'consistenza iniziale': 0,
-            'consistenza iniziale (a)': 0,
-            'consistenza finale': 6,
-            'consistenza finale (a+b-d-f)': 6,
-        }
-
-        leaves_gf = []
-        leaves_residui = []
-        leaves_debiti = []
-        leaves_not_gf = []
-
-        for leaf in leaves:
-            if leaf[1] == u'Gestione finanziaria':
-                leaves_gf.append(leaf)
-
-            elif leaf[1] == u'Residui attivi' or leaf[1] == u'Residui passivi' :
-                leaves_residui.append(leaf)
-
-            elif leaf[1] == u'Debito':
-                leaves_debiti.append(leaf)
-
-            else:
-                leaves_not_gf.append(leaf)
-
 
         ##
-        # deals with leaves not in Gestione finanziaria
+        #  translate tree leaves
         ##
 
-        for source_bc in leaves_not_gf:
-            value = None
-            if mapping:
-                value = self._compute_sum(source_bc, mapping)
+        for source_bc in leaves:
 
-            # add this leaf to the tree, with the computed value
-            self.add_leaf(source_bc, value)
+            section_idx = None
+            if source_bc[1] in columns_mapping.keys():
+                section_idx = columns_mapping[source_bc[1]][source_bc[2].lower()]
 
-
-        ##
-        # deals with leaves in Debito
-        ##
-
-        for source_bc in leaves_debiti:
-
-            section_idx = debito_sections[source_bc[2].lower()]
-            value = None
-            if mapping:
-                value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
-
-            # massage source_bc, before adding the leaf,
-            # since the structure of the tree needs to consider
-            # the sections
-            bc = source_bc[:]
-            # add the leaf to the tree, with the computed value
-            self.add_leaf(bc, value)
-
-
-        ##
-        # deals with leaves in Gestione finanziaria
-        ##
-
-        for source_bc in leaves_gf:
-
-            section_idx = gestione_finanziaria_sections[source_bc[2]]
-            value = None
-            if mapping:
-                value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
-
-            # massage source_bc, before adding the leaf,
-            # since the structure of the tree needs to consider
-            # the sections
-            bc = source_bc[:]
-            # add the leaf to the tree, with the computed value
-            self.add_leaf(bc, value)
-
-
-        ##
-        # deals with leaves in Gestione residui
-        ##
-
-        for source_bc in leaves_residui:
-
-            section_idx = residui_sections[source_bc[2]]
             value = None
             if mapping:
                 value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
