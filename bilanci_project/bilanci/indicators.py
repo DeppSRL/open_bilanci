@@ -3,7 +3,7 @@ import math
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from bilanci.models import ValoreBilancio, ValoreIndicatore, Indicatore
-from territori.models import Territorio
+from territori.models import Territorio, Contesto
 from collections import OrderedDict
 from itertools import groupby
 
@@ -11,6 +11,9 @@ __author__ = 'guglielmo'
 
 def _keygen(item):
     return (item['anno'], item['territorio__cod_finloc'], item['voce__slug'])
+
+def _abitanti_keygen(item):
+    return (item['anno'], item['territorio__cod_finloc'],'bil_popolazione_residente')
 
 
 class BaseIndicator(object):
@@ -29,6 +32,7 @@ class BaseIndicator(object):
         return qs.values(
             'voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite'
         ).order_by('anno', 'voce__slug')
+
 
     def get_data(self, cities, years):
         data_qs = self.get_queryset(cities, years)
@@ -114,6 +118,82 @@ class BaseIndicator(object):
                         ))
 
 
+class PerCapitaIndicator(BaseIndicator):
+
+    def compute(self, cities, years, logger=None):
+        data_dict = self.get_data_procapite(cities, years)
+
+        ret = OrderedDict([])
+        for city in cities:
+            ret[city] = OrderedDict([])
+            for year in years:
+                try:
+                    ret[city][year] = self.get_formula_result(data_dict, city, year)
+                    if logger:
+                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                            city, year, ret[city][year]
+                        ))
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
+        return ret
+
+
+
+class ThreeYearsMeanIndicator(BaseIndicator):
+
+    # need to override the get_compute, to compute the 3-years average
+    def compute(self, cities, years, logger=None):
+        data_dict = self.get_data(cities, years)
+
+        ret = OrderedDict([])
+        for city in cities:
+            ret[city] = OrderedDict([])
+            for year in years:
+                n_available_years = 0
+
+                try:
+                    t0 = self.get_formula_result(data_dict, city, year)
+                    n_available_years += 1
+                except KeyError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                            city, year
+                        ))
+                    continue
+                except ZeroDivisionError:
+                    if logger:
+                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
+                            city, year
+                        ))
+                    continue
+                try:
+                    t1 = self.get_formula_result(data_dict, city, year-1)
+                    n_available_years += 1
+                except (KeyError, ZeroDivisionError):
+                    t1 = 0
+
+                try:
+                    t2 = self.get_formula_result(data_dict, city, year-2)
+                    n_available_years += 1
+                except (KeyError, ZeroDivisionError):
+                    t2 = 0
+
+                ret[city][year] = (t0 + t1 + t2) / n_available_years
+                if logger:
+                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
+                        city, year, ret[city][year]
+                    ))
+
+        return ret
+
 
 class AutonomiaFinanziariaIndicator(BaseIndicator):
     """
@@ -181,7 +261,7 @@ class QuotaSpesaPersonaleIndicator(BaseIndicator):
         return 100.0 * sp / sc
 
 
-class PropensioneInvestimentoIndicator(BaseIndicator):
+class PropensioneInvestimentoIndicator(ThreeYearsMeanIndicator):
     """
     media sul triennio di:
     consuntivo-spese-cassa-spese-per-investimenti /
@@ -199,50 +279,6 @@ class PropensioneInvestimentoIndicator(BaseIndicator):
         sc = self.get_val(data_dict, city, year, 'sc')
         return 100.0 * si / sc
 
-    # need to override the get_compute, to compute the 3-years average
-    def compute(self, cities, years, logger=None):
-        data_dict = self.get_data(cities, years)
-
-        ret = OrderedDict([])
-        for city in cities:
-            ret[city] = OrderedDict([])
-            for year in years:
-                n_available_years = 0
-
-                try:
-                    t0 = self.get_formula_result(data_dict, city, year)
-                    n_available_years += 1
-                except KeyError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
-                        ))
-                    continue
-                except ZeroDivisionError:
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
-                        ))
-                    continue
-                try:
-                    t1 = self.get_formula_result(data_dict, city, year-1)
-                    n_available_years += 1
-                except (KeyError, ZeroDivisionError):
-                    t1 = 0
-
-                try:
-                    t2 = self.get_formula_result(data_dict, city, year-2)
-                    n_available_years += 1
-                except (KeyError, ZeroDivisionError):
-                    t2 = 0
-
-                ret[city][year] = (t0 + t1 + t2) / n_available_years
-                if logger:
-                    logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
-
-        return ret
 
 
 class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
@@ -542,7 +578,7 @@ class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
 
 
 
-class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
+class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(ThreeYearsMeanIndicator):
     """
          [(  {[(consuntivo-entrate-accertamenti - consuntivo-spese-impegni)t1 /
             (consuntivo-entrate-accertamenti-imposte-e-tasse +
@@ -581,67 +617,11 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
         return ing / ec
 
 
-    # need to override the get_compute, to compute the 3-years span
-    def compute(self, cities, years, logger=None):
-        data_dict = self.get_data(cities, years)
 
-        ret = OrderedDict([])
-        for city in cities:
-            ret[city] = OrderedDict([])
-
-            for year in years:
-                logger.debug("Calculating year {0}".format(year))
-                n_available_years = 0
-
-                try:
-                    t1 = self.get_formula_result(data_dict, city, year-1)
-                    n_available_years += 1
-                except (KeyError, ZeroDivisionError):
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti t1.".format(
-                            city, year
-                        ))
-                    continue
-
-
-                try:
-                    t3 = self.get_formula_result(data_dict, city, year+1)
-                    n_available_years += 1
-                except (KeyError, ZeroDivisionError):
-                    if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti t3.".format(
-                                city, year
-                            ))
-                    continue
-
-
-                if n_available_years == 2:
-                    try:
-                        import math
-                        ret[city][year] = (100.0 * math.pow((t3/t1),(1/3.0)) ) -1
-                    except ValueError:
-                        if logger:
-                            logger.warning(u"City: {0}, Year: {1}. Cannot elevate {2} to fractionary power.".format(
-                                city, year, (t3/t1)
-                            ))
-                            continue
-                    except ZeroDivisionError:
-                        if logger:
-                            logger.warning(u"City: {0}, Year: {1}. Division by zero.".format(
-                                city, year,
-                            ))
-                            continue
-
-
-                if logger:
-                    logger.debug(u"City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
-                    ))
-
-        return ret
-
-
+##
 # Release 2 Evabeta
+##
+
 
 class RisultatoAmministrazioneIndicator(BaseIndicator):
 
@@ -813,3 +793,168 @@ class CapacitaSpesaComplessivaIndicator(BaseIndicator):
         csi = self.get_val(data_dict, city, year, 'csi')
 
         return (csc/csi)*100.0
+
+
+
+class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicator):
+
+    """
+     consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-iniziali /
+     consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-riscossi  * 100
+
+    """
+
+    slug = 'affidabilita-residui-attivi'
+    label = u"Affidabilità dei residui attivi"
+    used_voci_slugs = {
+        'rai' : 'consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-iniziali',
+        'rar' : 'consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-riscossi',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        rai = self.get_val(data_dict, city, year, 'rai')
+        rar = self.get_val(data_dict, city, year, 'rar')
+
+        return (rai/rar)*100.0
+
+
+
+class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicator):
+
+    """
+        consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-iniziali
+        /
+        consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-riscossi  * 100
+
+    """
+
+    slug = 'affidabilita-residui-passivi'
+    label = u"Affidabilità dei residui passivi"
+    used_voci_slugs = {
+        'rpi' : 'consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-iniziali',
+        'rpr' : 'consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-riscossi',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        rpi = self.get_val(data_dict, city, year, 'rpi')
+        rpr = self.get_val(data_dict, city, year, 'rpr')
+
+        return (rpi/rpr)*100.0
+
+
+
+class SpesaPersonalePerAbitanteIndicator(PerCapitaIndicator):
+
+    """
+        (consuntivo-spese-cassa-spese-correnti-interventi-personale / Popolazione al 1° gennaio)
+
+    """
+
+    slug = 'spesa-personale-per-abitante'
+    label = u"Spesa per il personale per abitante"
+    used_voci_slugs = {
+        'scip' : 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        scip = self.get_val(data_dict, city, year, 'scip')
+
+        return scip
+
+
+
+class PressioneTributariaePerAbitanteIndicator(PerCapitaIndicator):
+
+    """
+        consuntivo-entrate-accertamenti-imposte-e-tasse  / Popolazione al 1° gennaio
+
+    """
+
+    slug = 'pressione-tributaria-per-abitante'
+    label = u"Pressione tributaria per abitante"
+    used_voci_slugs = {
+        'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        ceait = self.get_val(data_dict, city, year, 'ceait')
+
+        return ceait
+
+
+class InvestimentiPerAbitanteIndicator(PerCapitaIndicator):
+
+    """
+        (consuntivo-spese-cassa-spese-per-investimenti -
+        consuntivo-spese-cassa-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni) /
+        Popolazione al 1° gennaio
+
+
+    """
+
+    slug = 'investimenti-per-abitante'
+    label = u"Investimenti per abitante"
+    used_voci_slugs = {
+        'cscsi' : 'consuntivo-spese-cassa-spese-per-investimenti',
+        'cscsiicca' : 'consuntivo-spese-cassa-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        cscsi = self.get_val(data_dict, city, year, 'cscsi')
+        cscsiicca = self.get_val(data_dict, city, year, 'cscsiicca')
+
+        return cscsi-cscsiicca
+
+
+class TrasferimentiCorrentiDalloStatoPerAbitanteIndicator(PerCapitaIndicator):
+
+    """
+       consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato / popolazione al 1° gennaio
+
+    """
+
+    slug = 'trasferimenti-correnti-dallo-stato-per-abitante'
+    label = u"Trasferimenti correnti dallo Stato per abitante"
+    used_voci_slugs = {
+        'cea' : 'consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        cea = self.get_val(data_dict, city, year, 'cea')
+
+        return cea
+
+
+
+class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicator):
+
+    """
+       (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) / popolazione al 1° gennaio
+
+    """
+
+    slug = 'pressione-finanziaria-per-abitante'
+    label = u"Pressione finanziaria per abitante"
+    used_voci_slugs = {
+        'cea' : 'consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        cea = self.get_val(data_dict, city, year, 'cea')
+
+        return cea
+
