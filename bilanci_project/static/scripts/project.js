@@ -103,7 +103,7 @@ var autoOpenNestedAccordion = function(startElement) {
         // expand parents if exists
         $(startElement).parents('.collapse').collapse('show');
         $(startElement).collapse('show');
-        $(startElement).addClass('highlighted');
+        $(startElement + '> .row').addClass('highlighted');
     }
 
 }

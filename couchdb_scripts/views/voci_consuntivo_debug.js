@@ -1,10 +1,9 @@
 /**
- * Created by stefano on 2/6/14.
  */
 
 function (doc) {
 var considered_keys= [ "consuntivo", "preventivo" ];
-var considered_quadro=['01','02','03','04','05','08','09','10','11','12','50'];
+var considered_quadro=['08','10','11','12'];
 var tipo_bilancio = considered_keys[0];
     if(doc!==null){
               if(tipo_bilancio in doc){
@@ -18,11 +17,13 @@ var tipo_bilancio = considered_keys[0];
                      if('data' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                          for(funzione in doc[tipo_bilancio][quadro_n][nome_titolo]['data']){
                             if(funzione.indexOf("- ") == 0){
-                             funzione = funzione.replace("- ","");
-                             }
-                             if(funzione!=''){
-                                emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
-                             }
+                                funzione = funzione.replace("- ","");
+                            }
+                            if(funzione == 'titolo 1 - tributarie'){
+                                var anno = doc['_id'].substring(0,4);
+                                emit([anno],1);
+                            }
+
                          }
 
                      }

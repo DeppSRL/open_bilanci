@@ -532,42 +532,46 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
         self.logger.debug("{0}".format(leaves))
 
-        sections = {
-            'Gestione residui': 0,
-            'Gestione competenza': 1,
-            'Gestione totale': 2,
+
+        residui_mapping = {
+            'iniziali': 0,
+            'iniziali a': 0,
+            'riscossi': 1,
+            'riscossi b': 1,
+            'pagati': 1,
+            'pagati b': 1,
         }
 
-        leaves_gf = []
-        leaves_not_gf = []
 
-        for leaf in leaves:
-            if leaf[1] == u'Gestione finanziaria':
-                leaves_gf.append(leaf)
-            else:
-                leaves_not_gf.append(leaf)
+        columns_mapping = {
+            u'Gestione finanziaria':
+                {
+                'gestione residui': 0,
+                'gestione competenza': 1,
+                'gestione totale': 2,
+                },
+            u'Debito':{
+                'consistenza iniziale': 0,
+                'consistenza iniziale (a)': 0,
+                'consistenza finale': 6,
+                'consistenza finale (a+b-d-f)': 6,
+                },
+            u'Residui attivi':  residui_mapping,
+            u'Residui passivi': residui_mapping,
 
-
-        ##
-        # leaves not in Gestione finanziaria
-        ##
-
-        for source_bc in leaves_not_gf:
-            value = None
-            if mapping:
-                value = self._compute_sum(source_bc, mapping)
-
-            # add this leaf to the tree, with the computed value
-            self.add_leaf(source_bc, value)
+        }
 
 
         ##
-        # leaves in Gestione finanziaria
+        #  translate tree leaves
         ##
 
-        for source_bc in leaves_gf:
+        for source_bc in leaves:
 
-            section_idx = sections[source_bc[2]]
+            section_idx = None
+            if source_bc[1] in columns_mapping.keys():
+                section_idx = columns_mapping[source_bc[1]][source_bc[2].lower()]
+
             value = None
             if mapping:
                 value = self._compute_sum(source_bc, mapping, col_idx=section_idx)

@@ -1,5 +1,6 @@
 import logging
 from optparse import make_option
+from couchdb.http import ResourceNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.utils import couch
@@ -102,10 +103,15 @@ class Command(BaseCommand):
 
 
         self.logger.info("Connecting to db: {0}".format(couchdb_dbname))
-        couchdb = couch.connect(
-            couchdb_dbname,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+
+        try:
+            couchdb = couch.connect(
+                couchdb_dbname,
+                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+            )
+        except ResourceNotFound:
+            self.logger.error("Could not find the db. Quitting")
+            return
 
 
         # instantiate the scraper to parse finanzalocale

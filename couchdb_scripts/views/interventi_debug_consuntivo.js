@@ -1,7 +1,7 @@
 
 function (doc) {
 	var considered_keys= [ 'consuntivo', 'preventivo' ];
-	var considered_quadro=['04','05','08','09','10','11','12'];
+	var considered_quadro=['04','05'];
     var tipo_bilancio = considered_keys[0];
     if(doc!==null){
         if(tipo_bilancio in doc){
@@ -16,8 +16,11 @@ function (doc) {
                                 if('columns' in doc[tipo_bilancio][quadro_n][nome_titolo]['meta']){
 
                                     for(var k=0; k < doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'].length; k++){
-                                        var intervento_b = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'][k];
-                                        emit([quadro_n+nome_titolo, intervento_b.toLowerCase()],1)
+                                        var intervento_b = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'][k].toLowerCase();
+                                        if(intervento_b == 'funzioni e servizi / interventi correnti'){
+                                            emit([quadro_n+"-"+nome_titolo+doc['_id'], intervento_b],1)
+                                        }
+
                                     }
                                 }
                             }
