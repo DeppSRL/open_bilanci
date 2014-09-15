@@ -641,3 +641,175 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(BaseIndicator):
         return ret
 
 
+# Release 2 Evabeta
+
+class RisultatoAmministrazioneIndicator(BaseIndicator):
+
+    """
+        Saldo di cassa + residui attivi - residui passivi
+
+    """
+
+    slug = 'risultato-amministrazione'
+    label = u"Risultato d'amministrazione"
+    used_voci_slugs = {
+        'crra' : 'consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        crra = self.get_val(data_dict, city, year, 'crra')
+
+        return crra
+
+
+
+
+class DebitoComplessivoEntrateCorrentiIndicator(BaseIndicator):
+
+    """
+        [
+            (consuntivo-riassuntivo-debito-consistenza-finale +
+
+            (consuntivo-riassuntivo-debiti-fuori-bilancio -
+            consuntivo-riassuntivo-debiti-fuori-bilancio-sentenze-esecutive)
+            ] /
+            (consuntivo-entrate-cassa-imposte-e-tasse +
+            consuntivo-entrate-cassa-contributi-pubblici +
+            consuntivo-entrate-cassa-entrate-extratributarie) * 100
+
+    """
+
+    slug = 'debito-complessivo-entrate-correnti'
+    label = u"Debito complessivo su entrate correnti"
+    used_voci_slugs = {
+        'crdcf' : 'consuntivo-riassuntivo-debito-consistenza-finale',
+        'crdfb' : 'consuntivo-riassuntivo-debiti-fuori-bilancio',
+        'crdfbse' : 'consuntivo-riassuntivo-debiti-fuori-bilancio-sentenze-esecutive',
+        'ceciet' : 'consuntivo-entrate-cassa-imposte-e-tasse',
+        'ceccp' : 'consuntivo-entrate-cassa-contributi-pubblici',
+        'cecee' : 'consuntivo-entrate-cassa-entrate-extratributarie',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        crdcf = self.get_val(data_dict, city, year, 'crdcf')
+        crdfb = self.get_val(data_dict, city, year, 'crdfb')
+        crdfbse = self.get_val(data_dict, city, year, 'crdfbse')
+        ceciet = self.get_val(data_dict, city, year, 'ceciet')
+        ceccp = self.get_val(data_dict, city, year, 'ceccp')
+        cecee = self.get_val(data_dict, city, year, 'cecee')
+
+        return (crdcf+(crdfb-crdfbse))/(ceciet+ceccp+cecee)*100.0
+
+
+
+class CostoMedioIndebitamentoIndicator(BaseIndicator):
+
+    """
+        (consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi -
+        consuntivo-riassuntivo-debito-consistenza-iniziale) * 100
+
+
+    """
+
+    slug = 'costo-medio-indebitamento'
+    label = u"Costo medio di indebitamento"
+    used_voci_slugs = {
+        'cscsciipofd' : 'consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
+        'crdci' : 'consuntivo-riassuntivo-debito-consistenza-iniziale',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        cscsciipofd = self.get_val(data_dict, city, year, 'cscsciipofd')
+        crdci = self.get_val(data_dict, city, year, 'crdci')
+
+        return (cscsciipofd-crdci)*100.0
+
+
+
+class AutonomiaImpositivaIndicator(BaseIndicator):
+
+    """
+       (consuntivo-entrate-accertamenti-imposte-e-tasse) /
+        (consuntivo-entrate-accertamenti-imposte-e-tasse +
+        consuntivo-entrate-accertamenti-contributi-pubblici +
+        consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
+
+    """
+
+    slug = 'autonomia-impositiva'
+    label = u"Autonomia impositiva"
+    used_voci_slugs = {
+        'ceaiet' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
+        'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        ceaiet = self.get_val(data_dict, city, year, 'ceaiet')
+        ceacp = self.get_val(data_dict, city, year, 'ceacp')
+        ceaee = self.get_val(data_dict, city, year, 'ceaee')
+
+        return (ceaiet/(ceaiet + ceacp + ceaee))*100.0
+
+
+class GradoDipendenzaErarialeIndicator(BaseIndicator):
+
+    """
+       (consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato)
+       /
+       (consuntivo-entrate-accertamenti-imposte-e-tasse +
+       consuntivo-entrate-accertamenti-contributi-pubblici +
+       consuntivo-entrate-accertamenti-entrate-extratributarie) * 100
+
+
+    """
+
+    slug = 'grado-dipendenza-erariale'
+    label = u"Grado dipendenza erariale dallo Stato"
+    used_voci_slugs = {
+        'ceacpcds' : 'consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato',
+        'ceaiet' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
+        'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        ceacpcds = self.get_val(data_dict, city, year, 'ceacpcds')
+        ceaiet = self.get_val(data_dict, city, year, 'ceaiet')
+        ceacp = self.get_val(data_dict, city, year, 'ceacp')
+        ceaee = self.get_val(data_dict, city, year, 'ceaee')
+
+        return (ceacpcds/(ceaiet + ceacp + ceaee))*100.0
+
+
+class CapacitaSpesaComplessivaIndicator(BaseIndicator):
+
+    """
+     (consuntivo-spese-cassa / consuntivo-spese-impegni) * 100
+
+    """
+
+    slug = 'capacita-spesa-complessiva'
+    label = u"Capacità di spesa complessiva"
+    used_voci_slugs = {
+        'csc' : 'consuntivo-spese-cassa',
+        'csi' : 'consuntivo-spese-impegni',
+    }
+
+
+    def get_formula_result(self, data_dict, city, year):
+
+        csc = self.get_val(data_dict, city, year, 'csc')
+        csi = self.get_val(data_dict, city, year, 'csi')
+
+        return (csc/csi)*100.0
