@@ -180,7 +180,10 @@ class Command(BaseCommand):
                 filters.update(territorio__cod_finloc__in=cities)
             if years:
                 filters.update(anno__in=years)
-            ValoreBilancio.objects.filter(**filters).delete()
+
+            # Perform the time-consuming delete only if db is not empty
+            if ValoreBilancio.objects.all().count():
+                ValoreBilancio.objects.filter(**filters).delete()
 
 
         for city in cities:
