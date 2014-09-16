@@ -3,6 +3,7 @@ import logging
 from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
@@ -185,8 +186,10 @@ class Command(BaseCommand):
             if ValoreBilancio.objects.all().count():
                 ValoreBilancio.objects.filter(**filters).delete()
 
-
+        set_autocommit(autocommit=False)
         for city in cities:
+
+            commit()
 
             try:
                 territorio = Territorio.objects.get(cod_finloc=city)
