@@ -950,13 +950,15 @@ class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicatorType):
     slug = 'pressione-finanziaria-per-abitante'
     label = u"Pressione finanziaria per abitante"
     used_voci_slugs = {
-        'cea' : 'consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie',
+        'ceatit' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
+        'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
     }
 
 
     def get_formula_result(self, data_dict, city, year):
 
-        cea = self.get_val(data_dict, city, year, 'cea')
+        ceatit = self.get_val(data_dict, city, year, 'ceatit')
+        ceaee = self.get_val(data_dict, city, year, 'ceaee')
 
-        return cea
+        return ceatit + ceaee
 
