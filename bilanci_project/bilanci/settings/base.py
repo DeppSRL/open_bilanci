@@ -209,6 +209,7 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'bilanci',
     'territori',
+    'services',
     'idioticon',
     'shorturls',
 )
