@@ -801,16 +801,16 @@ class CapacitaSpesaComplessivaIndicator(BaseIndicator):
 class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
-     consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-iniziali /
-     consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-riscossi  * 100
+     consuntivo-riassuntivo-residui-attivi-iniziali /
+     consuntivo-riassuntivo-residui-attivi-riscossi * 100
 
     """
 
     slug = 'affidabilita-residui-attivi'
     label = u"Affidabilità dei residui attivi"
     used_voci_slugs = {
-        'rai' : 'consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-iniziali',
-        'rar' : 'consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-riscossi',
+        'rai' : 'consuntivo-riassuntivo-residui-attivi-iniziali',
+        'rar' : 'consuntivo-riassuntivo-residui-attivi-riscossi',
     }
 
 
@@ -826,17 +826,17 @@ class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
 class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
-        consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-iniziali
+        consuntivo-riassuntivo-residui-passivi-iniziali
         /
-        consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-riscossi  * 100
+        consuntivo-riassuntivo-residui-passivi-pagati  * 100
 
     """
 
     slug = 'affidabilita-residui-passivi'
     label = u"Affidabilità dei residui passivi"
     used_voci_slugs = {
-        'rpi' : 'consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-iniziali',
-        'rpr' : 'consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-riscossi',
+        'rpi' : 'consuntivo-riassuntivo-residui-passivi-iniziali',
+        'rpr' : 'consuntivo-riassuntivo-residui-passivi-pagati',
     }
 
 
