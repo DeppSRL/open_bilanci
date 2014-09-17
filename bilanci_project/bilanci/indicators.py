@@ -1,7 +1,6 @@
 # encoding: utf-8
 import math
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.transaction import set_autocommit, commit
 from django.db.utils import IntegrityError
 from bilanci.models import ValoreBilancio, ValoreIndicatore, Indicatore
 from territori.models import Territorio, Contesto
@@ -94,8 +93,7 @@ class BaseIndicator(object):
                 anno__in=years
             ).delete()
 
-        set_autocommit(autocommit=False)
-        counter = 0
+
         for city in cities:
             try:
                 city_obj = Territorio.objects.get(cod_finloc=city)
@@ -110,7 +108,6 @@ class BaseIndicator(object):
                         valore=data[city][year]
                     )
 
-                    counter += 1
                     if logger:
                         logger.debug("City: {0}, Year: {1}, valore: {2}".format(
                             city, year, data[city][year]
@@ -123,9 +120,6 @@ class BaseIndicator(object):
                             city, year
                         ))
 
-                if counter == self.create_counter_limit:
-                    commit()
-                    counter = 0
 
 
 class PerCapitaIndicatorType(BaseIndicator):
