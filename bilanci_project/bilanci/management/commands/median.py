@@ -107,6 +107,13 @@ class Command(BaseCommand):
         dryrun = options['dryrun']
         skip_existing = options['skip_existing']
 
+
+        # gets territori count for that cluster and divides that value by 2:
+        # for every value calculated if there are more values than the number stored in cluster_count for that cluster
+        # the median value is computed otherwise is skipped
+
+        cluster_count  = dict((k[0], Territorio.objects.filter(territorio="C", cluster=k[0]).count()/2) for k in Territorio.CLUSTER)
+
         self.logger.info("Cluster median values computation start")
         for cluster_data in Territorio.CLUSTER:
             # creates a fake territorio for each cluster if it doens't exist already
@@ -119,13 +126,15 @@ class Command(BaseCommand):
             if values_type == 'indicatori':
                 for indicatore in Indicatore.objects.all():
                     self.logger.info(u"cluster: {0}, indicatore: {1}".format(territorio_cluster, indicatore.slug))
+
                     valori_qs = \
-                        ValoreIndicatore.objects.filter(
+                        list(ValoreIndicatore.objects.filter(
                             territorio__territorio='C',
                             territorio__cluster=cluster_data[0],
                             anno__in=years,
                             indicatore=indicatore,
-                        ).values('anno', 'valore').order_by('anno')
+                        ).values('anno', 'valore').order_by('anno'))
+
                     valori_dict = dict(
                         (k, [i['valore'] for i in list(v)])
                         for k, v in groupby(valori_qs, key=lambda x: x['anno'])
@@ -145,23 +154,28 @@ class Command(BaseCommand):
                         # remove null values
                         valori = [v for v in valori_dict[year] if v]
 
-                        mediana = numpy.median(valori)
-                        if not math.isnan(mediana):
-                            valore_mediano, is_created = ValoreIndicatore.objects.get_or_create(
-                                indicatore=indicatore,
-                                territorio=territorio_cluster,
-                                anno=year,
-                                defaults={
-                                    'valore': mediana
-                                }
-                            )
+                        # the median is saved only if there are enough values for Comuni in the cluster
+                        if len(valori) > cluster_count[cluster_data[0]]:
+                            mediana = numpy.median(valori)
+                            if not math.isnan(mediana):
+                                valore_mediano, is_created = ValoreIndicatore.objects.get_or_create(
+                                    indicatore=indicatore,
+                                    territorio=territorio_cluster,
+                                    anno=year,
+                                    defaults={
+                                        'valore': mediana
+                                    }
+                                )
 
-                            # overwrite existing values
-                            if not is_created and not skip_existing:
-                                valore_mediano.valore = mediana
+                                # overwrite existing values
+                                if not is_created and not skip_existing:
+                                    valore_mediano.valore = mediana
 
-                                if not dryrun:
-                                    valore_mediano.save()
+                                    if not dryrun:
+                                        valore_mediano.save()
+                        else:
+                            self.logger.debug("No median saved for indicatore:{0}, not enough values for cluster {1}".\
+                                format(indicatore.slug, cluster_data[0]))
 
             if values_type == 'voci':
 
@@ -205,25 +219,29 @@ class Command(BaseCommand):
                         valori = [v for v in valori_dict[year] if v]
                         valori_procapite = [v for v in valori_procapite_dict[year] if v]
 
+                        # the median is saved only if there are enough values for Comuni in the cluster
+                        if len(valori) > cluster_count[cluster_data[0]]:
+                            mediana = numpy.median(valori)
+                            mediana_procapite = numpy.median(valori_procapite)
+                            if not math.isnan(mediana) and not math.isnan(mediana_procapite):
+                                valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
+                                    voce=voce,
+                                    territorio=territorio_cluster,
+                                    anno=year,
+                                    defaults={
+                                        'valore': long(mediana),
+                                        'valore_procapite': float(mediana_procapite)
+                                    }
+                                )
 
-                        mediana = numpy.median(valori)
-                        mediana_procapite = numpy.median(valori_procapite)
-                        if not math.isnan(mediana) and not math.isnan(mediana_procapite):
-                            valore_mediano, is_created = ValoreBilancio.objects.get_or_create(
-                                voce=voce,
-                                territorio=territorio_cluster,
-                                anno=year,
-                                defaults={
-                                    'valore': long(mediana),
-                                    'valore_procapite': float(mediana_procapite)
-                                }
-                            )
+                                # overwrite existing values
+                                if not is_created and not skip_existing:
+                                    valore_mediano.valore = long(mediana)
+                                    valore_mediano.valore_procapite = float(mediana_procapite)
 
-                            # overwrite existing values
-                            if not is_created and not skip_existing:
-                                valore_mediano.valore = long(mediana)
-                                valore_mediano.valore_procapite = float(mediana_procapite)
-                                
-                                if not dryrun:
-                                    valore_mediano.save()
+                                    if not dryrun:
+                                        valore_mediano.save()
 
+                        else:
+                            self.logger.debug("No median saved for voce:{0}, not enough values for cluster {1}".\
+                                format(voce.slug, cluster_data[0]))
