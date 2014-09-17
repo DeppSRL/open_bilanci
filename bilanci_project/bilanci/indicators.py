@@ -118,7 +118,7 @@ class BaseIndicator(object):
                         ))
 
 
-class PerCapitaIndicator(BaseIndicator):
+class PerCapitaIndicatorType(BaseIndicator):
 
     def compute(self, cities, years, logger=None):
         data_dict = self.get_data_procapite(cities, years)
@@ -147,7 +147,9 @@ class PerCapitaIndicator(BaseIndicator):
 
 
 
-class ThreeYearsMeanIndicator(BaseIndicator):
+class ThreeYearsMeanIndicatorType(BaseIndicator):
+
+    slug = ''
 
     # need to override the get_compute, to compute the 3-years average
     def compute(self, cities, years, logger=None):
@@ -261,7 +263,7 @@ class QuotaSpesaPersonaleIndicator(BaseIndicator):
         return 100.0 * sp / sc
 
 
-class PropensioneInvestimentoIndicator(ThreeYearsMeanIndicator):
+class PropensioneInvestimentoIndicator(ThreeYearsMeanIndicatorType):
     """
     media sul triennio di:
     consuntivo-spese-cassa-spese-per-investimenti /
@@ -578,7 +580,7 @@ class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
 
 
 
-class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(ThreeYearsMeanIndicator):
+class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(ThreeYearsMeanIndicatorType):
     """
          [(  {[(consuntivo-entrate-accertamenti - consuntivo-spese-impegni)t1 /
             (consuntivo-entrate-accertamenti-imposte-e-tasse +
@@ -796,7 +798,7 @@ class CapacitaSpesaComplessivaIndicator(BaseIndicator):
 
 
 
-class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicator):
+class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
      consuntivo-riassuntivo-gestione-residui-attivi-residui-attivi-iniziali /
@@ -821,7 +823,7 @@ class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicator):
 
 
 
-class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicator):
+class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
         consuntivo-riassuntivo-gestione-residui-passivi-residui-passivi-iniziali
@@ -847,7 +849,7 @@ class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicator):
 
 
 
-class SpesaPersonalePerAbitanteIndicator(PerCapitaIndicator):
+class SpesaPersonalePerAbitanteIndicator(PerCapitaIndicatorType):
 
     """
         (consuntivo-spese-cassa-spese-correnti-interventi-personale / Popolazione al 1° gennaio)
@@ -869,7 +871,7 @@ class SpesaPersonalePerAbitanteIndicator(PerCapitaIndicator):
 
 
 
-class PressioneTributariaePerAbitanteIndicator(PerCapitaIndicator):
+class PressioneTributariaePerAbitanteIndicator(PerCapitaIndicatorType):
 
     """
         consuntivo-entrate-accertamenti-imposte-e-tasse  / Popolazione al 1° gennaio
@@ -890,7 +892,7 @@ class PressioneTributariaePerAbitanteIndicator(PerCapitaIndicator):
         return ceait
 
 
-class InvestimentiPerAbitanteIndicator(PerCapitaIndicator):
+class InvestimentiPerAbitanteIndicator(PerCapitaIndicatorType):
 
     """
         (consuntivo-spese-cassa-spese-per-investimenti -
@@ -916,7 +918,7 @@ class InvestimentiPerAbitanteIndicator(PerCapitaIndicator):
         return cscsi-cscsiicca
 
 
-class TrasferimentiCorrentiDalloStatoPerAbitanteIndicator(PerCapitaIndicator):
+class TrasferimentiCorrentiDalloStatoPerAbitanteIndicator(PerCapitaIndicatorType):
 
     """
        consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato / popolazione al 1° gennaio
@@ -938,7 +940,7 @@ class TrasferimentiCorrentiDalloStatoPerAbitanteIndicator(PerCapitaIndicator):
 
 
 
-class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicator):
+class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicatorType):
 
     """
        (consuntivo-entrate-accertamenti-imposte-e-tasse + consuntivo-entrate-accertamenti-entrate-extratributarie) / popolazione al 1° gennaio

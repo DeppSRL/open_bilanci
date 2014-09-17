@@ -121,7 +121,7 @@ class Command(BaseCommand):
 
         # actual computation of the values
         for indicator in indicators_instances:
-            self.logger.debug(u"Indicator: {0}".format(
+            self.logger.info(u"Indicator: {0}".format(
                 indicator.label
             ))
             if dryrun:
