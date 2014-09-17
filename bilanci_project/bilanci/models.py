@@ -121,6 +121,9 @@ class ValoreIndicatore(models.Model):
         return u"%s: %s" % (self.indicatore, self.valore,)
 
 
+##
+# CodiceVoce: maps Xml bilancio codes to simplified bilancio Voce
+##
 class CodiceVoce(models.Model):
     voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
     anno = models.PositiveSmallIntegerField(db_index=True)
