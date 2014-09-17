@@ -12,6 +12,7 @@ from itertools import groupby
 
 import logging
 import math
+from django.db.transaction import set_autocommit, commit
 import numpy
 from optparse import make_option
 
@@ -115,6 +116,8 @@ class Command(BaseCommand):
         cluster_count  = dict((k[0], Territorio.objects.filter(territorio="C", cluster=k[0]).count()/2) for k in Territorio.CLUSTER)
 
         self.logger.info("Cluster median values computation start")
+        set_autocommit(autocommit=False)
+
         for cluster_data in Territorio.CLUSTER:
             # creates a fake territorio for each cluster if it doens't exist already
             territorio_cluster, is_created = Territorio.objects. \
@@ -122,6 +125,8 @@ class Command(BaseCommand):
                 territorio=Territorio.TERRITORIO.L,
                 cluster=cluster_data[0],
             )
+
+            commit()
 
             if values_type == 'indicatori':
                 for indicatore in Indicatore.objects.all():
