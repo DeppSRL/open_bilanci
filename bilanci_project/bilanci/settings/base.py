@@ -162,6 +162,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bilanci.middlewares.PrivateBetaMiddleware',
+    'bilanci.middlewares.ComuniServicesMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 

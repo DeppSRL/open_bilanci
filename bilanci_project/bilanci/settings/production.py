@@ -4,7 +4,20 @@ from base import *
 
 ########## HOST CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'www.openbilanci.it',
+    'openbilanci.staging.deppsviluppo.org'
+    ]
+
+
+# Allowed hosts expansion: needed for servizi ai Comuni
+
+HOSTS_COMUNI = [
+    'www.comune.bilancio.fi.it:8000',
+    ]
+
+ALLOWED_HOSTS += HOSTS_COMUNI
+
 ########## END HOST CONFIGURATION
 
 ########## EMAIL CONFIGURATION

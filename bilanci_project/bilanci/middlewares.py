@@ -1,5 +1,7 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from bilanci.views import HomeTemporaryView
+from services.models import PaginaComune
 
 
 class PrivateBetaMiddleware(object):
@@ -29,3 +31,28 @@ class PrivateBetaMiddleware(object):
             return
         else:
             return HomeTemporaryView.as_view()(request)
+
+
+
+class ComuniServicesMiddleware(object):
+
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+
+        http_host = request.META['HTTP_HOST']
+        print http_host
+
+        if http_host in settings.HOSTS_COMUNI:
+            print "servizi comuni"
+
+            try:
+                pagina_comune = PaginaComune.objects.get(
+                    base_url = http_host,
+                    active = True
+                )
+            except ObjectDoesNotExist:
+                return
+
+
+
+        return
