@@ -5,11 +5,11 @@ from territori.models import Territorio
 
 class PaginaComune(models.Model):
 
-    base_url = models.URLField(blank=False, null=False, default=0)
+    base_url = models.TextField(blank=False, null=False, default=0)
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     header_text = models.TextField()
     footer_text = models.TextField()
-    logo = models.FilePathField()
+    logo = models.FilePathField(null=True, blank=True)
     active = models.BooleanField(default=False)
 
 
