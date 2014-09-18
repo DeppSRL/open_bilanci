@@ -5,7 +5,7 @@ from territori.models import Territorio
 
 class PaginaComune(models.Model):
 
-    base_url = models.TextField(blank=False, null=False, default=0)
+    host = models.TextField(blank=False, null=False, default=0)
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     header_text = models.TextField()
     footer_text = models.TextField()
