@@ -58,7 +58,7 @@ class ComuniServicesMiddleware(object):
         """
 
         # http_host gets the http_host string removing the eventual port number
-        regex = re.compile("(.*)(?::)")
+        regex = re.compile("^([\w\.]+):?.*")
         http_host = regex.findall(request.META['HTTP_HOST'])[0]
 
         if http_host in settings.HOSTS_COMUNI:
