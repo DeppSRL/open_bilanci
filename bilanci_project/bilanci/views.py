@@ -415,7 +415,7 @@ class IncarichiGetterMixin(object):
             anno__lte = self.timeline_end.year
         ).order_by('anno')
 
-        return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2)
+        return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2, values_type='nominal')
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
@@ -2465,4 +2465,15 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
         return context
 
+
+class PageNotFoundTemplateView(TemplateView):
+    template_name = '404.html'
+
+
+class BilancioOverServicesView(BilancioOverView):
+    def get_context_data(self, **kwargs ):
+
+        context = super(BilancioOverServicesView, self).get_context_data(**kwargs)
+        context['servizi_comuni'] = True
+        return context
 

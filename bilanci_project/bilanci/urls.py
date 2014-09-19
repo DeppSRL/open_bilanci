@@ -6,9 +6,11 @@ from django.views.generic import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from bilanci.views import BilancioRedirectView, \
-    BilancioIndicatoriView, BilancioComposizioneView, BilancioDettaglioView, BilancioOverView, IncarichiVoceJSONView, IncarichiIndicatoriJSONView,\
-    HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView, ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView,\
-    ConfrontiDataJSONView, ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, BilancioNotFoundView, ClassificheSearchView, MappeTemplateView
+    BilancioIndicatoriView, BilancioComposizioneView, BilancioDettaglioView, BilancioOverView, IncarichiVoceJSONView,\
+    IncarichiIndicatoriJSONView, HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView,\
+    ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView,\
+    ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, BilancioNotFoundView,\
+    ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView
 
 admin.autodiscover()
 
@@ -71,7 +73,7 @@ urlpatterns = patterns('',
 
     url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
 
-    url(r'^page-not-found$', TemplateView.as_view(template_name='404.html'), name='404'),
+    url(r'^page-not-found$', PageNotFoundTemplateView.as_view(), name='404'),
 
     url(r'^select2/', include('django_select2.urls')),
 
