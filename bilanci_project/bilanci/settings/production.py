@@ -13,7 +13,6 @@ ALLOWED_HOSTS = [
 # Allowed hosts expansion: needed for servizi ai Comuni
 
 HOSTS_COMUNI = [
-    'www.comune.bilancio.fi.it',
     ]
 
 ALLOWED_HOSTS += HOSTS_COMUNI

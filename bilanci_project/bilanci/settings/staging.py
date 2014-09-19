@@ -15,7 +15,7 @@ ALLOWED_HOSTS = [
 # Allowed hosts expansion: needed for servizi ai Comuni
 
 HOSTS_COMUNI = [
-    
+
     ]
 
 ALLOWED_HOSTS += HOSTS_COMUNI
