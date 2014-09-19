@@ -124,7 +124,6 @@ class Command(BaseCommand):
 
         set_autocommit(False)
         for indicator in indicators_instances:
-            commit()
             self.logger.info(u"Indicator: {0}".format(
                 indicator.label
             ))
@@ -134,3 +133,5 @@ class Command(BaseCommand):
             else:
                 # db storage
                 indicator.compute_and_commit(cities, years, logger=self.logger, skip_existing=skip_existing)
+                
+            commit()
