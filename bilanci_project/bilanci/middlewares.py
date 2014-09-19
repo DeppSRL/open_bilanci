@@ -1,6 +1,9 @@
+import re
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from bilanci.views import HomeTemporaryView
+from django.core.urlresolvers import reverse
+from django.http import HttpResponsePermanentRedirect
+from bilanci.views import HomeTemporaryView, PageNotFoundTemplateView, BilancioDettaglioView, BilancioOverServicesView
 from services.models import PaginaComune
 
 
@@ -36,22 +39,55 @@ class PrivateBetaMiddleware(object):
 
 class ComuniServicesMiddleware(object):
 
+    def process_request(self, request):
+        True == True
+        return
+
 
     def process_view(self, request, view_func, view_args, view_kwargs):
 
-        http_host = request.META['HTTP_HOST']
-        print http_host
+        """
+        ComuniServicesMiddleware serves to enable the Servizi ai Comuni.
+        The request is filtered by the http_host: if the host belongs to a Comune
+        that has activated the services then the special template is shown for
+        Dettaglio, Composizione e Indicatori views.
+
+        If the request comes from the production / staging host then no action is taken.
+
+        In all other cases a 404 page is shown
+        """
+
+        # http_host gets the http_host string removing the eventual port number
+        regex = re.compile("(.*)(?::)")
+        http_host = regex.findall(request.META['HTTP_HOST'])[0]
 
         if http_host in settings.HOSTS_COMUNI:
-            print "servizi comuni"
 
             try:
                 pagina_comune = PaginaComune.objects.get(
-                    base_url = http_host,
+                    host = http_host,
                     active = True
                 )
             except ObjectDoesNotExist:
-                return
+                return PageNotFoundTemplateView.as_view()(request)
+
+            else:
+
+                whitelisted_views = {
+                    'BilancioView':None,
+                    'BilancioNotFoundView': None,
+                    'BilancioOverView': BilancioOverServicesView,
+                    'BilancioDettaglioView': None,
+                    'BilancioIndicatoriView': None,
+                    'BilancioComposizioneView': None,
+                    'BilancioCompositionWidgetView': None,
+                    'BilancioRedirectView': None
+                }
+
+                if view_func.func_name not in whitelisted_views.keys():
+                    return PageNotFoundTemplateView.as_view()(request)
+                else:
+                    return whitelisted_views[view_func.func_name].as_view()(request)
 
 
 

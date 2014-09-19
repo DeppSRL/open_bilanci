@@ -51,7 +51,11 @@
 
                 <!-- Main menu -->
                 {% block main_menu %}
-                    {% include 'commons/navbar.html' %}
+                    {% if servizi_comuni %}
+                        {% include 'services/navbar.html' %}
+                    {% else %}
+                        {% include 'commons/navbar.html' %}
+                    {% endif %}
                 {% endblock %}
 
 
@@ -68,7 +72,11 @@
                 <div class="row">
                     {% block footer %}
                         <!-- Footer -->
-                        {% include 'commons/footer.html' %}
+                        {% if servizi_comuni %}
+                            {% include 'services/footer.html' %}
+                        {% else %}
+                            {% include 'commons/footer.html' %}
+                        {% endif %}
                     {% endblock %}
                 </div>
 
