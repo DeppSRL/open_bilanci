@@ -691,7 +691,7 @@ class DebitoComplessivoEntrateCorrentiIndicator(BaseIndicator):
 class CostoMedioIndebitamentoIndicator(BaseIndicator):
 
     """
-        (consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi -
+        (consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi /
         consuntivo-riassuntivo-debito-consistenza-iniziale) * 100
 
 
@@ -710,7 +710,7 @@ class CostoMedioIndebitamentoIndicator(BaseIndicator):
         cscsciipofd = self.get_val(data_dict, city, year, 'cscsciipofd')
         crdci = self.get_val(data_dict, city, year, 'crdci')
 
-        return (cscsciipofd-crdci)*100.0
+        return (cscsciipofd/crdci)*100.0
 
 
 
