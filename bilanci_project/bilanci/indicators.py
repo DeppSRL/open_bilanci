@@ -819,7 +819,7 @@ class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
         rai = self.get_val(data_dict, city, year, 'rai')
         rar = self.get_val(data_dict, city, year, 'rar')
 
-        return (rai/rar)*100.0
+        return (rar/rai)*100.0
 
 
 
@@ -845,7 +845,7 @@ class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
         rpi = self.get_val(data_dict, city, year, 'rpi')
         rpr = self.get_val(data_dict, city, year, 'rpr')
 
-        return (rpi/rpr)*100.0
+        return (rpr/rpi)*100.0
 
 
 
