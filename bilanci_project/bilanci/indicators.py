@@ -108,10 +108,6 @@ class BaseIndicator(object):
                         valore=data[city][year]
                     )
 
-                    if logger:
-                        logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, data[city][year]
-                        ))
                 except IntegrityError:
                     pass
                 except KeyError:
