@@ -1926,7 +1926,8 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         ##
         self.territorio = self.get_object()
 
-        if self.request.GET.get('slug') is None:
+        if self.request.GET.get('slug') is None and self.kwargs.get('slug') is None:
+            print "redirect"
             return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
                                         + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
 

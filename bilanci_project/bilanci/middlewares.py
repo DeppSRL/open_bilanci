@@ -55,6 +55,7 @@ class ComuniServicesMiddleware(object):
 
     def process_request(self, request):
 
+        request.servizi_comuni = False
          # http_host gets the http_host string removing the eventual port number
         regex = re.compile("^([\w\.]+):?.*")
         http_host = regex.findall(request.META['HTTP_HOST'])[0]
@@ -71,9 +72,14 @@ class ComuniServicesMiddleware(object):
 
             else:
 
+                if 'composition_widget' in request.path:
+                    return
+
                 # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
                 view, args, kwargs = resolve(path=request.path, urlconf=urls)
                 kwargs={'slug': pagina_comune.territorio.slug}
+                request.servizi_comuni = True
+
                 return view(request, args, **kwargs)
 
         return
