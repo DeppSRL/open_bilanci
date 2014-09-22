@@ -219,32 +219,31 @@ a simplified structure in which some keys get summed up to a single key in the a
 This last process converts the *normalized* ``bilanci_voci`` db,
 the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`` db.
 
-+ the ``voci_preventivo`` and ``voci_consuntivo`` views are *copied* automatically from the ``bilanci_titoli`` couchdb
-  when the ``translate_key`` script is invoked.
-+ the views are generated, by browsing and the json documents are downloaded:
+
++ To merge the actual normalized Voce slug with the simplified tree slug and update the simplification Gdoc spreadsheet simply run
+  
+  .. code-block:: bash
+  
+    python merge_keys.py -s [localhost | staging] -t simplify -tb [preventivo |consuntivo] -o OUTPUT_CSV_FILE
+    
++ The script generates a csv file that merges the existing google drive simplification spreadsheet and the couchdb view results.
+
++ The csv file is uploaded to **Google Drive**, creating a new sheet in the before mentioned spreadsheet
+  and not-so-skilled operators can copy-paste the results into the original sheet following the procedure:
 
   .. code-block:: bash
 
+    # open gDrive spreadsheet
+    # https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
 
-    # browse to the view and wait for view generation to finish (status)
+    # import csv *consuntivo* to a new, blank sheet
+    # select all and paste to *consuntivo* sheet
 
-    # save views to json files (may take time, if launched for the first time)
-    curl -o output/voci_consuntivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
-    curl -o output/voci_preventivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4
+    # import csv *preventivo* to a new sheet
+    # select all and paste to *preventivo* sheet
 
-+ the resulting documents are converted from json to csv:
+    # remove temporary sheets
 
-  .. code-block:: bash
-
-    # convert json file to csv (the name is unchanged)
-    python json2csv.py -f=output/voci_consuntivo_norm.json -t=voci
-    python json2csv.py -f=output/voci_preventivo_norm.json -t=voci
-
-+ the CSV is uploaded to the gDoc spreadsheet:
-
-  .. code-block:: bash
-
-    https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
 
 + the skilled operator proceeds to do the semplification mapping
 
