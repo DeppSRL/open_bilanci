@@ -8,7 +8,6 @@ import feedparser
 import zmq
 import requests
 from collections import OrderedDict
-
 from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -19,6 +18,7 @@ from django.conf import settings
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
 from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
+import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
@@ -1538,6 +1538,13 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         ##
 
         must_redirect = False
+        comuni_services = False
+        request_host = request.META['HTTP_HOST']
+
+        # if the request comes from a Comuni Services host sets flag to True
+        if request_host not in settings.MAIN_HOST:
+            comuni_services = True
+
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'bilancio')
         self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
@@ -1639,9 +1646,18 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         if must_redirect:
             destination_view = 'bilanci-overview'
+            redirect_kwargs = {'slug':self.territorio.slug}
+            urlconf = None
+
+            if comuni_services:
+                destination_view = 'bilanci-overview-services'
+                redirect_kwargs = {}
+                urlconf = services.urls
+
+
 
             return HttpResponseRedirect(
-                reverse(destination_view, kwargs={'slug':self.territorio.slug}) +\
+                reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) +\
                 "?year={0}&type={1}&values_type={2}&cas_com_type={3}".\
                     format(
                         self.year,
@@ -2469,11 +2485,4 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 class PageNotFoundTemplateView(TemplateView):
     template_name = '404.html'
 
-
-class BilancioOverServicesView(BilancioOverView):
-    def get_context_data(self, **kwargs ):
-
-        context = super(BilancioOverServicesView, self).get_context_data(**kwargs)
-        context['servizi_comuni'] = True
-        return context
 
