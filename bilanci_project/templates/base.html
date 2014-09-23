@@ -52,9 +52,9 @@
                 <!-- Main menu -->
                 {% block main_menu %}
                     {% if request.servizi_comuni %}
-                        {% include 'services/navbar.html' %}
+                        {% include 'services/header.html' %}
                     {% else %}
-                        {% include 'commons/navbar.html' %}
+                        {% include 'commons/header.html' %}
                     {% endif %}
                 {% endblock %}
 

@@ -1411,8 +1411,56 @@ class BilancioNotFoundView(TemplateView):
     template_name = "bilanci/bilancio_not_found.html"
 
 
+class BilancioMenuVoicesMixin(object):
 
-class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
+    def get_menu_voices(self,):
+
+        urlconf = None
+        destination_views = {
+            'overview': 'bilanci-overview',
+            'dettaglio': 'bilanci-dettaglio',
+            'composizione': 'bilanci-composizione',
+            'indicatori': 'bilanci-indicatori',
+        }
+
+        kwargs = {
+            'overview': self.territorio.slug,
+            'entrate': self.entrate_kwargs,
+            'spese': self.spese_kwargs,
+            'indicatori': self.territorio.slug,
+        }
+
+        # if the request comes from Comune host then changes the url in the nav menu
+        # basically resolving the path with services.urls and popping the territorio slug from kwargs
+        if self.request.servizi_comuni:
+            urlconf = services.urls
+            destination_views = {
+                'overview': 'bilanci-overview-services',
+                'dettaglio': 'bilanci-dettaglio-services',
+                'composizione': 'bilanci-composizione-services',
+                'indicatori': 'bilanci-indicatori-services',
+            }
+            kwargs['indicatori']=None
+            kwargs['overview']=None
+            kwargs['entrate'].pop("slug", None)
+            kwargs['spese'].pop("slug", None)
+
+        menu_voices = OrderedDict([
+            ('bilancio', reverse(destination_views['overview'], kwargs=kwargs['overview'], urlconf=urlconf)),
+            ('entrate', OrderedDict([
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs['entrate'], urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs['entrate'], urlconf=urlconf))
+            ])),
+            ('spese', OrderedDict([
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs['spese'], urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs['spese'], urlconf=urlconf)),
+            ])),
+            ('indicatori', reverse(destination_views['indicatori'], kwargs=kwargs['indicatori'], urlconf=urlconf))
+        ])
+
+        return menu_voices
+
+class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
     year = None
@@ -1422,6 +1470,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     territorio = None
+    entrate_kwargs = None
+    spese_kwargs = None
     values_type = None
     cas_com_type = None
     fun_int_view = None
@@ -1674,8 +1724,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['tipo_bilancio'] = self.main_bilancio_type
         context['selected_bilancio_type'] = self.main_bilancio_type
 
-        entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
-        spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
+        self.entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
+        self.spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
 
         context['selected_section'] = self.selected_section
         # get Comune context data from db
@@ -1711,18 +1761,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['comparison_bilancio_year']=self.comp_bilancio_year
         context['share_url']=self.share_url
 
-        context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overview', kwargs={'slug':self.territorio.slug})),
-            ('entrate', OrderedDict([
-                ('dettaglio', reverse('bilanci-dettaglio', kwargs=entrate_kwargs)),
-                ('composizione', reverse('bilanci-composizione', kwargs=entrate_kwargs)),
-            ])),
-            ('spese', OrderedDict([
-                ('dettaglio', reverse('bilanci-dettaglio', kwargs=spese_kwargs)),
-                ('composizione', reverse('bilanci-composizione', kwargs=spese_kwargs)),
-            ])),
-            ('indicatori', reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug}))
-        ])
+        context['menu_voices'] = self.get_menu_voices()
 
         return context
 
