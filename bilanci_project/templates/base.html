@@ -51,7 +51,7 @@
 
                 <!-- Main menu -->
                 {% block main_menu %}
-                    {% if servizi_comuni %}
+                    {% if request.servizi_comuni %}
                         {% include 'services/navbar.html' %}
                     {% else %}
                         {% include 'commons/navbar.html' %}
@@ -72,7 +72,7 @@
                 <div class="row">
                     {% block footer %}
                         <!-- Footer -->
-                        {% if servizi_comuni %}
+                        {% if request.servizi_comuni %}
                             {% include 'services/footer.html' %}
                         {% else %}
                             {% include 'commons/footer.html' %}

@@ -1538,12 +1538,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         ##
 
         must_redirect = False
-        comuni_services = False
         request_host = request.META['HTTP_HOST']
-
-        # if the request comes from a Comuni Services host sets flag to True
-        if request_host not in settings.MAIN_HOST:
-            comuni_services = True
 
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'bilancio')
@@ -1649,7 +1644,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             redirect_kwargs = {'slug':self.territorio.slug}
             urlconf = None
 
-            if comuni_services:
+            if request.servizi_comuni:
                 destination_view = 'bilanci-overview-services'
                 redirect_kwargs = {}
                 urlconf = services.urls
@@ -1924,11 +1919,21 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         ##
         # if parameter is missing redirects to a page for default indicator
         ##
+
+
         self.territorio = self.get_object()
 
-        if self.request.GET.get('slug') is None and self.kwargs.get('slug') is None:
-            print "redirect"
-            return HttpResponseRedirect(reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug})\
+
+        if self.request.GET.get('slug') is None:
+            urlconf = None
+            destination_view = 'bilanci-indicatori'
+            kwargs = {'slug':self.territorio.slug}
+            if request.servizi_comuni:
+                destination_view = 'bilanci-indicatori-services'
+                urlconf = services.urls
+                kwargs = None
+
+            return HttpResponseRedirect(reverse(destination_view, kwargs=kwargs, urlconf=urlconf)\
                                         + "?slug={0}".format(settings.DEFAULT_INDICATOR_SLUG))
 
         return super(BilancioIndicatoriView, self).get(request, *args, **kwargs)

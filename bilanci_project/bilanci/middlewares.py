@@ -6,7 +6,6 @@ from bilanci.views import HomeTemporaryView, PageNotFoundTemplateView, BilancioD
     BilancioIndicatoriView, BilancioComposizioneView, BilancioCompositionWidgetView
 from services import urls
 
-from services.views import BilancioOverServicesView
 from services.models import PaginaComune
 
 
@@ -72,11 +71,12 @@ class ComuniServicesMiddleware(object):
 
             else:
 
-                if 'composition_widget' in request.path:
+                if 'composition_widget' in request.path or 'incarichi_indicatori' in request.path or 'incarichi_voce' in request.path:
                     return
 
                 # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
                 view, args, kwargs = resolve(path=request.path, urlconf=urls)
+
                 kwargs={'slug': pagina_comune.territorio.slug}
                 request.servizi_comuni = True
 
