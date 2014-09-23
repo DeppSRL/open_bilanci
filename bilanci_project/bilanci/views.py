@@ -1436,7 +1436,7 @@ class BilancioMenuVoicesMixin(object):
 
         # if the request comes from Comune host then changes the url in the nav menu
         # basically resolving the path with services.urls and popping the territorio slug from kwargs
-        if self.request.servizi_comuni:
+        if self.servizi_comuni:
             urlconf = services.urls
             destination_views = {
                 'overview': 'bilanci-overview-services',
@@ -1483,6 +1483,7 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
     cas_com_type = None
     fun_int_view = None
     share_url = None
+    servizi_comuni = False
 
 
     def calc_variations_set(self, main_dict, comp_dict,):
@@ -1608,6 +1609,9 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
         if self.main_bilancio_type == "preventivo":
             self.cas_com_type = "cassa"
 
+        # identifies if the request comes from a Comuni host
+        if request.servizi_comuni:
+            self.servizi_comuni = True
         # identifies the bilancio for comparison, sets gdp multiplier based on deflator
 
         self.main_bilancio_year = int(self.year)
@@ -1701,11 +1705,10 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
             redirect_kwargs = {'slug':self.territorio.slug}
             urlconf = None
 
-            if request.servizi_comuni:
+            if self.servizi_comuni:
                 destination_view = 'bilanci-overview-services'
                 redirect_kwargs = {}
                 urlconf = services.urls
-
 
 
             return HttpResponseRedirect(
@@ -1764,6 +1767,16 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
         context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
+
+        # creates link for voices in chi guadagna/perde based on whether the servizi comune is true
+        if self.servizi_comuni:
+            context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio-services', kwargs={'section':'entrate'}, urlconf=services.urls)
+            context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio-services', kwargs={'section':'spese'}, urlconf=services.urls)
+        else:
+            context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio', kwargs=self.entrate_kwargs)
+            context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
+
+
         context['comparison_bilancio_type']=self.comp_bilancio_type
         context['comparison_bilancio_year']=self.comp_bilancio_year
         context['share_url']=self.share_url
@@ -1799,6 +1812,12 @@ class BilancioComposizioneView(BilancioOverView):
             variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
             variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
             context['chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
+
+        if self.servizi_comuni:
+            context['chiguadagnaperde_link'] = reverse('bilanci-dettaglio-services', kwargs={'section':self.selected_section}, urlconf=services.urls)
+        else:
+            context['chiguadagnaperde_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
+
 
 
         return context
@@ -1959,6 +1978,9 @@ class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassif
     selected_section = "indicatori"
     share_url = None
     territorio = None
+    entrate_kwargs = None
+    spese_kwargs = None
+    servizi_comuni = False
 
     def get(self, request, *args, **kwargs):
 
@@ -1966,15 +1988,14 @@ class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassif
         # if parameter is missing redirects to a page for default indicator
         ##
 
-
         self.territorio = self.get_object()
-
 
         if self.request.GET.get('slug') is None:
             urlconf = None
             destination_view = 'bilanci-indicatori'
             kwargs = {'slug':self.territorio.slug}
             if request.servizi_comuni:
+                self.servizi_comuni = True
                 destination_view = 'bilanci-indicatori-services'
                 urlconf = services.urls
                 kwargs = None
