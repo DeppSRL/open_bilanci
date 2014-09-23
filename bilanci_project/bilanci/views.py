@@ -1425,10 +1425,14 @@ class BilancioMenuVoicesMixin(object):
 
         kwargs = {
             'overview': self.territorio.slug,
-            'entrate': self.entrate_kwargs,
-            'spese': self.spese_kwargs,
             'indicatori': self.territorio.slug,
         }
+
+        if hasattr(self, 'entrate_kwargs'):
+            kwargs['entrate'] = self.entrate_kwargs
+            
+        if hasattr(self, 'spese_kwargs'):
+            kwargs['spese'] = self.spese_kwargs
 
         # if the request comes from Comune host then changes the url in the nav menu
         # basically resolving the path with services.urls and popping the territorio slug from kwargs
@@ -1442,18 +1446,21 @@ class BilancioMenuVoicesMixin(object):
             }
             kwargs['indicatori']=None
             kwargs['overview']=None
-            kwargs['entrate'].pop("slug", None)
-            kwargs['spese'].pop("slug", None)
+            if 'entrate' in kwargs.keys():
+                kwargs['entrate'].pop("slug", None)
+            if 'spese' in kwargs.keys():
+                kwargs['spese'].pop("slug", None)
+
 
         menu_voices = OrderedDict([
             ('bilancio', reverse(destination_views['overview'], kwargs=kwargs['overview'], urlconf=urlconf)),
             ('entrate', OrderedDict([
-                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs['entrate'], urlconf=urlconf)),
-                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs['entrate'], urlconf=urlconf))
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('entrate',None), urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('entrate',None), urlconf=urlconf))
             ])),
             ('spese', OrderedDict([
-                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs['spese'], urlconf=urlconf)),
-                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs['spese'], urlconf=urlconf)),
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
             ])),
             ('indicatori', reverse(destination_views['indicatori'], kwargs=kwargs['indicatori'], urlconf=urlconf))
         ])
@@ -1945,7 +1952,7 @@ class BilancioDettaglioView(BilancioOverView):
         return context
 
 
-class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -1983,8 +1990,8 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
 
         context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
 
-        entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
-        spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
+        self.entrate_kwargs = {'slug': self.territorio.slug, 'section': 'entrate'}
+        self.spese_kwargs = {'slug': self.territorio.slug, 'section': 'spese'}
 
         # get selected indicatori slug list from request and verifies them
         selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
@@ -2005,19 +2012,7 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, DetailView, In
         context['selected_cluster_str'] = str(self.territorio.cluster)
         context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
 
-
-        context['menu_voices'] = OrderedDict([
-            ('bilancio', reverse('bilanci-overview', kwargs={'slug':self.territorio.slug})),
-            ('entrate', OrderedDict([
-                ('dettaglio', reverse('bilanci-dettaglio', kwargs=entrate_kwargs)),
-                ('composizione', reverse('bilanci-composizione', kwargs=entrate_kwargs)),
-            ])),
-            ('spese', OrderedDict([
-                ('dettaglio', reverse('bilanci-dettaglio', kwargs=spese_kwargs)),
-                ('composizione', reverse('bilanci-composizione', kwargs=spese_kwargs)),
-            ])),
-            ('indicatori', reverse('bilanci-indicatori', kwargs={'slug':self.territorio.slug}))
-        ])
+        context['menu_voices'] = self.get_menu_voices()
 
         context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
         # creates the query string to call the IncarichiIndicatori Json view in template
