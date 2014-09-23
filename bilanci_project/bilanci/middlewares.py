@@ -77,7 +77,7 @@ class ComuniServicesMiddleware(object):
                 # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
                 view, args, kwargs = resolve(path=request.path, urlconf=urls)
 
-                kwargs={'slug': pagina_comune.territorio.slug}
+                kwargs['slug'] = pagina_comune.territorio.slug
                 request.servizi_comuni = True
 
                 return view(request, args, **kwargs)
