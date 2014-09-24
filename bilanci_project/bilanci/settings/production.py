@@ -11,6 +11,16 @@ ALLOWED_HOSTS = ['*']
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+########## MANAGER CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
+ADMINS = (
+    ('Developers', 'developers@openbilanci.it'),
+)
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
+MANAGERS = ADMINS
+########## END MANAGER CONFIGURATION
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-host
 #EMAIL_HOST = environ.get('EMAIL_HOST', 'smtp.gmail.com')
 
