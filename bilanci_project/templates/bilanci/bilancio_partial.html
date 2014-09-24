@@ -182,12 +182,17 @@
 
 
     function feed_main_linechart(){
-        d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
+
+        {% if bilancio_rootnode %}
+
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
                 "?values_type={{ values_type }}",
                 function (i) {
-            linechart.data(i);
-            linechart.year({{ selected_year }});
-        });
+                    linechart.data(i);
+                    linechart.year({{ selected_year }});
+                });
+        {% endif %}
+
 
     }
 

@@ -1229,12 +1229,12 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
             {
               "color": territorio_1_color,
               "id": 1,
-              "label": "{0}".format(territorio_1.denominazione)
+              "label": u"{0}".format(territorio_1.denominazione)
             },
             {
               "color": territorio_2_color,
               "id": 2,
-              "label": "{0}".format(territorio_2.denominazione)
+              "label": u"{0}".format(territorio_2.denominazione)
             },
         ]
 
