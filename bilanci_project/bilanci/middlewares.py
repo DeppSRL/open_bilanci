@@ -71,7 +71,14 @@ class ComuniServicesMiddleware(object):
 
             else:
 
-                if 'composition_widget' in request.path or 'incarichi_indicatori' in request.path or 'incarichi_voce' in request.path:
+                # depending on the request.path resolves the url with bilanci.urls or services.urls
+                # paths coming from the widget, the json views and the static files are resolved with bilanci.urls
+                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/' ]
+
+                def isin(x): return x in request.path
+                try:
+                    map(isin, items).index(True)
+                except ValueError:
                     return
 
                 # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
