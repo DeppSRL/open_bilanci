@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
+from services.models import PaginaComune
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
 from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
@@ -1375,45 +1376,28 @@ class BilancioView(DetailView):
     model = Territorio
     context_object_name = "territorio"
     territorio= None
+    servizi_comuni = False
 
-    def get_complete_file(self, file_name):
-        """
-        Return a dict with file_name and file_size, if a file exists,
-        None if the file does not exist.
-        """
 
-        file_path = os.path.join(settings.OPENDATA_ROOT, file_name)
-        if os.path.isfile(file_path):
-            file_size = os.stat(file_path).st_size
-            return {
-                'file_name': file_name,
-                'file_size': file_size
-            }
+    def check_servizi_comuni(self, request):
+        # identifies if the request comes from a Comuni host
+        if request.servizi_comuni:
+            self.servizi_comuni = True
+
+    def get_servizi_comune_context(self):
+
+        # gets PaginaComune data to pass onto the context: text, logo and backlink
+        try:
+            p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
+        except ObjectDoesNotExist:
+            return None, None, None, None
         else:
-            return {}
+            return p_comune.logo, p_comune.header_text, p_comune.footer_text, p_comune.backlink
 
-    def get_context_data(self, **kwargs ):
-        context = super(BilancioView, self).get_context_data(**kwargs)
-
-        territorio = self.get_object()
-        csv_package_filename = "{0}.zip".format(territorio.cod_finloc)
-        context['csv_package_file'] = self.get_complete_file(csv_package_filename)
-        context['open_data_url'] = settings.OPENDATA_URL
-        return context
-
-
-class BilancioNotFoundView(TemplateView):
-
-    ##
-    # show a page when a Comune doesnt have any bilancio
-    ##
-
-    template_name = "bilanci/bilancio_not_found.html"
-
-
-class BilancioMenuVoicesMixin(object):
 
     def get_menu_voices(self,):
+
+        # generates menu_voices structure based on if the request comes from Servizi comune or main app
 
         urlconf = None
         destination_views = {
@@ -1424,13 +1408,13 @@ class BilancioMenuVoicesMixin(object):
         }
 
         kwargs = {
-            'overview': self.territorio.slug,
-            'indicatori': self.territorio.slug,
+            'overview': {'slug':self.territorio.slug},
+            'indicatori': {'slug':self.territorio.slug},
         }
 
         if hasattr(self, 'entrate_kwargs'):
             kwargs['entrate'] = self.entrate_kwargs
-            
+
         if hasattr(self, 'spese_kwargs'):
             kwargs['spese'] = self.spese_kwargs
 
@@ -1467,7 +1451,42 @@ class BilancioMenuVoicesMixin(object):
 
         return menu_voices
 
-class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariationsMixin, BilancioView):
+    def get_complete_file(self, file_name):
+        """
+        Return a dict with file_name and file_size, if a file exists,
+        None if the file does not exist.
+        """
+
+        file_path = os.path.join(settings.OPENDATA_ROOT, file_name)
+        if os.path.isfile(file_path):
+            file_size = os.stat(file_path).st_size
+            return {
+                'file_name': file_name,
+                'file_size': file_size
+            }
+        else:
+            return {}
+
+    def get_context_data(self, **kwargs ):
+        context = super(BilancioView, self).get_context_data(**kwargs)
+
+        territorio = self.get_object()
+        csv_package_filename = "{0}.zip".format(territorio.cod_finloc)
+        context['csv_package_file'] = self.get_complete_file(csv_package_filename)
+        context['open_data_url'] = settings.OPENDATA_URL
+        return context
+
+
+class BilancioNotFoundView(TemplateView):
+
+    ##
+    # show a page when a Comune doesnt have any bilancio
+    ##
+
+    template_name = "bilanci/bilancio_not_found.html"
+
+
+class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "bilancio"
     year = None
@@ -1483,7 +1502,6 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
     cas_com_type = None
     fun_int_view = None
     share_url = None
-    servizi_comuni = False
 
 
     def calc_variations_set(self, main_dict, comp_dict,):
@@ -1595,8 +1613,8 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
         # if year or type parameter are missing redirects to a page for default year / default bilancio type
         ##
 
-        must_redirect = False
-        request_host = request.META['HTTP_HOST']
+        # check if the request comes from Comuni host
+        self.check_servizi_comuni(request)
 
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'bilancio')
@@ -1609,9 +1627,6 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
         if self.main_bilancio_type == "preventivo":
             self.cas_com_type = "cassa"
 
-        # identifies if the request comes from a Comuni host
-        if request.servizi_comuni:
-            self.servizi_comuni = True
         # identifies the bilancio for comparison, sets gdp multiplier based on deflator
 
         self.main_bilancio_year = int(self.year)
@@ -1746,6 +1761,11 @@ class BilancioOverView(BilancioMenuVoicesMixin, ShareUrlMixin, CalculateVariatio
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
+
+        # if servizi_comuni then passes the header/footer text to the template
+        if self.servizi_comuni:
+            context['comune_logo'],context['comune_header_text'], context['comune_footer_text'], context['comune_backlink'] =\
+                self.get_servizi_comune_context()
 
         # chi guadagna / perde
 
@@ -1971,7 +1991,7 @@ class BilancioDettaglioView(BilancioOverView):
         return context
 
 
-class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassificheMixin, DetailView, IndicatorSlugVerifierMixin):
+class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, IndicatorSlugVerifierMixin):
     model = Territorio
     context_object_name = "territorio"
     template_name = 'bilanci/bilancio_indicatori.html'
@@ -1980,7 +2000,6 @@ class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassif
     territorio = None
     entrate_kwargs = None
     spese_kwargs = None
-    servizi_comuni = False
 
     def get(self, request, *args, **kwargs):
 
@@ -1990,12 +2009,14 @@ class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassif
 
         self.territorio = self.get_object()
 
+        # check if the request comes from Comuni host
+        self.check_servizi_comuni(request)
+
         if self.request.GET.get('slug') is None:
             urlconf = None
             destination_view = 'bilanci-indicatori'
             kwargs = {'slug':self.territorio.slug}
-            if request.servizi_comuni:
-                self.servizi_comuni = True
+            if self.servizi_comuni:
                 destination_view = 'bilanci-indicatori-services'
                 urlconf = services.urls
                 kwargs = None
@@ -2034,6 +2055,12 @@ class BilancioIndicatoriView(BilancioMenuVoicesMixin, ShareUrlMixin, MiniClassif
         context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
 
         context['menu_voices'] = self.get_menu_voices()
+
+        # if servizi_comuni then passes the header/footer text to the template
+        if self.servizi_comuni:
+            context['comune_logo'],context['comune_header_text'], context['comune_footer_text'], context['comune_backlink'] =\
+                self.get_servizi_comune_context()
+
 
         context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
         # creates the query string to call the IncarichiIndicatori Json view in template
