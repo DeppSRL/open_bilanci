@@ -33,7 +33,9 @@
         </div>
     </div>
 
-    {% include 'bilanci/miniclass_indicatori.html' %}
+    {% if not request.servizi_comuni %}
+        {% include 'bilanci/miniclass_indicatori.html' %}
+    {% endif %}
 
 {% endblock %}
 
