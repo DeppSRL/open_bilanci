@@ -41,6 +41,7 @@ scraper_project/scraper/settings.py
 bilanci_project/dati/
 dati/
 /static/
+assets/
 open_data/
 bilanci_project/data/csv
 bilanci_project/data/zip

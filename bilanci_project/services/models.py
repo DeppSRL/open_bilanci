@@ -10,7 +10,7 @@ class PaginaComune(models.Model):
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     header_text = models.TextField()
     footer_text = models.TextField()
-    logo = models.FilePathField(null=True, blank=True)
+    logo = models.ImageField(null=True, blank=True, upload_to='comune_logo/')
     active = models.BooleanField(default=False)
 
 
