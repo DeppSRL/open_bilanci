@@ -440,13 +440,19 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         legend_set = []
         for indicator_num, indicatore in enumerate(indicatori):
             indicatori_set.append(self.get_indicatore_struct(territorio, indicatore, line_id=indicator_num, line_color=settings.INDICATOR_COLORS[indicator_num]))
-            legend_set.append(
-                {
-                "color": settings.INDICATOR_COLORS[indicator_num],
-                "id": indicator_num,
-                "label": indicatore.denominazione.upper()
-                }
-            )
+
+            try:
+                color = settings.INDICATOR_COLORS[indicator_num]
+            except IndexError:
+                continue
+            else:
+                legend_set.append(
+                    {
+                    "color": color,
+                    "id": indicator_num,
+                    "label": indicatore.denominazione.upper()
+                    }
+                )
 
         return HttpResponse(
             content=json.dumps(
