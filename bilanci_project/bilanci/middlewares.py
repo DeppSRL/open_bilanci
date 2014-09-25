@@ -79,14 +79,18 @@ class ComuniServicesMiddleware(object):
                 try:
                     map(isin, items).index(True)
                 except ValueError:
+
+                    # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
+                    view, args, kwargs = resolve(path=request.path, urlconf=urls)
+
+                    kwargs['slug'] = pagina_comune.territorio.slug
+                    request.servizi_comuni = True
+
+                    return view(request, args, **kwargs)
+
+                else:
                     return
 
-                # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
-                view, args, kwargs = resolve(path=request.path, urlconf=urls)
 
-                kwargs['slug'] = pagina_comune.territorio.slug
-                request.servizi_comuni = True
-
-                return view(request, args, **kwargs)
 
         return
