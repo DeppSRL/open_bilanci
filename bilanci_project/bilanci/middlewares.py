@@ -1,9 +1,11 @@
 import re
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from django.http import HttpResponsePermanentRedirect
-from bilanci.views import HomeTemporaryView, PageNotFoundTemplateView, BilancioDettaglioView, BilancioOverServicesView
+from django.core.urlresolvers import resolve
+from bilanci.views import HomeTemporaryView, PageNotFoundTemplateView, BilancioDettaglioView, BilancioNotFoundView, \
+    BilancioIndicatoriView, BilancioComposizioneView, BilancioCompositionWidgetView
+from services import urls
+
 from services.models import PaginaComune
 
 
@@ -39,14 +41,7 @@ class PrivateBetaMiddleware(object):
 
 class ComuniServicesMiddleware(object):
 
-    def process_request(self, request):
-        True == True
-        return
-
-
-    def process_view(self, request, view_func, view_args, view_kwargs):
-
-        """
+    """
         ComuniServicesMiddleware serves to enable the Servizi ai Comuni.
         The request is filtered by the http_host: if the host belongs to a Comune
         that has activated the services then the special template is shown for
@@ -57,7 +52,10 @@ class ComuniServicesMiddleware(object):
         In all other cases a 404 page is shown
         """
 
-        # http_host gets the http_host string removing the eventual port number
+    def process_request(self, request):
+
+        request.servizi_comuni = False
+         # http_host gets the http_host string removing the eventual port number
         regex = re.compile("^([\w\.]+):?.*")
         http_host = regex.findall(request.META['HTTP_HOST'])[0]
 
@@ -73,21 +71,25 @@ class ComuniServicesMiddleware(object):
 
             else:
 
-                whitelisted_views = {
-                    'BilancioView':None,
-                    'BilancioNotFoundView': None,
-                    'BilancioOverView': BilancioOverServicesView,
-                    'BilancioDettaglioView': None,
-                    'BilancioIndicatoriView': None,
-                    'BilancioComposizioneView': None,
-                    'BilancioCompositionWidgetView': None,
-                    'BilancioRedirectView': None
-                }
+                # depending on the request.path resolves the url with bilanci.urls or services.urls
+                # paths coming from the widget, the json views and the static files are resolved with bilanci.urls
+                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/', 'comune_logo' ]
 
-                if view_func.func_name not in whitelisted_views.keys():
-                    return PageNotFoundTemplateView.as_view()(request)
+                def isin(x): return x in request.path
+                try:
+                    map(isin, items).index(True)
+                except ValueError:
+
+                    # redirects to Bilanci Servizi view injecting the territorio slug in the kwargs
+                    view, args, kwargs = resolve(path=request.path, urlconf=urls)
+
+                    kwargs['slug'] = pagina_comune.territorio.slug
+                    request.servizi_comuni = True
+
+                    return view(request, args, **kwargs)
+
                 else:
-                    return whitelisted_views[view_func.func_name].as_view()(request)
+                    return
 
 
 

@@ -51,10 +51,10 @@
 
                 <!-- Main menu -->
                 {% block main_menu %}
-                    {% if servizi_comuni %}
-                        {% include 'services/navbar.html' %}
+                    {% if request.servizi_comuni %}
+                        {% include 'services/header.html' %}
                     {% else %}
-                        {% include 'commons/navbar.html' %}
+                        {% include 'commons/header.html' %}
                     {% endif %}
                 {% endblock %}
 
@@ -72,7 +72,7 @@
                 <div class="row">
                     {% block footer %}
                         <!-- Footer -->
-                        {% if servizi_comuni %}
+                        {% if request.servizi_comuni %}
                             {% include 'services/footer.html' %}
                         {% else %}
                             {% include 'commons/footer.html' %}
@@ -90,7 +90,10 @@
         <script src="{% static  'scripts/vendor/enscroll/js/mylibs/enscroll.js' %}"></script>
         <!-- Project scripts -->
         <script src="{% static 'scripts/project.js' %}"></script>
-        <script src="{% static 'scripts/select2_locale_it.js' %}"></script>
+
+        {% if not request.servizi_comuni %}
+            <script src="{% static 'scripts/select2_locale_it.js' %}"></script>
+        {% endif %}
 
         {% block extra_js %}{% endblock extra_js %}
         <!-- Html designer scripts -->

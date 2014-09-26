@@ -17,6 +17,10 @@ from territori.models import Territorio, ObjectDoesNotExist
 
 class Command(BaseCommand):
 
+    """
+     Export values from the simplified couchdb database into a set of CSV files or ZIP files
+    """
+
 
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',

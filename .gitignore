@@ -22,7 +22,10 @@ build
 .env
 
 /log/*
+#static files
 /static/
+assets/
+
 #south
 bilanci_project/*/migrations/
 
