@@ -22,6 +22,9 @@ build
 .env
 
 /log/*
+#static files
+/static/
+assets/
 
 #south
 bilanci_project/*/migrations/
@@ -30,22 +33,23 @@ bilanci_project/*/migrations/
 dump_indicatori
 dump_territori
 ob_dump.sql.gz
-
+#scraper files
 scraper_project/scraper/output/
 bilanci_project/bilanci/settings/local.py
 couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 scraper_project/scraper/settings.py
+#docs
 /docs/_build/
+#data
 bilanci_project/dati/
 dati/
-/static/
-assets/
 open_data/
 bilanci_project/data/csv
 bilanci_project/data/zip
-
+bilanci_project/data/indicators/
+bilanci_project/data/indicators_capoluoghi/
 #bilanci_project/static/data
 bilanci_project/templates/visup_test.html
 
