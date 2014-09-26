@@ -1392,8 +1392,11 @@ class BilancioView(DetailView):
         except ObjectDoesNotExist:
             return None, None, None, None
         else:
+            logo_url = None
+            if p_comune.logo:
+                logo_url = p_comune.logo.url
 
-            return  p_comune.logo.url, p_comune.header_text, p_comune.footer_text, p_comune.backlink
+            return  logo_url, p_comune.header_text, p_comune.footer_text, p_comune.backlink
 
 
     def get_menu_voices(self,):
