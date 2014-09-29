@@ -693,7 +693,7 @@ class CalculateVariationsMixin(object):
 class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     template_name = None
-    show_help = False
+    show_help = True
     totale_label = "Totale"
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
