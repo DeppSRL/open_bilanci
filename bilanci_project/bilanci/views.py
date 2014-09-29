@@ -2295,6 +2295,14 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
             if territorio_id in incarichi_regroup.keys():
                 incarichi = incarichi_regroup[territorio_id]
 
+            position = None
+            prev_position = None
+            if territorio_id in self.positions:
+                position = self.positions[territorio_id]
+
+            if territorio_id in self.prev_positions:
+                prev_position = self.prev_positions[territorio_id]
+
             territorio_dict = {
                 'territorio':{
                     'denominazione': obj.territorio.denominazione,
@@ -2306,8 +2314,8 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
                 'valore': valore,
                 'variazione': 0,
                 'incarichi_attivi': incarichi,
-                'position': self.positions[territorio_id],
-                'prev_position': self.prev_positions[territorio_id],
+                'position': position,
+                'prev_position': prev_position,
             }
 
             # adjust prev position and variation if values are found
