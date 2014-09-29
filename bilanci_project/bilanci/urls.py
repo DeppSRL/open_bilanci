@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from .sitemap import sitemap
+from .sitemap import sitemaps
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -81,7 +81,7 @@ urlpatterns = patterns('',
     url(r'^front-edit/', include('front.urls')),
 
     # Sitemap
-    #url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemap}),
+    # url(r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
 
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
         'document_root': settings.MEDIA_ROOT}),
