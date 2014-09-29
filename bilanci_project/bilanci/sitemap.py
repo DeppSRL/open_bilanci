@@ -97,6 +97,11 @@ class ClassificheSitemap(Sitemap):
 
     def generate_items(self):
 
+        slug_blacklist = ['consuntivo-spese-cassa-spese-correnti-interventi',
+                          'consuntivo-spese-cassa-spese-per-investimenti-interventi',
+                          'consuntivo-spese-cassa-spese-somma-funzioni',
+                          'consuntivo-entrate-cassa']
+
         years = range(settings.APP_START_DATE.year,settings.APP_END_DATE.year)
         hmm = HierarchicalMenuMixin()
         parameter_dict = hmm.get_parameter_list()
@@ -106,14 +111,15 @@ class ClassificheSitemap(Sitemap):
             for parameter_type, parameter_set in parameter_dict.iteritems():
                 for parameter_list in parameter_set :
                     for parameter in parameter_list :
+                        if parameter.slug not in slug_blacklist:
 
-                        items.append(
-                            {
-                                'parameter_type': parameter_type.replace('_','-'),
-                                'parameter_slug': parameter.slug,
-                                'anno': year
-                            }
-                        )
+                            items.append(
+                                {
+                                    'parameter_type': parameter_type.replace('_','-'),
+                                    'parameter_slug': parameter.slug,
+                                    'anno': year
+                                }
+                            )
 
         return items
 
