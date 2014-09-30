@@ -13,6 +13,8 @@ env = environ.Env(
 )
 env.read_env(root('.env'))
 
+########## INSTANCE TYPE: production | staging | development | test
+INSTANCE_TYPE = env.str('INSTANCE_TYPE')
 
 ########## PATH CONFIGURATION
 REPO_ROOT = root()

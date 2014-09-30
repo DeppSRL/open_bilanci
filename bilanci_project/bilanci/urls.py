@@ -90,9 +90,9 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 ) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ROOT)
 
-# Sitemap: active only on server production and on development machine
 
-if 'openbilanci.staging.deppsviluppo.org' not in settings.MAIN_HOST:
+# Sitemap: disabled in staging
+if settings.INSTANCE_TYPE != 'staging':
 
     urlpatterns += patterns('django.contrib.sitemaps.views',
         (r'^sitemap\.xml$', 'index', {'sitemaps': sitemaps}),

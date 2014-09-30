@@ -9,6 +9,7 @@ def main_settings(request):
     """
     return {
         'site': get_current_site(request),
+        'instance_type': settings.INSTANCE_TYPE,
         'territori_search_form': TerritoriSearchForm(),
         # sets start / end for timeline graph
         'timeline_start_year': settings.TIMELINE_START_DATE.year,

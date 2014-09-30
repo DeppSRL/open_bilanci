@@ -99,9 +99,9 @@
         <!-- Html designer scripts -->
         <script src="{% static 'scripts/main.js' %}"></script>
 
-        {% block google_analytics %}{% include 'commons/ga.html' %}{% endblock%}
-
-
+        {% if instance_type == 'production' %}
+            {% block google_analytics %}{% include 'commons/ga.html' %}{% endblock%}
+        {% endif %}
 
 
     </body>
