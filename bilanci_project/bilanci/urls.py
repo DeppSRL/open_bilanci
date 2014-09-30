@@ -90,12 +90,14 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 ) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ROOT)
 
-# Sitemap
+# Sitemap: active only on server production and on development machine
 
-urlpatterns += patterns('django.contrib.sitemaps.views',
-    (r'^sitemap\.xml$', 'index', {'sitemaps': sitemaps}),
-    (r'^sitemap-(?P<section>.+)\.xml$', 'sitemap', {'sitemaps': sitemaps}),
-)
+if 'openbilanci.staging.deppsviluppo.org' not in settings.MAIN_HOST:
+
+    urlpatterns += patterns('django.contrib.sitemaps.views',
+        (r'^sitemap\.xml$', 'index', {'sitemaps': sitemaps}),
+        (r'^sitemap-(?P<section>.+)\.xml$', 'sitemap', {'sitemaps': sitemaps}),
+    )
 
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar
