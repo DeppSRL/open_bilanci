@@ -1950,19 +1950,30 @@ class BilancioDettaglioView(BilancioOverView):
 
         absolute_values = budget_values.values_list('voce__slug', 'valore')
         percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
-        if values_type == 'real':
-            absolute_values = dict(
-                map(
-                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
-                    absolute_values
-                )
+
+        absolute_values = dict(
+            map(
+                lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                absolute_values
             )
-            percapita_values = dict(
-                map(
-                    lambda x: (x[0], x[1] * settings.GDP_DEFLATORS[int(self.year)]),
-                    percapita_values
-                )
+        )
+        percapita_values = dict(
+            map(
+                lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                percapita_values
             )
+        )
+
+
+        # avanzo / disavanzo fix: adds avanzo / disavanzo values to totale generale entrate / spese
+        if self.main_bilancio_type == 'preventivo':
+            if self.selected_section == 'spese':
+                absolute_values['preventivo-spese'] += absolute_values['preventivo-spese-disavanzo-di-amministrazione']
+                percapita_values['preventivo-spese'] += percapita_values['preventivo-spese-disavanzo-di-amministrazione']
+            else:
+                absolute_values['preventivo-entrate'] += absolute_values['preventivo-entrate-avanzo-di-amministrazione']
+                percapita_values['preventivo-entrate'] += percapita_values['preventivo-entrate-avanzo-di-amministrazione']
+
 
         context['budget_values'] = {
             'absolute': dict(absolute_values),
