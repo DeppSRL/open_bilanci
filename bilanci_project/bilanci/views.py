@@ -344,23 +344,23 @@ class IncarichiGetterMixin(object):
 
             # considers absolute or per_capita values
             if per_capita is False:
-                value_to_consider = voce_value.valore
+                value_to_consider = voce_value['valore']
             else:
-                value_to_consider = voce_value.valore_procapite
+                value_to_consider = voce_value['valore_procapite']
 
             if value_to_consider is not None:
                 # real values are multiplied by GDP_DEFLATOR rates
                 if values_type == 'real':
-                    valore = value_to_consider * settings.GDP_DEFLATORS[voce_value.anno]
+                    valore = value_to_consider * settings.GDP_DEFLATORS[voce_value['anno']]
                 else:
                     valore = value_to_consider
 
                 serie.append(
-                    [voce_value.anno, round(valore,decimals)]
+                    [voce_value['anno'], round(valore,decimals)]
                 )
             else:
                 serie.append(
-                    [voce_value.anno, None]
+                    [voce_value['anno'], None]
                 )
 
         # before returning the data struct checks if there is any missing year in the data set:
@@ -399,7 +399,44 @@ class IncarichiGetterMixin(object):
             voce = voce_bilancio,
             anno__gte = self.timeline_start.year,
             anno__lte = self.timeline_end.year
-        ).order_by('anno')
+        ).values('anno', 'valore', 'valore_procapite').order_by('anno')
+
+        # if the considered voice is totale generale entrate / spese in bilancio preventivo
+        # the avanzo / disavanzo di amministrazione has to be added up
+        voce_avanzo_disavanzo = None
+        if voce_bilancio.slug == 'preventivo-entrate':
+            try:
+                voce_avanzo_disavanzo = Voce.objects.get(slug = 'preventivo-entrate-avanzo-di-amministrazione')
+            except ObjectDoesNotExist:
+                pass
+
+        if voce_bilancio.slug == 'preventivo-spese' :
+            try:
+                voce_avanzo_disavanzo = Voce.objects.get(slug = 'preventivo-spese-disavanzo-di-amministrazione')
+            except ObjectDoesNotExist:
+                pass
+
+        if voce_avanzo_disavanzo:
+            values_avanzo_disavanzo = ValoreBilancio.objects.filter(
+                territorio = territorio,
+                voce = voce_avanzo_disavanzo,
+                anno__gte = self.timeline_start.year,
+                anno__lte = self.timeline_end.year
+            ).values('anno', 'valore', 'valore_procapite').order_by('anno')
+
+            #sums avanzo / disavanzo values to totale values
+            for voce_value in voce_values:
+                # gets the corresponding avanzo / disavanzo for the same yr
+                try:
+                    corresponding_avanzo_disavanzo =\
+                        next(x for x in values_avanzo_disavanzo if x['anno'] == voce_value['anno'])
+                except StopIteration:
+                    pass
+                else:
+                    voce_value['valore'] += corresponding_avanzo_disavanzo['valore']
+                    voce_value['valore_procapite'] += corresponding_avanzo_disavanzo['valore_procapite']
+
+
 
         return self.transform_for_widget(voce_values, line_id, line_color, values_type=values_type, per_capita=per_capita)
 
@@ -1069,7 +1106,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                 s_comp_totale = self.comp_regroup_s[self.totale_label]
 
             if self.comp_bilancio_type == 'preventivo' and s_comp_totale and e_comp_totale:
-                
+
                 # if comparison bilancio is a preventivo adds the Avanzo / disavanzo to Total for the comparison
 
                 avanzo_bilancio = self.comp_regroup_e.get('Avanzo di amministrazione', None)
