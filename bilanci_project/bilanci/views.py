@@ -706,6 +706,16 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
     comparison_not_available = False
     values_type = None
     cas_com_type = None
+    
+    # data struct for main bilancio / comparison bilancio entrate/spese
+    main_regroup_e = None
+    main_regroup_s = None
+    comp_regroup_e = None
+    comp_regroup_s = None
+    
+    # slug for total VoceBilancio entrate / spese
+    main_tot_e = None
+    main_tot_s = None
 
 
     def get_money_verb(self):
@@ -807,7 +817,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
             self.template_name = 'bilanci/composizione_bilancio.html'
 
         elif self.widget_type == 'entrate' or self.widget_type =='spese':
-            self.template_name = 'bilanci/composizione_entrate_uscite.html'
+            self.template_name = 'bilanci/composizione_entrate_spese.html'
         else:
             return reverse('404')
 
@@ -841,7 +851,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
 
     # return data_regroup for comp bilancio for comparison year
-    def get_comp_data(self, slugset, totale_slug):
+    def get_comparison_data(self, slugset, totale_slug):
 
         values = ValoreBilancio.objects.filter(
             voce__slug__in=slugset,
@@ -963,274 +973,265 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         return composition_data
 
-    def create_context_entrate(self):
+
+    def get_composition_data(self):
+        ##
+        # get_composition_data
+        # creates composition data to pass to context
+        ##
+
 
         context = {}
-        context["type"]= "ENTRATE"
-        # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_e , self.main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
+        main_ss_s, self.main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
         comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
-        totale_level = Voce.objects.get(slug=main_tot_e).level
-        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
-        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
         comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
-        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-        variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_e, variations_e, totale_level))
-        s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
-        e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
 
-        # widget1 : bar totale entrate
-        context["w1_type"]= "bar"
-        context["w1_label"]= "Entrate - Totale"
-        context["w1_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
-        context["w1_sublabel1"]= ""
-        context["w1_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
-        context["w1_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
-        if not self.comparison_not_available:
+        self.main_regroup_e = self.get_main_data(main_ss_e, self.main_tot_e)
+        self.main_regroup_s = self.get_main_data(main_ss_s, self.main_tot_s)
+        
+        self.comp_regroup_e = self.get_comparison_data(comp_ss_e, comp_tot_e)
+        self.comp_regroup_s = self.get_comparison_data(comp_ss_s, comp_tot_s)
 
-            context["w1_variation"]= self.calculate_variation(
-                                main_val=e_main_totale['valore'],
-                                comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
-                            )
+        if self.widget_type == 'entrate':
+            # entrate data
+            context["type"]= "ENTRATE"
+            totale_level = Voce.objects.get(slug=self.main_tot_e).level
 
-        # widget2: bar totale spese
-        context["w2_type"]= "bar"
-        context["w2_label"]= "Spese - Totale"
-        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
-        context["w2_sublabel1"]= ""
-        context["w2_value"]= float(s_main_totale['valore'])*self.main_gdp_multiplier
-        context["w2_value_procapite"]= float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
-        if not self.comparison_not_available:
+            variations_e = self.calc_variations_set(self.main_regroup_e, self.comp_regroup_e,)
+            context['composition'] = json.dumps(self.compose_partial_data(self.main_regroup_e, variations_e, totale_level))
 
-            context["w2_variation"]= self.calculate_variation(
-                                main_val=s_main_totale['valore'],
-                                comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
-                            )
+        elif self.widget_type == 'spese':
+            # spese data
+            context["type"]= "SPESE"
+            totale_level = Voce.objects.get(slug=self.main_tot_s).level
 
-        # widget3: andamento nel tempo del totale delle entrate
-        context["w3_type"]= "spark"
-        context["w3_label"]=  "Andamento nel tempo delle Entrate"
-        context["w3_sublabel1"]= ''
-        context["w3_sublabel2"]= ''
-        context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
-        context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_e[self.totale_label]])
+            variations_s = self.calc_variations_set(self.main_regroup_s, self.comp_regroup_s,)
+            context['composition'] = json.dumps(self.compose_partial_data(self.main_regroup_s, variations_s, totale_level))
 
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
-        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
-        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-        context['active_layers'] = 2
+        elif self.widget_type == 'overview':
+            # entrate data
+            variations_e = self.calc_variations_set(self.main_regroup_e, self.comp_regroup_e)
+
+            # spese data
+            variations_s = self.calc_variations_set(self.main_regroup_s, self.comp_regroup_s,)
+
+            context['entrate'] = json.dumps(self.compose_overview_data(self.main_regroup_e, variations_e))
+            context['spese'] = json.dumps(self.compose_overview_data(self.main_regroup_s, variations_s))
 
         return context
 
 
-
-    def create_context_spese(self):
-
-        context = {}
-        context["type"]= "SPESE"
-        # spese data
-        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
-        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type,self.cas_com_type)
-        totale_level = Voce.objects.get(slug=main_tot_s).level
-        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
-        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
-        variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
-        context['composition'] = json.dumps(self.compose_partial_data(main_regroup_s, variations_s, totale_level))
-        s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
-        e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
-
-        #  # widget1 : bar totale spese
-        context["w1_type"]= "bar"
-        context["w1_label"]= "Spese - Totale"
-        context["w1_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
-        context["w1_sublabel1"]= ""
-        context["w1_value"]= float(s_main_totale['valore'])*self.main_gdp_multiplier
-        context["w1_value_procapite"]= float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
-        if not self.comparison_not_available:
-
-            context["w1_variation"]= self.calculate_variation(
-                                main_val=s_main_totale['valore'],
-                                comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
-                            )
-        # # widget2: bar totale entrate
-        
-        context["w2_type"]= "bar"
-        context["w2_label"]= "Entrate - Totale"
-        context["w2_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
-        context["w2_sublabel1"]= ""
-        context["w2_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
-        context["w2_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
-        if not self.comparison_not_available:
-
-            context["w2_variation"]= self.calculate_variation(
-                                main_val=e_main_totale['valore'],
-                                comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
-                            )
-        
-
-        # widget3: andamento nel tempo del totale delle entrate
-        context["w3_type"]= "spark"
-        context["w3_label"]=  "Andamento nel tempo delle Spese"
-        context["w3_sublabel1"]= ''
-        context["w3_sublabel2"]= ''
-        context["w3_sublabel3"]= "Entrate nei Bilanci {0} {1}-{2}".format(self.main_bilancio_type[:-1]+"i",settings.APP_START_DATE.year, settings.APP_END_DATE.year)
-        context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_s[self.totale_label]])
-
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
-        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
-        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
-        context['active_layers'] = 1
-
-        return context
-
-
-    def create_context_overview(self):
+    def get_widget_data(self):
 
         context = {}
-        # entrate data
-        main_ss_e , main_tot_e = self.get_slugset_entrate_widget(self.main_bilancio_type,self.cas_com_type, self.widget_type)
-        comp_ss_e, comp_tot_e = self.get_slugset_entrate_widget(self.comp_bilancio_type,self.cas_com_type, self.widget_type)
-        main_regroup_e = self.get_main_data(main_ss_e, main_tot_e)
-        comp_regroup_e = self.get_comp_data(comp_ss_e, comp_tot_e)
-        variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e)
+        e_comp_totale = s_comp_totale = None
+        # gets the entrate / spese total values from previous regrouping
+        e_main_totale = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, self.main_regroup_e[self.totale_label])][0]
+        s_main_totale = [x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, self.main_regroup_s[self.totale_label])][0]
 
-        # spese data
-        main_ss_s, main_tot_s = self.get_slugset_spese_widget(self.main_bilancio_type, self.cas_com_type)
-        comp_ss_s, comp_tot_s = self.get_slugset_spese_widget(self.comp_bilancio_type, self.cas_com_type)
-        main_regroup_s = self.get_main_data(main_ss_s, main_tot_s)
-        comp_regroup_s = self.get_comp_data(comp_ss_s, comp_tot_s)
-        variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s,)
+        # three struct for default widget box
+        w1 = {'showhelp': self.show_help}
+        w2 = {'showhelp': self.show_help}
+        w3 = {'showhelp': self.show_help}
+        # three struct for circle detail widget box
+        w4 = {'showhelp': self.show_help}
+        w5 = {'showhelp': self.show_help}
+        w6 = {'showhelp': self.show_help}
 
+        e_money_verb, s_money_verb = self.get_money_verb()
 
-        context['entrate'] = json.dumps(self.compose_overview_data(main_regroup_e, variations_e))
-        context['spese'] = json.dumps(self.compose_overview_data(main_regroup_s, variations_s))
+        w4['e_moneyverb'] = e_money_verb
+        w4["s_moneyverb"] = s_money_verb
+
+        w6["main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
 
         if self.main_bilancio_type == 'preventivo':
 
-            # gets the entrate / spese total values from previous regrouping
-            e_main_totale=[x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
-            s_main_totale=[x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
+            # in preventivo adds avanzo / disavanzo di bilancio to the total entrate/spese
+            avanzo_bilancio = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, self.main_regroup_e['Avanzo di amministrazione'])][0]
+            disavanzo_bilancio = [x for x in ifilter(lambda smt: smt['anno']==self.main_bilancio_year, self.main_regroup_s['Disavanzo di amministrazione'])][0]
 
-            context["w1_type"]= "bar"
-            context["w1_label"]= "Entrate - Totale"
-            context["w1_sublabel2"]= "SUL consuntivo {0}".format(self.comp_bilancio_year)
-            context["w1_sublabel1"]= ""
-            context["w1_value"]= float(e_main_totale['valore'])*self.main_gdp_multiplier
-            context["w1_value_procapite"]= float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier
+            e_main_totale['valore'] += avanzo_bilancio['valore']
+            e_main_totale['valore_procapite'] += avanzo_bilancio['valore_procapite']
 
-            context['w2_label']  =  "Spese - Totale"
-            context['w2_sublabel1'] = ""
-            context['w2_sublabel2'] = "consuntivo {0}".format(self.comp_bilancio_year)
-            context['w2_value'] = float(s_main_totale['valore'])*self.main_gdp_multiplier
-            context['w2_value_procapite'] = float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier
-            if not self.comparison_not_available:
-
-                context["w1_variation"]= self.calculate_variation(
-                                    main_val=e_main_totale['valore'],
-                                    comp_val=comp_regroup_e[self.totale_label]['valore'] if len(comp_regroup_e) else 0
-                                )
+            s_main_totale['valore'] += disavanzo_bilancio['valore']
+            s_main_totale['valore_procapite'] += disavanzo_bilancio['valore_procapite']
 
 
-                context['w2_variation'] =\
-                    self.calculate_variation(
-                        main_val=s_main_totale['valore'],
-                        comp_val=comp_regroup_s[self.totale_label]['valore'] if len(comp_regroup_s) else 0
-                      )
+        if not self.comparison_not_available:
 
-            context["w3_type"]= "spark"
-            context["w3_label"]=  "Andamento nel tempo delle Entrate"
-            context["w3_sublabel1"]= ''
-            context["w3_sublabel2"]= ''
-            context["w3_sublabel3"]= "Entrate nei Bilanci Preventivi {0}-{1}".format(settings.APP_START_DATE.year, settings.APP_END_DATE.year)
-            context['w3_series'] = json.dumps([[v['anno'],v['valore']] for v in main_regroup_e[self.totale_label]])
-
-        else:
-
-            # # creates overview widget data for consuntivo cassa / competenza
-
-            main_consuntivo_entrate = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_e[self.totale_label])][0]
-            main_consuntivo_spese= [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, main_regroup_s[self.totale_label])][0]
-
-            # widget1
-            # avanzo / disavanzo di cassa / competenza
-            yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
-
-            for k, year in yrs_to_consider.iteritems():
-                if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
-                    try:
-                        entrate = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_e, territorio=self.territorio).valore
-                        spese = ValoreBilancio.objects.get(anno=year, voce__slug=main_tot_s, territorio=self.territorio).valore
-
-                        if self.values_type == 'real':
-                            entrate = float(entrate) *settings.GDP_DEFLATORS[year]
-                            spese = float(spese) *settings.GDP_DEFLATORS[year]
-
-                    except ObjectDoesNotExist:
-                        continue
-                    else:
-                        context['w1_year'+k] = year
-                        context['w1_value'+k] = entrate-spese
+            if len(self.comp_regroup_e):
+                e_comp_totale = self.comp_regroup_e[self.totale_label]
 
 
-            context["w1_type"]= "surplus"
-            context["w1_label"]= "Avanzo/disavanzo"
-            context["w1_sublabel1"]= "di "+self.cas_com_type
-            context["w1_sublabel2"]= ""
+            if len(self.comp_regroup_s):
+                s_comp_totale = self.comp_regroup_s[self.totale_label]
 
-            # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
-            e_money_verb, s_money_verb = self.get_money_verb()
+            if self.comp_bilancio_type == 'preventivo' and s_comp_totale and e_comp_totale:
+                
+                # if comparison bilancio is a preventivo adds the Avanzo / disavanzo to Total for the comparison
 
-            context['w2_label']  =  "Entrate - Totale"
-            context['w2_sublabel1'] = e_money_verb
-            context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
-            context['w2_value'] = float(main_consuntivo_entrate['valore'])*self.main_gdp_multiplier
-            context['w2_value_procapite'] = float(main_consuntivo_entrate['valore_procapite'])*self.main_gdp_multiplier
+                avanzo_bilancio = self.comp_regroup_e.get('Avanzo di amministrazione', None)
+                disavanzo_bilancio = self.comp_regroup_s.get('Disavanzo di amministrazione', None)
 
-
-            context["w3_type"]= "bar"
-            context["w3_label"]=  "Spese - Totale"
-            context["w3_sublabel1"]= s_money_verb
-            context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
-
-            context['w3_value'] = float(main_consuntivo_spese['valore'])*self.main_gdp_multiplier
-            context['w3_value_procapite'] = float(main_consuntivo_spese['valore_procapite'])*self.main_gdp_multiplier
+                if avanzo_bilancio:
+                    e_comp_totale['valore'] += avanzo_bilancio.get('valore',0)
+                if disavanzo_bilancio:
+                    s_comp_totale['valore'] += disavanzo_bilancio.get('valore',0)
 
 
-            if not self.comparison_not_available:
+        # standard entrate totale widget
+        entrate_tot = {
+            'type' : "bar",
+            'label' :"Entrate - Totale",
+            'sublabel1': "",
+            'sublabel2': "SUL {0} {1}".format(self.comp_bilancio_type,self.comp_bilancio_year),
+            'value': float(e_main_totale['valore'])*self.main_gdp_multiplier,
+            'value_procapite': float(e_main_totale['valore_procapite'])*self.main_gdp_multiplier,
+            'variation': None,
+        }
+        # standard spese totale widget
+        spese_tot = {
+            'type' : "bar",
+            'label' :"Spese - Totale",
+            'sublabel1': "",
+            'sublabel2': "SUL {0} {1}".format(self.comp_bilancio_type,self.comp_bilancio_year),
+            'value': float(s_main_totale['valore'])*self.main_gdp_multiplier,
+            'value_procapite': float(s_main_totale['valore_procapite'])*self.main_gdp_multiplier,
+            'variation': None,
+        }
 
-                comp_preventivo_entrate = comp_regroup_e[self.totale_label]
-                comp_preventivo_spese = comp_regroup_s[self.totale_label]
+        # standard andamento nel tempo widget
+        andamento_tempo = {
+            'type' : "spark",
+            'label' : "Andamento nel tempo delle entrate",
+            'sublabel1': "",
+            'sublabel2': "",
+            'sublabel3': "{0} nei Bilanci {1} {2}-{3}".format(
+                            self.widget_type.title() if self.widget_type =='spese' else 'Entrate',
+                            self.main_bilancio_type[:-1]+"i",
+                            settings.APP_START_DATE.year,
+                            settings.APP_END_DATE.year
+                            ),
+        }
 
-                context['w2_variation'] = self.calculate_variation(
-                                        main_val=main_consuntivo_entrate['valore'],
-                                        comp_val=comp_preventivo_entrate['valore'],
-                                        )
+        surplus = { 'type': "surplus",
+                    "label": "Avanzo/disavanzo",
+                    'sublabel1': "di "+self.cas_com_type,
+                    'sublabel2': ""
+        }
 
-                context['w3_variation'] = self.calculate_variation(
-                                        main_val=main_consuntivo_spese['valore'],
-                                        comp_val=comp_preventivo_spese['valore']
-                                    )
+        # sets variation values if comparison bilancio is available
+        if not self.comparison_not_available:
+
+            entrate_tot['variation'] =\
+                self.calculate_variation(
+                                main_val=e_main_totale['valore'],
+                                comp_val=e_comp_totale['valore']
+                            )
+            spese_tot['variation'] =\
+                self.calculate_variation(
+                                main_val=s_main_totale['valore'],
+                                comp_val=s_comp_totale['valore']
+                            )
 
 
-        context["w1_showhelp"] = context["w2_showhelp"] = context["w3_showhelp"] = context["w4_showhelp"] = context["w5_showhelp"] = context["w6_showhelp"] = self.show_help
-        context["w4_e_moneyverb"], context["w4_s_moneyverb"] = self.get_money_verb()
-        context["w6_main_bilancio_type_plural"]= self.main_bilancio_type[:-1]+"i"
+        if self.widget_type == 'entrate':
 
+            # widget1 : bar totale entrate
+            # widget2: bar totale spese
+            w1.update(entrate_tot)
+            w2.update(spese_tot)
+
+            # widget3: andamento nel tempo del totale delle entrate
+            andamento_tempo['series'] = json.dumps([[v['anno'],v['valore']] for v in self.main_regroup_e[self.totale_label]])
+            w3.update(andamento_tempo)
+
+            context['active_layers'] = 2
+
+        elif self.widget_type == 'spese':
+
+            # widget1 : bar totale spese
+            # widget2: bar totale entrate
+            w1.update(spese_tot)
+            w2.update(entrate_tot)
+
+            # widget3: andamento nel tempo del totale delle entrate
+            andamento_tempo['label'] = "Andamento nel tempo delle spese"
+            andamento_tempo['series'] = json.dumps([[v['anno'],v['valore']] for v in self.main_regroup_s[self.totale_label]])
+
+            w3.update(andamento_tempo)
+
+            context['active_layers'] = 1
+
+        elif self.widget_type == 'overview':
+
+            if self.main_bilancio_type == 'preventivo':
+
+                # widget1 : bar totale entrate
+                # widget2: bar totale spese
+                w1.update(entrate_tot)
+                w2.update(spese_tot)
+
+                # widget3: andamento nel tempo del totale delle entrate
+                andamento_tempo['series'] = json.dumps([[v['anno'],v['valore']] for v in self.main_regroup_e[self.totale_label]])
+                w3.update(andamento_tempo)
+
+            else:
+
+                # # creates overview widget data for consuntivo cassa / competenza
+                main_consuntivo_spese= [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, self.main_regroup_s[self.totale_label])][0]
+                main_consuntivo_entrate = [x for x in ifilter(lambda emt: emt['anno']==self.main_bilancio_year, self.main_regroup_e[self.totale_label])][0]
+
+                # widget1
+                # avanzo / disavanzo di cassa / competenza
+                yrs_to_consider = { '1':self.main_bilancio_year-1,'2':self.main_bilancio_year,'3':self.main_bilancio_year+1}
+
+                for k, year in yrs_to_consider.iteritems():
+                    if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+                        try:
+                            entrate = ValoreBilancio.objects.get(anno=year, voce__slug=self.main_tot_e, territorio=self.territorio).valore
+                            spese = ValoreBilancio.objects.get(anno=year, voce__slug=self.main_tot_s, territorio=self.territorio).valore
+
+                            if self.values_type == 'real':
+                                entrate = float(entrate) *settings.GDP_DEFLATORS[year]
+                                spese = float(spese) *settings.GDP_DEFLATORS[year]
+
+                        except ObjectDoesNotExist:
+                            continue
+                        else:
+                            surplus['year'+k] = year
+                            surplus['value'+k] = entrate-spese
+
+                w1.update(surplus)
+                # variations between consuntivo-entrate and preventivo-entrate / consuntivo-spese and preventivo-spese
+                entrate_tot['sublabel1'] = e_money_verb
+                spese_tot['sublabel1'] = s_money_verb
+                w2.update(entrate_tot)
+                w3.update(spese_tot)
+
+                # context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
+                # context['w2_value'] = float(main_consuntivo_entrate['valore'])*self.main_gdp_multiplier
+                # context['w2_value_procapite'] = float(main_consuntivo_entrate['valore_procapite'])*self.main_gdp_multiplier
+                #
+                # context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
+                # context['w3_value'] = float(main_consuntivo_spese['valore'])*self.main_gdp_multiplier
+                # context['w3_value_procapite'] = float(main_consuntivo_spese['valore_procapite'])*self.main_gdp_multiplier
+
+        # passing widget data to the context
+        context['w1'] = w1
+        context['w2'] = w2
+        context['w3'] = w3
+        context['w4'] = w4
+        context['w5'] = w5
+        context['w6'] = w6
 
         return context
 
 
     def get_context_data(self, **kwargs):
 
-        widget1 = widget2 = widget3 = None
-        main_regroup_e = main_regroup_s=variations_e=variations_s= None
         context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
 
         ##
@@ -1239,14 +1240,12 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         context['year'] = self.main_bilancio_year
 
-        if self.widget_type == "overview":
-            context.update(self.create_context_overview())
+        # gets the circles composition data
+        context.update(self.get_composition_data())
 
-        elif self.widget_type == "entrate":
-            context.update(self.create_context_entrate())
+        # gets the data to feed to side widgets
+        context.update(self.get_widget_data())
 
-        else:
-            context.update(self.create_context_spese())
 
         context['comp_bilancio_type'] = self.comp_bilancio_type
         context['comp_bilancio_year'] = self.comp_bilancio_year

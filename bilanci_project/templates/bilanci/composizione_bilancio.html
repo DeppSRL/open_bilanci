@@ -17,70 +17,70 @@
 
                 //widget 1,2,3: overview boxes
                 "widget1": {
-                    "type": "{{ w1_type }}",
-                    "showHelp": {{ w1_showhelp|lower }},
-                    "label": "{{ w1_label|safe|default:"null" }}",
-                    "sublabel1": "{{ w1_sublabel1|safe}}",
-                    "sublabel2": "{{ w1_sublabel2|safe }}",
+                    "type": "{{ w1.type }}",
+                    "showHelp": {{ w1.showhelp|lower }},
+                    "label": "{{ w1.label|safe|default:"null" }}",
+                    "sublabel1": "{{ w1.sublabel1|safe}}",
+                    "sublabel2": "{{ w1.sublabel2|safe }}",
 
-                    "value": {{ w1_value|safe|default:"null" }},
-                    "procapite": {{ w1_value_procapite|safe|default:"null" }},
-                    "variation":{% if w1_variation %}{{ w1_variation|safe }}{% else %}null{% endif %},
+                    "value": {{ w1.value|safe|default:"null" }},
+                    "procapite": {{ w1.value_procapite|safe|default:"null" }},
+                    "variation":{% if w1.variation %}{{ w1.variation|safe }}{% else %}null{% endif %},
 
-                    "year1": {{ w1_year1|default:"null" }},
-                    "year2": {{ w1_year2|default:"null" }},
-                    "year3": {{ w1_year3|default:"null" }},
+                    "year1": {{ w1.year1|default:"null" }},
+                    "year2": {{ w1.year2|default:"null" }},
+                    "year3": {{ w1.year3|default:"null" }},
 
-                    "value1": {{ w1_value1|safe|default:"null" }},
-                    "value2": {{ w1_value2|safe|default:"null" }},
-                    "value3": {{ w1_value3|safe|default:"null" }}
+                    "value1": {{ w1.value1|safe|default:"null" }},
+                    "value2": {{ w1.value2|safe|default:"null" }},
+                    "value3": {{ w1.value3|safe|default:"null" }}
                         
                 },
 
                 "widget2":{
                     "type": "bar",
-                    "showHelp": {{ w2_showhelp|lower }},
-                    "label": "{{ w2_label }}",
-                    "sublabel2": "SUL {{ w2_sublabel2 }}",
-                    "sublabel1": "{{ w2_sublabel1|default_if_none:"" }}",
-                    "value": {{ w2_value|safe }},
-                    "procapite": {{ w2_value_procapite|safe }},
-                    "variation":{% if w2_variation %}{{ w2_variation|safe }}{% else %}null{% endif %}
+                    "showHelp": {{ w2.showhelp|lower }},
+                    "label": "{{ w2.label }}",
+                    "sublabel2": "SUL {{ w2.sublabel2 }}",
+                    "sublabel1": "{{ w2.sublabel1|default_if_none:"" }}",
+                    "value": {{ w2.value|safe }},
+                    "procapite": {{ w2.value_procapite|safe }},
+                    "variation":{% if w2.variation %}{{ w2.variation|safe }}{% else %}null{% endif %}
                 },
 
                 "widget3": {
-                     "type": "{{ w3_type }}",
-                    "showHelp": {{ w3_showhelp|lower }},
-                    "label": "{{ w3_label|safe }}",
-                    "sublabel1": "{{ w3_sublabel1|safe}}",
-                    "sublabel2": "{{ w3_sublabel2|safe }}",
-                    "sublabel3": "{{ w3_sublabel3|safe }}",
-                    "value": {{ w3_value|safe|default:"null" }},
-                    "procapite": {{ w3_value_procapite|safe|default:"null" }},
+                     "type": "{{ w3.type }}",
+                    "showHelp": {{ w3.showhelp|lower }},
+                    "label": "{{ w3.label|safe }}",
+                    "sublabel1": "{{ w3.sublabel1|safe}}",
+                    "sublabel2": "{{ w3.sublabel2|safe }}",
+                    "sublabel3": "{{ w3.sublabel3|safe }}",
+                    "value": {{ w3.value|safe|default:"null" }},
+                    "procapite": {{ w3.value_procapite|safe|default:"null" }},
 
-                    "variation":{% if w3_variation %}{{ w3_variation|safe }}{% else %}null{% endif %},
+                    "variation":{% if w3.variation %}{{ w3.variation|safe }}{% else %}null{% endif %},
 
-                    "series": {{ w3_series|safe|default:"null" }}
+                    "series": {{ w3.series|safe|default:"null" }}
                 },
 
 
                 // widget 4 : 1 box for voce detail
                 "widget4": {
-                    "showHelp": {{ w4_showhelp|lower }},
+                    "showHelp": {{ w4.showhelp|lower }},
                     "entrate": {
                     "label": "entrate da",
-                    "sublabel": "{{ w4_e_moneyverb|safe }}"
+                    "sublabel": "{{ w4.e_moneyverb|safe }}"
                     },
                     "spese": {
                     "label": "spese per",
-                    "sublabel": "{{ w4_s_moneyverb|safe }}"
+                    "sublabel": "{{ w4.s_moneyverb|safe }}"
                     },
                     "sublabel3": "sul {{ comp_bilancio_type|safe }} {{ comp_bilancio_year|safe }}"
                 },
 
                 // widget 5 : 2 box for voce detail
                 "widget5": {
-                    "showHelp": {{ w5_showhelp|lower }},
+                    "showHelp": {{ w5.showhelp|lower }},
 
                     "entrate": {
                     "label": "Percentuale sul totale delle entrate"
@@ -92,14 +92,14 @@
                 //widget 6 : 3 box for voce detail
 
                 "widget6": {
-                    "showHelp": {{ w6_showhelp|lower }},
+                    "showHelp": {{ w6.showhelp|lower }},
                     "entrate": {
                     "label": "andamento entrate da"
                     },
                     "spese": {
                     "label": "andamento spese per"
                     },
-                    "sublabel3": "nei bilanci {{ w6_main_bilancio_type_plural }}"
+                    "sublabel3": "nei bilanci {{ w6.main_bilancio_type_plural }}"
                 }
             };
 
