@@ -2053,6 +2053,9 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
 
         self.territorio = self.get_object()
 
+        if ValoreIndicatore.objects.filter(territorio=self.territorio).count() == 0:
+            return HttpResponseRedirect(reverse('404'))
+
         # check if the request comes from Comuni host
         self.check_servizi_comuni(request)
 
