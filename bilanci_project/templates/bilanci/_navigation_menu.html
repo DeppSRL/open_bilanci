@@ -1,7 +1,7 @@
-<nav class="navbar navbar-subnav" role="navigation">
-    <div class="container">
-        <div class="row">
-            <ul class="nav navbar-nav">
+<div class="row">
+    <div class="col-sm-12">
+        <nav class="navbar navbar-subnav" role="navigation">
+            <ul class="nav nav-tabs" role="tablist">
                 <li>
                     <a id="dLabel" role="button" data-toggle="dropdown" class="" data-target="#" href="#">
                         bilancio <span class="caret"></span>
@@ -26,8 +26,10 @@
                                 </li>
                             </ul>
                         </li>
-                        <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active"{% endifequal %}">
-                        <a tabindex="-1" href="#">spese</a>
+
+                        <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active{% endifequal %}">
+                            <a tabindex="-1" href="#">spese</a>
+
                             <ul class="dropdown-menu">
                                 <li {% if selected_section == 'spese' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
                                     <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
@@ -44,12 +46,12 @@
                     </ul>
                 </li>
                 <li {% ifequal selected_section 'indicatori' %}class="active"{% endifequal %}>
-                    <a href="{{ menu_voices.indicatori}}">indicatori</a></li>
+                    <a href="{{ menu_voices.indicatori}}">indicatori</a>
                 </li>
             </ul>
-        </div>
+        </nav>
     </div>
-</nav>
+</div>
 
 <style>.dropdown-submenu {
     position: relative;
