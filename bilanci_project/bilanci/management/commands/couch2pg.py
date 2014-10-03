@@ -189,8 +189,6 @@ class Command(BaseCommand):
         set_autocommit(autocommit=False)
         for city in cities:
 
-            commit()
-
             try:
                 territorio = Territorio.objects.get(cod_finloc=city)
             except ObjectDoesNotExist:
@@ -279,6 +277,9 @@ class Command(BaseCommand):
                     self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
                 del vb_dict
                 del vb_filters
+
+                # actually save data into posgres
+                commit()
 
 
     def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
