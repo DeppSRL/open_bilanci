@@ -1248,13 +1248,6 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
                 w2.update(entrate_tot)
                 w3.update(spese_tot)
 
-                # context['w2_sublabel2'] = "preventivo {0}".format(self.comp_bilancio_year)
-                # context['w2_value'] = float(main_consuntivo_entrate['valore'])*self.main_gdp_multiplier
-                # context['w2_value_procapite'] = float(main_consuntivo_entrate['valore_procapite'])*self.main_gdp_multiplier
-                #
-                # context["w3_sublabel2"]= "SUL preventivo {0}".format(self.comp_bilancio_year)
-                # context['w3_value'] = float(main_consuntivo_spese['valore'])*self.main_gdp_multiplier
-                # context['w3_value_procapite'] = float(main_consuntivo_spese['valore_procapite'])*self.main_gdp_multiplier
 
         # passing widget data to the context
         context['w1'] = w1

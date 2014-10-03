@@ -41,8 +41,8 @@
                     "type": "bar",
                     "showHelp": {{ w2.showhelp|lower }},
                     "label": "{{ w2.label }}",
-                    "sublabel2": "SUL {{ w2.sublabel2 }}",
                     "sublabel1": "{{ w2.sublabel1|default_if_none:"" }}",
+                    "sublabel2": "{{ w2.sublabel2 }}",
                     "value": {{ w2.value|safe }},
                     "procapite": {{ w2.value_procapite|safe }},
                     "variation":{% if w2.variation %}{{ w2.variation|safe }}{% else %}null{% endif %}
@@ -57,9 +57,7 @@
                     "sublabel3": "{{ w3.sublabel3|safe }}",
                     "value": {{ w3.value|safe|default:"null" }},
                     "procapite": {{ w3.value_procapite|safe|default:"null" }},
-
                     "variation":{% if w3.variation %}{{ w3.variation|safe }}{% else %}null{% endif %},
-
                     "series": {{ w3.series|safe|default:"null" }}
                 },
 
