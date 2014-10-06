@@ -2147,11 +2147,15 @@ class ClassificheSearchView(MiniClassificheMixin, RedirectView):
         ##
 
         territorio_found = True
-        selected_cluster = request.GET.get('selected_cluster').split(',')
-        selected_regioni = request.GET.get('selected_regioni').split(',')
+        selected_cluster = request.GET.get('selected_cluster','').split(',')
+        selected_regioni = request.GET.get('selected_regioni','').split(',')
         selected_par_type = request.GET.get('selected_par_type')
         selected_parameter_id = request.GET.get('selected_parameter_id')
-        territorio_id = int(request.GET.get('territorio_id'))
+        territorio_id = request.GET.get('territorio_id', None)
+        if not territorio_id:
+            return HttpResponseRedirect(reverse('classifiche-redirect'))
+
+        territorio_id = int(territorio_id)
         selected_year = request.GET.get('selected_year')
 
         selected_regioni_names = Territorio.objects.filter(pk__in=selected_regioni).values_list('denominazione',flat=True)
