@@ -1,5 +1,6 @@
 //Open Bilanci custom Less
 @import "main.less";
+@import "visup_fixes.less";
 
 .composition-widget-container {
   position: relative;
@@ -223,10 +224,6 @@ a[rel=info-popover] {
       border-top: 0;
     }
 
-//    .panel-group {
-//      border-bottom: 1px dashed @baseColor;
-//    }
-
     p.h3 {
       margin-top: 0;
     }
@@ -302,14 +299,6 @@ a[rel=info-popover] {
   }
 }
 
-#footer {
-  .nav li {
-    &> a { color: #fff; }
-    &> a:hover { color: #fff; text-decoration: underline; }
-  }
-  .partners li a.openpolis { background: none; }
-}
-
 #bilancio-header {
   p .year { display: none; }
   .location { border-right: 1px solid @altTextColor;}
@@ -320,23 +309,22 @@ a[rel=info-popover] {
     margin-top: 20px;
   }
 }
-.share-box, .download-box {
-  text-transform: uppercase;
-  color: @textColor;
-}
-.share {
-  padding: 9px 4px;
-  color: @activeColor;
-  font-size: 16px;
-  &:hover { color: @textColor; text-decoration: none;}
 
-  &.disabled { cursor: default; }
-  &.disabled * { color: @disabledColor; }
-
-  strong { font-weight: bold; }
+/*
+navbar
+*/
+.navbar-subnav .dropdown-menu{
+  width: 120px;
 }
 
-//affix navbar
+.navbar-subnav .dropdown-menu > li > a {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+/*
+affix navbar
+*/
 
 #bilancio-header.affix {
   top: 0;
@@ -388,6 +376,30 @@ a[rel=info-popover] {
     }
   }
 }
+
+/*
+share box
+*/
+
+.share-box, .download-box {
+  text-transform: uppercase;
+  color: @textColor;
+}
+
+
+.share {
+  padding: 9px 4px;
+  color: @activeColor;
+  font-size: 16px;
+  &:hover { color: @textColor; text-decoration: none;}
+
+  &.disabled { cursor: default; }
+  &.disabled * { color: @disabledColor; }
+
+  strong { font-weight: bold; }
+}
+
+
 #settings {
   z-index: 1009 !important;
   width: 320px;
@@ -523,4 +535,12 @@ div.miniclass-incarichi {
   h1 {
     a { color: #b84a34; }
   }
+}
+
+#footer {
+  .nav li {
+    &> a { color: #fff; }
+    &> a:hover { color: #fff; text-decoration: underline; }
+  }
+  .partners li a.openpolis { background: none; }
 }

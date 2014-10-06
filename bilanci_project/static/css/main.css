@@ -3301,6 +3301,20 @@ button .pull-left {
   text-decoration: underline;
   color: #fff;
 }
+.visup-selector-buttons select {
+  border-radius: 6px!important;
+  border: 1px solid #5e6a77!important;
+}
+.visup-selector-buttons-ddown-icon {
+  position: absolute!important;
+  bottom: 1px!important;
+  right: 8px!important;
+}
+.visup-selector-tick-text {
+  width: 60px!important;
+  margin-left: -30px !important;
+  font-size: 13px!important;
+}
 .composition-widget-container {
   position: relative;
   padding-bottom: 65.25%;
@@ -3563,16 +3577,6 @@ a[rel=info-popover]:visited {
 #balance .panel-default .table td.text {
   width: 100%!important;
 }
-#footer .nav li > a {
-  color: #fff;
-}
-#footer .nav li > a:hover {
-  color: #fff;
-  text-decoration: underline;
-}
-#footer .partners li a.openpolis {
-  background: none;
-}
 #bilancio-header p .year {
   display: none;
 }
@@ -3583,29 +3587,19 @@ a[rel=info-popover]:visited {
   margin-bottom: 0;
   margin-top: 20px;
 }
-.share-box,
-.download-box {
-  text-transform: uppercase;
-  color: #2a3036;
+/*
+navbar
+*/
+.navbar-subnav .dropdown-menu {
+  width: 120px;
 }
-.share {
-  padding: 9px 4px;
-  color: #cc6633;
-  font-size: 16px;
+.navbar-subnav .dropdown-menu > li > a {
+  padding-right: 15px;
+  padding-left: 15px;
 }
-.share:hover {
-  color: #2a3036;
-  text-decoration: none;
-}
-.share.disabled {
-  cursor: default;
-}
-.share.disabled * {
-  color: #b9c6c4;
-}
-.share strong {
-  font-weight: bold;
-}
+/*
+affix navbar
+*/
 #bilancio-header.affix {
   top: 0;
   background-color: white;
@@ -3670,6 +3664,32 @@ a[rel=info-popover]:visited {
 }
 #bilancio-header.affix > p.details span.year .label {
   font-size: 12px;
+}
+/*
+share box
+*/
+.share-box,
+.download-box {
+  text-transform: uppercase;
+  color: #2a3036;
+}
+.share {
+  padding: 9px 4px;
+  color: #cc6633;
+  font-size: 16px;
+}
+.share:hover {
+  color: #2a3036;
+  text-decoration: none;
+}
+.share.disabled {
+  cursor: default;
+}
+.share.disabled * {
+  color: #b9c6c4;
+}
+.share strong {
+  font-weight: bold;
 }
 #settings {
   z-index: 1009 !important;
@@ -3803,4 +3823,14 @@ div.miniclass-incarichi {
 }
 #from-the-blog h1 a {
   color: #b84a34;
+}
+#footer .nav li > a {
+  color: #fff;
+}
+#footer .nav li > a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+#footer .partners li a.openpolis {
+  background: none;
 }
