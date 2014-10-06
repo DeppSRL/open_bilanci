@@ -3606,6 +3606,16 @@ navbar
   -moz-border-radius: 0 0 0 0!important;
   border-radius: 0 0 0 0!important;
 }
+.dropdown-menu > .active > a {
+  background-color: #BAC6C1!important;
+}
+.dropdown-menu > .active > a:hover {
+  background: #2B3037!important;
+}
+.dropdown-menu > .active > a:last-child {
+  background-color: #2B3037!important;
+  color: white!important;
+}
 /*
 affix navbar
 */
