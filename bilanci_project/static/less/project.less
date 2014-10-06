@@ -314,12 +314,23 @@ a[rel=info-popover] {
 navbar
 */
 .navbar-subnav .dropdown-menu{
-  width: 120px;
+  min-width: 120px;
 }
 
 .navbar-subnav .dropdown-menu > li > a {
   padding-right: 15px;
   padding-left: 15px;
+}
+
+
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: 0!important;
+  margin-left: 0!important;
+  -webkit-border-radius: 0 0 0 0!important;
+  -moz-border-radius: 0 0 0 0!important;
+  border-radius: 0 0 0 0!important;
 }
 
 /*
