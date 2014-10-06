@@ -19,44 +19,58 @@
     <div class="panel-heading">
         <div id="bilancio-header">
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="pull-right download-box">
-                    {% if csv_package_file %}
-                        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
-                           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
-                    {% endif %}
-                </div>
-
-                <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
-                <p class="details">
-                    <span class="location">
-                        {% if comune_context.bil_popolazione_residente %}
-                            {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pull-right download-box">
+                        {% if csv_package_file %}
+                            <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+                               class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
                         {% endif %}
-                    </span>
+                    </div>
 
-                    {#   affix menu#}
-                    {% if selected_year %}
-                        <span class="year">
-                            <span class="label label-warning">{{ selected_year }}</span>
-                            {{ selected_bilancio_type }}
+                    <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+                    <p class="details">
+                        <span class="location">
+                            {% if comune_context.bil_popolazione_residente %}
+                                {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                            {% endif %}
                         </span>
-                    {% endif %}
 
-                    <span style="padding-left: 6px;" class="inhabitants">
-                        {{ territorio.prov|default:"" }},
-                        {{ territorio.regione|default_if_none:""|title }}
-                    </span>
-                </p>
+                        {#   affix menu#}
+                        {% if selected_year %}
+                            <span class="year">
+                                <span class="label label-warning">{{ selected_year }}</span>
+                                {{ selected_bilancio_type }}
+                            </span>
+                        {% endif %}
+
+                        <span style="padding-left: 6px;" class="inhabitants">
+                            {{ territorio.prov|default:"" }},
+                            {{ territorio.regione|default_if_none:""|title }}
+                        </span>
+                    </p>
+                </div>
             </div>
-        </div>
 
-        {#  navbar #}
+            {#  navbar #}
 
-        {% block bilanci_navigation_menu %}
-            {% include 'bilanci/_navigation_menu.html' with selected_section=selected_section %}
-        {% endblock %}
+            {% block bilanci_navigation_menu %}
+                {% include 'bilanci/_navigation_menu.html' with selected_section=selected_section %}
+            {% endblock %}
+
+
+            {# breadcrumbs   #}
+            <div class="bread">
+                <p>Sei in:</p>
+                <ol class="breadcrumb">
+                    {% if selected_section == 'indicatori' or selected_section == 'bilancio' %}
+                        <li>{{ selected_section }}</li>
+                    {% else %}
+                        <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
+                    {% endif %}
+                </ol>
+            </div>
+            {# /breadcrumbs   #}
 
         </div>
     </div>

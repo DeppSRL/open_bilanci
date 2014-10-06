@@ -3587,6 +3587,9 @@ a[rel=info-popover]:visited {
   margin-bottom: 0;
   margin-top: 20px;
 }
+#bilancio-header .navbar {
+  margin-bottom: 20px;
+}
 /*
 navbar
 */
