@@ -23,12 +23,9 @@
             <div class="col-md-12">
                 <div class="pull-right download-box">
                     {% if csv_package_file %}
-                        <span>SCARICA I DATI</span>
-                        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
-                            <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>
-                        &nbsp;|&nbsp;
+                        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+                           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
                     {% endif %}
-
                 </div>
 
                 <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
