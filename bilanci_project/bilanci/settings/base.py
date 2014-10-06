@@ -27,7 +27,7 @@ path.append(PROJECT_ROOT)
 # Site name:
 SITE_ROOT = root('bilanci_project/bilanci')
 SITE_NAME = basename(SITE_ROOT)
-SITE_VERSION = 'alpha'
+SITE_VERSION = 'beta'
 ########## END PATH CONFIGURATION
 
 
