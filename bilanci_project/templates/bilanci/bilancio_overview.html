@@ -48,7 +48,7 @@
                                 <div class="row">
 
                                 {# if bilancio_type is preventivo cassa/competenza selection menu is disabled #}
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <input type="radio" value="cassa"
                                             id="cas_com_type_cassa" name="cas_com_type"
 
@@ -62,7 +62,7 @@
                                             Cassa {% popover_info 'cassa' %}
                                         </label>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         <input type="radio" value="competenza"
                                                id="cas_com_type_competenza" name="cas_com_type"
 
@@ -83,13 +83,13 @@
                             <li class="list-group-item label">Valori</li>
                             <li class="list-group-item">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <input type="radio" value="real"
                                                    {% if values_type == "real" %}checked="checked"{% endif %}
                                                    id="values_type_real" name="values_type">
                                         <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-7">
                                         <input type="radio" value="nominal"
                                                    {% if values_type == "nominal" %}checked="checked"{% endif %}
                                                    id="values_type_nominal" name="values_type">
