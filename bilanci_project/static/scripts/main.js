@@ -5,6 +5,39 @@
  **/
 
 $(document).ready(function(){
+	
+	/*$('a.dropdown-toggle').on('click', function() {
+		if($(this).find('.fa').hasClass('fa-caret-down')) {
+			$(this).find('.fa').removeClass('fa-caret-down').addClass('fa-caret-up').css('vertical-align', 'text-bottom');
+		} else {
+			$(this).find('.fa').removeClass('fa-caret-up').addClass('fa-caret-down').css('vertical-align','inherit');
+		}
+	});*/
+	
+	$('a.collapse-toggle').on('click', function() {
+		if($(this).find('.fa').hasClass('fa-plus-circle')) {
+			$(this).find('.fa').removeClass('fa-plus-circle').addClass('fa-minus-circle').css('color','#8f979e');
+		} else {
+			$(this).find('.fa').removeClass('fa-minus-circle').addClass('fa-plus-circle').css('color','#2b3037');
+		}
+	});
+	
+	$('#open-settings, #push-menu').on('click', function() {
+		if($(this).find('> .fa').first().hasClass('fa-angle-down')) {
+			$(this).find('> .fa').first().removeClass('fa-angle-down').addClass('fa-angle-up');
+			//$('.fa-angle-up').css('margin-left', '1px');
+		} else {
+			$(this).find('> .fa').first().removeClass('fa-angle-up').addClass('fa-angle-down');
+			//$('.fa-angle-down').css('margin-left', '5px');
+		}
+	});
+	
+	
+	
+	
+	
+	
+	
 
     // Main vars
     var $window         = $( window ),
@@ -19,7 +52,7 @@ $(document).ready(function(){
         $sidemenu       = $( '#side-menu' ),
         mapPage         = ( $( '#map-canvas' ).length ? true : false ),
         pageHasControls = ( $( '#side-controls-wrapper' ).length ? true : false ),
-        frameHeight = 500,
+        frameHeight = 800,
         
         options    = {
             'env': 'production', // Environment. Values: production, development
@@ -757,6 +790,25 @@ $(document).ready(function(){
     if ( options.env === 'development' ) {
         $( 'body' ).append( '<script src="scripts/vendor/live.js"></script>' );
     }
+	
+	$("#push-menu").on("click", function(e) {
+        if ($( '#push-menu' ).hasClass("open")) {
+            $( "#hide-menu" ).trigger( "click" );
+            $( '#push-menu' ).removeClass("open");
+        } else {
+            $( '#push-menu' ).addClass("open");
+        }
+    });
+
+    $("#open-settings, .close-menu").on("click", function(e) {
+        if ($( '#open-settings' ).hasClass("open")) {
+            $( "#hide-settings" ).trigger( "click" ); $("#settings").hide();
+            $( '#open-settings' ).removeClass("open");
+        } else {
+            $( '#open-settings' ).addClass("open");
+        }
+    });
+	
 
 
 });
