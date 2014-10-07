@@ -344,9 +344,9 @@ class IncarichiGetterMixin(object):
 
             # considers absolute or per_capita values
             if per_capita is False:
-                value_to_consider = voce_value['valore']
+                value_to_consider = voce_value.get('valore', None)
             else:
-                value_to_consider = voce_value['valore_procapite']
+                value_to_consider = voce_value.get('valore_procapite', None)
 
             if value_to_consider is not None:
                 # real values are multiplied by GDP_DEFLATOR rates
@@ -451,7 +451,7 @@ class IncarichiGetterMixin(object):
             indicatore = indicatore,
             anno__gte = self.timeline_start.year,
             anno__lte = self.timeline_end.year
-        ).order_by('anno')
+        ).values('anno', 'valore').order_by('anno')
 
         return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2, values_type='nominal')
 
