@@ -9,6 +9,69 @@
     Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
 {% endblock %}
 
+{% block bilancio_info_data %}
+    <div class="col-md-7 gTitle">
+        <span class="selection">COMPOSIZIONE CONSUNTIVO 2012</span> A CONFRONTO CON IL PREVENTIVO 2012
+    </div>
+    <div class="col-md-5">
+        <div class="cas_com_box pull-right">
+            <span class="values_type">
+                COMPETENZA
+                <a href="#" rel="info-popover"><span class="fa fa-fw fa-question-circle"></span></a>
+            </span>
+
+            <span class="values_type">
+                VALORI NOMINALI
+                <a href="#" rel="info-popover"><span class="fa fa-fw fa-question-circle"></span></a>
+            </span>
+
+            <div class="btn-group nolenght">
+                    <button id="open-settings" type="button" class="btn btn-ob nolenght change dropdown-toggle" data-toggle="dropdown">
+                    <span class="pull-left">CAMBIA</span><span class="fa fa-angle-down pull-right"></span><span class="fa fa-gear pull-right"></span>
+                    </button>
+             </div>
+
+            {#   settings menu  #}
+            <div id="settings" class="closed">
+                <form>
+                    <div class="panel panel-default ">
+                        <ul class="list-group">
+                            <li class="list-group-item label">Mostra per</li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="radio" checked="checked" value="" name="per">Cassa
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" value="" name="per">Competenza
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <ul class="list-group">
+                            <li class="list-group-item label">Valori</li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="radio" checked="checked" value="" name="valori">Reali
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="radio" value="" name="valori">Nominali
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <ul class="list-group">
+                            <li class="list-group-item text-center">
+                                <button class="btn btn-blu" id="hide-settings">aggiorna</button></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
 
 {% block bilanci_content %}
 

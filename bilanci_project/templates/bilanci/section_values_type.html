@@ -2,11 +2,7 @@
 {% load popover_info %}
 {# displays info about cas/com and about values type  #}
 <div class="cas_com_box pull-right" style="margin-right: 10px;">
-    {% if not hide_icon %}
-        <span class="values_type">
-            <img id="gear" src="{% static 'img/section_title_gear.png' %}"/>
-        </span>
-    {% endif %}
+
     {% if cas_com_type %}
         <span class="values_type">
             {{ cas_com_type|upper }}

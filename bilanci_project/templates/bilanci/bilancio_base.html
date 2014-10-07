@@ -18,7 +18,6 @@
     {# header block with Comune name, inhabitants and share button    #}
     <div class="panel-heading">
         <div id="bilancio-header">
-
             <div class="row">
                 <div class="col-md-12">
                     <div class="pull-right download-box">
@@ -57,25 +56,28 @@
             {% block bilanci_navigation_menu %}
                 {% include 'bilanci/_navigation_menu.html' with selected_section=selected_section %}
             {% endblock %}
-
-
-            {# breadcrumbs   #}
-            <div class="bread">
-                <p>Sei in:</p>
-                <ol class="breadcrumb">
-                    {% if selected_section == 'indicatori' or selected_section == 'bilancio' %}
-                        <li>{{ selected_section }}</li>
-                    {% else %}
-                        <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
-                    {% endif %}
-                </ol>
-            </div>
-            {# /breadcrumbs   #}
-
         </div>
-    </div>
-    
-    <div class="panel-body">
+
+
+        {# breadcrumbs   #}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bread">
+                    <p>Sei in:</p>
+                    <ol class="breadcrumb">
+                        {% if selected_section == 'indicatori' or selected_section == 'bilancio' %}
+                            <li>{{ selected_section }}</li>
+                        {% else %}
+                            <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
+                        {% endif %}
+                    </ol>
+                </div>
+            </div>
+        </div>
+        {# /breadcrumbs   #}
+
+
+        {# page subtitle: bilancio / entrate /spese/ indicatori  #}
         <div class="row">
             <div class="col-md-8">
                 <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
@@ -102,13 +104,10 @@
                 <!-- AddThis Button END -->
             </div>
         </div>
-
-        <hr class="no-border">
-
+        <hr class="gray-border-bot">
+        {# year selector widget #}
         <div class="row">
-            <div id="content" class="col-sm-12">
-
-                {# year selector widget #}
+            <div class="col-md-12">
                 {% block year_selector %}
                     <div class="row timeline">
                         <div class="col-sm-12">
@@ -116,7 +115,27 @@
                         </div>
                     </div>
                 {% endblock %}
+            </div>
+        </div>
 
+        {# bilancio info data           #}
+        <hr class="gray-border-top">
+
+        <div class="row">
+            {% block bilancio_info_data %}
+
+            {% endblock %}
+        </div>
+        <hr class="gray-border-bot">
+        {#   / bilancio info data           #}
+    </div>
+    
+    <div class="panel-body">
+
+        <hr class="no-border">
+
+        <div class="row">
+            <div id="content" class="col-sm-12">
                 <div id="results" class="row">
                     <div class="col-sm-12">
                         {% block bilanci_content %}
