@@ -42,12 +42,12 @@
                 </div>
 
                 <div class="col-sm-2 col-md-offset-1">
-                   <a href="#{{ node.slug }}" class="pull-right btn btn-default trend-chart-toggle" data-toggle="collapse"
+
+                   <a href="#{{ node.slug }}"  class="pull-right btn btn-blu nolenght trend-chart-toggle"  data-toggle="collapse"
                       id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
-                       <i class="fa fa-fw fa-signal"></i> Grafico <i class="fa fa-caret-down"></i>
-                       <!--<img class="secondary-graph-toggle" src="{% static 'img/secondary_graph_off.png' %}" />-->
+                       Grafico <i class="icon sprite-grafico"></i><i class="fa fa-angle-down pull-right"></i>
                    </a>
-                </div>
+
             </div>
 
             <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
