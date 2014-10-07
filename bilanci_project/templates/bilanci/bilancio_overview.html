@@ -130,11 +130,24 @@
                 src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="gray-border-top">
+        </div>
+    </div>
     <div id="balance" class="row">
         <div class="col-md-12">
-            <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }} </strong>
-                <br class="hidden-lg">&nbsp;A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
-            </h3>
+            <span class="selection">CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }}</span> A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="gray-border-bot">
+        </div>
+    </div>
+    <div id='balance' class="row">
+        <div class="col-md-12">
             <div class="row">
                 <div class="col-sm-6"><h4>ENTRATE</h4></div>
                 <div class="col-sm-6"><h4>SPESE</h4></div>
