@@ -88,6 +88,7 @@ function init_selector(selector_init_obj){
             left: 0,
             right: 0
         },
+        barPadding: 1,
         timeline: {
             start: start_year,
             end: end_year,
