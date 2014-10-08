@@ -32,8 +32,8 @@ SITE_VERSION = 'beta'
 
 
 ########## DEBUG CONFIGURATION
-DEBUG = env.bool('DEBUG')
-TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG')
+DEBUG = env.bool('DEBUG',False)
+TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', False)
 ########## END DEBUG CONFIGURATION
 
 
