@@ -1945,7 +1945,12 @@ class ClassificheListView(ListView):
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-        selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
+        # this try / except block is needed to prevent multiple requests from malicious bots
+        try:
+            selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
+        except ValueError:
+            return reverse('404')
+
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
 
