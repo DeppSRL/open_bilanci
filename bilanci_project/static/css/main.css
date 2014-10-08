@@ -2018,6 +2018,10 @@ p.details {
   width: 148px;
   background-position: -332px 0;
 }
+#footer .partners li a.openpolis {
+  width: 148px;
+  background-position: -512px 0;
+}
 .icon {
   background: url(../img/icons.png) no-repeat top left;
   display: inline-block;
@@ -2298,14 +2302,14 @@ a:hover .sprite-trend-down-2 {
   height: 43px;
 }
 .sprite-trend-down-3 {
-  background-position: -190px -1202px;
-  width: 44px;
-  height: 43px;
+  background-position: -277px -2056px;
+  width: 32px;
+  height: 32px;
 }
-a:hover .sprite-trend-down-3 {
-  background-position: -190px -1109px;
-  width: 44px;
-  height: 43px;
+tr:hover .sprite-trend-down-3 {
+  background-position: -277px -1996px;
+  width: 32px;
+  height: 32px;
 }
 .sprite-delete {
   background-position: -190px -181px;
@@ -3241,6 +3245,11 @@ button .pull-left {
   margin-top: 3px;
 }
 /* COMUNE */
+#comune .panel-title a {
+  display: block;
+  position: relative;
+  z-index: 1;
+}
 #comune .credits {
   padding-bottom: 45px;
 }
@@ -3248,6 +3257,17 @@ button .pull-left {
   color: #5F6B78;
   text-transform: uppercase;
   padding-bottom: 30px;
+}
+#comune #header .navbar {
+  margin-bottom: 0px;
+  min-height: 35px;
+}
+#comune #header .navbar.navbar-main .navbar-header {
+  margin-top: 0px;
+  font-size: 14px;
+}
+#comune #header .navbar.navbar-main .navbar-header p {
+  margin-top: 7px;
 }
 #comune #header .navbar-main {
   margin-top: 0px;
@@ -3276,6 +3296,24 @@ button .pull-left {
 #comune #footer {
   padding-top: 30px;
   font-size: 13px;
+}
+#comune #footer a {
+  color: #fff;
+}
+#comune #footer a.openbilanci {
+  font-size: 19px;
+  float: left;
+  line-height: 14px;
+  margin-top: 12px;
+}
+#comune #footer a.openbilanci small {
+  text-align: right;
+  display: block;
+  font-size: 8px;
+}
+#comune #footer a:hover {
+  color: #99a5b1;
+  text-decoration: none;
 }
 #comune #footer h3 {
   font-size: 21px;

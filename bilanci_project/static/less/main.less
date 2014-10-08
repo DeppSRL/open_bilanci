@@ -2404,6 +2404,10 @@ p.details {
                     width: 148px;
                     background-position: -332px 0;
                 }
+				&.openpolis {
+                    width: 148px;
+                    background-position: -512px 0;
+                }
             }
         }
     }
@@ -2498,8 +2502,8 @@ a:hover .sprite-trend-down-1 { background-position: -190px -1481px; width: 44px;
 .sprite-trend-down-2 { background-position: -190px -1388px; width: 44px; height: 43px; }
 a:hover .sprite-trend-down-2 { background-position: -190px -1295px; width: 44px; height: 43px; }
 
-.sprite-trend-down-3 { background-position: -190px -1202px; width: 44px; height: 43px; }
-a:hover .sprite-trend-down-3 { background-position: -190px -1109px; width: 44px; height: 43px; }
+.sprite-trend-down-3 { background-position: -277px -2056px; width: 32px; height: 32px; }
+tr:hover .sprite-trend-down-3 { background-position: -277px -1996px; width: 32px; height: 32px; }
 
 .sprite-delete { background-position: -190px -181px; width: 11px; height: 10px; }
 .sprite-delete-small { background-position: -190px -124px; width: 8px; height: 7px; }
@@ -2854,7 +2858,15 @@ button {
 
 /* COMUNE */
 #comune {
-
+	
+	.panel-title {
+		a {
+			display: block;
+			position: relative;
+			z-index: 1
+		}
+	}
+	
 	.credits {
 		padding-bottom:45px;
 	}
@@ -2868,6 +2880,20 @@ button {
 	}
 
 	#header {
+	
+		.navbar {
+			margin-bottom:0px;
+			min-height:35px;
+		
+			&.navbar-main .navbar-header {
+				margin-top:0px;
+				font-size:14px;
+				
+				p {
+					margin-top:7px;
+				}
+			}
+		}
 	
 		.navbar-main {
 			margin-top:0px;
@@ -2901,6 +2927,29 @@ button {
 		padding-top:30px;
 		font-size:13px;
 		
+		a {
+		
+			color:#fff;
+			
+			&.openbilanci {
+				font-size:19px;
+				float:left;
+				line-height:14px;
+				margin-top:12px;
+				
+				small {
+					text-align:right;
+					display:block;
+					font-size:8px;
+				}
+			}
+			
+			&:hover {
+				color: #99a5b1;
+				text-decoration:none;
+			}
+		}
+		
 		h3 {
 			font-size:21px;
 			color:#fff;
@@ -2928,4 +2977,6 @@ button {
 			color:#fff;
 		}
 	}
+	
+	
 }
