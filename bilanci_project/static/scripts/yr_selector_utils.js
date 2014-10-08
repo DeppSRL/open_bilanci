@@ -85,7 +85,8 @@ function init_selector(selector_init_obj){
     * */
     var selector_init_array = {
         padding: {
-            left: 40
+            left: 0,
+            right: 0
         },
         timeline: {
             start: start_year,

@@ -194,15 +194,18 @@
 
             init_selector(selector_init_obj);
 
-            {# add sindaci timeline to yr selector: causes a BUG            #}
-{#            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}",#}
-{#                    function (i) {#}
-{##}
-{#                year_selector.data({#}
-{#                  "timeSpans": i['timeSpans']#}
-{#                });#}
-{#            });#}
+            {# add sindaci timeline to yr selector: causes a BUG   #}
+            {% if territorio.op_id == '4819' %}
 
+                d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}",
+                    function (i) {
+
+                    year_selector.data({
+                      "timeSpans": i['timeSpans']
+                    });
+                });
+
+            {% endif %}
 
         });
 
