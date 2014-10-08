@@ -20,7 +20,7 @@ from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, Territor
 from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 from shorturls.models import ShortUrl
-from django.http.response import HttpResponse, HttpResponseRedirect, Http404
+from django.http.response import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from bilanci.utils import couch
 
 from territori.models import Territorio, Contesto, Incarico
@@ -1466,8 +1466,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 
         # identifies the bilancio for comparison, sets gdp multiplier based on deflator
+        try:
+            self.main_bilancio_year = int(self.year)
+        except ValueError:
+            return HttpResponseBadRequest()
 
-        self.main_bilancio_year = int(self.year)
         if self.main_bilancio_type == 'preventivo':
             self.comp_bilancio_type = 'consuntivo'
             verification_voice = self.comp_bilancio_type+'-entrate'
@@ -1898,8 +1901,6 @@ class ClassificheSearchView(RedirectView):
         except NoReverseMatch:
             url = reverse('404')
 
-
-
         return HttpResponseRedirect(url)
 
     def get_redirect_url(self, *args, **kwargs):
@@ -1949,7 +1950,7 @@ class ClassificheListView(ListView):
         try:
             selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
         except ValueError:
-            return reverse('404')
+            return HttpResponseBadRequest()
 
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
