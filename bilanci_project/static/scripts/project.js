@@ -95,10 +95,10 @@ var setupNestedAccordion = function() {
 
 };
 
-var autoOpenNestedAccordion = function(startElement) {
+var autoOpenNestedAccordion = function (startElement) {
 
     // auto open accordion
-    if ( startElement != undefined ) {
+    if (startElement != undefined) {
 
         // expand parents if exists
         $(startElement).parents('.collapse').collapse('show');
@@ -106,7 +106,7 @@ var autoOpenNestedAccordion = function(startElement) {
         $(startElement + '> .row').addClass('highlighted');
     }
 
-}
+};
 
 function goToClassByScroll(classname){
       // Scroll
