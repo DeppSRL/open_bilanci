@@ -88,18 +88,6 @@ function init_secondary_linechart(event){
 
     }
 
-//shows and resizes main linechart on page load and when a user activates "dettaglio" tab
-function show_main_linechart(timeline_start_year, timeline_end_year){
-
-    if(dettaglio_shown==false){
-        init_main_linechart( timeline_start_year , timeline_end_year,"€ p.c.", "Euro");
-        feed_main_linechart();
-        linechart.resize();
-        dettaglio_shown=true;
-
-    }
-}
-
 /*
 * switches the secondary timeline toggle on mouse over. avoids switching img after graph collapse
 * */

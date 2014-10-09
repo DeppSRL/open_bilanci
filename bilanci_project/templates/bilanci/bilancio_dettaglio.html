@@ -155,10 +155,6 @@
             {# adds anchor #composizione / #dettaglio to page url   #}
             $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
 
-            // initialize main_linechart
-            show_main_linechart({{ timeline_start_year }},{{ timeline_end_year }});
-            // enable nested accordion
-            setupNestedAccordion();
             var lhash = location.hash;
 
             // if a voce slug is in the hash then scrool to that voce in the accordion
