@@ -3535,6 +3535,9 @@ a[rel=info-popover]:visited {
   border-radius: 0;
   margin-top: 0;
 }
+.panel-tree > .panel :last-child {
+  border-bottom: 0;
+}
 .panel-tree > .panel .panel-body {
   padding: 0;
   border-top: 0;
