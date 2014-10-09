@@ -3481,7 +3481,7 @@ a[rel=info-popover]:visited {
   margin-bottom: 60px;
 }
 .panel-tree.totale-generale .panel {
-  border-top: 1px solid #5e6a77;
+  border-top: 0;
 }
 .panel-tree.totale-generale.panel-group {
   margin-bottom: 0px;
@@ -3527,19 +3527,10 @@ a[rel=info-popover]:visited {
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.panel-tree .panel-heading .entry {
-  padding-top: 14px;
-}
 .panel-tree .panel-heading,
 .panel-tree .panel {
   border-radius: 0;
   margin-top: 0;
-}
-.panel-tree .panel .panel {
-  border-bottom: 1px solid #5e6a77;
-}
-.panel-tree > .panel {
-  border-top: 3px solid #5e6a77;
 }
 .panel-tree > .panel .panel-body {
   padding: 0;
@@ -3566,9 +3557,6 @@ a[rel=info-popover]:visited {
 }
 .panel-tree > .panel .chart-wrapper .value {
   font-weight: 700;
-}
-.panel-tree > .panel .panel-collapse {
-  border-top: 1px solid #5e6a77;
 }
 .panel-tree > .pabel .panel-collapse .panel-collapse {
   border-top: none !important;
@@ -3782,7 +3770,7 @@ share box
 }
 #main-content > .panel-heading .gray-border-bot {
   border-color: #b9c5c4;
-  margin: 3px 0 20px;
+  margin: 3px 0 0;
 }
 .popover-title {
   background-color: #cc6633 !important;

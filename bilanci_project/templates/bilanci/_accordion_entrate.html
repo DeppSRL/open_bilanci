@@ -18,10 +18,10 @@
 
                     <div class="row">
                         <div class="col-sm-6 entry">
-                            {% if node.indent_level > 1 %}
-                            {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}
-                            {% if node.is_leaf_node %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}
-                            {% endif %}
+{#                            {% if node.indent_level > 1 %}#}
+{#                            {% repeat node.indent_level %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endrepeat %}#}
+{#                            {% if node.is_leaf_node %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% endif %}#}
+{#                            {% endif %}#}
                             {% if not node.is_leaf_node %}
                             <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
                                 <i class="fa fa-fw fa-plus-circle"></i>
@@ -73,7 +73,7 @@
 
                     {% if not node.is_leaf_node %}
                         <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
-                            <div class="panel-body">
+{#                            <div class="panel-body">#}
 
                                 <!-- Sub panel level -->
                                 <div class="panel-group" id="tree-{{ node.slug }}">
@@ -81,7 +81,7 @@
                                 </div>
                                 <!-- Sub panel level -->
 
-                            </div>
+{#                            </div>#}
                         </div>
                     {% endif %}
                 </div>
