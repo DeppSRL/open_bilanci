@@ -264,9 +264,9 @@ class IncarichiGetterMixin(object):
             timeline_start_date = settings.TIMELINE_START_DATE.date()
             timeline_end_date = settings.TIMELINE_END_DATE.date()
 
-
-
-
+            if not incarico.data_inizio:
+                continue
+                
             if incarico.data_inizio < timeline_start_date:
                 dict_widget['start'] = timeline_start_date.strftime(self.date_fmt)
             else:
