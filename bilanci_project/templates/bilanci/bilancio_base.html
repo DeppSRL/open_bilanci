@@ -65,8 +65,10 @@
                 <div class="bread">
                     <p>Sei in:</p>
                     <ol class="breadcrumb">
-                        {% if selected_section == 'indicatori' or selected_section == 'bilancio' %}
+                        {% if selected_section == 'indicatori' %}
                             <li>{{ selected_section }}</li>
+                        {% elif selected_section == 'bilancio' %}
+                            <li>Bilancio › Overview </li>
                         {% else %}
                             <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
                         {% endif %}
