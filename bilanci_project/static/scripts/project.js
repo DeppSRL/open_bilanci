@@ -59,7 +59,11 @@ function goToClassByScroll(classname){
 
 function goToIdByScroll(div_id){
       // Scroll
-    $('html,body').animate({
-        scrollTop: $(div_id).offset().top-100},
-        'slow');
+
+    if($(div_id).offset() != undefined){
+        $('html,body').animate({
+            scrollTop: $(div_id).offset().top-100},
+            'slow');
+    }
+
 }

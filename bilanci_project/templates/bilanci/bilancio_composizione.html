@@ -9,18 +9,6 @@
 
 {% block bilanci_content %}
     <div class="tab-pane fade in" id="composizione">
-            <div class="row" style="margin-top: 15px;">
-                <div class="col-md-12">
-                    {% if tipo_bilancio == "consuntivo" %}
-                        {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
-                    {% else %}
-                        {% section_values_type values_type=values_type tooltip=True %}
-                    {% endif %}
-                    <h3 style="margin-top: 0; font-size: 18px;">
-                        {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
-                    </h3>
-                </div>
-            </div>
 
             <div class="row" >
                 <div class="col-md-12">

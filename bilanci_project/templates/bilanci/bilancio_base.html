@@ -123,18 +123,31 @@
             </div>
         </div>
 
-        {# bilancio info data           #}
+
         <div class="row">
             <div class="col-md-12">
                 <hr class="gray-border-top">
             </div>
         </div>
 
+        {# control row for bilancio: description "Consuntivo 2012 dettaglio" , values_type and control button #}
         <div class="row">
-            {% block bilancio_info_data %}
+             {#    description #}
+            <div class="col-md-7 gTitle">
+                {% block bilancio_description %}
 
-            {% endblock %}
+                {% endblock %}
+            </div>
+            {# values types + control button "CAMBIA"  #}
+            <div class="col-md-5">
+                {% block bilancio_controls %}
+
+                {% endblock %}
+
+            </div>
         </div>
+        {#  /control row          #}
+
         <div class="row">
             <div class="col-md-12">
                 <hr class="gray-border-bot">

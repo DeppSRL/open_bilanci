@@ -5,6 +5,24 @@
 {% load voice_values %}
 {% load popover_info %}
 
+{% block bilancio_description %}
+
+    {#    description #}
+    {% section_title bold_text="DETTAGLIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year  %}
+
+    {# selettore funzioni / interventi    #}
+    {% if selected_section == 'spese' %}
+
+        <a href="{% if fun_int_current_view != 'funzioni' %}{{ fun_int_switch.url }}#dettaglio{% else %}#{% endif %}">
+            <span class="label label-blu {% if fun_int_current_view == 'funzioni' %}active{% endif %}">Vista per Funzioni</span>
+        </a>
+        <a href="{% if fun_int_current_view != 'interventi' %}{{ fun_int_switch.url }}#dettaglio{% else %}#{% endif %}">
+            <span class="label label-blu {% if fun_int_current_view == 'interventi' %}active{% endif %}">Vista per Interventi</span>
+        </a>
+    {% endif %}
+
+{% endblock %}
+
 
 {% block bilanci_content %}
 
@@ -50,19 +68,6 @@
                         </div>
                     </div>
                 </div>
-
-                {#        switch funzioni interventi #}
-                {% if selected_section == 'spese' %}
-
-                    <div class="row">
-                        <div class="col-md-3" style="font-weight: bold;font-size: 11px;">
-                            <a href="{{ fun_int_switch.url }}#dettaglio">
-                                MOSTRA PER {% if fun_int_current_view == 'funzioni' %}INTERVENTI{% else %}FUNZIONI{% endif %}
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-
             </div>
         </div>
     </div>

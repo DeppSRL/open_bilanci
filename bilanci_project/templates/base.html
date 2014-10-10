@@ -104,7 +104,7 @@
 
         {% block extra_js %}{% endblock extra_js %}
         <!-- Html designer scripts -->
-        <script src="{% static 'scripts/main.js' %}?"></script>
+        <script src="{% static 'scripts/main.js' %}"></script>
 
         {% if instance_type == 'production' %}
             {% block google_analytics %}{% include 'commons/ga.html' %}{% endblock%}
