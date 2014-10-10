@@ -3610,30 +3610,43 @@ a[rel=info-popover]:visited {
 #balance .panel-default .table td.text {
   width: 100%!important;
 }
+/*
+navbar
+*/
 #bilancio-header p .year {
   display: none;
 }
 #bilancio-header .location {
   border-right: 1px solid #99a5b1;
 }
+#bilancio-header .navbar {
+  margin-bottom: 20px;
+}
+#bilancio-header .nav .open > a {
+  background-color: transparent;
+}
 #bilancio-header .navbar-subnav {
   margin-bottom: 0;
   margin-top: 20px;
 }
-#bilancio-header .navbar {
-  margin-bottom: 20px;
-}
-/*
-navbar
-*/
-.navbar-subnav .dropdown-menu {
+#bilancio-header .navbar-subnav .dropdown-menu {
   min-width: 120px;
 }
-.navbar-subnav .dropdown-menu > li > a {
+#bilancio-header .navbar-subnav .dropdown-menu > li > a {
   padding-right: 15px;
   padding-left: 15px;
 }
-.dropdown-submenu > .dropdown-menu {
+#bilancio-header .dropdown-menu > .active > a {
+  background-color: #BAC6C1!important;
+}
+#bilancio-header .dropdown-menu > .active > a:hover {
+  background: #2B3037!important;
+}
+#bilancio-header .dropdown-menu > .active > a:last-child {
+  background-color: #2B3037!important;
+  color: white!important;
+}
+#bilancio-header .dropdown-submenu > .dropdown-menu {
   top: 0;
   left: 100%;
   margin-top: 0!important;
@@ -3641,16 +3654,6 @@ navbar
   -webkit-border-radius: 0 0 0 0!important;
   -moz-border-radius: 0 0 0 0!important;
   border-radius: 0 0 0 0!important;
-}
-.dropdown-menu > .active > a {
-  background-color: #BAC6C1!important;
-}
-.dropdown-menu > .active > a:hover {
-  background: #2B3037!important;
-}
-.dropdown-menu > .active > a:last-child {
-  background-color: #2B3037!important;
-  color: white!important;
 }
 /*
 affix navbar
