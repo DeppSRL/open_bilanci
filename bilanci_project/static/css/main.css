@@ -3626,7 +3626,7 @@ navbar
   background-color: transparent;
 }
 #bilancio-header .navbar-subnav {
-  margin-bottom: 0;
+  margin-bottom: 20px;
   margin-top: 20px;
 }
 #bilancio-header .navbar-subnav .dropdown-menu {
@@ -3763,6 +3763,13 @@ share box
   background-color: #f8f8f8;
   border-top: 0;
   text-align: left;
+}
+#main-content .page-subtitle {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+#main-content .year-selector {
+  margin-top: 5px;
 }
 #main-content > .panel-heading .panel-title {
   font-size: 46px;
