@@ -48,17 +48,22 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
 
 }
 
+/*
+ calls visup function to create linechart and feeds it
+* */
 function init_secondary_linechart(event){
     event.stopPropagation();
     var timeline_start_year = event.data.timeline_start_year;
     var timeline_end_year = event.data.timeline_end_year;
 
     var panel = $(this),
-        panel_id = panel.attr('id').split('-').pop();
+    panel_id = panel.attr('id').split('-').pop();
     var btn = $('#trend-chart-toggle-' + panel_id);
     var chart_container = $('#trend-chart-container-' + panel_id);
     var chart_td = chart_container.find('div.graph-box');
     var voce_slug = btn.attr('href').substring(1);
+    //activates graph button
+    btn.addClass('active');
 
     if (chart_td.find('div').length == 0) {
         chart_td.append($("<div>").addClass("trend-chart"));
@@ -87,6 +92,18 @@ function init_secondary_linechart(event){
     return false;
 
     }
+
+/*
+ deactivates graph button on accordion hide
+* */
+function close_secondary_linechart(event){
+    event.stopPropagation();
+    var panel = $(this),
+    panel_id = panel.attr('id').split('-').pop();
+    var btn = $('#trend-chart-toggle-' + panel_id);
+    btn.removeClass('active');
+    return false;
+}
 
 /*
 * switches the secondary timeline toggle on mouse over. avoids switching img after graph collapse

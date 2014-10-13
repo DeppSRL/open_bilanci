@@ -3426,6 +3426,10 @@ form ul li label {
   height: 19px;
   margin-bottom: 0px;
 }
+.btn-blu.active {
+  color: #fff;
+  background: #2b3037;
+}
 #main-content .scrollbox {
   height: auto!important;
   max-height: 300px!important;

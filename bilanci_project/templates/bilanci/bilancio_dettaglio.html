@@ -157,6 +157,8 @@
             $('#content').find('.chart-container').on('shown.bs.collapse',
                                                       { timeline_start_year:{{ timeline_start_year }},timeline_end_year:{{ timeline_end_year }} }, init_secondary_linechart);
 
+            $('#content').find('.chart-container').on('hidden.bs.collapse', close_secondary_linechart);
+
             {# adds anchor #composizione / #dettaglio to page url   #}
             $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
 
