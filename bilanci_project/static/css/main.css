@@ -3584,19 +3584,6 @@ a[rel=info-popover]:visited {
   background: #99a5b1 !important;
   color: #2a3036!important;
 }
-.social-accounts {
-  font-size: 9pt;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-.social-accounts a,
-.social-accounts a:visited {
-  color: #fff;
-}
-.social-accounts a i:not(.fa-circle),
-.social-accounts a:visited i:not(.fa-circle) {
-  color: #cc6633;
-}
 #balance .panel-default .table,
 #balance .panel-default,
 #balance .panel-default .table th,
@@ -3892,13 +3879,6 @@ div.miniclass-incarichi {
 }
 #from-the-blog h1 a {
   color: #b84a34;
-}
-#footer .nav li > a {
-  color: #fff;
-}
-#footer .nav li > a:hover {
-  color: #fff;
-  text-decoration: underline;
 }
 #footer .partners li a.openpolis {
   background: none;
