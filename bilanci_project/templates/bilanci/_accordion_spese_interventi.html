@@ -9,102 +9,106 @@
 
 <div class="panel-group panel-tree" id="tree-preventivo-spese">
 
-{% recursetree bilancio_tree %}
-    {% if node.denominazione != "_spese_somma_funzioni" and node.denominazione != "funzioni" %}
-    {% if node == bilancio_rootnode or node.denominazione.lower == "interventi" %}
-        {{ children }}
-    {% else %}
-    <div class="panel-group panel-tree">
-        <div class="panel">
-            <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
+    {% recursetree bilancio_tree %}
+        {% if node.denominazione != "_spese_somma_funzioni" and node.denominazione != "funzioni" %}
+            {% if node == bilancio_rootnode or node.denominazione.lower == "interventi" %}
 
-                <div class="row">
-                    <div class="col-sm-6 entry">
+                {{ children }}
 
-                        {% if not node.is_leaf_node %}
-                        <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
-                            <i class="fa fa-fw fa-plus-circle"></i>
-                            <span style="text-transform: uppercase">
-                                {% if node.denominazione == "Spese correnti" %}
-                                    Interventi - Spese correnti
-                                {% elif node.denominazione == "Spese per investimenti" %}
-                                    Interventi - Spese per investimenti
-                                {% else %}
-                                    {{ node.denominazione|lower|capfirst }}
-                                {% endif %}
-                            </span>
-                        </a>
-                        {% else %}
-                        <span style="text-transform: uppercase">
-                            {% if node.denominazione == "Spese correnti" %}
-                                Interventi - Spese correnti
-                            {% elif node.denominazione == "Spese per investimenti" %}
-                                Interventi - Spese per investimenti
-                            {% else %}
-                                <i class="fa fa-fw fa-plus-none"></i>
-                                {{ node.denominazione|lower|capfirst }}
-                            {% endif %}
-                        </span>
-                        {% endif %}
-                        {% popover_info node.slug %}
+            {% else %}
 
-                    </div>
+                <div class="panel-group panel-tree">
+                    <div class="panel">
+                        <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
 
-                    <div class="col-sm-3 actions">
-                        {# set 3rd parameter to True, (is_interventi) #}
-                        {% voice_values node.slug budget_values True %}
-                    </div>
-
-                    <div class="col-sm-2 col-md-offset-1">
-                       <a href="#{{ node.slug }}" class="pull-right btn btn-blu nolenght trend-chart-toggle" data-toggle="collapse"
-                          id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
-                            Grafico <i class="icon sprite-grafico"></i><i class="fa fa-angle-down pull-right"></i>
-                       </a>
-                    </div>
-                </div>
-                {#  trend chart container              #}
-                <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
-                    <div class="row details">
-                        <div class="col-md-12">
-                            {#  secondary graph title #}
                             <div class="row">
-                                <div class="col-md-8 section_title" style="">
-                                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                                <div class="col-sm-6 entry">
+
+                                    {% if not node.is_leaf_node %}
+                                        <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
+                                            <i class="fa fa-fw fa-plus-circle"></i>
+                                            <span style="text-transform: uppercase">
+                                                {% if node.denominazione == "Spese correnti" %}
+                                                    Interventi - Spese correnti
+                                                {% elif node.denominazione == "Spese per investimenti" %}
+                                                    Interventi - Spese per investimenti
+                                                {% else %}
+                                                    {{ node.denominazione|lower|capfirst }}
+                                                {% endif %}
+                                            </span>
+                                        </a>
+                                    {% else %}
+                                        <span style="text-transform: uppercase">
+                                            {% if node.denominazione == "Spese correnti" %}
+                                                Interventi - Spese correnti
+                                            {% elif node.denominazione == "Spese per investimenti" %}
+                                                Interventi - Spese per investimenti
+                                            {% else %}
+                                                <i class="fa fa-fw fa-plus-none"></i>
+                                                {{ node.denominazione|lower|capfirst }}
+                                            {% endif %}
+                                        </span>
+                                    {% endif %}
+                                    {% popover_info node.slug %}
+
                                 </div>
-                                <div class="col-md-4 section_title" style="">
-                                    {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+
+                                <div class="col-sm-3 actions">
+                                    {# set 3rd parameter to True, (is_interventi) #}
+                                    {% voice_values node.slug budget_values True %}
+                                </div>
+
+                                <div class="col-sm-2 col-md-offset-1">
+                                    {# hides graph button for interventi / funzioni                   #}
+                                    {% if node.slug != 'preventivo-spese-spese-per-investimenti' and node.slug != 'preventivo-spese-spese-correnti' and node.slug != 'consuntivo-spese-cassa-spese-correnti' and node.slug != 'consuntivo-spese-cassa-spese-per-investimenti'%}
+                                        <a href="#{{ node.slug }}" class="pull-right btn btn-blu nolenght trend-chart-toggle" data-toggle="collapse"
+                                          id="trend-chart-toggle-{{ node.pk }}" data-target="#trend-chart-container-{{ node.pk }}">
+                                            Grafico <i class="icon sprite-grafico"></i><i class="fa fa-angle-down pull-right"></i>
+                                       </a>
+                                    {% endif %}
+
                                 </div>
                             </div>
+                            {#  trend chart container              #}
+                            <div id="trend-chart-container-{{ node.pk }}" class="collapse chart-container">
+                                <div class="row details">
+                                    <div class="col-md-12">
+                                        {#  secondary graph title #}
+                                        <div class="row">
+                                            <div class="col-md-8 section_title" style="">
+                                                {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                                            </div>
+                                            <div class="col-md-4 section_title" style="">
+                                                {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    {#  secondary graph  #}
+                                    <div class="col-md-12 graph-box"></div>
+                                </div>
+                            </div>
+                            {#  /trend chart container              #}
+
                         </div>
                     </div>
-                    <div class="row">
-                        {#  secondary graph  #}
-                        <div class="col-md-12 graph-box"></div>
-                    </div>
+                    {% if not node.is_leaf_node %}
+                        <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
+
+                            <!-- Sub panel level -->
+                            <div class="panel-group" id="tree-{{ node.slug }}">
+                                {{ children }}
+                            </div>
+                            <!-- Sub panel level -->
+
+                        </div>
+                    {% endif %}
+
                 </div>
-                {#  /trend chart container              #}
 
-            </div>
-        </div>
-        {% if not node.is_leaf_node %}
-            <div id="{{ node.slug|slugify }}" class="panel-collapse collapse">
-
-                <!-- Sub panel level -->
-                <div class="panel-group" id="tree-{{ node.slug }}">
-                    {{ children }}
-                </div>
-                <!-- Sub panel level -->
-
-            </div>
-        {% endif %}
-
-    </div>
-
-
-
-
+                {% endif %}
             {% endif %}
-        {% endif %}
     {% endrecursetree %}
 </div>
 
