@@ -13,10 +13,10 @@
     {# selettore funzioni / interventi    #}
     {% if selected_section == 'spese' %}
 
-        <a href="{% if fun_int_current_view != 'funzioni' %}{{ fun_int_switch.url }}#dettaglio{% else %}#{% endif %}">
+        <a href="{% if fun_int_current_view != 'funzioni' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
             <span class="label label-blu {% if fun_int_current_view == 'funzioni' %}active{% endif %}">Vista per Funzioni</span>
         </a>
-        <a href="{% if fun_int_current_view != 'interventi' %}{{ fun_int_switch.url }}#dettaglio{% else %}#{% endif %}">
+        <a href="{% if fun_int_current_view != 'interventi' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
             <span class="label label-blu {% if fun_int_current_view == 'interventi' %}active{% endif %}">Vista per Interventi</span>
         </a>
     {% endif %}
@@ -100,16 +100,6 @@
 
     <script type="text/javascript">
 
-        function feed_main_linechart(){
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug=bilancio_rootnode %}" +
-                    "?values_type={{ values_type }}",
-                    function (i) {
-                linechart.data(i);
-                linechart.year({{ selected_year }});
-            });
-
-        }
-
        function feed_secondary_linechart(voce_slug){
            {%  comment %}
 
@@ -148,6 +138,10 @@
             );
         }
 
+       {# prevents the browser to add a #slug-voce to the window.location      #}
+       function avoidAnchorBehaviour(event){
+           event.preventDefault();
+       }
 
        $(document).ready(function(){
 
@@ -159,8 +153,7 @@
 
             $('#content').find('.chart-container').on('hidden.bs.collapse', close_secondary_linechart);
 
-            {# adds anchor #composizione / #dettaglio to page url   #}
-{#            $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });#}
+            $('#content').find('.trend-chart-toggle').on('click', avoidAnchorBehaviour);
 
             var lhash = location.hash;
 
