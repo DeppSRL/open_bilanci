@@ -12,13 +12,14 @@
 
     {# selettore funzioni / interventi    #}
     {% if selected_section == 'spese' %}
-
-        <a href="{% if fun_int_current_view != 'funzioni' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
-            <span class="label label-blu {% if fun_int_current_view == 'funzioni' %}active{% endif %}">Vista per Funzioni</span>
-        </a>
-        <a href="{% if fun_int_current_view != 'interventi' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
-            <span class="label label-blu {% if fun_int_current_view == 'interventi' %}active{% endif %}">Vista per Interventi</span>
-        </a>
+        <span class="fun-int">
+            <a href="{% if fun_int_current_view != 'funzioni' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
+                <span class="label label-blu {% if fun_int_current_view == 'funzioni' %}active{% endif %}">Vista per Funzioni</span>
+            </a>
+            <a href="{% if fun_int_current_view != 'interventi' %}{{ fun_int_switch.url }}{% else %}#{% endif %}">
+                <span class="label label-blu {% if fun_int_current_view == 'interventi' %}active{% endif %}">Vista per Interventi</span>
+            </a>
+        </span>
     {% endif %}
 
 {% endblock %}

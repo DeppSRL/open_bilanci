@@ -1,5 +1,5 @@
 {%spaceless %}
-<div>
+
     {#  display title text  #}
     <span class="selection">
         {{ bold_text|default_if_none:''|upper }} {{ selected_section|default_if_none:""|upper }} {{ main_bilancio_type|default_if_none:''|upper }} {{ main_bilancio_year|default_if_none:'' }}
@@ -14,5 +14,5 @@
         A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
     {% endif %}
 
-</div>
+
 {% endspaceless %}

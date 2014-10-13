@@ -3361,19 +3361,8 @@ button .pull-left {
   max-width: 100%;
   height: auto;
 }
-.fun-int,
-.fun-int:visited {
-  background: #b9c6c4;
-  border-color: #b9c6c4;
-  color: #57616c;
-  font-size: 12px;
-  padding-left: 40px;
-  padding-right: 40px;
-  text-transform: uppercase;
-}
-.fun-int span,
-.fun-int:visited span {
-  font-size: 10px;
+.fun-int {
+  margin-left: 15px;
 }
 .composition-widget-container iframe,
 .composition-widget-container object,
@@ -3785,9 +3774,6 @@ share box
 #main-content > .panel-heading .timeline {
   margin-bottom: 0;
   margin-top: 30px;
-}
-#main-content > .panel-heading .gTitle > div {
-  margin-left: 0;
 }
 #main-content > .panel-heading .gray-border-bot {
   border-color: #b9c5c4;
