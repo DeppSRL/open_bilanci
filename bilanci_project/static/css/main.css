@@ -3364,7 +3364,7 @@ button .pull-left {
 .fun-int {
   margin-left: 15px;
 }
-.panel-tree span {
+.panel-tree span.investimenti {
   font-size: 11px!important;
 }
 .composition-widget-container iframe,
