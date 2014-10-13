@@ -14,11 +14,12 @@
     <div class="chart pull-left" id="{{ hash }}" data-chart-value="0"></div>
 {% endif %}
 
-<ul class="list-unstyled small">
-    <li>
-        <span class="label">INVESTIMENTI</span><span class="value">{{ investimenti_value|floatformat:"0"|intword }} €</span>
-    </li>
-    <li>
-        <span class="label">SPESE CORRENTI</span><span class="value">{{ correnti_value|floatformat:"0"|intword }} €</span>
-    </li>
-</ul>
+<p class="small">
+    <strong>
+        SPESE CORRENTI {{ correnti_value|floatformat:"0"|intword }} €<br/>
+        <span>
+            INVESTIMENTI {{ investimenti_value|floatformat:"0"|intword }} €
+        </span>
+    </strong>
+
+</p>

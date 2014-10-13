@@ -557,7 +557,7 @@ $(document).ready(function(){
         cy = cy || 100;
         radius = radius || 50;
         data = data || [];
-        colors = ['#ceccc4', '#cc6633'];
+        colors = ['#ceccc4', '#2b3038'];
         overs = ['#ceccc4', '#888888'];
 
         var ms = 500,
