@@ -52,7 +52,7 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
  calls visup function to create linechart and feeds it
 * */
 function init_secondary_linechart(event){
-    event.stopPropagation();
+    event.preventDefault();
     var timeline_start_year = event.data.timeline_start_year;
     var timeline_end_year = event.data.timeline_end_year;
 
@@ -91,13 +91,13 @@ function init_secondary_linechart(event){
 
     return false;
 
-    }
+}
 
 /*
  deactivates graph button on accordion hide
 * */
 function close_secondary_linechart(event){
-    event.stopPropagation();
+    event.preventDefault();
     var panel = $(this),
     panel_id = panel.attr('id').split('-').pop();
     var btn = $('#trend-chart-toggle-' + panel_id);
@@ -105,27 +105,6 @@ function close_secondary_linechart(event){
     return false;
 }
 
-/*
-* switches the secondary timeline toggle on mouse over. avoids switching img after graph collapse
-* */
-
-function hover_secondary_toggle(event){
-    event.preventDefault();
-    var btn = $( this );
-    var chart_container = $('#trend-chart-container-' + btn.attr('id').split('-').pop());
-    var button_on_img = event.data.button_on_img;
-    var button_off_img = event.data.button_off_img;
-
-    if(chart_container[0].className == "hidden" &&(event.type != "mouseleave" || event.target.src != window.location.origin + button_off_img) ){
-
-        if(event.target.src == window.location.origin + button_on_img)
-            event.target.src = window.location.origin + button_off_img;
-        else
-            event.target.src = window.location.origin + button_on_img;
-
-    }
-
-}
 
 if(linechart){
     $(window).on('resize', function(){

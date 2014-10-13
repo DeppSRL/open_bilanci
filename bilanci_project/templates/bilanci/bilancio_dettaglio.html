@@ -160,11 +160,11 @@
             $('#content').find('.chart-container').on('hidden.bs.collapse', close_secondary_linechart);
 
             {# adds anchor #composizione / #dettaglio to page url   #}
-            $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });
+{#            $('.nav-tabs a').on('click',function(){ window.location.hash = $(this).attr('href'); });#}
 
             var lhash = location.hash;
 
-            // if a voce slug is in the hash then scrool to that voce in the accordion
+            // if a voce slug is in the hash then scroll to that voce in the accordion
             if(lhash != ''){
                 var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
                 var targetElement =startElement.replace("#","#heading-");
