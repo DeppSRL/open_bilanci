@@ -3752,8 +3752,9 @@ share box
   margin-top: 5px;
   margin-bottom: 10px;
 }
-#main-content .year-selector {
-  margin-top: 5px;
+#main-content .visup-selector-axisX-container {
+  position: relative;
+  height: 28px;
 }
 #main-content > .panel-heading .panel-title {
   font-size: 46px;
@@ -3764,7 +3765,7 @@ share box
 }
 #main-content > .panel-heading .timeline {
   margin-bottom: 0;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 #main-content > .panel-heading .gray-border-bot {
   border-color: #b9c5c4;
