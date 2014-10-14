@@ -6,7 +6,12 @@
 {% load popover_info %}
 
 {% block page_title %}
-    Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
+    {% if selected_section == 'overview' %}
+        Overview
+    {% else %}
+        {{ selected_section }} - {{ selected_subsection }}
+    {% endif %}
+    per il bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
 {% endblock %}
 
 {% block bilancio_description %}

@@ -1528,7 +1528,7 @@ class BilancioNotFoundView(TemplateView):
 
 class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
-    selected_section = "bilancio"
+    selected_section = "overview"
     year = None
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
@@ -1657,7 +1657,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.check_servizi_comuni(request)
 
         self.territorio = self.get_object()
-        self.selected_section = kwargs.get('section', 'bilancio')
+        self.selected_section = kwargs.get('section', 'overview')
         self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
 
@@ -1736,7 +1736,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         }
 
         rootnode_slug = rootnode_slugs[self.main_bilancio_type]['entrate'][self.cas_com_type]
-        if self.selected_section != 'bilancio':
+        if self.selected_section != 'overview':
             rootnode_slug = rootnode_slugs[self.main_bilancio_type][self.selected_section][self.cas_com_type]
 
         # best_bilancio determines based on the slug and the selected year
@@ -1897,7 +1897,7 @@ class BilancioDettaglioView(BilancioOverView):
 
         must_redirect = False
         self.territorio = self.get_object()
-        self.selected_section = kwargs.get('section', 'bilancio')
+        self.selected_section = kwargs.get('section', 'overview')
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
 
