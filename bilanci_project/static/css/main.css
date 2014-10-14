@@ -3353,6 +3353,13 @@ button .pull-left {
   margin-left: -30px !important;
   font-size: 13px!important;
 }
+.visup-selector-axisX-container {
+  position: relative;
+  height: 28px;
+}
+.visup-legend-row:last-child {
+  border-bottom: 0!important;
+}
 .composition-widget-container {
   position: relative;
   padding-bottom: 65.25%;
@@ -3751,10 +3758,6 @@ share box
 #main-content .page-subtitle {
   margin-top: 5px;
   margin-bottom: 10px;
-}
-#main-content .visup-selector-axisX-container {
-  position: relative;
-  height: 28px;
 }
 #main-content > .panel-heading .panel-title {
   font-size: 46px;
