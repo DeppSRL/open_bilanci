@@ -14,15 +14,17 @@
     {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
 {% endblock %}
 
-{% block bilancio_indicatori_selection_toggle_menu %}
-    {# indicatori handle is hidden on pageload   #}
-    <div id="side-controls" style="display: block; left: -50px; top: 343px;">
-        <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>
+{% block bilancio_description %}
+
+    <div class="col-md-3">
+        <div class="btn-group ">
+            <button id="push-menu" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
+                <span class="pull-left">SCEGLI UNO O PI&Ugrave; INDICATORI</span><span class="fa fa-angle-down pull-right"></span>
+            </button>
+        </div>
     </div>
+
 {% endblock %}
-
-{% block bilancio_settings_menu %}{% endblock %}
-
 
 {% block bilanci_content %}
     <div class="tab-pane fade in" id="dettaglio">

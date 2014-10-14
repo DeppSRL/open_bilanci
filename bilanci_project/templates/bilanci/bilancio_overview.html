@@ -15,8 +15,12 @@
 {% endblock %}
 
 {% block bilancio_description %}
-    {#    description #}
-    {% section_title bold_text="COMPOSIZIONE" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+
+    <div class="col-md-7 gTitle">
+        {#    description #}
+        {% section_title bold_text="COMPOSIZIONE" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+    </div>
+
 {% endblock %}
 
 {% block bilancio_controls %}

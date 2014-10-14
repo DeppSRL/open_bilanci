@@ -107,24 +107,23 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <hr class="gray-border-top">
+        {% block year_selector %}
+            <div class="row">
+                <div class="col-md-12">
+                    <hr class="gray-border-top">
+                </div>
             </div>
-        </div>
-        {# year selector widget #}
-        <div class="row">
-            <div class="col-md-12">
-                {% block year_selector %}
+            {# year selector widget #}
+            <div class="row">
+                <div class="col-md-12">
                     <div class="row timeline">
                         <div class="col-sm-12">
                             <div class="year-selector"></div>
                         </div>
                     </div>
-                {% endblock %}
+                </div>
             </div>
-        </div>
-
+        {% endblock %}
 
         <div class="row">
             <div class="col-md-12">
@@ -134,13 +133,11 @@
 
         {# control row for bilancio: description "Consuntivo 2012 dettaglio" , values_type and control button #}
         <div class="row" style="margin-bottom: 10px;">
+
              {#    description #}
-            <div class="col-md-7 gTitle">
-                {% block bilancio_description %}
+            {% block bilancio_description %}
 
-                {% endblock %}
-
-            </div>
+            {% endblock %}
 
             {# values types + control button "CAMBIA"  #}
             <div class="col-md-5">
@@ -174,10 +171,6 @@
 
             {% block bilancio_indicatori_selection_menu %}{% endblock %}
         </div>
-
-        {#  here goes the handle for Menu for bilanci-indicatori page       #}
-        {% block bilancio_indicatori_selection_toggle_menu %}{% endblock %}
-
 
     </div>
 
