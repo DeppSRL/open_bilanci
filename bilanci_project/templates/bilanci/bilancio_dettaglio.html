@@ -47,26 +47,25 @@
                            </a>
                     </div>
                 </div>
+                {# trend chart container               #}
+                <div id="trend-chart-container-{{ bilancio_rootnode.pk }}" class="collapse chart-container">
+                    <div class="row details">
+                        <div class="col-md-12">
+                            {#  secondary graph title #}
+                            <div class="row">
+                                <div class="col-md-8 section_title" style="">
+                                    {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
+                                </div>
+                                <div class="col-md-4 section_title" style="">
 
-                <div class="row">
-                    <div id="trend-chart-container-{{ bilancio_rootnode.pk }}" class="collapse chart-container">
-                        <div class="row details">
-                            <div class="col-md-12">
-                                {#  secondary graph title #}
-                                <div class="row">
-                                    <div class="col-md-8 section_title" style="">
-                                        {% section_title bold_text="BILANCI" main_bilancio_type=bilancio_type_title main_bilancio_year=year  %}
-                                    </div>
-                                    <div class="col-md-4 section_title" style="">
-                                        {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
-                                    </div>
+                                    {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True per_capita=True %}
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            {#  secondary graph  #}
-                            <div class="col-md-12 graph-box"></div>
-                        </div>
+                    </div>
+                    <div class="row">
+                        {#  secondary graph  #}
+                        <div class="col-md-12 graph-box"></div>
                     </div>
                 </div>
             </div>
