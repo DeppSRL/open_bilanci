@@ -3372,7 +3372,7 @@ button .pull-left {
   margin-left: 15px;
 }
 .panel-tree span.investimenti {
-  font-size: 11px!important;
+  font-size: 11px;
 }
 .composition-widget-container iframe,
 .composition-widget-container object,
@@ -3432,6 +3432,18 @@ form ul li label {
 #main-content .scrollbox {
   height: auto!important;
   max-height: 300px!important;
+}
+#sidebar .panel .list-group-item div {
+  width: auto!important;
+}
+#sidebar .panel .list-group-item input {
+  margin-right: 0;
+}
+#sidebar label {
+  color: #2a3036;
+  font-weight: 300;
+  line-height: 14px;
+  font-size: 14px;
 }
 #sidebar .dropdown > .separator {
   height: 1px;

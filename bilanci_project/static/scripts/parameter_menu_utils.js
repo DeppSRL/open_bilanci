@@ -8,7 +8,7 @@ function escapeRegExp(str) {
 }
 
 function init_parameter_menu(site_section){
-    //initialize side menu.
+    //initialize side menu for classifiche / confronti
     // default selected value: the one present in the url address
 
     var parameter_type=null;

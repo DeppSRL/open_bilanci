@@ -4,7 +4,7 @@ from django import template
 
 register = template.Library()
 
-@register.inclusion_tag("bilanci/bilancio_indicatori_parameter_list.html", takes_context=True)
+@register.inclusion_tag("bilanci/_indicatori_parameter_list.html", takes_context=True)
 
 def bilancio_indicatori_parameter_list(context, parameter_list, territorio_slug, selected_parameters):
 
