@@ -22,15 +22,15 @@ $(document).ready(function(){
 		}
 	});
 	
-	$('#open-settings, #push-menu').on('click', function() {
-		if($(this).find('> .fa').first().hasClass('fa-angle-down')) {
-			$(this).find('> .fa').first().removeClass('fa-angle-down').addClass('fa-angle-up');
-			//$('.fa-angle-up').css('margin-left', '1px');
-		} else {
-			$(this).find('> .fa').first().removeClass('fa-angle-up').addClass('fa-angle-down');
-			//$('.fa-angle-down').css('margin-left', '5px');
-		}
-	});
+//	$('#open-settings, #push-menu').on('click', function() {
+//		if($(this).find('> .fa').first().hasClass('fa-angle-down')) {
+//			$(this).find('> .fa').first().removeClass('fa-angle-down').addClass('fa-angle-up');
+//			//$('.fa-angle-up').css('margin-left', '1px');
+//		} else {
+//			$(this).find('> .fa').first().removeClass('fa-angle-up').addClass('fa-angle-down');
+//			//$('.fa-angle-down').css('margin-left', '5px');
+//		}
+//	});
 	
 	
 	

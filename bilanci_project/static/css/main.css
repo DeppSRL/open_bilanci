@@ -3771,6 +3771,10 @@ share box
   border-color: #b9c5c4;
   margin: 3px 0 0;
 }
+#main-content > .panel-heading .btn-group .btn-ob .fa.fa-caret-down {
+  margin-top: 4px;
+  margin-left: 5px;
+}
 .popover-title {
   background-color: #cc6633 !important;
   font-size: 16px;
