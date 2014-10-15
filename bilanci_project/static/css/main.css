@@ -3558,6 +3558,7 @@ a[rel=info-popover]:visited {
 }
 .panel-tree .chart-container {
   margin: 20px 0;
+  overflow: hidden;
 }
 .panel-tree .highlighted {
   background-color: rgba(215, 215, 215, 0.43);
