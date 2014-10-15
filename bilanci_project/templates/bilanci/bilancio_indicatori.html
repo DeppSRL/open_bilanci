@@ -11,16 +11,17 @@
 {% block year_selector %}{% endblock %}
 
 {% block bilancio_indicatori_selection_menu %}
-    {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
+{#    {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}#}
 {% endblock %}
 
 {% block bilancio_description %}
 
     <div class="col-md-3">
         <div class="btn-group ">
-            <button id="push-menu" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
+            <button id="indicatori-button" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
                 <span class="pull-left">SCEGLI UNO O PI&Ugrave; INDICATORI</span><span class="fa fa-caret-down pull-right"></span>
             </button>
+            {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
         </div>
     </div>
 

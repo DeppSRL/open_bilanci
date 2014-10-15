@@ -3433,11 +3433,31 @@ form ul li label {
   height: auto!important;
   max-height: 300px!important;
 }
+#indicatori-button {
+  padding: 3px 12px;
+}
+#sidebar {
+  width: 380px!important;
+  border: 0;
+  margin-top: 5px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
 #sidebar .panel .list-group-item div {
   width: auto!important;
 }
 #sidebar .panel .list-group-item input {
   margin-right: 0;
+}
+#sidebar .panel .panel-body .row {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+#sidebar #indicatori-submit-button {
+  text-align: center;
+}
+#sidebar #indicatori-submit-button :focus {
+  color: white;
 }
 #sidebar label {
   color: #2a3036;
