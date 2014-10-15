@@ -228,7 +228,7 @@ class IncarichiGetterMixin(object):
         if len(transformed_set):
             return [transformed_set]
         else:
-            return None
+            return []
 
 
     ##
@@ -1201,11 +1201,9 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
 
-        if incarichi_set_1:
-            incarichi_set_1.extend(incarichi_set_2)
-            incarichi = incarichi_set_1
-        else:
-            incarichi = incarichi_set_2
+        # merges incarichi_1 and incarichi_2
+        incarichi_set_1.extend(incarichi_set_2)
+        incarichi = incarichi_set_1
 
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
