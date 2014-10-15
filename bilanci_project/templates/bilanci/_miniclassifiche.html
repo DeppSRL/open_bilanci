@@ -1,0 +1,71 @@
+<hr class="no-border">
+
+<div id="results" class="row">
+
+    <div class="col-md-6">
+        <div class="panel panel-default panel-confronti" id="miniclass-indicatori">
+            <div class="panel-heading clearfix" >
+
+                <h3 class="panel-title" style="margin-bottom: 5px;">
+                    {{ territorio.denominazione }}
+                </h3>
+
+
+                {# incarichi attivi        #}
+                {% if incarichi_attivi|length > 0 %}
+
+                     {% include 'bilanci/_miniclass_incarichi.html' with incarichi_attivi=incarichi_attivi territorio=territorio %}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="table-responsive">
+                <table class="table">
+                    <caption>
+                        INDICATORI {{ last_indicatore_yr  }}
+                        <small>POSIZIONE IN CLASSIFICA SU <strong>{{ n_comuni_cluster }}</strong> COMUNI {{ territorio_cluster }}</small>
+                    </caption>
+
+                    <tbody>
+                        {% for ip in indicatore_position %}
+
+                            <tr>
+                                <td class="text">
+
+                                    <form name="miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}" class="" action="{% url 'classifiche-search' %}" method="get">
+                                        <input id="id_selected_year" name="selected_year" type="hidden" value="{{ last_indicatore_yr|safe }}" />
+                                        <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="indicatori" />
+                                        <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ ip.indicatore_pk|safe }}" />
+                                        <input id="id_selected_regioni" name="selected_regioni" type="hidden" value="{{ selected_regioni_str|safe }}" />
+                                        <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
+                                        <input id="id_territorio_id" name="territorio_id" type="hidden" value="{{ territorio.pk|safe }}" />
+
+                                                <h5 class="pull-left">
+                                                    <a href onclick="document.miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}.submit();return false;" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
+                                                        {{ ip.indicatore_denominazione|upper }}
+                                                    </a>
+                                                </h5>
+                                        <p class="pull-right">
+                                            <span class="h2">{{ ip.position }}&deg;</span>
+                                        </p>
+                                    </form>
+                                </td>
+
+        {#                        <td class="col-sm-2 ">#}
+                                    {#  ranking graph    #}
+        {#                            <div class="chart" id="rank-{{forloop.counter }}" data-chart-type="rank" data-chart-scale="1.5" data-chart-width="150" data-chart-height="30" data-chart-value="1"></div>#}
+        {#                        </td>#}
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div> <!-- /#results -->
+

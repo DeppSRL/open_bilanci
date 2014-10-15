@@ -3829,6 +3829,9 @@ share box
   margin-top: 0;
   font-size: 18px;
 }
+#results .table > tbody > tr:hover > td {
+  cursor: default;
+}
 #home .brand {
   padding-top: 6px;
 }
@@ -3913,7 +3916,6 @@ div.miniclass-incarichi {
   border-bottom: 0;
 }
 #miniclass-indicatori .panel-heading {
-  border-bottom: 0!important;
   padding-bottom: 0;
 }
 #from-the-blog a.muted {
