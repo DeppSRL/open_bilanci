@@ -3832,6 +3832,9 @@ share box
 #results .table > tbody > tr:hover > td {
   cursor: default;
 }
+#miniclass-indicatori h5 a {
+  color: #2a3036;
+}
 #home .brand {
   padding-top: 6px;
 }
