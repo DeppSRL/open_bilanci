@@ -45,16 +45,16 @@
                 <button id="open-settings" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
                 <span class="pull-left">SCEGLI</span><span class="fa fa-angle-down pull-right"></span>
                 </button>
+
+                {% include 'bilanci/_hierarchical_menu.html' with page_type='confronti' parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
            </div>
         </div>
         <div class="col-md-10 gTitle condividi">
-            <div>CONFRONTO SU: <span class="selection">CONTRIBUTI E TRASFERIMENTI DA ALTRI ENTI PUBBLICI</span><a href="#" rel="info-popover"><span class="fa fa-fw fa-question-circle"></span></a></div>
+            <div>CONFRONTO SU: <span class="selection">{{ selected_par_type|upper }} > {{ selected_parameter_name|upper }}</span><a href="#" rel="info-popover"><span class="fa fa-fw fa-question-circle"></span></a></div>
             <a href="#" class="pull-right share share-top">Condividi il tuo confronto <span class="icon sprite-share"></span></a>
         </div>
 
-        <div id="settings" class="closed alt col-md-4">
-            {% include 'bilanci/_hierarchical_menu.html' with page_type='confronti' parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
-        </div>
+
     </div>
     <div class="row">
         <div class="col-md-12">
@@ -70,18 +70,15 @@
             <div class="panel panel-default panel-nobg">
                 <div class="panel-body">
 
-                    {#  section title / values_type                   #}
-                    <div class="row">
-                        <div class='{% if selected_par_type != 'indicatori' %}col-md-6{% else %}col-md-12{% endif %}'>
-                            <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=selected_parameter_name %}</h3>
-                        </div>
-
-                        {% if selected_par_type != 'indicatori' %}
-                            <div class='col-md-6'>
+                    {% if selected_par_type != 'indicatori' %}
+                        {#  values_type                   #}
+                        <div class="row">
+                            <div class='col-md-6 span6'>
                                 {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
                             </div>
-                        {% endif %}
-                    </div>
+                        </div>
+
+                    {% endif %}
 
                     {#  linechart               #}
                     <div class="row">
@@ -115,7 +112,6 @@
 
 
 {% block extra_js %}
-
 
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
@@ -156,8 +152,6 @@
 
 {% block extra_css %}
 {#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}

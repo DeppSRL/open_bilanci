@@ -3360,6 +3360,12 @@ button .pull-left {
 .visup-legend-row:last-child {
   border-bottom: 0!important;
 }
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url('../woff/lato.woff') format('woff');
+}
 .composition-widget-container {
   position: relative;
   padding-bottom: 65.25%;
