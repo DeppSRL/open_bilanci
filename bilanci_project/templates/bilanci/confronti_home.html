@@ -14,9 +14,6 @@
     </div>
 
     <div class="panel-body">
-
-        <hr class="no-border">
-
         <div class="row">
             <div id="content" class="col-sm-12">
                 <div id="comparison" class="panel panel-default">
@@ -54,18 +51,19 @@
                             </div>
                         </div>
                     </div>
-                </div> <!-- /panel panel-default -->
-                {% block results %}
+                </div><!-- /panel panel-default -->
+            </div><!-- /panel row-->
+        </div>
+      {# block confronti description contains the settings button and the description of the comparison parameter   #}
+      {% block confronti_description %}{% endblock %}
 
-                {% endblock %}
-            </div>
+        <div class="row">
 
-            {% block confronti_parameter_menu %}{% endblock %}
+            {% block results %}
 
-        </div> <!-- ./row -->
+            {% endblock %}
+        </div>
 
-
-    </div><!-- /.panel-body -->
 {% endblock %}
 
 {% block extra_js %}
