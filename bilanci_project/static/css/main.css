@@ -3607,10 +3607,17 @@ a[rel=info-popover]:visited {
 .select2-choice {
   height: 40px!important;
 }
-#comparison .form-group {
+#main-content #comparison {
+  padding-bottom: 0;
+  margin-bottom: 70px;
+}
+#main-content #comparison .panel-body {
+  padding-bottom: 15px;
+}
+#main-content #comparison .form-group {
   width: auto;
 }
-#comparison .form-group .form-control {
+#main-content #comparison .form-group .form-control {
   height: 40px;
   padding-right: 0px;
 }
