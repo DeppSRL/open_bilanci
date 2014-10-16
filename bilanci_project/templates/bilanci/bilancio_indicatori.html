@@ -37,7 +37,12 @@
     </div>
 
     {% if not request.servizi_comuni %}
-        {% include 'bilanci/_miniclassifiche.html' %}
+        <div class="row">
+            <div class="col-md-6">
+                {% include 'bilanci/_miniclassifiche.html' %}
+            </div>
+        </div>
+
     {% endif %}
 
 {% endblock %}
