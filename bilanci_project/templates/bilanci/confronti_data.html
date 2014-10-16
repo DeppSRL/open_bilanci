@@ -3,6 +3,7 @@
 {% load confronti_helpbox %}
 {% load section_title %}
 {% load section_values_type %}
+{% load popover_info  %}
 
 {% block page_title %}
     Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ selected_parameter_name }}
@@ -16,22 +17,6 @@
     {% confronti_helpbox territorio_2  contesto_2 %}
 {% endblock %}
 
-{% block share_box %}
-
-    <!-- AddThis Button BEGIN -->
-    <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-         <strong>i tuoi confronti</strong> <span class="fa fa-share-alt"></span>
-    </a>
-    <script type="text/javascript">
-        var addthis_config = {"data_track_addressbar":false   };
-        var addthis_share =
-        {
-            "url":"{{ share_url|safe }}"
-        }
-    </script>
-    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-    <!-- AddThis Button END -->
-{% endblock %}
 
 {# block confronti description contains the settings button and the description of the comparison parameter   #}
 
@@ -49,16 +34,33 @@
                 {% include 'bilanci/_hierarchical_menu.html' with page_type='confronti' parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
            </div>
         </div>
-        <div class="col-md-10 gTitle condividi">
-            <div>CONFRONTO SU: <span class="selection">{{ selected_par_type|upper }} > {{ selected_parameter_name|upper }}</span><a href="#" rel="info-popover"><span class="fa fa-fw fa-question-circle"></span></a></div>
-            <a href="#" class="pull-right share share-top">Condividi il tuo confronto <span class="icon sprite-share"></span></a>
-        </div>
+        <div class="col-md-6 gTitle ">
+            <div>
+                CONFRONTO SU:
+                <span class="selection">
+                    {% if selected_par_type == 'spese-funzioni' %}
+                        SPESE PER FUNZIONI
+                    {% elif selected_par_type == 'spese-interventi' %}
+                        SPESE PER INTERVENTI
+                    {% else %}
+                        {{ selected_par_type|upper }}
+                    {% endif %}
+                    >
 
+                    {{ selected_parameter_name|upper }}
+                </span>
+                {#  tooltip #}
+                {% popover_info parameter_slug %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% include 'bilanci/_share_button.html' with label='il tuo confronto' %}
+        </div>
 
     </div>
     <div class="row">
         <div class="col-md-12">
-            <hr class="gray-border-bot-condividi">
+           <hr style="border-top: 1px solid #b9c5c4;margin-bottom: 0;">
         </div>
     </div>
 
@@ -67,18 +69,30 @@
 {% block results %}
     <div id="results" class="row">
         <div class="col-md-12">
-            <div class="panel panel-default panel-nobg">
+            <div class="panel panel-default panel-nobg" style="margin-bottom: 0;">
                 <div class="panel-body">
 
-                    {% if selected_par_type != 'indicatori' %}
-                        {#  values_type                   #}
-                        <div class="row">
-                            <div class='col-md-6 col-md-offset-6 '>
-                                {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                    {#  values_type                   #}
+                    <div class="row">
+                        <div class='col-md-6 '>
+                            <span class="selection">BILANCI CONSUNTIVI</span>
+                        </div>
+                        <div class='col-md-6 '>
+                            <div class="cas_com_box pull-right">
+                                {% if selected_par_type == 'indicatori' %}
+                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=False %}
+                                {% else %}
+                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                                {% endif %}
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr style="border-top: 1px solid #b9c5c4;margin-top: 9px;">
+                        </div>
+                    </div>
 
-                    {% endif %}
 
                     {#  linechart               #}
                     <div class="row">
@@ -91,7 +105,7 @@
             {#  miniclassifiche indicatori    #}
             {% if selected_par_type == 'indicatori' %}
                 <div class="panel panel-default panel-nobg">
-                    <div class="panel-body">
+                    <div class="panel-body" style="padding-top: 0;">
                         <div class="row">
                             <div class="col-md-6">
                                 {% include 'bilanci/_miniclassifiche.html' with territorio=territorio_1 territorio_cluster=territorio_1_cluster indicatore_position=indicatore_positions_1 incarichi_attivi=incarichi_attivi_1 active_indicator_slug=parameter.slug selected_cluster_str=selected_cluster_str_1 %}

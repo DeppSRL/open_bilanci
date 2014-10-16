@@ -3366,7 +3366,7 @@ button .pull-left {
   font-weight: 400;
   src: local('Lato Regular'), local('Lato-Regular'), url('../woff/lato.woff') format('woff');
 }
-#side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a.toggler :hover {
+#side-controls-wrapper #settings #menu-selezione .multi-level-menu .menu li a.toggler:hover {
   text-decoration: none;
 }
 #side-controls-wrapper #settings #menu-selezione .panel-body {
@@ -3529,7 +3529,7 @@ a[rel=info-popover]:visited {
   cursor: default;
 }
 .timeline-multiline {
-  margin-bottom: 60px;
+  margin-bottom: 10px;
 }
 .panel-tree span {
   font-size: 14px;
@@ -3774,7 +3774,9 @@ share box
   color: #2a3036;
 }
 .share {
-  padding: 9px 4px;
+  padding-right: 4px;
+  padding-left: 4px;
+  padding-top: 0;
   color: #cc6633;
   font-size: 16px;
 }
