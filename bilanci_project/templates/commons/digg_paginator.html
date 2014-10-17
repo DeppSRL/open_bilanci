@@ -1,4 +1,4 @@
-<ul id="pagination-digg">
+<ul>
     {% spaceless %}
             <li>
                 <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page=1">
@@ -18,11 +18,13 @@
             <li><span class="ellipsis">&hellip;</span></li>
         {% endif %}
         {% for p in page_range %}
-            {% if p == page %}
-                <li><span class="active">{{ p }}</span></li>
-            {% else %}
-                <li><a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}">{{ p }}</a></li>
-            {% endif %}
+
+            <li class="active">
+                <a {% if p == page %} href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ p }}"{% endif %}>
+                    {{ p }}
+                </a>
+            </li>
+
         {% endfor %}
 
             <li class="{% if has_next %}more{% else %}pager-off{% endif %}">
