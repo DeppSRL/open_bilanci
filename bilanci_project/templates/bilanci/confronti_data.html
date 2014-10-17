@@ -21,49 +21,9 @@
 {# block confronti description contains the settings button and the description of the comparison parameter   #}
 
 {% block confronti_description %}
-    <div class="row">
-        <div class="col-md-12"><hr class="gray-border-top-condividi"></div>
-    </div>
-    <div class="row">
-        <div class="col-md-2">
-            <div class="btn-group ">
-                <button id="open-settings" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
-                <span class="pull-left">SCEGLI</span><span class="fa fa-angle-down pull-right"></span>
-                </button>
-
-                {% include 'bilanci/_hierarchical_menu.html' with page_type='confronti' parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
-           </div>
-        </div>
-        <div class="col-md-6 gTitle ">
-            <div>
-                CONFRONTO SU:
-                <span class="selection">
-                    {% if selected_par_type == 'spese-funzioni' %}
-                        SPESE PER FUNZIONI
-                    {% elif selected_par_type == 'spese-interventi' %}
-                        SPESE PER INTERVENTI
-                    {% else %}
-                        {{ selected_par_type|upper }}
-                    {% endif %}
-                    >
-
-                    {{ selected_parameter_name|upper }}
-                </span>
-                {#  tooltip #}
-                {% popover_info parameter_slug %}
-            </div>
-        </div>
-        <div class="col-md-4">
-            {% include 'bilanci/_share_button.html' with label='il tuo confronto' %}
-        </div>
-
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-           <hr style="border-top: 1px solid #b9c5c4;margin-bottom: 0;">
-        </div>
-    </div>
-
+    <!-- start _hierarchical_control_bar -->
+    {% include 'bilanci/_hierarchical_control_bar.html' with page_type='confronti' share_label='il tuo confronto' %}
+    <!-- /_hierarchical_control_bar -->
 {% endblock %}
 
 {% block results %}

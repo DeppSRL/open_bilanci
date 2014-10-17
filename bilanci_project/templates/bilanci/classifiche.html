@@ -6,6 +6,7 @@
 {% load section_title %}
 {% load section_values_type %}
 {% load italianize %}
+{% load popover_info %}
 
 {% block page_title %}
     Classifiche per {{ selected_parameter_name }}
@@ -14,12 +15,15 @@
 {% block content %}
 
     <div class="panel-heading">
-        {% if share_url %}
-            {% include 'bilanci/_share_button.html' %}
-        {% endif %}
-
         <h1 class="panel-title">CLASSIFICHE</h1>
     </div>
+
+    <!-- start _hierarchical_control_bar -->
+    <div class="panel-body">
+        {% include 'bilanci/_hierarchical_control_bar.html' with page_type='classifiche' share_label='la tua classifica' %}
+    <div class="panel-body">
+    <!-- /_hierarchical_control_bar -->
+
 
     <div class="panel-body">
         <hr class="no-border">
@@ -33,61 +37,29 @@
                 </div>
 
                 <div id="results" class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div class="panel panel-default">
-                            <div class="panel-heading clearfix">
 
-                                {# parameter name / type #}
+                            {#    heading#}
+                            <div class="panel-heading noeight2 clearfix">
                                 <div class="row">
-                                    <div class="col-md-12">
-                                        {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
-                                        <h4 class="panel-title pull-left">
-                                            {% if selected_par_type == 'indicatori' %}
-                                                INDICATORE
-                                            {% elif selected_par_type == 'spese-funzioni' %}
-                                                SPESE PER FUNZIONI
-                                            {% elif selected_par_type == 'spese-interventi' %}
-                                                SPESE PER INTERVENTI
-                                            {% else %}
-                                                {{ selected_par_type|upper }}
-                                            {% endif %}
-                                        </h4>
+                                    <div class="col-md-3">
+                                        <h3 class="panel-title pull-left">
+                                            CLASSIFICA {{ selected_year }}
+                                        </h3>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h4 class="pull-left">
-                                            {% if selected_parameter.slug == 'consuntivo-entrate-cassa' %}
-                                                TOTALE ENTRATE
-                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa' %}
-                                                TOTALE SPESE
-                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-somma-funzioni'  %}
-                                                FUNZIONI
-                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-per-investimenti-interventi' %}
-                                                Interventi - Spese per investimenti
-                                            {% elif selected_parameter.slug == 'consuntivo-spese-cassa-spese-correnti-interventi' %}
-                                                Interventi - Spese correnti
-                                            {% else %}
-                                                {{ selected_parameter.denominazione|upper }}
-                                            {% endif %}
-                                        </h4>
+                                    <div class="col-md-4 vertical-center">
+                                        {% if n_comuni > 0 %}
+                                            SELEZIONATI <strong>{{ n_comuni }}</strong> COMUNI
+                                        {% endif %}
                                     </div>
-                                </div>
-
-                                {% if selected_par_type != 'indicatori' %}
-                                    {# values type #}
-                                    <div class="row">
-                                        <div class="col-md-12" style="">
-                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <form role="" class="autosubmit" action="{% url 'classifiche-search' %}" method="get">
-                                            <div>
-                                                {{ territori_search_form_classifiche.territorio_id}}
+                                    <div class="col-md-5">
+                                        <form role="" class="form-inline pull-right autosubmit" action="{% url 'classifiche-search' %}" method="get" style="width:100%;">
+                                            <div class="form-group search">
+                                                 {{ territori_search_form_classifiche.territorio_id}}
                                             </div>
+
+                                            {#  hidden inputs     #}
                                             <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
                                             <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />
                                             <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ selected_parameter.pk|safe }}" />
@@ -96,14 +68,36 @@
                                         </form>
                                     </div>
                                 </div>
-
                             </div>
-                            <div class="panel-body">
-                                {% if n_comuni > 0 %}
-                                    <p class="small" style="font-weight: bold;">
-                                        {{ n_comuni }} COMUNI
-                                    </p>
+                            {# / heading#}
 
+
+                            <div class="panel-body">
+
+                                {#  bilancio type, values  types #}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <span class="selection">
+                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="cas_com_box pull-right">
+                                            <span class="values_type">
+                                                {% if selected_par_type == 'indicatori' %}
+                                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=False %}
+                                                {% else %}
+                                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                                                {% endif %}
+
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                {% if n_comuni > 0 %}
 
                                     <div class="pagination-wrapper clearfix">
                                         {% digg_paginator %}
@@ -215,9 +209,10 @@
                         </div>  <!-- /panel panel-default -->
                     </div> <!-- /col-md8 -->
 
-                {#  classifiche filters   #}
-
-                {% include 'bilanci/classifiche_filters.html' %}
+                    {#  classifiche filters   #}
+                    <aside id="filters" class="col-md-3">
+                        {% include 'bilanci/classifiche_filters.html' %}
+                    </aside> <!-- /#filters -->
 
                 </div> <!-- /results row -->
 
