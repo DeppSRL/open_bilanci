@@ -3506,6 +3506,10 @@ form ul li label {
 #results .panel-default .pagination-wrapper > ul > li > a {
   padding: 2px 8px;
 }
+.pagination-wrapper li a {
+  padding-left: 12px;
+  padding-right: 12px;
+}
 .table.table-striped a {
   color: #cc6633;
   font-weight: bold;
