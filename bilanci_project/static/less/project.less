@@ -494,7 +494,34 @@ share box
   .panel-footer { background-color: @boxBg; border-top: 0; text-align: left; }
 }
 
+#results .table > tbody > tr > td {
+    line-height: 8px;
+  }
+#results td.text .media p {
+  margin-bottom: 10px;
+}
+#main-content #results .table-striped .panel-heading a {
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+#results .panel-default .panel-heading .media{
+  margin-top: auto;
+}
 #main-content {
+
+  //  fix classifiche a margin
+  #results .table-striped .panel-heading a{
+    margin-bottom: 5px;
+  }
+  #results .table-striped .panel-heading h4.dirty-fix{
+    font-family: Lato, sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    margin-bottom: 2px;
+    margin-top: 0;
+  }
+
+
 
   .page-subtitle{
     margin-top: 5px;
@@ -557,6 +584,10 @@ share box
 
 #results .table > tbody > tr:hover > td {
   cursor: default;
+}
+
+#results .table > tbody > tr:hover > td{
+  color: rgb(42, 48, 54);;
 }
 
 #miniclass-indicatori h5 a{

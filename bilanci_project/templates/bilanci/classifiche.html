@@ -135,58 +135,68 @@
                                                 <tr
                                                     {% if valore_obj.territorio.pk == highlight_territorio %} class="highlight_territorio"{% endif %}
                                                 >
-                                                    <td class="col-sm-1 rate">
-                                                        <span class="h2">
+                                                    {# position   #}
+                                                    <td class="col-md-1 col-sm-1 pos">
+                                                        <span class="h3">
+                                                            {{ valore_obj.position }}°
+
+                                                        </span>
+                                                    </td>
+                                                    {# trend #}
+                                                    <td class="col-md-1 col-sm-1 trend">
+                                                         {% spaceless %}
+
+                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
+                                                            {% if valore_obj.variazione == 0 %}
+                                                                class="icon sprite-trend-small"
+                                                            {% elif valore_obj.variazione > 0 %}
+                                                                class="icon sprite-trend-up-3-small"
+                                                            {% else  %}
+                                                                class="icon sprite-trend-down-3-small"
+                                                            {% endif %}
+                                                            >
+                                                            </span>
+                                                        {% endspaceless %}
+                                                    </td>
+
+                                                    <td class="col-md-9 col-sm-8 text">
+                                                        <div class="panel-heading clearfix">
+                                                            {# nome territorio   #}
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h3 style="margin-top: 0;margin-bottom: 2px;font-size: 21px;line-height:18px;">
+                                                                        <a
+                                                                            {% if selected_par_type == 'indicatori' %}
+                                                                                href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'entrate' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section=selected_par_type %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'spese-funzioni' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=funzioni#{{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'spese-interventi' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=interventi#{{ selected_parameter.slug }}"
+                                                                            {% endif %}
+                                                                                style="margin-bottom: 0;margin-top: 0;">
+                                                                            {{ valore_obj.territorio.denominazione }}
+                                                                        </a>
+                                                                    </h3>
+                                                                    <h4 class="dirty-fix">
+                                                                            {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
+                                                                        </h4>
+                                                                </div>
+                                                            </div>
+
+                                                            {% classifiche_incarichi_politici valore_obj %}
+                                                        </div>
+                                                    </td>
+                                                    {# valore parametro #}
+                                                    <td class="col-md-1 col-sm-2 rate">
+                                                        <p class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
                                                                 {{ valore_obj.valore|italianize }}%
                                                             {% else %}
                                                                 &euro;&nbsp;{{ valore_obj.valore|italianize }}
                                                             {% endif %}
-                                                        </span>
-                                                    </td>
-                                                    <td class="col-sm-9 text">
-                                                        <h4>
-                                                            <a
-                                                                {% if selected_par_type == 'indicatori' %}
-                                                                    href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
-                                                                {% elif selected_par_type == 'entrate' %}
-                                                                    href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section=selected_par_type %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
-                                                                {% elif selected_par_type == 'spese-funzioni' %}
-                                                                    href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=funzioni#{{ selected_parameter.slug }}"
-                                                                {% elif selected_par_type == 'spese-interventi' %}
-                                                                    href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=interventi#{{ selected_parameter.slug }}"
-                                                                {% endif %}
-                                                                    >
-                                                                {{ valore_obj.territorio.denominazione }}
-                                                            </a>
-                                                        </h4>
-
-                                                        <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
-
-                                                        <div class="media" style="font-size: 13px;">
-                                                            {% classifiche_incarichi_politici valore_obj %}
-                                                        </div>
-
-                                                    </td>
-                                                    <td class="col-sm-1 pos">
-                                                        <span class="h3">{{ valore_obj.position }}°</span>
-                                                    </td>
-
-                                                    <td class="col-sm-1 trend">
-                                                        {% spaceless %}
-
-                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
-                                                            {% if valore_obj.variazione == 0 %}
-                                                                class="icon sprite-trend"
-                                                            {% elif valore_obj.variazione > 0 %}
-                                                                class="icon sprite-trend-up-3"
-                                                            {% else  %}
-                                                                class="icon sprite-trend-down-3"
-                                                            {% endif %}
-                                                            >
-                                                            </span>
-                                                        {% endspaceless %}
-
+                                                        </p>
                                                     </td>
                                                 </tr>
                                              {% endfor %}

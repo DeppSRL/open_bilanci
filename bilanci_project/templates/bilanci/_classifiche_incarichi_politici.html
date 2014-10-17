@@ -1,0 +1,75 @@
+{% load staticfiles %}
+{% if valore_obj.incarichi_attivi %}
+    <div class="row" style="margin-top: 0;">
+
+        {% if valore_obj.incarichi_attivi|length == 1 %}
+            <div class="col-md-6 media">
+
+                <figure class="pull-left img-circle borded">
+                    {% if  valore_obj.incarichi_attivi.0.pic_url %}
+                        <img class="media-object" src="{{ valore_obj.incarichi_attivi.0.pic_url}}" alt="avatar">
+                    {% else %}
+                        <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt="avatar">
+                    {% endif %}
+                </figure>
+                <div >
+                    <p class="h4" style="font-weight: bold;">
+                        <a target="_blank" href="{{ valore_obj.incarichi_attivi.0.op_link }}">
+                            {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}
+                        </a>
+                    </p>
+
+                    {% if valore_obj.incarichi_attivi.0.party_name %}
+                        <p >{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
+                    {% elif incarichi_attivi.0.party_acronym %}
+                        <p >{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+
+        {% else %}
+            <div class="col-md-12 media">
+                <p>
+                    {{ valore_obj.incarichi_attivi|length }} incarichi attivi per il Comune di
+                    {{ valore_obj.territorio.denominazione }},
+                    {# creates link to hide/show incarichi list        #}
+                    <a class="incarichi-attivi-link" id="incarichi_attivi-link-{{ valore_obj.territorio.pk }}" target="_blank" href="" style="margin-top: 5px;">
+                        clicca qui per vederli
+                    </a>
+                </p>
+
+                <div id="incarichi_attivi-{{ valore_obj.territorio.pk }}" style="display: none;padding-top: 10px;">
+                    <ul>
+                    {% for incarico in valore_obj.incarichi_attivi  %}
+                        <li>
+                            <a target="_blank" href="{{ incarico.op_link }}">
+                                {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
+                            </a>
+                            <p>
+                                {% if incarico.party_name %}
+                                    ({{ incarico.party_name|title}})
+                                {% elif incarico.party_acronym %}
+                                    ({{ incarico.party_acronym|title}})
+                                {% endif %}
+                            </p>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+{% endif %}
+
+{# binds the incarichi link with click event  to show/hide incarichi list   #}
+<script>
+    jQuery(document).ready(function(){
+        jQuery('#incarichi_attivi-link-{{ valore_obj.territorio.pk }}').on('click', function(event) {
+             event.preventDefault();
+             jQuery('#incarichi_attivi-{{ valore_obj.territorio.pk }}').toggle('show');
+        });
+    });
+</script>
