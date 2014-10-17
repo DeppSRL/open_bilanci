@@ -26,18 +26,20 @@
             </li>
 
         {% endfor %}
+        {% if has_next %}
+            <li><span>...</span></li>
+        {% endif %}
+        <li class="{% if has_next %}more{% else %}pager-off{% endif %}">
+            <a {% if has_next %}href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ next }}"{% endif %}>
+                <span class="icon sprite-arrow-right"></span>
+            </a>
 
-            <li class="{% if has_next %}more{% else %}pager-off{% endif %}">
-                <a {% if has_next %}href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ next }}"{% endif %}>
-                    <span class="icon sprite-arrow-right"></span>
-                </a>
-
-            </li>
-            <li class="{% if page == pages %}pager-off{% else %}more{% endif %}">
-                <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ pages }}">
-                    <span class="icon sprite-arrow-right-right"></span>
-                </a>
-            </li>
+        </li>
+        <li class="{% if page == pages %}pager-off{% else %}more{% endif %}">
+            <a href="{% if get_params %}?{{ get_params }}&{% else %}?{% endif %}page={{ pages }}">
+                <span class="icon sprite-arrow-right-right"></span>
+            </a>
+        </li>
 
     {% endspaceless %}
 </ul>
