@@ -3819,6 +3819,12 @@ share box
   margin-bottom: 4px;
   margin-top: 4px;
 }
+#main-content #results .table-striped .panel-heading a.incarichi-politici {
+  color: #cc6633;
+}
+#main-content #results .table-striped .panel-heading a.incarichi-politici:hover {
+  color: #ffffff;
+}
 #results .panel-default .panel-heading .media {
   margin-top: auto;
 }
@@ -3916,7 +3922,9 @@ table > tbody > tr.highlight_territorio > td span.h3,
 table > tbody > tr.highlight_territorio > td a,
 #results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td a,
 table > tbody > tr.highlight_territorio > td p,
-#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td p {
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td p,
+table > tbody > tr.highlight_territorio > td .dirty-fix,
+#results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td .dirty-fix {
   color: white!important;
 }
 table > tbody > tr.highlight_territorio > td li,

@@ -44,7 +44,7 @@
                     <ul>
                     {% for incarico in valore_obj.incarichi_attivi  %}
                         <li>
-                            <a target="_blank" href="{{ incarico.op_link }}">
+                            <a class="incarichi-politici" target="_blank" href="{{ incarico.op_link }}">
                                 {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
                             </a>
                             <p>
