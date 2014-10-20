@@ -3920,6 +3920,9 @@ share box
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+#main-content #log {
+  padding-left: 0;
+}
 table > tbody > tr.highlight_territorio > td,
 #results .table.table-striped > tbody > tr.highlight_territorio:nth-child(2n+1) > td {
   background-color: #2a3037;
