@@ -3920,6 +3920,10 @@ share box
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+#hcb .parameter_name,
+#hcb .share_button {
+  padding-top: 5px;
+}
 #main-content #log {
   padding-left: 0;
 }
