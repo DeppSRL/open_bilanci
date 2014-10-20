@@ -3920,6 +3920,12 @@ share box
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+div.classifiche div.col-md-3 h3.panel-title {
+  padding-top: 8px;
+}
+div.classifiche div.col-md-4 {
+  padding-top: 8px;
+}
 #classifiche-form ul.list-group button.btn-blu {
   border-radius: 8px;
 }
