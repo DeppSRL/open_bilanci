@@ -275,6 +275,14 @@
                 goToClassByScroll('highlight_territorio');
             }
 
+            {#  binds link "clicca qui per vedere gli incarichi" with show/hide incarichi list   #}
+            jQuery('.incarichi-attivi-link').on('click', function(event) {
+                 event.preventDefault();
+                //show / hides the incarichi container for the right element
+                var element_id = event.target.id;
+                jQuery('#'.concat(element_id.replace("incarichi-link-", "incarichi-list-"))).animate({height: 'toggle'});
+            });
+
 
 
         });

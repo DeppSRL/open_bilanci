@@ -3821,10 +3821,14 @@ share box
   margin-bottom: 4px;
   margin-top: 4px;
 }
-#main-content #results .table-striped .panel-heading a.incarichi-politici {
+#main-content #results .table-striped .panel-heading div.incarichi-container {
+  display: none;
+  padding-top: 10px;
+}
+#main-content #results .table-striped .panel-heading div.incarichi-container a {
   color: #cc6633;
 }
-#main-content #results .table-striped .panel-heading a.incarichi-politici:hover {
+#main-content #results .table-striped .panel-heading div.incarichi-container a:hover {
   color: #ffffff;
 }
 #results .panel-default .panel-heading .media {
