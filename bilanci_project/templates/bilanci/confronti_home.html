@@ -43,13 +43,20 @@
                                     </a>
                                 </div>
                             </div>
-                            {#       error message box #}
-                            <div class="col-sm-12 hidden" id="error_msg_box">
+                        </div>
+                        {#       error message box #}
+                        <div class="row hidden" id="error_msg_box">
+                            <div class="col-md-1">
                                 <p id="log" class="error">
-                                    <span class="icon sprite-status"></span><span id="error_msg_box_txt"></span>
+                                    <span class="icon sprite-status"></span>
                                 </p>
                             </div>
+                            <div class="col-md-11">
+                                <span id="error_msg_box_txt"></span>
+                            </div>
                         </div>
+
+
                     </div>
                 </div><!-- /panel panel-default -->
             </div><!-- /panel row-->
@@ -58,6 +65,7 @@
       {% block confronti_description %}{% endblock %}
 
         <div class="row">
+
 
             {% block results %}
 
