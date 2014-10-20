@@ -3867,6 +3867,9 @@ share box
   margin-top: 4px;
   margin-left: 5px;
 }
+#results .panel-heading {
+  height: auto;
+}
 .popover-title {
   background-color: #cc6633 !important;
   font-size: 16px;
