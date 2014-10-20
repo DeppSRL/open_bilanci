@@ -3920,6 +3920,9 @@ share box
 #main-content .nav-tabs.nav-justified > li > a {
   font-weight: 800;
 }
+#classifiche-form ul.list-group button.btn-blu {
+  border-radius: 8px;
+}
 #hcb .parameter_name,
 #hcb .share_button {
   padding-top: 5px;
