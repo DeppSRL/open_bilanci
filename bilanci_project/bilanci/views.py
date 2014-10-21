@@ -9,7 +9,7 @@ import zmq
 import requests
 from collections import OrderedDict
 from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
-
+from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
@@ -243,10 +243,11 @@ class IncarichiGetterMixin(object):
     
     date_fmt = '%Y-%m-%d'
     #     sets the start / end of graphs
-    timeline_start = settings.TIMELINE_START_DATE
-    timeline_end = settings.TIMELINE_END_DATE
+    timeline_start_date = settings.TIMELINE_START_DATE.date()
+    timeline_end_date = settings.TIMELINE_END_DATE.date()
     #  max n. of days between two incarichi. if difference > max then a disabled incarico is added
     max_incarichi_gap = 30
+    empty_gap_days = 5
 
     def insert_disabled_incarico(self, data_1, data_2):
         diff_days = abs(data_1 - data_2).days
@@ -254,8 +255,8 @@ class IncarichiGetterMixin(object):
         if diff_days >= self.max_incarichi_gap:
 
             disabled_incarico = {
-                'start': data_1.data_fine.strftime(self.date_fmt),
-                'end': data_2.strftime(self.date_fmt),
+                'start': (data_1+ timedelta(days=self.empty_gap_days)).strftime(self.date_fmt) ,
+                'end': (data_2- timedelta(days=self.empty_gap_days)).strftime(self.date_fmt) ,
                 'icon': None,
                 'label': None,
                 'sublabel': None
@@ -267,11 +268,10 @@ class IncarichiGetterMixin(object):
     
     def transform_incarichi(self, incarichi_set, highlight_color):
 
-        timeline_start_date = self.timeline_start.date()
-        timeline_end_date = self.timeline_end.date()
+
         incarichi_transformed = []
 
-        for idx, incarico in enumerate(incarichi_set):
+        for incarico in incarichi_set:
 
             dict_widget = {
                 # sets incarico marker color and highlight
@@ -282,40 +282,20 @@ class IncarichiGetterMixin(object):
                 'end': None,
             }
 
-            if idx is 0:
-                # check distante between first incarico and timeline start
-                disabled_incarico = self.insert_disabled_incarico(timeline_start_date, incarico.data_inizio)
-                if disabled_incarico:
-                    incarichi_transformed.append(disabled_incarico)
-                    
-            elif idx == len(incarichi_set)-1:
-                # check distante between last incarico and timeline end
-                disabled_incarico = self.insert_disabled_incarico(incarico.data_fine, timeline_end_date)
-                if disabled_incarico:
-                    incarichi_transformed.append(disabled_incarico)
-
-            else:
-                #se la differenza tra l'incarico attuale e il precedente > max
-                # inserisce un incarico vuoto per far comparire la bacchetta vuota nella timeline
-                disabled_incarico = self.insert_disabled_incarico(incarico.data_inizio, incarichi_set[idx-1].data_fine)
-                if disabled_incarico:
-                    incarichi_transformed.append(disabled_incarico)
-
-
             # truncates date start to timeline start
             if not incarico.data_inizio:
                 continue
                 
-            if incarico.data_inizio < timeline_start_date:
-                dict_widget['start'] = timeline_start_date.strftime(self.date_fmt)
+            if incarico.data_inizio < self.timeline_start_date:
+                dict_widget['start'] = self.timeline_start_date.strftime(self.date_fmt)
             else:
                 dict_widget['start'] = incarico.data_inizio.strftime(self.date_fmt)
 
             if not incarico.data_fine:
-                dict_widget['end'] = timeline_end_date.strftime(self.date_fmt)
+                dict_widget['end'] = self.timeline_end_date.strftime(self.date_fmt)
             else:
-                if incarico.data_fine > timeline_end_date:
-                    dict_widget['end'] = timeline_end_date.strftime(self.date_fmt)
+                if incarico.data_fine > self.timeline_end_date:
+                    dict_widget['end'] = self.timeline_end_date.strftime(self.date_fmt)
                 else:
                     dict_widget['end'] = incarico.data_fine.strftime(self.date_fmt)
 
@@ -331,11 +311,7 @@ class IncarichiGetterMixin(object):
             else:
 
                 # sets sindaco / vicesindaco name, surname
-                dict_widget['label'] = "{0}".\
-                    format(
-
-                        incarico.cognome.title().encode('utf-8'),
-                    )
+                dict_widget['label'] = "{0}".format( incarico.cognome.title().encode('utf-8'), )
 
                 if incarico.tipologia == Incarico.TIPOLOGIA.vicesindaco_ff :
                     # vicesindaco ff
@@ -353,10 +329,31 @@ class IncarichiGetterMixin(object):
                     else:
                         dict_widget['sublabel']=''
 
-
-
             incarichi_transformed.append(dict_widget)
 
+        disabled_list = []
+        # if needed adds data for disabled incarichi
+        for idx, incarico in enumerate(incarichi_transformed):
+            if idx is 0:
+                # check distante between first incarico and timeline start
+                disabled_incarico = self.insert_disabled_incarico(self.timeline_start_date, datetime.strptime(incarico['start'], self.date_fmt).date())
+                if disabled_incarico:
+                    disabled_list.append(disabled_incarico)
+
+            elif idx == len(incarichi_transformed)-1:
+                # check distante between last incarico and timeline end
+                disabled_incarico = self.insert_disabled_incarico(datetime.strptime(incarico['end'], self.date_fmt).date(), self.timeline_end_date)
+                if disabled_incarico:
+                    disabled_list.append(disabled_incarico)
+
+            else:
+                #se la differenza tra l'incarico attuale e il precedente > max
+                # inserisce un incarico vuoto per far comparire la bacchetta vuota nella timeline
+                disabled_incarico = self.insert_disabled_incarico(datetime.strptime(incarico['start'], self.date_fmt).date(), datetime.strptime(incarichi_transformed[idx-1]['end'], self.date_fmt).date())
+                if disabled_incarico:
+                    disabled_list.append(disabled_incarico)
+
+        incarichi_transformed.extend(disabled_list)
         return incarichi_transformed
 
 
@@ -443,8 +440,8 @@ class IncarichiGetterMixin(object):
         voce_values = ValoreBilancio.objects.filter(
             territorio = territorio,
             voce = voce_bilancio,
-            anno__gte = self.timeline_start.year,
-            anno__lte = self.timeline_end.year
+            anno__gte = self.timeline_start_date.year,
+            anno__lte = self.timeline_end_date.year
         ).values('anno', 'valore', 'valore_procapite').order_by('anno')
 
         # if the considered voice is totale generale entrate / spese in bilancio preventivo
@@ -466,8 +463,8 @@ class IncarichiGetterMixin(object):
             values_avanzo_disavanzo = ValoreBilancio.objects.filter(
                 territorio = territorio,
                 voce = voce_avanzo_disavanzo,
-                anno__gte = self.timeline_start.year,
-                anno__lte = self.timeline_end.year
+                anno__gte = self.timeline_start_date.year,
+                anno__lte = self.timeline_end_date.year
             ).values('anno', 'valore', 'valore_procapite').order_by('anno')
 
             #sums avanzo / disavanzo values to totale values
@@ -495,8 +492,8 @@ class IncarichiGetterMixin(object):
         indicatore_values = ValoreIndicatore.objects.filter(
             territorio = territorio,
             indicatore = indicatore,
-            anno__gte = self.timeline_start.year,
-            anno__lte = self.timeline_end.year
+            anno__gte = self.timeline_start_date.year,
+            anno__lte = self.timeline_end_date.year
         ).values('anno', 'valore').order_by('anno')
 
         return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2, values_type='nominal')
