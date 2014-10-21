@@ -43,10 +43,7 @@
                     </div>
 
                     <div class="col-sm-2 col-md-offset-1">
-                           <a href="#{{ bilancio_rootnode.slug }}"  class="pull-right btn btn-blu nolenght trend-chart-toggle"  data-toggle="collapse"
-                              id="trend-chart-toggle-{{ bilancio_rootnode.pk }}" data-target="#trend-chart-container-{{ bilancio_rootnode.pk }}">
-                               Grafico <i class="icon sprite-grafico"></i><i class="fa fa-caret-down pull-right"></i>
-                           </a>
+                        {% include 'bilanci/_graph_button.html' with node=bilancio_rootnode %}
                     </div>
                 </div>
                 {# trend chart container               #}

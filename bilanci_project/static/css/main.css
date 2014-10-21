@@ -3386,6 +3386,9 @@ button .pull-left {
 .panel-tree span.investimenti {
   font-size: 11px;
 }
+.panel-tree a.trend-chart-toggle i.fa-caret-down {
+  margin-left: 14px;
+}
 .composition-widget-container iframe,
 .composition-widget-container object,
 .composition-widget-container embed {
