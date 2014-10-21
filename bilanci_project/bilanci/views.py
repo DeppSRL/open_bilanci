@@ -245,11 +245,33 @@ class IncarichiGetterMixin(object):
     #     sets the start / end of graphs
     timeline_start = settings.TIMELINE_START_DATE
     timeline_end = settings.TIMELINE_END_DATE
+    #  max n. of days between two incarichi. if difference > max then a disabled incarico is added
+    max_incarichi_gap = 30
+
+    def insert_disabled_incarico(self, data_1, data_2):
+        diff_days = abs(data_1 - data_2).days
+
+        if diff_days >= self.max_incarichi_gap:
+
+            disabled_incarico = {
+                'start': data_1.data_fine.strftime(self.date_fmt),
+                'end': data_2.strftime(self.date_fmt),
+                'icon': None,
+                'label': None,
+                'sublabel': None
+            }
+            return disabled_incarico
+        else:
+            return None
+
     
     def transform_incarichi(self, incarichi_set, highlight_color):
 
+        timeline_start_date = self.timeline_start.date()
+        timeline_end_date = self.timeline_end.date()
         incarichi_transformed = []
-        for incarico in incarichi_set:
+
+        for idx, incarico in enumerate(incarichi_set):
 
             dict_widget = {
                 # sets incarico marker color and highlight
@@ -260,10 +282,27 @@ class IncarichiGetterMixin(object):
                 'end': None,
             }
 
-            # truncates date start to timeline start
-            timeline_start_date = settings.TIMELINE_START_DATE.date()
-            timeline_end_date = settings.TIMELINE_END_DATE.date()
+            if idx is 0:
+                # check distante between first incarico and timeline start
+                disabled_incarico = self.insert_disabled_incarico(timeline_start_date, incarico.data_inizio)
+                if disabled_incarico:
+                    incarichi_transformed.append(disabled_incarico)
+                    
+            elif idx == len(incarichi_set)-1:
+                # check distante between last incarico and timeline end
+                disabled_incarico = self.insert_disabled_incarico(incarico.data_fine, timeline_end_date)
+                if disabled_incarico:
+                    incarichi_transformed.append(disabled_incarico)
 
+            else:
+                #se la differenza tra l'incarico attuale e il precedente > max
+                # inserisce un incarico vuoto per far comparire la bacchetta vuota nella timeline
+                disabled_incarico = self.insert_disabled_incarico(incarico.data_inizio, incarichi_set[idx-1].data_fine)
+                if disabled_incarico:
+                    incarichi_transformed.append(disabled_incarico)
+
+
+            # truncates date start to timeline start
             if not incarico.data_inizio:
                 continue
                 
@@ -324,7 +363,7 @@ class IncarichiGetterMixin(object):
 
     def get_incarichi_struct(self, territorio_opid, highlight_color):
 
-        incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio_opid))
+        incarichi_set = Incarico.objects.filter(territorio__op_id = territorio_opid).order_by('data_inizio')
         transformed_set =  self.transform_incarichi(incarichi_set, highlight_color)
 
         if len(transformed_set):
