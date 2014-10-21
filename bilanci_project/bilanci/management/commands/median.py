@@ -156,7 +156,7 @@ class Command(BaseCommand):
                             continue
 
                         # remove null values
-                        valori = [v for v in valori_dict[year] if v]
+                        valori = [v for v in valori_dict[year] if v is not None]
 
                         # the median is saved only if there are enough values for Comuni in the cluster
                         if len(valori) > cluster_count[cluster_data[0]]:
@@ -220,8 +220,8 @@ class Command(BaseCommand):
                             continue
 
                         # remove null values
-                        valori = [v for v in valori_dict[year] if v]
-                        valori_procapite = [v for v in valori_procapite_dict[year] if v]
+                        valori = [v for v in valori_dict[year] if v is not None]
+                        valori_procapite = [v for v in valori_procapite_dict[year] if v is not None]
 
                         # the median is saved only if there are enough values for Comuni in the cluster
                         if len(valori) > cluster_count[cluster_data[0]]:
@@ -247,8 +247,7 @@ class Command(BaseCommand):
                                         valore_mediano.save()
 
                         else:
-                            self.logger.debug("No median saved for voce:{0}, not enough values for cluster {1}".\
-                                format(voce.slug, cluster_data[0]))
+                            self.logger.debug("No median saved for voce:{0}, not enough values for cluster {1}. {2}<{3}".\
+                                format(voce.slug, cluster_data[0], len(valori), cluster_count[cluster_data[0]]))
 
-                            
             commit()
