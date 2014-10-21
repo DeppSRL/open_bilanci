@@ -17,6 +17,7 @@ import numpy
 from optparse import make_option
 
 from django.core.management import BaseCommand
+from django.conf import settings
 
 from bilanci.models import Voce, ValoreBilancio, Indicatore, ValoreIndicatore
 from territori.models import Territorio, Contesto
@@ -93,7 +94,7 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
+            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_DATE.year < int(y.strip()) < settings.APP_END_DATE.year]
 
         if not years:
             self.logger.error(u"No suitable year found in {0}".format(years))
@@ -125,8 +126,6 @@ class Command(BaseCommand):
                 territorio=Territorio.TERRITORIO.L,
                 cluster=cluster_data[0],
             )
-
-            commit()
 
             if values_type == 'indicatori':
                 for indicatore in Indicatore.objects.all():
@@ -250,3 +249,6 @@ class Command(BaseCommand):
                         else:
                             self.logger.debug("No median saved for voce:{0}, not enough values for cluster {1}".\
                                 format(voce.slug, cluster_data[0]))
+
+                            
+            commit()
