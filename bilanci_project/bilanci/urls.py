@@ -10,7 +10,7 @@ from bilanci.views import BilancioRedirectView, \
     BilancioIndicatoriView, BilancioComposizioneView, BilancioDettaglioView, BilancioOverView, IncarichiVoceJSONView,\
     IncarichiIndicatoriJSONView, HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView,\
     ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView,\
-    ClassificheRedirectView, ClassificheListView, BilancioCompositionWidgetView, BilancioNotFoundView,\
+    ClassificheRedirectView, ClassificheListView, CompositionWidgetView, BilancioNotFoundView,\
     ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView
 
 admin.autodiscover()
@@ -37,7 +37,7 @@ urlpatterns = patterns('',
 
     # Composition widget for Bilancio overview / entrate / spese
     url(r'^composition_widget/(?P<widget_type>[-\w]+)/(?P<territorio_slug>[-\w]+)/(?P<bilancio_year>[-\d]{4})/(?P<bilancio_type>[-\w]+)/',
-        BilancioCompositionWidgetView.as_view(), name = "composition-widget"),
+        CompositionWidgetView.as_view(), name = "composition-widget"),
 
     # classifiche
     url(r'^classifiche/$', ClassificheRedirectView.as_view(), name='classifiche-redirect'),

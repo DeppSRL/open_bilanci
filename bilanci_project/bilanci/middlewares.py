@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import resolve
 from bilanci.views import HomeTemporaryView, PageNotFoundTemplateView, BilancioDettaglioView, BilancioNotFoundView, \
-    BilancioIndicatoriView, BilancioComposizioneView, BilancioCompositionWidgetView
+    BilancioIndicatoriView, BilancioComposizioneView, CompositionWidgetView
 from services import urls
 
 from services.models import PaginaComune

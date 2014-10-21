@@ -1,6 +1,6 @@
 __author__ = 'stefano'
 from bilanci.views import BilancioNotFoundView, BilancioRedirectView, BilancioOverView, BilancioDettaglioView, BilancioComposizioneView, BilancioIndicatoriView, \
-    IncarichiVoceJSONView, IncarichiIndicatoriJSONView, BilancioCompositionWidgetView
+    IncarichiVoceJSONView, IncarichiIndicatoriJSONView, CompositionWidgetView
 
 from django.conf import settings
 from django.conf.urls import patterns, include, url

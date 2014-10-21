@@ -734,10 +734,10 @@ class CalculateVariationsMixin(object):
 
 
 
-class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
+class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     template_name = None
-    show_help = True
+    show_help = False
     totale_label = "Totale"
     territorio = None
     serie_start_year = settings.TIMELINE_START_DATE.year
@@ -865,7 +865,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
         else:
             return reverse('404')
 
-        return super(BilancioCompositionWidgetView, self).get(self, request, *args, **kwargs)
+        return super(CompositionWidgetView, self).get(self, request, *args, **kwargs)
 
 
 
@@ -1269,7 +1269,7 @@ class BilancioCompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
 
-        context = super(BilancioCompositionWidgetView, self).get_context_data( **kwargs)
+        context = super(CompositionWidgetView, self).get_context_data( **kwargs)
 
         ##
         # creates the context to feed the Visup composition widget
