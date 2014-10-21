@@ -553,10 +553,23 @@ $(document).ready(function(){
     // Donut chart
     function setDonutChart(holder, cx, cy, radius, data)
     {
+        var minPercent = 0.000001;
         cx = cx || 100;
         cy = cy || 100;
         radius = radius || 50;
         data = data || [];
+
+        //STEFANO hack to create full donut
+        if (data[0] < minPercent){
+            data[0] = minPercent;
+            data[1] = 1.0;
+        }
+        else if(data[1] < minPercent){
+            data[1] = minPercent;
+            data[0] = 1.0;
+        }
+
+
         colors = ['#ceccc4', '#2b3038'];
         overs = ['#ceccc4', '#888888'];
 
@@ -568,7 +581,8 @@ $(document).ready(function(){
                 stroke: 'none',
                 donut: true,
                 preserveValues: true,
-                donutDiameter: 0.6
+                donutDiameter: 0.6,
+                minPercent: minPercent
             });
     }
 

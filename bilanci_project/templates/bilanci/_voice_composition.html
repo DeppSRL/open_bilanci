@@ -1,17 +1,21 @@
 {% load humanize %}
 {% load voice_values %}
 
-{% if correnti_value > 0 or investimenti_totali > 0 %}
+{% if correnti_value == 0.0 and investimenti_value == 0.0 %}
+    <!-- no values, no donut -->
+    <div class="chart pull-left" id="{{ hash }}" ></div>
+
+{% else %}
+
     {% if correnti_perc <= 1 %}
         <!-- small values hack to avoid donut disappeareance -->
-        <div class="chart pull-left" id="{{ hash }}" data-chart-value="0.01"></div>
+        <div class="chart pull-left" id="{{ hash }}" data-chart-value="0.000001"></div>
     {% else %}
         <!-- standard donut -->
         <div class="chart pull-left" id="{{ hash }}" data-chart-value="{{ correnti_perc|floatformat:"2" }}"></div>
+
     {% endif %}
-{% else %}
-    <!-- no values, no donut -->
-    <div class="chart pull-left" id="{{ hash }}" data-chart-value="0"></div>
+
 {% endif %}
 
 <div style="padding-top: 4px;">
