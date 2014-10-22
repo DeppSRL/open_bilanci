@@ -1,102 +1,50 @@
-<div class="row">
-    <div class="col-sm-12">
-        <nav class="navbar navbar-subnav" role="navigation">
-            <ul class="nav nav-tabs" role="tablist">
-                <li>
-                    <a id="dLabel" role="button" data-toggle="dropdown" class="dropdown-toggle" data-target="#" href="#">
-                        bilancio <span class="fa fa-caret-down"></span>
-                    </a>
-                    <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+<nav class="navbar navbar-subnav" role="navigation">
+    <ul class="nav nav-tabs" role="tablist">
+        <li>
+            <a id="dLabel" role="button" data-toggle="dropdown" class="dropdown-toggle" data-target="#" href="#">
+                bilancio <span class="fa fa-caret-down"></span>
+            </a>
+            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
 
-                        <li {% ifequal selected_section 'overview' %}class="active"{% endifequal %}>
-                            <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
+                <li {% ifequal selected_section 'overview' %}class="active"{% endifequal %}>
+                    <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
+                </li>
+                <li class="dropdown-submenu {% ifequal selected_section "entrate" %}active{% endifequal %}">
+                    <a tabindex="-1" href="#">entrate</a>
+                    <ul class="dropdown-menu">
+                        <li {% if selected_section == 'entrate' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
+                            <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
+                                dettaglio
+                            </a>
                         </li>
-                        <li class="dropdown-submenu {% ifequal selected_section "entrate" %}active{% endifequal %}">
-                            <a tabindex="-1" href="#">entrate</a>
-                            <ul class="dropdown-menu">
-                                <li {% if selected_section == 'entrate' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
-                                    <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
-                                        dettaglio
-                                    </a>
-                                </li>
-                                <li {% if selected_section == 'entrate' and selected_subsection == 'composizione' %}class="active"{% endif %}>
-                                    <a href="{{ menu_voices.entrate.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
-                                        composizione
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active{% endifequal %}">
-                            <a tabindex="-1" href="#">spese</a>
-
-                            <ul class="dropdown-menu">
-                                <li {% if selected_section == 'spese' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
-                                    <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
-                                        dettaglio
-                                    </a>
-                                </li>
-                                <li {% if selected_section == 'spese' and selected_subsection == 'composizione' %}class="active"{% endif %}>
-                                    <a href="{{ menu_voices.spese.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
-                                        composizione
-                                    </a>
-                                </li>
-                            </ul>
+                        <li {% if selected_section == 'entrate' and selected_subsection == 'composizione' %}class="active"{% endif %}>
+                            <a href="{{ menu_voices.entrate.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
+                                composizione
+                            </a>
                         </li>
                     </ul>
                 </li>
-                <li {% ifequal selected_section 'indicatori' %}class="active"{% endifequal %}>
-                    <a href="{{ menu_voices.indicatori}}">indicatori</a>
+
+                <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active{% endifequal %}">
+                    <a tabindex="-1" href="#">spese</a>
+
+                    <ul class="dropdown-menu">
+                        <li {% if selected_section == 'spese' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
+                            <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
+                                dettaglio
+                            </a>
+                        </li>
+                        <li {% if selected_section == 'spese' and selected_subsection == 'composizione' %}class="active"{% endif %}>
+                            <a href="{{ menu_voices.spese.composizione }}{% if query_string %}?{{query_string}}{% endif %}">
+                                composizione
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
-        </nav>
-    </div>
-</div>
-
-<style>.dropdown-submenu {
-    position: relative;
-}
-
-.dropdown-submenu>.dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -6px;
-    margin-left: -1px;
-    -webkit-border-radius: 0 6px 6px 6px;
-    -moz-border-radius: 0 6px 6px;
-    border-radius: 0 6px 6px 6px;
-}
-
-.dropdown-submenu:hover>.dropdown-menu {
-    display: block;
-}
-
-.dropdown-submenu>a:after {
-    display: block;
-    content: " ";
-    float: right;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 5px 0 5px 5px;
-    border-left-color: #ccc;
-    margin-top: 5px;
-    margin-right: -10px;
-}
-
-.dropdown-submenu:hover>a:after {
-    border-left-color: #fff;
-}
-
-.dropdown-submenu.pull-left {
-    float: none;
-}
-
-.dropdown-submenu.pull-left>.dropdown-menu {
-    left: -100%;
-    margin-left: 10px;
-    -webkit-border-radius: 6px 0 6px 6px;
-    -moz-border-radius: 6px 0 6px 6px;
-    border-radius: 6px 0 6px 6px;
-}</style>
+        </li>
+        <li {% ifequal selected_section 'indicatori' %}class="active"{% endifequal %}>
+            <a href="{{ menu_voices.indicatori}}">indicatori</a>
+        </li>
+    </ul>
+</nav>

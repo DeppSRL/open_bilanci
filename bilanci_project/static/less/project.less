@@ -364,8 +364,12 @@ navbar
 
 
 #bilancio-header {
+
+  .affix-only{display: none;}
+
+
   p .year { display: none; }
-  .location { border-right: 1px solid @altTextColor;}
+  .location { border-left: 1px solid @altTextColor;}
 
   .navbar{ margin-bottom: 20px;}
 
@@ -376,6 +380,10 @@ navbar
   .navbar-subnav{
     margin-bottom: 20px;
     margin-top: 20px;
+
+    .dropdown-toggle .fa{
+      line-height: 1;
+    }
 
     .dropdown-menu{
       min-width: 120px;
@@ -399,6 +407,43 @@ navbar
     color:white!important;
   }
 
+  .dropdown-submenu {
+      position: relative;
+  }
+
+  .dropdown-submenu:hover>.dropdown-menu {
+      display: block;
+  }
+
+  .dropdown-submenu>a:after {
+      display: block;
+      content: " ";
+      float: right;
+      width: 0;
+      height: 0;
+      border-color: transparent;
+      border-style: solid;
+      border-width: 5px 0 5px 5px;
+      border-left-color: #ccc;
+      margin-top: 5px;
+      margin-right: -10px;
+  }
+
+  .dropdown-submenu:hover>a:after {
+      border-left-color: #fff;
+  }
+
+  .dropdown-submenu.pull-left {
+      float: none;
+  }
+
+  .dropdown-submenu.pull-left>.dropdown-menu {
+      left: -100%;
+      margin-left: 10px;
+      -webkit-border-radius: 6px 0 6px 6px;
+      -moz-border-radius: 6px 0 6px 6px;
+      border-radius: 6px 0 6px 6px;
+  }
 
   .dropdown-submenu>.dropdown-menu {
     top: 0;
@@ -409,6 +454,7 @@ navbar
     -moz-border-radius: 0 0 0 0!important;
     border-radius: 0 0 0 0!important;
   }
+
 }
 
 
@@ -422,10 +468,18 @@ affix navbar
   z-index: 1008;
   border-bottom: 10px solid white;
   .share, .share-box { display: none; }
+
   &> p {
     float:left;
-    .inhabitants { display: none; }
-    .year { display: inline-block; }
+    .inhabitants, .year, .region { display: none; }
+
+  }
+
+  .affix-only{
+    display: block;
+    float: left;
+
+
   }
   h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
   h1.panel-title, &> p {
@@ -434,8 +488,16 @@ affix navbar
   }
   .navbar-subnav {
     border: 0;
+    margin-top: 0;
     margin-bottom: 0;
+    margin-left: 20px;
+    float: left;
     background: transparent;
+
+    ul.dropdown-menu{
+      min-width: 98px;
+    }
+
     li {
       background-color: @textColor;
       &:last-child { border-right: 0; }
