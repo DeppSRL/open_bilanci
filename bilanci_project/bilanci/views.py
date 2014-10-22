@@ -349,7 +349,7 @@ class IncarichiGetterMixin(object):
             else:
                 #se la differenza tra l'incarico attuale e il precedente > max
                 # inserisce un incarico vuoto per far comparire la bacchetta vuota nella timeline
-                disabled_incarico = self.insert_disabled_incarico(datetime.strptime(incarico['start'], self.date_fmt).date(), datetime.strptime(incarichi_transformed[idx-1]['end'], self.date_fmt).date())
+                disabled_incarico = self.insert_disabled_incarico(datetime.strptime(incarichi_transformed[idx-1]['end'], self.date_fmt).date(), datetime.strptime(incarico['start'], self.date_fmt).date())
                 if disabled_incarico:
                     disabled_list.append(disabled_incarico)
 
