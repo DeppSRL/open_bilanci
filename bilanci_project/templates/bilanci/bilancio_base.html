@@ -51,7 +51,20 @@
             </p>
 
             <span id="affix-breadcrumbs" class="affix-only">
-                AFFIX BREADCRUMBS
+                {#                AFFIX BREADCRUMBS#}
+                 {% if selected_section == 'indicatori' %}
+                    {{ selected_section|upper }}
+                {% elif selected_section == 'overview' %}
+                    Bilancio › Overview
+                {% else %}
+                    Bilancio › {{ selected_section|upper }} › {{ selected_subsection|upper }}
+                {% endif %}
+
+                {% if selected_section != 'indicatori' %}
+                    -
+                    {{ tipo_bilancio|upper }} {{ selected_year }}
+                {% endif %}
+
             </span>
 
 
