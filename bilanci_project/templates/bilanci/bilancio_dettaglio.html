@@ -157,6 +157,10 @@
             if(lhash != ''){
                 var startElement = lhash.replace("spese-somma-funzioni","spese-correnti-funzioni");
                 var targetElement =startElement.replace("#","#heading-");
+
+                {#                debug #}
+                console.log(targetElement);
+
                 autoOpenNestedAccordion(targetElement);
                 goToIdByScroll(targetElement);
             }

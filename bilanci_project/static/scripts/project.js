@@ -44,6 +44,12 @@ var autoOpenNestedAccordion = function (startElement) {
     // auto open accordion
     if (startElement != undefined) {
 
+        // turn the parent toggle element icon from "+" to "-" as the accordion is going to be expanded
+        var parent_toggle_icons = $(startElement).parents('.collapse').prev('.panel').find('.panel-heading .row .entry a i');
+        parent_toggle_icons.removeClass('fa-plus-circle');
+        parent_toggle_icons.addClass('fa-minus-circle');
+        parent_toggle_icons.css('color','rgb(143, 151, 158)');
+
         // expand parents if exists
         $(startElement).parents('.collapse').collapse('show');
         $(startElement).collapse('show');
