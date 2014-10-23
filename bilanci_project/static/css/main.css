@@ -3751,7 +3751,12 @@ affix navbar
   top: 0;
   background-color: white;
   z-index: 1008;
-  border-bottom: 10px solid white;
+  border-bottom: 1px solid #b9c5c4;
+  max-height: 30px;
+}
+#bilancio-header.affix .affix-only {
+  display: block;
+  float: left;
 }
 #bilancio-header.affix .share,
 #bilancio-header.affix .share-box {
@@ -3771,10 +3776,6 @@ affix navbar
 #bilancio-header.affix > p .region {
   display: none;
 }
-#bilancio-header.affix .affix-only {
-  display: block;
-  float: left;
-}
 #bilancio-header.affix h1.panel-title {
   float: left;
   font-size: inherit;
@@ -3790,7 +3791,7 @@ affix navbar
   margin-top: 0;
   margin-bottom: 0;
   margin-left: 20px;
-  float: left;
+  float: right;
   background: #5f6b78;
 }
 #bilancio-header.affix .navbar-subnav ul.dropdown-menu {
@@ -3806,6 +3807,7 @@ affix navbar
 }
 #bilancio-header.affix > p.details {
   display: inline-block;
+  border-right: 1px solid #99a5b1;
 }
 #bilancio-header.affix > p.details span {
   margin-right: 4px;
@@ -3818,6 +3820,9 @@ affix navbar
 }
 #bilancio-header.affix > p.details span.year .label {
   font-size: 12px;
+}
+#bilancio-header.affix > p.details span.location {
+  border-left: 0;
 }
 /*
 share box

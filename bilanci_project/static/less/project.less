@@ -468,7 +468,13 @@ affix navbar
   top: 0;
   background-color: white;
   z-index: 1008;
-  border-bottom: 10px solid white;
+  border-bottom: 1px solid #b9c5c4;
+  max-height: 30px;
+
+  .affix-only{
+    display: block;
+    float: left;
+  }
   .share, .share-box { display: none; }
 
   #affix-breadcrumbs{
@@ -482,12 +488,6 @@ affix navbar
   &> p {
     float:left;
     .inhabitants, .year, .region { display: none; }
-
-  }
-
-  .affix-only{
-    display: block;
-    float: left;
   }
 
   h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
@@ -500,7 +500,7 @@ affix navbar
     margin-top: 0;
     margin-bottom: 0;
     margin-left: 20px;
-    float: left;
+    float: right;
     background:  rgb(95, 107, 120);
 
     ul.dropdown-menu{
@@ -518,17 +518,23 @@ affix navbar
     }
   }
   > p.details {
-    display: inline-block;
-    span {
-      margin-right: 4px;
-      padding-right: 6px;
-      border-right: 0;
-      &.year {
-        font-size: 14px;
-        text-transform: uppercase;
-        .label{ font-size: 12px; }
+      display: inline-block;
+      border-right: 1px solid @altTextColor;
+    
+      span {
+        margin-right: 4px;
+        padding-right: 6px;
+        border-right: 0;
+        &.year {
+          font-size: 14px;
+          text-transform: uppercase;
+          .label{ font-size: 12px; }
+        }
+        &.location {
+          border-left: 0;
+
+        }
       }
-    }
   }
 }
 
