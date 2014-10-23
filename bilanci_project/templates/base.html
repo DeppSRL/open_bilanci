@@ -51,7 +51,7 @@
     </head>
 
 
-    <body id={% block body_id %}{% endblock %}>
+    <body id="{% block body_id %}{% if request.servizi_comuni %}comune{% endif %}{% endblock %}">
 
         {% block container %}
             <div class="container">

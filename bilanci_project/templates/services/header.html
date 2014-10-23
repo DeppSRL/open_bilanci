@@ -1,18 +1,32 @@
+{#<!-- Main header -->#}
+{#<header id="header">#}
+{#    <div class="row">#}
+{#        <div class="col-md-3">#}
+{#            <a href="{{ comune_backlink }}"><button>Torna al sito del Comune</button></a>#}
+{#        </div>#}
+{#        <div class="col-md-3">#}
+{#            {% if comune_logo %}#}
+{#                <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>#}
+{#            {% endif %}#}
+{#        </div>#}
+{#        <div class="col-md-3">#}
+{#            <h3 style="color:white;">#}
+{#                {{ comune_header_text|safe }}#}
+{#            </h3>#}
+{#        </div>#}
+{#    </div>#}
+{#</header>#}
+
 <!-- Main header -->
 <header id="header">
     <div class="row">
-        <div class="col-md-3">
-            <a href="{{ comune_backlink }}"><button>Torna al sito del Comune</button></a>
-        </div>
-        <div class="col-md-3">
-            {% if comune_logo %}
-                <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>
-            {% endif %}
-        </div>
-        <div class="col-md-3">
-            <h3 style="color:white;">
-                {{ comune_header_text|safe }}
-            </h3>
+        <div class="col-md-12">
+            <div class="navbar navbar-default navbar-main" role="navigation">
+                <div class="navbar-header">
+                    <p class="pull-right" style="margin-right:25px;">I bilanci restituiti ai cittadini con grafici e dati per capire e condividere</p>
+                </div>
+            </div><!-- /.navbar -->
         </div>
     </div>
 </header>
+

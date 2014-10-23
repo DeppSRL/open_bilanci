@@ -183,19 +183,25 @@
 
     <script>
         $(document).ready(function(){
-            var $this = $('#bilancio-header');
+            var bilancio_header = $('#bilancio-header');
+            var navbar_top = $('.navbar.navbar-subnav').offset().top;
+            var footer_height = 388;
+
             // fix container height
-            $this.css('width', $this.width());
-            $this.parent().css('min-height', $this.height());
+            bilancio_header.css('width', bilancio_header.width());
+            bilancio_header.parent().css('min-height', bilancio_header.height());
             // set affix dynamic offset
-            $this.affix({
-                  offset: {
-                    top: $this.offset().top
-                  }
+
+            bilancio_header.affix({
+                offset: {
+                  top: navbar_top,
+                  bottom: footer_height
+                }
             });
+
             $( window ).resize(function() {
-              $this.css('width', $this.parent().width());
-                $this.parent().css('min-height', $this.height());
+              bilancio_header.css('width', bilancio_header.parent().width());
+                bilancio_header.parent().css('min-height', bilancio_header.height());
             });
         });
     </script>
