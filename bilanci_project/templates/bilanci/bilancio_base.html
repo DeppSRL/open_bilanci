@@ -25,13 +25,22 @@
                 {% endif %}
             </div>
 
-            <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+            {% if request.servizi_comuni and comune_logo %}
+                <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>
+            {% else %}
+                <h1 class="panel-title" style="text-transform: uppercase;">
+                    {{territorio.denominazione}}
+                </h1>
+            {% endif %}
+
             <p class="details">
-                <span class="inhabitants">
-                    {% if comune_context.bil_popolazione_residente %}
-                        {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
-                    {% endif %}
-                </span>
+                {% if not request.servizi_comuni %}
+                    <span class="inhabitants">
+                        {% if comune_context.bil_popolazione_residente %}
+                            {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                        {% endif %}
+                    </span>
+                {% endif %}
 
                 {#   affix menu#}
                 {% if selected_year %}
@@ -41,13 +50,14 @@
                     </span>
                 {% endif %}
 
-                <span style="padding-left: 6px;" class="location">
-                    {{ territorio.prov|default:"" }}<span class="region">,</span>
-                    <span class="region">
-                        {{ territorio.regione|default_if_none:""|title }}
+                {% if not request.servizi_comuni %}
+                    <span style="padding-left: 6px;" class="location">
+                        {{ territorio.prov|default:"" }}<span class="region">,</span>
+                        <span class="region">
+                            {{ territorio.regione|default_if_none:""|title }}
+                        </span>
                     </span>
-                </span>
-
+                {% endif %}
             </p>
 
             <span id="affix-breadcrumbs" class="affix-only">
@@ -66,8 +76,6 @@
                 {% endif %}
 
             </span>
-
-
 
             {#  navbar #}
 

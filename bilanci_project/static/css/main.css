@@ -3765,6 +3765,14 @@ affix navbar
 #bilancio-header.affix #affix-breadcrumbs {
   margin-top: 4px;
 }
+#bilancio-header.affix img {
+  display: none;
+}
+#bilancio-header.affix .csv {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
 #bilancio-header.affix .dropdown-submenu > a::after {
   margin-top: 7px;
 }
