@@ -25,8 +25,8 @@
                 {% endif %}
             </div>
 
-            {% if request.servizi_comuni and comune_logo %}
-                <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>
+            {% if request.servizi_comuni  %}
+                {% include 'services/_comune_name.html' %}
             {% else %}
                 <h1 class="panel-title" style="text-transform: uppercase;">
                     {{territorio.denominazione}}

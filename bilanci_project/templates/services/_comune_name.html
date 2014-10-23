@@ -1,0 +1,25 @@
+{# adds comune logo or comune name with back link if present #}
+
+{% if comune_logo %}
+
+    {% if comune_backlink %}
+        <a href="{{ comune_backlink }}">
+    {% endif %}
+
+    <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>
+
+    {% if comune_backlink %}
+        </a>
+    {% endif %}
+
+{% else %}
+    {% if comune_backlink %}
+        <a href="{{ comune_backlink }}">
+    {% endif %}
+     <h1 class="panel-title" style="text-transform: uppercase;">
+        {{territorio.denominazione}}
+    </h1>
+    {% if comune_backlink %}
+        </a>
+    {% endif %}
+{% endif %}
