@@ -3680,6 +3680,9 @@ navbar
   margin-bottom: 20px;
   margin-top: 20px;
 }
+#bilancio-header .navbar-subnav a {
+  padding-bottom: 3px;
+}
 #bilancio-header .navbar-subnav .dropdown-toggle .fa {
   line-height: 1;
 }
@@ -3715,9 +3718,9 @@ navbar
   border-color: transparent;
   border-style: solid;
   border-width: 5px 0 5px 5px;
-  border-left-color: #ccc;
-  margin-top: 5px;
+  border-left-color: #000;
   margin-right: -10px;
+  margin-top: 10px;
 }
 #bilancio-header .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
@@ -3754,6 +3757,12 @@ affix navbar
 #bilancio-header.affix .share-box {
   display: none;
 }
+#bilancio-header.affix #affix-breadcrumbs {
+  margin-top: 4px;
+}
+#bilancio-header.affix .dropdown-submenu > a::after {
+  margin-top: 7px;
+}
 #bilancio-header.affix > p {
   float: left;
 }
@@ -3782,26 +3791,18 @@ affix navbar
   margin-bottom: 0;
   margin-left: 20px;
   float: left;
-  background: transparent;
+  background: #5f6b78;
 }
 #bilancio-header.affix .navbar-subnav ul.dropdown-menu {
-  min-width: 98px;
-}
-#bilancio-header.affix .navbar-subnav li {
-  background-color: #2a3036;
+  min-width: 106px;
 }
 #bilancio-header.affix .navbar-subnav li:last-child {
   border-right: 0;
 }
 #bilancio-header.affix .navbar-subnav li a {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  font-size: .8em;
-  font-weight: bold;
-  color: white;
-}
-#bilancio-header.affix .navbar-subnav li a:hover {
-  background-color: #428bca;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  font-size: 16px;
 }
 #bilancio-header.affix > p.details {
   display: inline-block;

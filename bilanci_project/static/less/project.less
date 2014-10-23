@@ -381,6 +381,8 @@ navbar
     margin-bottom: 20px;
     margin-top: 20px;
 
+    a{ padding-bottom: 3px; }
+
     .dropdown-toggle .fa{
       line-height: 1;
     }
@@ -424,9 +426,9 @@ navbar
       border-color: transparent;
       border-style: solid;
       border-width: 5px 0 5px 5px;
-      border-left-color: #ccc;
-      margin-top: 5px;
+      border-left-color: #000;
       margin-right: -10px;
+      margin-top: 10px;
   }
 
   .dropdown-submenu:hover>a:after {
@@ -469,6 +471,14 @@ affix navbar
   border-bottom: 10px solid white;
   .share, .share-box { display: none; }
 
+  #affix-breadcrumbs{
+    margin-top: 4px;
+  }
+
+  .dropdown-submenu > a::after{
+    margin-top: 7px;
+  }
+
   &> p {
     float:left;
     .inhabitants, .year, .region { display: none; }
@@ -478,9 +488,8 @@ affix navbar
   .affix-only{
     display: block;
     float: left;
-
-
   }
+
   h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
   h1.panel-title, &> p {
     margin: 4px 10px 0 0;
@@ -492,25 +501,19 @@ affix navbar
     margin-bottom: 0;
     margin-left: 20px;
     float: left;
-    background: transparent;
+    background:  rgb(95, 107, 120);
 
     ul.dropdown-menu{
-      min-width: 98px;
+      min-width: 106px;
     }
 
     li {
-      background-color: @textColor;
       &:last-child { border-right: 0; }
       a {
-        padding-top: 6px;
-        padding-bottom: 6px;
-        font-size: .8em;
-        font-weight: bold;
-        color:white;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        font-size: 16px;
 
-        &:hover{
-          background-color: #428bca;
-        }
       }
     }
   }

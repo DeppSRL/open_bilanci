@@ -10,7 +10,8 @@
                     <a tabindex="-1" href="{{ menu_voices.bilancio }}">overview</a>
                 </li>
                 <li class="dropdown-submenu {% ifequal selected_section "entrate" %}active{% endifequal %}">
-                    <a tabindex="-1" href="#">entrate</a>
+                    <a tabindex="-1" href="#">entrate
+                    </a>
                     <ul class="dropdown-menu">
                         <li {% if selected_section == 'entrate' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
                             <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
@@ -26,7 +27,8 @@
                 </li>
 
                 <li class="dropdown-submenu {% ifequal selected_section 'spese' %}active{% endifequal %}">
-                    <a tabindex="-1" href="#">spese</a>
+                    <a tabindex="-1" href="#">spese
+                    </a>
 
                     <ul class="dropdown-menu">
                         <li {% if selected_section == 'spese' and selected_subsection == 'dettaglio' %}class="active"{% endif %}>
