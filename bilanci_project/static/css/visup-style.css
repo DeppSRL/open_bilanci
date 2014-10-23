@@ -15,7 +15,6 @@
 }
 
 .visup-selector-buttons {
-	cursor: pointer;
 	text-align: center;
 	display: inline-block;
 	position: absolute;
@@ -35,11 +34,19 @@
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
-	padding: 5px 16px 5px 5px;
+	padding: 5px 0px 5px 5px;
 	margin-top: 7px;
 	font-size: 10px;
 	font-weight: 300px;
+    height: 24px;
+    line-height: normal!important;
 }
+
+.visup-selector-buttons select:-moz-focusring {
+    color: transparent;
+    text-shadow: 0 0 0 #000;
+}
+
 
 .visup-selector-buttons-head {
 	margin-left: 15px;
@@ -55,10 +62,18 @@
 	height: 100%;
 }
 
+.visup-selector-buttons-ddown {
+	cursor: pointer;
+}
+
 .visup-selector-buttons-ddown-icon {
+	pointer-events: none;
+	background: #fff;
 	position: absolute;
 	bottom: 6px;
-	right: 8px;
+	right: 1px;
+	width: 20px;
+	padding-right: 0px;
 }
 
 .visup-selector-buttons select:focus {
@@ -217,9 +232,9 @@
 	height: 100%;
 	background: #ffffff;
 	display: inline-block;
-	padding: 6px 7px 0px;
+	padding: 6px 0px 0px 7px;
 	position: absolute;
-	width: 20px;
+	width: 12px;
 	/*left: 10px;*/
 	right: 0px;
 }
@@ -276,12 +291,6 @@
 	white-space: nowrap;
 	overflow: hidden;*/
 }
-
-.visup-span-label:hover {
-	cursor: pointer;
-	text-decoration: underline;
-}
-
 
 .visup-span-sublabel {
 	overflow: hidden;
