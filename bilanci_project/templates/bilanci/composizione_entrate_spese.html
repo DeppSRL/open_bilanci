@@ -11,6 +11,7 @@
                 "hover": true,
                 "year": {{ year }},
                 "showLabels": false,
+                "showHelp": false,
 
                 "button1": "Livello I",
                 "button2": "Livello II",
@@ -132,12 +133,12 @@
         <div class='visup-graph-menu'>
         <ul class='pull-left'>
         <li class='first'>
-        <div class='visup-arrow-icon' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-arrow-icon' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'></div>
         <div class='visup-layer'>{{ button1 }}</div>
         <div class='visup-breadcrumb visup-breadcrumb-1' ng-show='selected.layer1'>{{ selected.layer1 }}</div>
         </li>
         <li class='second'>
-        <div class='visup-arrow-icon' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-arrow-icon' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'></div>
         <div class='visup-layer'>{{ button2 }}</div>
         <div class='visup-breadcrumb visup-breadcrumb-2' ng-show='selected.layer2'>{{ selected.layer2 }}</div>
         </li>
@@ -162,69 +163,31 @@
         </div>
         <div class='visup-label visup-label-3'>
         <div class='h-divider'></div>
-        <div class='label'>Tagli oltre il 25%</div>
+        <div class='label'>Riduzioni oltre il 25%</div>
         </div>
         </div>
         <div class='visup-legend'>
         <img alt="Legend" src="/static/img/visup/legend.png" />
         </div>
-        <div class='visup-graph-toolip' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-graph-tooltip' ng-click='showGraphHelp = !showGraphHelp' ng-show='showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'>
+        <div class='visup-graph-help' ng-show='showGraphHelp'>
+        <div class='visup-graph-help-title' ng-show='helpTitle != null'>{{helpTitle}}</div>
+        <div class='visup-graph-help-text' ng-show='helpText != null'>{{helpText}}</div>
+        </div>
+        </div>
         <div class='visup-graph-toggle' ng-class='{active: (toggleActive &amp;&amp; showLabels), disable: (!toggleActive)}'>{{ showLabels ? 'Nascondi' : 'Mostra' }}</div>
         </div>
         <div class='visup-sidebar visup-sidebar2'>
-        <div class='visup-widget widget1'>
-        <div class='visup-widget-help' ng-show='widget1.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
-        <div class='visup-description'>
-        <div class='visup-title' ng-class="widget1.type != 'compare' ? 'as-subtitle' : ''" ng-show='widget1.label'>{{widget1.label}}</div>
-        <div class='visup-subtitle' ng-class="widget1.type != 'compare' &amp;&amp; widget1.type != 'pie' ? 'as-title' : ''" ng-show='widget1.sublabel1'>{{widget1.sublabel1}}</div>
-        </div>
-        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget1.type === 'bar'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value-2 inline-block vertical-middle'>{{widget1.value != null ? "€"+(widget1.value | numstr) : "n.d."}}</div>
-        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-        <span class='bold'>{{widget1.procapite != null ? (widget1.procapite | numstr) : "n.d."}}</span>
-        procapite
-        </div>
-        <div class='visup-progress-single' ng-show='widget1.variation != null'>
-        <div class='visup-progress-bar' ng-class="(widget1.variation &lt; 0) ? 'negative' : '' " ng-show='widget1.variation' ng-style="{'width':(widget1.variationAbs &gt; 2) ? widget1.variationAbs+'%' : '2%'}"></div>
-        <div class='visup-progress-middle'></div>
-        </div>
-        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget1.variation != null'>
-        <span class='bold'>{{widget1.variation > 0 ? "+"+widget1.variation : widget1.variation}}%</span>
-        {{widget1.sublabel2}}
-        </div>
-        </div>
-        </div>
-        <div class='visup-values visup-compare visup-table' ng-show="widget1.type === 'compare'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value visup-value-5' ng-show='widget1.value1 != null'>
-        <div class='visup-sublabel bold' ng-show='widget1.valueLabel1'>{{ widget1.valueLabel1 }}</div>
-        <div class='visup-value-big'>{{ widget1.value1 | decimal }} €</div>
-        </div>
-        <div class='visup-value visup-value-6' ng-show='widget1.value2 != null'>
-        <div class='visup-sublabel bold' ng-show='widget1.valueLabel2'>{{ widget1.valueLabel2 }}</div>
-        <div class='visup-value-big'>{{ widget1.value2 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget1.variation2 != null'>
-        <span class='bold'>{{ widget1.variation2 > 0 ? "+"+widget1.variation2 : widget1.variation2 }}%</span>
-        {{ widget1.variationLabel2 }}
-        </div>
-        </div>
-        <div class='visup-value visup-value-7' ng-show='widget1.value3 != null'>
-        <div class='visup-sublabel bold' ng-show='widget1.valueLabel3'>{{ widget1.valueLabel3 }}</div>
-        <div class='visup-value-big'>{{ widget1.value3 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget1.variation3 != null'>
-        <span class='bold'>{{ widget1.variation3 > 0 ? "+"+widget1.variation3 : widget1.variation3 }}%</span>
-        {{ widget1.variationLabel3 }}
-        </div>
-        </div>
-        </div>
-        </div>
-        <div class='visup-graph-container visup-spark-1' ng-show="widget1.type === 'spark' &amp;&amp; widget1.series"></div>
-        <div class='visup-pie-container visup-pie-1' ng-show="widget1.type === 'pie'"></div>
-        <div class='visup-sublabel' ng-show='widget1.sublabel3'>{{widget1.sublabel3}}</div>
-        </div>
+        <!-- widget 1 -->
+        <div class='visup-widget widget1' data='widget1' widget='1' widgetcomposizione></div>
+        <!-- widget 4 -->
         <div class='visup-widget widget4 visup-dot-value active-selection active-hover' ng-style="{'border-color':selected.color}">
-        <div class='visup-widget-help' ng-show='widget4.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-widget-help' ng-click='showHelpText4 = !showHelpText4' ng-show='widget4.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'>
+        <div class='visup-graph-help' ng-show='showHelpText4'>
+        <div class='visup-graph-help-title' ng-show='widget4.helpTitle != null'>{{widget4.helpTitle}}</div>
+        <div class='visup-graph-help-text' ng-show='widget4.helpText != null'>{{widget4.helpText}}</div>
+        </div>
+        </div>
         <div class='visup-description'>
         <div class='visup-title as-subtitle' ng-show='widget4.label'>{{widget4.label}}</div>
         <div class='visup-subtitle as-title'>{{selected.label}}</div>
@@ -248,117 +211,32 @@
         </div>
         </div>
         </div>
-        <div class='visup-widget widget2'>
-        <div class='visup-widget-help' ng-show='widget2.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
-        <div class='visup-description'>
-        <div class='visup-title' ng-class="widget2.type != 'compare' ? 'as-subtitle' : ''" ng-show='widget2.label'>{{widget2.label}}</div>
-        <div class='visup-subtitle' ng-class="widget2.type != 'compare' &amp;&amp; widget2.type != 'pie' ? 'as-title' : ''" ng-show='widget2.sublabel1'>{{widget2.sublabel1}}</div>
-        </div>
-        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget2.type === 'bar'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value-2 inline-block vertical-middle'>{{widget2.value != null ? "€"+(widget2.value | numstr) : "n.d."}}</div>
-        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-        <span class='bold'>{{widget2.procapite != null ? (widget2.procapite | numstr) : "n.d."}}</span>
-        procapite
-        </div>
-        <div class='visup-progress-single' ng-show='widget2.variation != null'>
-        <div class='visup-progress-bar' ng-class="(widget2.variation &lt; 0) ? 'negative' : '' " ng-show='widget2.variation' ng-style="{'width':(widget2.variationAbs &gt; 2) ? widget2.variationAbs+'%' : '2%'}"></div>
-        <div class='visup-progress-middle'></div>
-        </div>
-        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget2.variation != null'>
-        <span class='bold'>{{widget2.variation > 0 ? "+"+widget2.variation : widget2.variation}}%</span>
-        {{widget2.sublabel2}}
-        </div>
-        </div>
-        </div>
-        <div class='visup-values visup-compare visup-table' ng-show="widget2.type === 'compare'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value visup-value-5' ng-show='widget2.value1 != null'>
-        <div class='visup-sublabel bold' ng-show='widget2.valueLabel1'>{{ widget2.valueLabel1 }}</div>
-        <div class='visup-value-big'>{{ widget2.value1 | decimal }} €</div>
-        </div>
-        <div class='visup-value visup-value-6' ng-show='widget2.value2 != null'>
-        <div class='visup-sublabel bold' ng-show='widget2.valueLabel2'>{{ widget2.valueLabel2 }}</div>
-        <div class='visup-value-big'>{{ widget2.value2 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget2.variation2 != null'>
-        <span class='bold'>{{ widget2.variation2 > 0 ? "+"+widget2.variation2 : widget2.variation2 }}%</span>
-        {{ widget2.variationLabel2 }}
-        </div>
-        </div>
-        <div class='visup-value visup-value-7' ng-show='widget2.value3 != null'>
-        <div class='visup-sublabel bold' ng-show='widget2.valueLabel3'>{{ widget2.valueLabel3 }}</div>
-        <div class='visup-value-big'>{{ widget2.value3 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget2.variation3 != null'>
-        <span class='bold'>{{ widget2.variation3 > 0 ? "+"+widget2.variation3 : widget2.variation3 }}%</span>
-        {{ widget2.variationLabel3 }}
-        </div>
-        </div>
-        </div>
-        </div>
-        <div class='visup-graph-container visup-spark-2' ng-show="widget2.type === 'spark' &amp;&amp; widget2.series"></div>
-        <div class='visup-pie-container visup-pie-2' ng-show="widget2.type === 'pie'"></div>
-        <div class='visup-sublabel' ng-show='widget2.sublabel3'>{{widget2.sublabel3}}</div>
-        </div>
-        <div class='visup-widget widget3'>
-        <div class='visup-widget-help' ng-show='widget3.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
-        <div class='visup-description'>
-        <div class='visup-title' ng-class="widget3.type != 'compare' ? 'as-subtitle' : ''" ng-show='widget3.label'>{{widget3.label}}</div>
-        <div class='visup-subtitle' ng-class="widget3.type != 'compare' &amp;&amp; widget3.type != 'pie' ? 'as-title' : ''" ng-show='widget3.sublabel1'>{{widget3.sublabel1}}</div>
-        </div>
-        <div class='visup-values visup-values-progressbar visup-table' ng-show="widget3.type === 'bar'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value-2 inline-block vertical-middle'>{{widget3.value != null ? "€"+(widget3.value | numstr) : "n.d."}}</div>
-        <div class='visup-value-3 visup-value-big inline-block vertical-middle'>
-        <span class='bold'>{{widget3.procapite != null ? (widget3.procapite | numstr) : "n.d."}}</span>
-        procapite
-        </div>
-        <div class='visup-progress-single' ng-show='widget3.variation != null'>
-        <div class='visup-progress-bar' ng-class="(widget3.variation &lt; 0) ? 'negative' : '' " ng-show='widget3.variation' ng-style="{'width':(widget3.variationAbs &gt; 2) ? widget3.variationAbs+'%' : '2%'}"></div>
-        <div class='visup-progress-middle'></div>
-        </div>
-        <div class='visup-value-4 inline-block vertical-middle' ng-show='widget3.variation != null'>
-        <span class='bold'>{{widget3.variation > 0 ? "+"+widget3.variation : widget3.variation}}%</span>
-        {{widget3.sublabel2}}
-        </div>
-        </div>
-        </div>
-        <div class='visup-values visup-compare visup-table' ng-show="widget3.type === 'compare'">
-        <div class='visup-table-cell vertical-middle'>
-        <div class='visup-value visup-value-5' ng-show='widget3.value1 != null'>
-        <div class='visup-sublabel bold' ng-show='widget3.valueLabel1'>{{ widget3.valueLabel1 }}</div>
-        <div class='visup-value-big'>{{ widget3.value1 | decimal }} €</div>
-        </div>
-        <div class='visup-value visup-value-6' ng-show='widget3.value2 != null'>
-        <div class='visup-sublabel bold' ng-show='widget3.valueLabel2'>{{ widget3.valueLabel2 }}</div>
-        <div class='visup-value-big'>{{ widget3.value2 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget3.variation2 != null'>
-        <span class='bold'>{{ widget3.variation2 > 0 ? "+"+widget3.variation2 : widget3.variation2 }}%</span>
-        {{ widget3.variationLabel2 }}
-        </div>
-        </div>
-        <div class='visup-value visup-value-7' ng-show='widget3.value3 != null'>
-        <div class='visup-sublabel bold' ng-show='widget3.valueLabel3'>{{ widget3.valueLabel3 }}</div>
-        <div class='visup-value-big'>{{ widget3.value3 | decimal }} €</div>
-        <div class='visup-variation' ng-show='widget3.variation3 != null'>
-        <span class='bold'>{{ widget3.variation3 > 0 ? "+"+widget3.variation3 : widget3.variation3 }}%</span>
-        {{ widget3.variationLabel3 }}
-        </div>
-        </div>
-        </div>
-        </div>
-        <div class='visup-graph-container visup-spark-3' ng-show="widget3.type === 'spark' &amp;&amp; widget3.series"></div>
-        <div class='visup-pie-container visup-pie-3' ng-show="widget3.type === 'pie'"></div>
-        <div class='visup-sublabel' ng-show='widget3.sublabel3'>{{widget3.sublabel3}}</div>
-        </div>
+        <!-- widget 2 -->
+        <div class='visup-widget widget2' data='widget2' widget='2' widgetcomposizione></div>
+        <!-- widget 3 -->
+        <div class='visup-widget widget3' data='widget3' widget='3' widgetcomposizione></div>
+        <!-- widget 5 -->
         <div class='visup-widget widget5 active-selection active-hover'>
+        <div class='visup-widget-help' ng-click='showHelpText5 = !showHelpText5' ng-show='widget5.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'>
+        <div class='visup-graph-help' ng-show='showHelpText5'>
+        <div class='visup-graph-help-title' ng-show='widget5.helpTitle != null'>{{widget5.helpTitle}}</div>
+        <div class='visup-graph-help-text' ng-show='widget5.helpText != null'>{{widget5.helpText}}</div>
+        </div>
+        </div>
         <div class='visup-description'>
         <div class='visup-title as-subtitle'>{{widget5.label}}</div>
         </div>
         <div class='visup-pie-container visup-pie-4'></div>
         <div class='visup-value-2'>{{selected.percent}}%</div>
         </div>
+        <!-- widget 6 -->
         <div class='visup-widget widget6 active-selection active-hover'>
-        <div class='visup-widget-help' ng-show='widget6.showHelp' style='background-image: url("/static/img/visup/icons.png")'></div>
+        <div class='visup-widget-help' ng-click='showHelpText6 = !showHelpText6' ng-show='widget6.showHelp' style='background-image: url(http://databoard-3529.herokuapp.com/assets/depp_openbilanci/icons-9ce96793f60bb00cd129a9d3598085dd.png)'>
+        <div class='visup-graph-help' ng-show='showHelpText6'>
+        <div class='visup-graph-help-title' ng-show='widget6.helpTitle != null'>{{widget6.helpTitle}}</div>
+        <div class='visup-graph-help-text' ng-show='widget6.helpText != null'>{{widget6.helpText}}</div>
+        </div>
+        </div>
         <div class='visup-description'>
         <div class='visup-title as-subtitle'>{{widget6.label}}</div>
         <div class='visup-subtitle as-title'>{{selected.label}}</div>
