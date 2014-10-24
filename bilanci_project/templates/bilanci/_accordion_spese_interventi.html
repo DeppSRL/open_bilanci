@@ -52,6 +52,11 @@
                                     {% popover_info node.slug %}
 
                                 </div>
+                                <div class="'col-sm-1">
+                                    {% if tipo_bilancio == 'consuntivo' %}
+                                        {% include 'bilanci/_classifiche_link.html' with selected_par_type='spese-interventi' %}
+                                    {% endif %}
+                                </div>
 
                                 <div class="col-sm-3 actions">
                                     {# set 3rd parameter to True, (is_interventi) #}

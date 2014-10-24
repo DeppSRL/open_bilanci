@@ -1,0 +1,13 @@
+
+{#hidden form needed to redirect to Classifiche search and land on the correct page for the Comune #}
+<form class="form-inline autosubmit" action="{% url 'classifiche-search' %}" method="get" name="form{{ node.pk }}" >
+    <a class="icon sprite-classifiche-big" href="#" onclick="document.form{{ node.pk }}.submit()" title="Vai alla pagina Classifiche per quest'elemento"></a>
+
+
+    {#  hidden inputs     #}
+    <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
+    <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />
+    <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ node.pk|safe }}" />
+    <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ territorio.cluster|safe }}" />
+    <input id="territorio_id" name="territorio_id" type="hidden" value="{{ territorio.id|safe }}" />
+</form>

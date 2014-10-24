@@ -32,6 +32,11 @@
                                 {% endif %}
                                 {% popover_info node.slug %}
                             </div>
+                            <div class="'col-sm-1">
+                                {% if tipo_bilancio == 'consuntivo' %}
+                                    {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
+                                {% endif %}
+                            </div>
 
                             <div class="col-sm-3 actions">
                                 {% voice_values node.slug budget_values %}
