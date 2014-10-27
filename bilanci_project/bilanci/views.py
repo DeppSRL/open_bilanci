@@ -134,14 +134,13 @@ class ClassificheAllowedParamsMixin(object):
 
         entrate = list(parameter_struct['entrate'][0].values_list('slug',flat=True))
 
-        spese_funzioni_list = parameter_struct['spese_funzioni'][0]
-        spese_funzioni_list.extend(parameter_struct['spese_funzioni'][1])
+        spese_funzioni_list = list(parameter_struct['spese_funzioni'][0])
+        spese_funzioni_list.extend(list(parameter_struct['spese_funzioni'][1]))
         spese_funzioni = [x.slug for x in spese_funzioni_list]
 
-
-        spese_interventi_list = parameter_struct['spese_interventi'][0]
-        spese_interventi_list.extend(parameter_struct['spese_interventi'][1])
-        spese_interventi_list.extend(parameter_struct['spese_interventi'][2])
+        spese_interventi_list = list(parameter_struct['spese_interventi'][0])
+        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][1]))
+        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][2]))
         spese_interventi = [x.slug for x in spese_interventi_list]
 
 
@@ -159,14 +158,16 @@ class HierarchicalMenuMixin(object):
         entrate_set = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).exclude(slug__in=entrate_prestiti_descendants).order_by('denominazione')
         entrate_list = [entrate_set,]
 
-        spese_funzioni_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione'))
+        # spese_funzioni_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione'))
+        spese_funzioni = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione')
 
-        spese_prestiti = list(Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti'))
+        # spese_prestiti = list(Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti'))
+        spese_prestiti = Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti')
 
-        spese_funzioni_list = [spese_funzioni_list, spese_prestiti]
+        spese_funzioni_list = [spese_funzioni, spese_prestiti]
 
-        spese_interventi_investimenti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_descendants(include_self=True))
-        spese_interventi_correnti = list(Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_descendants(include_self=True))
+        spese_interventi_investimenti = Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG).get_descendants(include_self=True)
+        spese_interventi_correnti = Voce.objects.get(slug=settings.CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG).get_descendants(include_self=True)
 
         spese_interventi_list = [spese_interventi_correnti, spese_interventi_investimenti, spese_prestiti]
 
