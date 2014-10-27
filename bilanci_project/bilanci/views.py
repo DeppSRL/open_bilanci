@@ -135,6 +135,7 @@ class ClassificheAllowedParamsMixin(object):
         entrate = list(parameter_struct['entrate'][0].values_list('slug',flat=True))
 
         spese_funzioni_list = list(parameter_struct['spese_funzioni'][0])
+        spese_funzioni_list.remove(Voce.objects.get(slug=u'consuntivo-spese-cassa-spese-somma-funzioni'))
         spese_funzioni_list.extend(list(parameter_struct['spese_funzioni'][1]))
         spese_funzioni = [x.slug for x in spese_funzioni_list]
 
