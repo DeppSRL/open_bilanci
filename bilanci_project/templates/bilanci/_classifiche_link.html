@@ -1,7 +1,6 @@
 {# show the link to classifiche for voices which are allowed to be in Classifiche #}
 {% if tipo_bilancio == 'consuntivo' %}
     <div class="col-sm-1">
-{#        {{ node.slug }}#}
         {% if node.slug in classifiche_allowed_params %}
 
             {#hidden form needed to redirect to Classifiche search and land on the correct page for the Comune #}
