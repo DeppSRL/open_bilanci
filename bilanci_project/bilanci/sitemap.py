@@ -104,7 +104,7 @@ class ClassificheSitemap(Sitemap):
 
         years = range(settings.APP_START_DATE.year,settings.APP_END_DATE.year)
         hmm = HierarchicalMenuMixin()
-        parameter_dict = hmm.get_parameter_list()
+        parameter_dict = hmm.get_parameter_struct()
 
         items = []
         for year in years:

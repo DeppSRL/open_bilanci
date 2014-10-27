@@ -121,18 +121,47 @@ class MiniClassificheMixin(object):
 
         return indicatore_position
 
+class ClassificheAllowedParamsMixin(object):
+
+    @staticmethod
+    def get_classifiche_parameters():
+
+        # provide a dict of Voce slug of Voce that can appear in Classifiche,
+        # used both in the Hierarchical menu and in Dettaglio page to check that Voce is allowed a Classifiche link
+
+        hmm = HierarchicalMenuMixin()
+        parameter_struct = hmm.get_parameter_struct()
+
+        entrate = list(parameter_struct['entrate'][0].values_list('slug',flat=True))
+
+        spese_funzioni_list = parameter_struct['spese_funzioni'][0]
+        spese_funzioni_list.extend(parameter_struct['spese_funzioni'][1])
+        spese_funzioni = [x.slug for x in spese_funzioni_list]
+
+
+        spese_interventi_list = parameter_struct['spese_interventi'][0]
+        spese_interventi_list.extend(parameter_struct['spese_interventi'][1])
+        spese_interventi_list.extend(parameter_struct['spese_interventi'][2])
+        spese_interventi = [x.slug for x in spese_interventi_list]
+
+
+        return {
+            'entrate': entrate,
+            'spese_funzioni': spese_funzioni,
+            'spese_interventi': spese_interventi
+        }
 
 class HierarchicalMenuMixin(object):
 
-    def get_parameter_list(self):
+    def get_parameter_struct(self):
         # defines the parameter list shown in the hierarchical menu and avoids showing descendants of Prestiti for Entrate/Spese
         entrate_prestiti_descendants = Voce.objects.get(slug = 'consuntivo-entrate-cassa-prestiti').get_descendants(include_self=False).values_list('slug', flat=True)
         entrate_set = Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True).exclude(slug__in=entrate_prestiti_descendants).order_by('denominazione')
         entrate_list = [entrate_set,]
 
-        spese_funzioni_list = Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione')
+        spese_funzioni_list = list(Voce.objects.get(slug=settings.CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG).get_descendants(include_self=True).order_by('denominazione'))
 
-        spese_prestiti = Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti')
+        spese_prestiti = list(Voce.objects.filter(slug = 'consuntivo-spese-cassa-prestiti'))
 
         spese_funzioni_list = [spese_funzioni_list, spese_prestiti]
 
@@ -2038,11 +2067,22 @@ class BilancioDettaglioView(BilancioOverView):
         bilancio_tree = list(bilancio_tree)
 
         if self.main_bilancio_type == 'preventivo':
+            context['bilancio_type_title'] = 'preventivi'
+
             if self.selected_section == 'entrate':
                 bilancio_tree.append(Voce.objects.get(slug = 'preventivo-entrate-avanzo-di-amministrazione'))
             elif self.selected_section == 'spese':
                 bilancio_tree.append(Voce.objects.get(slug = 'preventivo-spese-disavanzo-di-amministrazione'))
-
+        else:
+            context['bilancio_type_title'] = 'consuntivi'
+            if self.selected_section == 'entrate':
+                context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['entrate']
+            else:
+                # get link for classifiche to insert in the accordion
+                if self.fun_int_view == 'funzioni':
+                    context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['spese_funzioni']
+                else:
+                    context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['spese_interventi']
 
         context['bilancio_tree'] =  bilancio_tree
 
@@ -2051,10 +2091,6 @@ class BilancioDettaglioView(BilancioOverView):
         context['bilancio_type'] = self.main_bilancio_type
         context['selected_subsection'] = 'dettaglio'
 
-        if self.main_bilancio_type == 'preventivo':
-            context['bilancio_type_title'] = 'preventivi'
-        else:
-            context['bilancio_type_title'] = 'consuntivi'
 
         if self.selected_section == 'spese':
             # Extend the context with funzioni/interventi view and switch variables
@@ -2452,7 +2488,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         context['selector_end_year'] = settings.CLASSIFICHE_END_YEAR
 
         # get parameter list for hierarchical menu
-        context['parameter_list'] = self.get_parameter_list()
+        context['parameter_list'] = self.get_parameter_struct()
 
         context['regioni_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).order_by('denominazione')
         context['cluster_list'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.L).order_by('-cluster')
@@ -2593,7 +2629,7 @@ class ConfrontiView(ShareUrlMixin, HierarchicalMenuMixin, TemplateView):
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto
 
-        context['parameter_list'] = self.get_parameter_list()
+        context['parameter_list'] = self.get_parameter_struct()
         context['share_url'] = self.share_url
         context['territori_comparison_search_form'] = \
             TerritoriComparisonSearchForm(

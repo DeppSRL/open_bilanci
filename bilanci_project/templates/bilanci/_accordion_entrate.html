@@ -33,9 +33,7 @@
                                 {% popover_info node.slug %}
                             </div>
                             <div class="'col-sm-1">
-                                {% if tipo_bilancio == 'consuntivo' %}
-                                    {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
-                                {% endif %}
+                                {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
                             </div>
 
                             <div class="col-sm-3 actions">
