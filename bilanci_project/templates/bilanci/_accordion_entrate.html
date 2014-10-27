@@ -32,15 +32,16 @@
                                 {% endif %}
                                 {% popover_info node.slug %}
                             </div>
-                            <div class="'col-sm-1">
-                                {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
-                            </div>
+
+                            {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
 
                             <div class="col-sm-3 actions">
                                 {% voice_values node.slug budget_values %}
                             </div>
 
-                            <div class="col-sm-2 col-md-offset-1">
+
+                            <div class="col-sm-2 {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %}">
+
                                 {% include 'bilanci/_graph_button.html' with node=node %}
                             </div>
                         </div>

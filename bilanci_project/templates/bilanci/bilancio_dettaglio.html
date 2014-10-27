@@ -34,18 +34,41 @@
         <div class="panel">
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-sm-6 entry" id="consuntivo-entrate-cassa">
-                        <h2>TOTALE {{ selected_section|upper }}</h2>
-                    </div>
 
-                    <div class="col-sm-3 actions">
-                        {% voice_values bilancio_rootnode.slug budget_values %}
-                    </div>
+                    {% if selected_section == 'spese' and fun_int_current_view == 'funzioni' %}
 
-                    <div class="col-sm-2 col-md-offset-1">
-                        {% include 'bilanci/_graph_button.html' with node=bilancio_rootnode %}
-                    </div>
+                        <div class="col-sm-4 entry" id="consuntivo-entrate-cassa">
+                            <h2>TOTALE {{ selected_section|upper }}</h2>
+                        </div>
+
+                        <div class="col-sm-3 actions ">
+                            {% voice_values bilancio_rootnode.slug budget_values %}
+                        </div>
+
+                        <div class="col-sm-2 col-sm-offset-3 ">
+                            {% include 'bilanci/_graph_button.html' with node=bilancio_rootnode %}
+                        </div>
+
+
+                    {% else %}
+
+                        <div class="col-sm-6 entry" id="consuntivo-entrate-cassa">
+                            <h2>TOTALE {{ selected_section|upper }}</h2>
+                        </div>
+
+                        <div class="col-sm-3 actions col-sm-offset-1">
+                            {% voice_values bilancio_rootnode.slug budget_values %}
+                        </div>
+
+                        <div class="col-sm-2 ">
+                            {% include 'bilanci/_graph_button.html' with node=bilancio_rootnode %}
+                        </div>
+
+
+                    {% endif %}
+
                 </div>
+
                 {# trend chart container               #}
                 <div id="trend-chart-container-{{ bilancio_rootnode.pk }}" class="collapse chart-container">
                     <div class="row details section_title">

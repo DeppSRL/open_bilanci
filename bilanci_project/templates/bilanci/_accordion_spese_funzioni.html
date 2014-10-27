@@ -44,11 +44,9 @@
                                     {% popover_info node.slug %}
 
                                 </div>
-                                <div class="'col-sm-1">
-                                    {% include 'bilanci/_classifiche_link.html' with selected_par_type='spese-funzioni' %}
-                                </div>
+                                {% include 'bilanci/_classifiche_link.html' with selected_par_type='spese-funzioni' %}
 
-                                <div class="col-sm-3 actions">
+                                <div class="col-sm-2 actions">
                                     {% voice_values node.slug budget_values %}
                                 </div>
 
