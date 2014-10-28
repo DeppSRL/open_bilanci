@@ -2051,9 +2051,9 @@ class BilancioDettaglioView(BilancioOverView):
         if len(incarichi_set) == 0:
             context['show_timeline'] = False
 
-        context['bilancio_rootnode'] = bilancio_rootnode
-
-
+        # arranges the bilancio_tree to have the voce in the desired order: first the voce with children, then the leaves
+        # somma funzioni needs a special treatment because the denominazione starts with "_"
+        # which puts all the branch at the end of the alphabetical order
 
         if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
             if self.main_bilancio_type == 'consuntivo':
@@ -2079,10 +2079,9 @@ class BilancioDettaglioView(BilancioOverView):
             bilancio_tree.extend(first_level_voci)
 
 
-        # remove unused branches in the template: investimenti , spese correnti
+        # get link for classifiche to insert in the accordion
         if self.main_bilancio_type == 'consuntivo':
             if self.selected_section == 'spese':
-                # get link for classifiche to insert in the accordion
                 if self.fun_int_view == 'funzioni':
 
                     context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['spese_funzioni']
@@ -2092,9 +2091,7 @@ class BilancioDettaglioView(BilancioOverView):
                 context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
 
 
-
-
-
+        context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_tree
         context['query_string'] = query_string
         context['year'] = self.year
