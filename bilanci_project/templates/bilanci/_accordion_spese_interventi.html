@@ -54,12 +54,12 @@
                                 </div>
                                 {% include 'bilanci/_classifiche_link.html' with selected_par_type='spese-interventi' %}
 
-                                <div class="col-sm-3 actions">
+                                <div class="col-sm-3 {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %} actions">
                                     {# set 3rd parameter to True, (is_interventi) #}
                                     {% voice_values node.slug budget_values True %}
                                 </div>
 
-                                <div class="col-sm-2 {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %}">
+                                <div class="col-sm-2">
                                     {# hides graph button for interventi / funzioni                   #}
                                     {% if node.slug != 'preventivo-spese-spese-per-investimenti' and node.slug != 'preventivo-spese-spese-correnti' and node.slug != 'consuntivo-spese-cassa-spese-correnti' and node.slug != 'consuntivo-spese-cassa-spese-per-investimenti'%}
                                        {% include 'bilanci/_graph_button.html' with node=node %}

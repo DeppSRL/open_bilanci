@@ -35,12 +35,12 @@
 
                             {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
 
-                            <div class="col-sm-3 actions">
+                            <div class="col-sm-3 {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %} actions">
                                 {% voice_values node.slug budget_values %}
                             </div>
 
 
-                            <div class="col-sm-2 {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %}">
+                            <div class="col-sm-2 ">
 
                                 {% include 'bilanci/_graph_button.html' with node=node %}
                             </div>
