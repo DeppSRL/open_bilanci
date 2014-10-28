@@ -121,35 +121,6 @@ class MiniClassificheMixin(object):
 
         return indicatore_position
 
-class ClassificheAllowedParamsMixin(object):
-
-    @staticmethod
-    def get_classifiche_parameters():
-
-        # provide a dict of Voce slug of Voce that can appear in Classifiche,
-        # used both in the Hierarchical menu and in Dettaglio page to check that Voce is allowed a Classifiche link
-
-        hmm = HierarchicalMenuMixin()
-        parameter_struct = hmm.get_parameter_struct()
-
-        entrate = list(parameter_struct['entrate'][0].values_list('slug',flat=True))
-
-        spese_funzioni_list = list(parameter_struct['spese_funzioni'][0])
-        spese_funzioni_list.remove(Voce.objects.get(slug=u'consuntivo-spese-cassa-spese-somma-funzioni'))
-        spese_funzioni_list.extend(list(parameter_struct['spese_funzioni'][1]))
-        spese_funzioni = [x.slug for x in spese_funzioni_list]
-
-        spese_interventi_list = list(parameter_struct['spese_interventi'][0])
-        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][1]))
-        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][2]))
-        spese_interventi = [x.slug for x in spese_interventi_list]
-
-
-        return {
-            'entrate': entrate,
-            'spese_funzioni': spese_funzioni,
-            'spese_interventi': spese_interventi
-        }
 
 class HierarchicalMenuMixin(object):
 
@@ -181,6 +152,33 @@ class HierarchicalMenuMixin(object):
             'spese_interventi': spese_interventi_list
         }
 
+    @staticmethod
+    def get_classifiche_parameters():
+
+        # provide a dict of Voce slug of Voce that can appear in Classifiche,
+        # used both in the Hierarchical menu and in Dettaglio page to check that Voce is allowed a Classifiche link
+
+        hmm = HierarchicalMenuMixin()
+        parameter_struct = hmm.get_parameter_struct()
+
+        entrate = list(parameter_struct['entrate'][0].values_list('slug',flat=True))
+
+        spese_funzioni_list = list(parameter_struct['spese_funzioni'][0])
+        spese_funzioni_list.remove(Voce.objects.get(slug=u'consuntivo-spese-cassa-spese-somma-funzioni'))
+        spese_funzioni_list.extend(list(parameter_struct['spese_funzioni'][1]))
+        spese_funzioni = [x.slug for x in spese_funzioni_list]
+
+        spese_interventi_list = list(parameter_struct['spese_interventi'][0])
+        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][1]))
+        spese_interventi_list.extend(list(parameter_struct['spese_interventi'][2]))
+        spese_interventi = [x.slug for x in spese_interventi_list]
+
+
+        return {
+            'entrate': entrate,
+            'spese_funzioni': spese_funzioni,
+            'spese_interventi': spese_interventi
+        }
 
 
 class HomeView(TemplateView):
@@ -2059,38 +2057,35 @@ class BilancioDettaglioView(BilancioOverView):
 
         # if the bilancio considered is Preventivo
         # sets the node "avanzo/disavanzo di amministrazione" at the bottom of the list
+        #
 
+        # remove unused branches in the template: investimenti , spese correnti
         if self.main_bilancio_type == 'preventivo':
-            if self.selected_section == 'entrate':
-                bilancio_tree = bilancio_tree.exclude(slug='preventivo-entrate-avanzo-di-amministrazione')
-            elif self.selected_section == 'spese':
-                bilancio_tree = bilancio_tree.exclude(slug='preventivo-spese-disavanzo-di-amministrazione')
 
-        bilancio_tree = list(bilancio_tree)
+            if self.selected_section == 'spese':
+                bilancio_tree = bilancio_tree.exclude(slug__startswith='preventivo-spese-spese-per-investimenti')
+                bilancio_tree = bilancio_tree.exclude(slug__startswith = 'preventivo-spese-spese-correnti')
 
-        if self.main_bilancio_type == 'preventivo':
-            context['bilancio_type_title'] = 'preventivi'
-
-            if self.selected_section == 'entrate':
-                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-entrate-avanzo-di-amministrazione'))
-            elif self.selected_section == 'spese':
-                bilancio_tree.append(Voce.objects.get(slug = 'preventivo-spese-disavanzo-di-amministrazione'))
         else:
-            context['bilancio_type_title'] = 'consuntivi'
+            bilancio_tree = bilancio_tree.exclude(slug__startswith = 'consuntivo-spese-cassa-spese-correnti')
+            bilancio_tree = bilancio_tree.exclude(slug__startswith = 'consuntivo-spese-cassa-spese-per-investimenti')
+
             if self.selected_section == 'entrate':
-                context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['entrate']
+                context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
             else:
                 # get link for classifiche to insert in the accordion
                 if self.fun_int_view == 'funzioni':
-                    context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['spese_funzioni']
+                    context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['spese_funzioni']
                 else:
-                    context['classifiche_allowed_params'] = ClassificheAllowedParamsMixin.get_classifiche_parameters()['spese_interventi']
+                    context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['spese_interventi']
+
+        # bilancio_tree = list(bilancio_tree)
 
         context['bilancio_tree'] =  bilancio_tree
-
         context['query_string'] = query_string
         context['year'] = self.year
         context['bilancio_type'] = self.main_bilancio_type
+        context['bilancio_type_title'] = self.main_bilancio_type[:-1]+"i"
         context['selected_subsection'] = 'dettaglio'
 
 
