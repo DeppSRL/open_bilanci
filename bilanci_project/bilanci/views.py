@@ -2053,33 +2053,47 @@ class BilancioDettaglioView(BilancioOverView):
 
         context['bilancio_rootnode'] = bilancio_rootnode
 
-        bilancio_tree = bilancio_rootnode.get_descendants(include_self=True)
 
-        # if the bilancio considered is Preventivo
-        # sets the node "avanzo/disavanzo di amministrazione" at the bottom of the list
-        #
+
+        if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
+            if self.main_bilancio_type == 'consuntivo':
+                base_slug = 'consuntivo-spese-cassa'
+            else:
+                base_slug = 'preventivo-spese'
+
+            somma_funzioni = list(Voce.objects.get(slug = "{0}-spese-somma-funzioni".format(base_slug)).get_descendants(include_self=True))
+            prestiti = list(Voce.objects.get(slug = "{0}-prestiti".format(base_slug)).get_descendants(include_self=True))
+            spese_conto_terzi = list(Voce.objects.get(slug = "{0}-spese-per-conto-terzi".format(base_slug)).get_descendants(include_self=True))
+
+            bilancio_tree = somma_funzioni
+            bilancio_tree.extend(prestiti)
+            bilancio_tree.extend(spese_conto_terzi)
+
+            if self.main_bilancio_type == 'preventivo':
+                disavanzo = list(Voce.objects.get(slug = "{0}-disavanzo-di-amministrazione".format(base_slug)).get_descendants(include_self=True))
+                bilancio_tree.extend(disavanzo)
+        else:
+            bilancio_tree = bilancio_rootnode.get_descendants(include_self=False)
+            first_level_voci = bilancio_tree.filter(level=bilancio_rootnode.level+1, children__isnull=True)
+            bilancio_tree = list(bilancio_tree.exclude(level=bilancio_rootnode.level+1, children__isnull=True))
+            bilancio_tree.extend(first_level_voci)
+
 
         # remove unused branches in the template: investimenti , spese correnti
-        if self.main_bilancio_type == 'preventivo':
-
+        if self.main_bilancio_type == 'consuntivo':
             if self.selected_section == 'spese':
-                bilancio_tree = bilancio_tree.exclude(slug__startswith='preventivo-spese-spese-per-investimenti')
-                bilancio_tree = bilancio_tree.exclude(slug__startswith = 'preventivo-spese-spese-correnti')
-
-        else:
-            bilancio_tree = bilancio_tree.exclude(slug__startswith = 'consuntivo-spese-cassa-spese-correnti')
-            bilancio_tree = bilancio_tree.exclude(slug__startswith = 'consuntivo-spese-cassa-spese-per-investimenti')
-
-            if self.selected_section == 'entrate':
-                context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
-            else:
                 # get link for classifiche to insert in the accordion
                 if self.fun_int_view == 'funzioni':
+
                     context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['spese_funzioni']
                 else:
                     context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['spese_interventi']
+            else:
+                context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
 
-        # bilancio_tree = list(bilancio_tree)
+
+
+
 
         context['bilancio_tree'] =  bilancio_tree
         context['query_string'] = query_string
