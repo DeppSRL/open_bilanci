@@ -1821,6 +1821,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 
         if must_redirect:
+            # sets querystring, destination view and kwargs parameter for the redirect
+
             querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
                         self.year,
                         self.main_bilancio_type,
@@ -1828,25 +1830,30 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                         self.cas_com_type
                     )
 
-            redirect_kwargs = {'slug':self.territorio.slug}
+            if self.selected_section == 'spese' and self.fun_int_view == 'interventi':
+                querystring +='&fun_int_view='+self.fun_int_view
 
-            if self.selected_section == 'overview':
-                destination_view = 'bilanci-overview'
+            if not self.servizi_comuni:
+                redirect_kwargs = {'slug':self.territorio.slug}
+                urlconf = None
+
+                if self.selected_section == 'overview':
+                    destination_view = 'bilanci-overview'
+                else:
+                    redirect_kwargs['section'] = self.selected_section
+                    destination_view = "bilanci-{0}".format(self.selected_subsection)
+
             else:
-                redirect_kwargs['section'] = self.selected_section
 
-                if self.fun_int_view == 'interventi':
-                    querystring +='&fun_int_view='+self.fun_int_view
-
-                destination_view = "bilanci-{0}".format(self.selected_subsection)
-
-
-            urlconf = None
-
-            if self.servizi_comuni:
-                destination_view = 'bilanci-overview-services'
-                redirect_kwargs = {}
                 urlconf = services.urls
+                redirect_kwargs = {}
+
+                if self.selected_section == 'overview':
+                    destination_view = 'bilanci-overview-services'
+
+                else:
+                    destination_view = "bilanci-{0}-services".format(self.selected_subsection)
+                    redirect_kwargs = {'section':self.selected_section}
 
 
             return HttpResponseRedirect(
