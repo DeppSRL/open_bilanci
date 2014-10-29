@@ -1,0 +1,46 @@
+<!-- Main header -->
+<header id="header">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="navbar navbar-default navbar-main" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Mostra/nascondi nvigazione</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="{% url 'home' %}">open<strong>bilanci</strong><small>rendiamoci conto</small>
+                        {% if settings.SITE_VERSION %}<small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</a>
+                    <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
+                        <div class="form-group">
+                             {{ territori_search_form }}
+                        </div>
+                    </form>
+                </div>
+
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="{% url 'confronti-home' %}"><span class="icon sprite-confronti"></span> confronti</a></li>
+                        <li>
+                            <a href="{% url 'classifiche-redirect' %}">
+                                <span class="icon sprite-classifiche"></span>
+                                classifiche
+                            </a>
+                        </li>
+{#                        <li>#}
+{#                            <a href="#" title="Prossimamente...">#}
+{#                                <span class="icon sprite-mappa"></span> mappa#}
+{#                            </a>#}
+{#                        </li>#}
+                        <li>
+                            <a href="http://blog.openpolis.it/categorie/neibilanci/">
+                                <span class="icon sprite-blog"></span> blog
+                            </a>
+                        </li>
+                    </ul>
+                </div><!-- /.nav-collapse -->
+            </div><!-- /.navbar -->
+        </div>
+    </div>
+</header>

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.transaction import set_autocommit, commit
 from django.utils.module_loading import import_by_path
 from bilanci.models import Indicatore
 from bilanci.utils.comuni import FLMapper
@@ -120,8 +121,10 @@ class Command(BaseCommand):
                     indicator_obj.save()
 
         # actual computation of the values
+
+        set_autocommit(False)
         for indicator in indicators_instances:
-            self.logger.debug(u"Indicator: {0}".format(
+            self.logger.info(u"Indicator: {0}".format(
                 indicator.label
             ))
             if dryrun:
@@ -130,3 +133,5 @@ class Command(BaseCommand):
             else:
                 # db storage
                 indicator.compute_and_commit(cities, years, logger=self.logger, skip_existing=skip_existing)
+
+            commit()

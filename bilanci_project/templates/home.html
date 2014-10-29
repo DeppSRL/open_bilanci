@@ -79,7 +79,7 @@
                                     mappe
                                 </a>
                             </h3>
-                            <p>cosa cambia da nord a sud nei bilanci dei Comuni? crea la tua mappa e condividi - prossimamente...</p>
+                            <p>cosa cambia da nord a sud nei bilanci dei Comuni? crea la tua mappa e condividi</p>
                         </div>
                     </div>
                 </form>
@@ -146,7 +146,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1>Dal Blog</h1>
+                        <h1><a href="http://blog.openpolis.it/categorie/neibilanci/">Dal Blog</a></h1>
                     </div>
                 </div>
                 <ul class="list-unstyled row">
@@ -155,8 +155,8 @@
                         <hr>
                         <h3><a href="{{ blog_post.link }}">{{ blog_post.title }}</a></h3>
                         <p class="small"><time datetime="{{ blog_post.published_parsed|time_to_datetime|date:'Y-m-d' }}"><span class="icon sprite-calendar"></span> {{ blog_post.published_parsed|time_to_datetime|date:'d F Y' }}</time></p>
-                        <div class="text">
-                            {{ blog_post.content.0.value|truncatewords_html:40|safe }}
+                        <div class="text">{% if blog_post.excerpt %}
+                            {{ blog_post.excerpt|safe }}{% else %}{{ blog_post.content.0.value|truncatewords_html:40|safe }}{% endif %}
                         </div>
                         <footer>
                             <p class="small tags">{% for tag in blog_post.tags %}{% if tag.term.0|lower == tag.term.0 %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
@@ -209,6 +209,11 @@
                     {% endfor %}
 
                 </ul>
+                <div class="row">
+                    <div class="col-md-12 text-right">
+                        <a href="http://blog.openpolis.it/categorie/neibilanci/" class="muted">Leggi tutti</a>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -253,7 +258,7 @@
                         <h1>Dati aperti</h1>
                         <h2>
                             I bilanci degli ultimi dieci anni di tutti i Comuni sono ora realmente pubblici. <br/>
-                            Un grande quantit&agrave; di dati grezzi e ufficiali in formati leggibili da computer e liberamente riusabili, pronti per essere scaricati da cittadini, media e ricercatori.<br>
+                            Una grande quantit&agrave; di dati grezzi e ufficiali in formati leggibili da computer e liberamente riusabili, pronti per essere scaricati da cittadini, media e ricercatori.<br>
                         </h2>
                     </div>
                 </div>

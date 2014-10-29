@@ -3,7 +3,7 @@
  */
 function (doc) {
         var considered_keys= [ "consuntivo", "preventivo" ];
-        var considered_quadro=['01','02','03','04','05','06'];
+        var considered_quadro=['01','02','03','04','05','06','09'];
         var tipo_bilancio = considered_keys[0];
             if(doc!==null){
                 	  if(tipo_bilancio in doc){

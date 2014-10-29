@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
-{% load classifiche_parameter_list %}
 {% load classifiche_incarichi_politici %}
 {% load digg_paginator %}
 {% load section_title %}
 {% load section_values_type %}
 {% load italianize %}
+{% load popover_info %}
 
 {% block page_title %}
     Classifiche per {{ selected_parameter_name }}
@@ -15,31 +15,15 @@
 {% block content %}
 
     <div class="panel-heading">
-        <!-- AddThis Button BEGIN -->
-        {% if share_url %}
-            <div class="pull-right">
-                <span style="text-transform: uppercase; font-size: 13px;">Condividi</span>
-
-                <!-- AddThis Button BEGIN -->
-                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                     <strong>la tua classifica</strong> <span class="icon sprite-share"></span>
-                </a>
-                <script type="text/javascript">
-                    var addthis_config = {"data_track_addressbar":false   };
-                    var addthis_share =
-                    {
-                        "url":"{{ share_url|safe }}"
-                    }
-                </script>
-                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-                <!-- AddThis Button END -->
-            </div>
-
-        {% endif %}
-
-        <!-- AddThis Button END -->
         <h1 class="panel-title">CLASSIFICHE</h1>
     </div>
+
+    <!-- start _hierarchical_control_bar -->
+    <div class="panel-body" id="classifiche-menu">
+        {% include 'bilanci/_hierarchical_control_bar.html' with page_type='classifiche' share_label='la tua classifica' %}
+    </div>
+    <!-- /_hierarchical_control_bar -->
+
 
     <div class="panel-body">
         <hr class="no-border">
@@ -53,45 +37,29 @@
                 </div>
 
                 <div id="results" class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-9">
                         <div class="panel panel-default">
-                            <div class="panel-heading clearfix">
 
-                                {# parameter name / type #}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True hide_icon=True%}
-                                        <h4 class="panel-title pull-left">
-                                            {% if selected_par_type == 'indicatori' %}
-                                                INDICATORE
-                                            {% else %}
-                                                {{ selected_par_type|upper }}
-                                            {% endif %}
-                                        </h4>
+                            {#    heading#}
+                            <div class="panel-heading noeight2 clearfix">
+                                <div class="row classifiche">
+                                    <div class="col-md-3">
+                                        <h3 class="panel-title pull-left">
+                                            CLASSIFICA {{ selected_year }}
+                                        </h3>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <h4 class="pull-left">
-                                                {{ selected_parameter_name|upper }}
-                                        </h4>
+                                    <div class="col-md-4 vertical-center">
+                                        {% if n_comuni > 0 %}
+                                            SELEZIONATI <strong>{{ n_comuni }}</strong> COMUNI
+                                        {% endif %}
                                     </div>
-                                </div>
-
-                                {% if selected_par_type != 'indicatori' %}
-                                    {# values type #}
-                                    <div class="row">
-                                        <div class="col-md-12" style="">
-                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <form role="" class="autosubmit" action="{% url 'classifiche-search' %}" method="get">
-                                            <div class="">
-                                             {{ territori_search_form_classifiche.territorio_id}}
+                                    <div class="col-md-5">
+                                        <form role="" class="form-inline pull-right autosubmit" action="{% url 'classifiche-search' %}" method="get" style="width:100%;">
+                                            <div class="form-group search">
+                                                 {{ territori_search_form_classifiche.territorio_id}}
                                             </div>
+
+                                            {#  hidden inputs     #}
                                             <input id="id_selected_year" name="selected_year" type="hidden" value="{{ selected_year|safe }}" />
                                             <input id="id_selected_par_type" name="selected_par_type" type="hidden" value="{{ selected_par_type|safe }}" />
                                             <input id="id_selected_parameter_id" name="selected_parameter_id" type="hidden" value="{{ selected_parameter.pk|safe }}" />
@@ -100,14 +68,36 @@
                                         </form>
                                     </div>
                                 </div>
-
                             </div>
-                            <div class="panel-body">
-                                {% if n_comuni > 0 %}
-                                    <p class="small" style="font-weight: bold;">
-                                        {{ n_comuni }} COMUNI
-                                    </p>
+                            {# / heading#}
 
+
+                            <div class="panel-body">
+
+                                {#  bilancio type, values  types #}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <span class="selection">
+                                            {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="cas_com_box pull-right">
+                                            <span class="values_type">
+                                                {% if selected_par_type == 'indicatori' %}
+                                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=False %}
+                                                {% else %}
+                                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                                                {% endif %}
+
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                {% if n_comuni > 0 %}
 
                                     <div class="pagination-wrapper clearfix">
                                         {% digg_paginator %}
@@ -145,55 +135,68 @@
                                                 <tr
                                                     {% if valore_obj.territorio.pk == highlight_territorio %} class="highlight_territorio"{% endif %}
                                                 >
-                                                    <td class="col-sm-1 rate">
-                                                        <span class="h2">
+                                                    {# position   #}
+                                                    <td class="col-md-1 col-sm-1 pos">
+                                                        <span class="h3">
+                                                            {{ valore_obj.position }}°
+
+                                                        </span>
+                                                    </td>
+                                                    {# trend #}
+                                                    <td class="col-md-1 col-sm-1 trend">
+                                                         {% spaceless %}
+
+                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
+                                                            {% if valore_obj.variazione == 0 %}
+                                                                class="icon sprite-trend-small"
+                                                            {% elif valore_obj.variazione > 0 %}
+                                                                class="icon sprite-trend-up-3-small"
+                                                            {% else  %}
+                                                                class="icon sprite-trend-down-3-small"
+                                                            {% endif %}
+                                                            >
+                                                            </span>
+                                                        {% endspaceless %}
+                                                    </td>
+
+                                                    <td class="col-md-9 col-sm-8 text">
+                                                        <div class="panel-heading clearfix">
+                                                            {# nome territorio   #}
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <h3 style="margin-top: 0;margin-bottom: 2px;font-size: 21px;line-height:18px;">
+                                                                        <a
+                                                                            {% if selected_par_type == 'indicatori' %}
+                                                                                href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'entrate' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section=selected_par_type %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'spese-funzioni' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=funzioni#{{ selected_parameter.slug }}"
+                                                                            {% elif selected_par_type == 'spese-interventi' %}
+                                                                                href="{% url 'bilanci-dettaglio' slug=valore_obj.territorio.slug section="spese" %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa&fun_int_view=interventi#{{ selected_parameter.slug }}"
+                                                                            {% endif %}
+                                                                                style="margin-bottom: 0;margin-top: 0;">
+                                                                            {{ valore_obj.territorio.denominazione }}
+                                                                        </a>
+                                                                    </h3>
+                                                                    <h4 class="dirty-fix">
+                                                                            {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
+                                                                        </h4>
+                                                                </div>
+                                                            </div>
+
+                                                            {% classifiche_incarichi_politici valore_obj %}
+                                                        </div>
+                                                    </td>
+                                                    {# valore parametro #}
+                                                    <td class="col-md-1 col-sm-2 rate">
+                                                        <p class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
                                                                 {{ valore_obj.valore|italianize }}%
                                                             {% else %}
                                                                 &euro;&nbsp;{{ valore_obj.valore|italianize }}
                                                             {% endif %}
-                                                        </span>
-                                                    </td>
-                                                    <td class="col-sm-9 text">
-                                                        <h4>
-                                                            <a
-                                                                {% if selected_par_type == 'indicatori' %}
-                                                                    href="{% url 'bilanci-indicatori' slug=valore_obj.territorio.slug %}?slug={{ selected_parameter.slug }}"
-                                                                {% elif selected_par_type == 'entrate' %}
-                                                                    href="{% url 'bilanci-entrate' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
-                                                                {% else %}
-                                                                    href="{% url 'bilanci-spese' slug=valore_obj.territorio.slug %}?year={{ selected_year }}&type=consuntivo&values_type=real&cas_com_type=cassa#{{ selected_parameter.slug }}"
-                                                                {% endif %}
-                                                                    >
-                                                                {{ valore_obj.territorio.denominazione }}
-                                                            </a>
-                                                        </h4>
-
-                                                        <p>{{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}</p>
-
-                                                        <div class="media" style="font-size: 13px;">
-                                                            {% classifiche_incarichi_politici valore_obj %}
-                                                        </div>
-
-                                                    </td>
-                                                    <td class="col-sm-1 pos">
-                                                        <span class="h3">{{ valore_obj.position }}°</span>
-                                                    </td>
-
-                                                    <td class="col-sm-1 trend">
-                                                        {% spaceless %}
-                                                            <span title="{% if valore_obj.variazione == 0 %}Mantiene la posizione dell'anno precedente{% else %}Era al {{ valore_obj.prev_position }}° posto l'anno precedente{% endif %}"
-                                                            {% if valore_obj.variazione == 0 %}
-                                                                class="icon sprite-trend"
-                                                            {% elif valore_obj.variazione > 0 %}
-                                                                class="icon sprite-trend-up-3"
-                                                            {% else  %}
-                                                                class="icon sprite-trend-down-3"
-                                                            {% endif %}
-                                                            >
-                                                            </span>
-                                                        {% endspaceless %}
-
+                                                        </p>
                                                     </td>
                                                 </tr>
                                              {% endfor %}
@@ -216,9 +219,10 @@
                         </div>  <!-- /panel panel-default -->
                     </div> <!-- /col-md8 -->
 
-                {#  classifiche filters   #}
-
-                {% include 'bilanci/classifiche_filters.html' %}
+                    {#  classifiche filters   #}
+                    <aside id="filters" class="col-md-3">
+                        {% include 'bilanci/_classifiche_filters.html' %}
+                    </aside> <!-- /#filters -->
 
                 </div> <!-- /results row -->
 
@@ -227,56 +231,19 @@
                 {% endblock %}
             </div>
 
-            {# menu handle is hidden on pageload   #}
-            <div id="side-controls" style="display: block; left: -50px; top: 343px;">
-                <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>
-            </div>
-
-            {# comparison list menu  #}
-            <aside id="sidebar" class="classifiche_parameter_container hidden">
-                <form id="parameter-list-form"  method="get">
-                    <div class="panel panel-default" id="side-menu">
-                        <div class="panel-body" id="classifiche_parameter_container">
-
-                            <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
-
-                            <h3 class="menu-title" style="margin-bottom:20px;">
-                                Seleziona
-                            </h3>
-                            <div class="dropdown" >
-
-                                <select id="classifiche-dropdown" class="parameter-dropdown">
-                                    <option value="indicatori">INDICATORI</option>
-                                    <option value="entrate">ENTRATE</option>
-                                    <option value="spese">SPESE</option>
-                                </select>
-                                <div class="separator"></div>
-
-                                {% classifiche_parameter_list 'indicatori' indicator_list selected_par_type selected_parameter.slug selected_year %}
-                                {% classifiche_parameter_list 'entrate' entrate_list selected_par_type selected_parameter.slug selected_year %}
-                                {% classifiche_parameter_list 'spese' spese_list selected_par_type selected_parameter.slug selected_year %}
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </aside>
-
+        {# parameter hierarchical menu #}
+        {% include 'bilanci/_hierarchical_menu.html' with page_type='classifiche' parameter_list=parameter_list selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
 
         </div> <!-- ./row -->
-
-
     </div><!-- /.panel-body -->
 {% endblock %}
 
 
-
 {% block extra_js %}
-
 
     <!-- visup js -->
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/yr_selector_utils.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/classifiche_utils.js' %}" type="text/javascript"></script>
 
@@ -308,6 +275,14 @@
                 goToClassByScroll('highlight_territorio');
             }
 
+            {#  binds link "clicca qui per vedere gli incarichi" with show/hide incarichi list   #}
+            jQuery('.incarichi-attivi-link').on('click', function(event) {
+                 event.preventDefault();
+                //show / hides the incarichi container for the right element
+                var element_id = event.target.id;
+                jQuery('#'.concat(element_id.replace("incarichi-link-", "incarichi-list-"))).animate({height: 'toggle'});
+            });
+
 
 
         });
@@ -319,9 +294,7 @@
 
 {% block extra_css %}
 {#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/visup/style.css' %}" media="screen" rel="stylesheet" type="text/css" />
     <link href="{% static 'css/digg_paginator.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}

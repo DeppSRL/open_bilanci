@@ -13,6 +13,8 @@ env = environ.Env(
 )
 env.read_env(root('.env'))
 
+########## INSTANCE TYPE: production | staging | development | test
+INSTANCE_TYPE = env.str('INSTANCE_TYPE')
 
 ########## PATH CONFIGURATION
 REPO_ROOT = root()
@@ -25,13 +27,13 @@ path.append(PROJECT_ROOT)
 # Site name:
 SITE_ROOT = root('bilanci_project/bilanci')
 SITE_NAME = basename(SITE_ROOT)
-SITE_VERSION = 'alpha'
+SITE_VERSION = 'beta'
 ########## END PATH CONFIGURATION
 
 
 ########## DEBUG CONFIGURATION
-DEBUG = env('DEBUG')
-TEMPLATE_DEBUG = DEBUG
+DEBUG = env.bool('DEBUG',False)
+TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', False)
 ########## END DEBUG CONFIGURATION
 
 
@@ -162,6 +164,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bilanci.middlewares.PrivateBetaMiddleware',
+    'bilanci.middlewares.ComuniServicesMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 
@@ -181,6 +184,7 @@ DJANGO_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
 
     # Useful template tags:
     'django.contrib.humanize',
@@ -209,6 +213,7 @@ THIRD_PARTY_APPS = (
 LOCAL_APPS = (
     'bilanci',
     'territori',
+    'services',
     'idioticon',
     'shorturls',
 )
@@ -328,7 +333,8 @@ GDOC_KEYS= {
     'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
     'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
-    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY')
+    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY'),
+    'bilancio_consuntivo_2013':env('GDOC_BILANCIO_CONSUNTIVO_2013')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -403,6 +409,14 @@ APP_END_DATE_STR = "2013-12-31"
 APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
 APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 
+CAPOLUOGHI_PROVINCIA = [u'5190010010', u'1010020030', u'3110030020', u'4160090050', u'1020040030', u'3090050020', u'ASCOLI-PICENO--3110060070', u'1010070050', u'4150080080', u'4160090060', u'4160090070', u'2050100060', u'4150110080', u'1030120240', u'1010960040', u'2080130060', u'2040140050', u'1030150260', u'4160160010', u'5200170090',
+                        u'5190180040', u'4140190060', u'5200170120', u'4150200220', u'5190210150', u'4180220220', u'4130230220', u'1030240720', u'4180250460', u'1030260350', u'4180970100', u'1010270780', u'5190280090', u'3110060190', u'2080290080', u'3090300170', u'4160310230', u'2080320110', u'3120330380', u'1070340250',
+                        u'2060350070', u'3090360100', u'5200170330', u'1070370290', u'4140940230', u'5200530350', u'L-AQUILA--4130380490', u'LA-SPEZIA--1070390150', u'3120400110', u'4160410340', u'1030980420', u'3090420090', u'1030990310', u'3090430170', u'3110440230', u'1030450300', u'3090460100', u'4170470140', u'5190480470', u'1030491450',
+                        u'2080500230', u'1030491480', u'4150510490', u'1010521000', u'5200530490', u'5200730470', u'5200950380', u'2050540600', u'5190550510', u'2080560270', u'1030571070', u'3100580390', u'3110590440', u'4130600280', u'2080610320', u'3090620250', u'3090630140', u'2060930330', u'4170640620', u'3091000050',
+                        u'5190650090', u'2080660140', u'REGGIO-DI-CALABRIA--4180670630', u'REGGIO-NELL-EMILIA--2080680330', u'3120690570', u'2081010140', u'3120700900', u'2050710410', u'4150721160', u'5200170570', u'5200730620', u'1070740560', u'3090750320', u'5190760170', u'1030770610', u'4160780270', u'TEMPIO-PAUSANIA--5200730680', u'4130790400', u'3100800320', u'1010812620',
+                        u'5200530920', u'4160090440', u'5190820210', u'2040831940', u'2050840850', u'2060920060', u'2060851290', u'3110590670', u'1030861160', u'2050870420', u'1011020720', u'1010881560', u'2050890900', u'VIBO-VALENTIA--4181030470', u'2050901160', u'5200170920', u'3120910580'
+                        ]
+
 ##
 # BILANCIO GRAPHS VARIABLES:
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
@@ -467,6 +481,8 @@ TINYMCE_DEFAULT_CONFIG = {'theme': "advanced", 'relative_urls': False}
 # voce bilancio slugs of funzioni sum branches
 PREVENTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'preventivo-spese-spese-somma-funzioni'
 CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzioni'
+CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-per-investimenti-interventi'
+CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-correnti-interventi'
 
 CLASSIFICHE_PAGINATE_BY = 15
 EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')

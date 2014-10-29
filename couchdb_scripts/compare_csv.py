@@ -10,8 +10,8 @@ from settings_local import *
 # gdrive file comes from google drive doc
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='Compare couchdb-generated csv and google drive csv')
 
+    parser = argparse.ArgumentParser(description='Compare couchdb-generated csv and google drive csv')
 
     parser.add_argument('--couch','-c', dest='couch_filename', action='store',
                default='',
@@ -27,7 +27,6 @@ def main(argv):
 
 
     args = parser.parse_args()
-
 
     input_files = {
         'couch':{
@@ -117,20 +116,6 @@ def main(argv):
             c +=1
 
     logging.warning("Missing {0} lines from couch".format(c))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,0 +1,37 @@
+{% load popover_info %}
+
+{#<aside id="sidebar" class="hidden dropdown-menu">#}
+<aside id="sidebar" class=" dropdown-menu">
+    <form id="parameter-list-form"  method="get" >
+        <div class="panel panel-default" id="side-menu">
+            <div class="panel-body">
+
+                {% for parameter in parameter_list %}
+                    <div class="row">
+                        <div class="col-sm-1">
+                            <input type="checkbox" value="{{ parameter.slug }}" name="slug" id="{{ parameter.slug }}"
+                            {% if parameter.slug in selected_parameters %}
+                                checked="checked"
+                            {% endif %}
+                            >
+                        </div>
+                        <div class="col-sm-9">
+                            <label for="{{ parameter.slug }}">
+                                {{ parameter.denominazione }}
+                            </label>
+                        </div>
+                        <div class="col-sm-1">
+                            {% popover_info parameter.slug %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <ul class="list-group">
+                    <li class="list-group-item text-center">
+                        <input type='submit' class="btn btn-blu" value="aggiorna" id="indicatori-submit-button">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</aside><!-- /#sidebar -->

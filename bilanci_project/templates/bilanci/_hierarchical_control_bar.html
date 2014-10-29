@@ -1,0 +1,55 @@
+{% load popover_info %}
+{# adds control bar with button, hierarchical menu, share button #}
+
+<div id="hcb">
+    <div class="row">
+        <div class="col-md-12"><hr class="gray-border-top-condividi"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+            <div class="btn-group ">
+                <button id="open-settings" type="button" class="btn btn-ob dropdown-toggle" data-toggle="dropdown">
+                <span class="pull-left">SCEGLI</span><span class="fa fa-angle-down pull-right"></span>
+                </button>
+
+                {% include 'bilanci/_hierarchical_menu.html' with page_type=page_type parameter_list=parameter_list territorio_1_slug=territorio_1.slug territorio_2_slug=territorio_2.slug selected_par_type=selected_par_type selected_parameter_slug=selected_parameter.slug %}
+           </div>
+        </div>
+        <div class="col-md-6 gTitle parameter_name">
+            <div>
+                {% if page_type == 'confronti' %}
+                    CONFRONTO SU:
+                {% elif page_type == 'classifiche' %}
+                    CLASSIFICA:
+                {% endif %}
+
+                <span class="selection">
+                    {% if selected_par_type == 'spese-funzioni' %}
+                        SPESE PER FUNZIONI
+                    {% elif selected_par_type == 'spese-interventi' %}
+                        SPESE PER INTERVENTI
+                    {% else %}
+                        {{ selected_par_type|upper }}
+                    {% endif %}
+                    >
+
+                    {{ selected_parameter_name|upper }}
+                </span>
+                {#  tooltip #}
+                {% popover_info parameter_slug %}
+            </div>
+        </div>
+        <div class="col-md-4 share_button">
+            {% if share_url %}
+                {% include 'bilanci/_share_button.html' with share_label=share_label %}
+            {% endif %}
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+           <hr style="border-top: 1px solid #b9c5c4;margin-bottom: 0; margin-top: 8px;">
+        </div>
+    </div>
+</div>

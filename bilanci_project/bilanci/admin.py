@@ -1,6 +1,6 @@
 from django.contrib import admin
 from treeadmin.admin import TreeAdmin
-from .models import Voce, ValoreBilancio, Indicatore
+from .models import Voce, CodiceVoce, Indicatore
 
 class VoceAdmin(TreeAdmin):
     model = Voce
@@ -11,6 +11,9 @@ class VoceAdmin(TreeAdmin):
 class IndicatoreAdmin(admin.ModelAdmin):
     pass
 
+class CodiceVoceAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.register(Voce, VoceAdmin)
+admin.site.register(CodiceVoce, CodiceVoceAdmin)
 admin.site.register(Indicatore, IndicatoreAdmin)

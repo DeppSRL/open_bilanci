@@ -9,26 +9,11 @@
 {% block content %}
 
     <div class="panel-heading">
-        <!-- AddThis Button BEGIN -->
-        <div class="pull-right share-box">
-            <span>Condividi</span>
-
-            {% block share_box %}
-            <a class="share addthis_button disabled" href="javascript:void(0);">
-                 <strong>i tuoi confronti</strong> <span class="fa fa-share-alt"></span>
-            </a>
-            {% endblock %}
-        </div>
 
         <h1 class="panel-title">CONFRONTI</h1>
     </div>
 
     <div class="panel-body">
-        {% block confronti_parameter_menu_toggle %}
-        {% endblock %}
-
-        <hr class="no-border">
-
         <div class="row">
             <div id="content" class="col-sm-12">
                 <div id="comparison" class="panel panel-default">
@@ -58,26 +43,35 @@
                                     </a>
                                 </div>
                             </div>
-                            {#       error message box #}
-                            <div class="col-sm-12 hidden" id="error_msg_box">
+                        </div>
+                        {#       error message box #}
+                        <div class="row hidden" id="error_msg_box">
+                            <div class="col-md-1">
                                 <p id="log" class="error">
-                                    <span class="icon sprite-status"></span><span id="error_msg_box_txt"></span>
+                                    <span class="icon sprite-status"></span>
                                 </p>
                             </div>
+                            <div class="col-md-11">
+                                <span id="error_msg_box_txt"></span>
+                            </div>
                         </div>
+
+
                     </div>
-                </div> <!-- /panel panel-default -->
-                {% block results %}
+                </div><!-- /panel panel-default -->
+            </div><!-- /panel row-->
+        </div>
+      {# block confronti description contains the settings button and the description of the comparison parameter   #}
+      {% block confronti_description %}{% endblock %}
 
-                {% endblock %}
-            </div>
-
-            {% block confronti_parameter_menu %}{% endblock %}
-
-        </div> <!-- ./row -->
+        <div class="row">
 
 
-    </div><!-- /.panel-body -->
+            {% block results %}
+
+            {% endblock %}
+        </div>
+
 {% endblock %}
 
 {% block extra_js %}

@@ -6,9 +6,7 @@
 
 {% block extra_css %}
     {#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/visup/style.css' %}" media="screen" rel="stylesheet" type="text/css" />
     {#    <!-- / visup css-->#}
 {% endblock %}
 
@@ -16,182 +14,168 @@
 {% block content %}
 
     {# header block with Comune name, inhabitants and share button    #}
+
+    {# NOTE:  bilancio-header cannot have ROW / Col-md-X classes because that interferes with the affix functionalities #}
     <div class="panel-heading">
         <div id="bilancio-header">
-
-            <!-- AddThis Button BEGIN -->
-            <div class="pull-right share-box">
+            <div class="pull-right download-box">
                 {% if csv_package_file %}
-                <span>Scarica i dati</span>
-                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" class="share" title="{{ csv_package_file.file_size|filesizeformat }}"><strong>CSV</strong> <span class="fa fa-download"></span></a>
-{#                    <a href="javascript:void(0);" class="share disabled"><strong>JSON</strong> <span class="fa fa-download"></span></a>#}
-                &nbsp;|&nbsp;
+                    <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+                       class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
                 {% endif %}
-
-                <span>Condividi</span>
-
-                <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-                     <strong>il bilancio</strong> <span class="fa fa-share-alt"></span>
-                </a>
-                <script type="text/javascript">
-                    var addthis_config = {"data_track_addressbar":false   };
-                    var addthis_share =
-                    {
-                        "url":"{{ share_url|safe }}"
-                    }
-                </script>
-                <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-                <!-- AddThis Button END -->
             </div>
 
-            <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+            {% if request.servizi_comuni  %}
+                {% include 'services/_comune_name.html' %}
+            {% else %}
+                <h1 class="panel-title" style="text-transform: uppercase;">
+                    {{territorio.denominazione}}
+                </h1>
+            {% endif %}
+
             <p class="details">
-                <span class="location">
-                    {{ territorio.prov|default:"" }},
-                    {{ territorio.regione|default_if_none:""|title }}
-                </span>
-                {% if selected_year %}
-                <span class="year">
-                    <span class="label label-warning">{{ selected_year }}</span>
-                    {{ selected_bilancio_type }}
-                </span>
+                {% if not request.servizi_comuni %}
+                    <span class="inhabitants">
+                        {% if comune_context.bil_popolazione_residente %}
+                            {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                        {% endif %}
+                    </span>
                 {% endif %}
-                <span style="padding-left: 6px;" class="inhabitants">
-                    {% if comune_context.bil_popolazione_residente %}
-                        {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
-                    {% endif %}
-                </span>
+
+                {#   affix menu#}
+                {% if selected_year %}
+                    <span class="year">
+                        <span class="label label-warning">{{ selected_year }}</span>
+                        {{ selected_bilancio_type }}
+                    </span>
+                {% endif %}
+
+                {% if not request.servizi_comuni %}
+                    <span style="padding-left: 6px;" class="location">
+                        {{ territorio.prov|default:"" }}<span class="region">,</span>
+                        <span class="region">
+                            {{ territorio.regione|default_if_none:""|title }}
+                        </span>
+                    </span>
+                {% endif %}
             </p>
 
+            <span id="affix-breadcrumbs" class="affix-only">
+                {#                AFFIX BREADCRUMBS#}
+                 {% if selected_section == 'indicatori' %}
+                    {{ selected_section|upper }}
+                {% elif selected_section == 'overview' %}
+                    BILANCIO › OVERVIEW
+                {% else %}
+                    BILANCIO › {{ selected_section|upper }} › {{ selected_subsection|upper }}
+                {% endif %}
+
+                {% if selected_section != 'indicatori' %}
+                    -
+                    {{ tipo_bilancio|upper }} {{ selected_year }}
+                {% endif %}
+
+            </span>
+
+            {#  navbar #}
+
             {% block bilanci_navigation_menu %}
-                {% include 'bilanci/_navigation_menu.html' with active_voice=selected_section %}
+                {% include 'bilanci/_navigation_menu.html' with selected_section=selected_section %}
             {% endblock %}
-
         </div>
-    </div>
-    
-    <div class="panel-body">
 
-        <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
 
-        <hr class="no-border">
-
-        {% if selected_section == 'bilancio' %}
-            {#            sindaci timeline for bilancio overview #}
-            <div class="row" xmlns="http://www.w3.org/1999/html">
-                <div class="col-md-11 " style="margin-left: 30px; padding-right: 70px;">
-                    {% include 'commons/_lines_chart_over_the_years.html' %}
+        {# breadcrumbs   #}
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bread">
+                    <p>Sei in:</p>
+                    <ol class="breadcrumb">
+                        {% if selected_section == 'indicatori' %}
+                            <li>{{ selected_section }}</li>
+                        {% elif selected_section == 'overview' %}
+                            <li>Bilancio › Overview </li>
+                        {% else %}
+                            <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
+                        {% endif %}
+                    </ol>
                 </div>
             </div>
-        {% endif %}
+        </div>
+        {# /breadcrumbs   #}
 
-        <div class="row">
-            <div id="content" class="col-sm-12">
 
-                {# year selector widget #}
-                {% block year_selector %}
+        {# page subtitle: bilancio / entrate /spese/ indicatori  #}
+        <div class="row page-subtitle">
+            <div class="col-md-8">
+                <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+            </div>
+            <div class="col-md-4 share-box">
+                {% include "bilanci/_share_button.html" %}
+            </div>
+        </div>
+
+        {% block year_selector %}
+            <div class="row">
+                <div class="col-md-12">
+                    <hr class="gray-border-top">
+                </div>
+            </div>
+            {# year selector widget #}
+            <div class="row">
+                <div class="col-md-12">
                     <div class="row timeline">
                         <div class="col-sm-12">
                             <div class="year-selector"></div>
                         </div>
                     </div>
-                {% endblock %}
-
-            <div id="results" class="row">
-                <div class="col-sm-12">
-                    {% block bilanci_content %}
-
-                    {% endblock %}
                 </div>
-            </div>
-        </div>
-
-
-        {#  here goes the Menu for bilanci-indicatori page       #}
-        {% block bilancio_settings_menu %}
-            <div id="side-controls">
-                <a href="#" role="button" class="slider-arrow show" id="open-settings"><span class="icon sprite-open-menu"></span></a>
-            </div>
-            <div id="settings" class="closed">
-                <form id="settings-list-form" method="get">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <a href="#" role="button" href="#" class="pull-right slider-arrow close" id="hide-settings"><span class="icon sprite-close-menu"></span></a>
-                            <h3 class="panel-title">Impostazioni</h3>
-                            <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
-                            <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
-                        </div>
-                        <ul class="list-group">
-                            <li class="list-group-item label">MOSTRA PER</li>
-                            <li class="list-group-item">
-                                <div class="row">
-
-                                    {# if bilancio_type is preventivo disables cassa/competenza selection menu    #}
-                                    {% if selected_bilancio_type == "preventivo" %}
-
-                                        <div class="col-md-6">
-                                            <input type="radio" value="cassa" id="cas_com_type_cassa" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_cassa" style="color:#d3d3d3">Cassa {% popover_info 'cassa' %}</label>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <input type="radio" value="competenza" id="cas_com_type_competenza" name="cas_com_type" disabled />
-                                            <label for="cas_com_type_competenza" style="color:#d3d3d3">Competenza {% popover_info 'competenza' %}</label>
-                                        </div>
-
-                                        {% else %}
-
-                                            <div class="col-md-6">
-                                                <input type="radio" value="cassa"
-                                                       {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
-                                                       id="cas_com_type_cassa" name="cas_com_type">
-                                                <label for="cas_com_type_cassa" >Cassa {% popover_info 'cassa' %}</label>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <input type="radio" value="competenza"
-                                                       {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
-                                                       id="cas_com_type_competenza" name="cas_com_type">
-                                                <label for="cas_com_type_competenza">Competenza {% popover_info 'compentenza' %}</label>
-                                            </div>
-
-                                    {% endif %}
-                                </div>
-                            </li>
-                        </ul>
-                        <ul class="list-group">
-                            <li class="list-group-item label">VALORI</li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <input type="radio" value="real"
-                                               {% if values_type == "real" %}checked="checked"{% endif %}
-                                               id="values_type_real" name="values_type">
-                                        <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="radio" value="nominal"
-                                               {% if values_type == "nominal" %}checked="checked"{% endif %}
-                                               id="values_type_nominal" name="values_type">
-                                        <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="panel-footer text-center">
-                            <input type="submit" class="btn btn-default" value="Aggiorna">
-                        </div>
-
-                    </div>
-                </form>
             </div>
         {% endblock %}
 
-        {% block bilancio_indicatori_selection_menu %}{% endblock %}
+        <div class="row">
+            <div class="col-md-12">
+                <hr class="gray-border-top">
+            </div>
         </div>
 
-        {#  here goes the handle for Menu for bilanci-indicatori page       #}
-        {% block bilancio_indicatori_selection_toggle_menu %}{% endblock %}
+        {# control row for bilancio: description "Consuntivo 2012 dettaglio" , values_type and control button #}
+        <div class="row" style="margin-bottom: 10px;">
 
+             {#    description #}
+            {% block bilancio_description %}
 
+            {% endblock %}
+
+            {# values types + control button "CAMBIA"  #}
+            <div class="col-md-5">
+                {% block bilancio_controls %}
+
+                {% endblock %}
+
+            </div>
+            {% block bilancio_indicatori_selection_menu %}{% endblock %}
+        </div>
+        {#  /control row          #}
+
+        <div class="row">
+            <div class="col-md-12">
+                <hr class="gray-border-bot">
+            </div>
+        </div>
+        {#   / bilancio info data           #}
+    </div>
+    
+    <div class="panel-body">
+        <div class="row">
+            <div id="content" class="col-sm-12">
+
+                {% block bilanci_content %}
+
+                {% endblock %}
+
+            </div>
+        </div>
 
     </div>
 
@@ -207,19 +191,25 @@
 
     <script>
         $(document).ready(function(){
-            var $this = $('#bilancio-header');
+            var bilancio_header = $('#bilancio-header');
+            var navbar_top = $('.navbar.navbar-subnav').offset().top;
+            var footer_height = 388;
+
             // fix container height
-            $this.css('width', $this.width());
-            $this.parent().css('min-height', $this.height());
+            bilancio_header.css('width', bilancio_header.width());
+            bilancio_header.parent().css('min-height', bilancio_header.height());
             // set affix dynamic offset
-            $this.affix({
-                  offset: {
-                    top: $this.offset().top
-                  }
+
+            bilancio_header.affix({
+                offset: {
+                  top: navbar_top,
+                  bottom: footer_height
+                }
             });
+
             $( window ).resize(function() {
-              $this.css('width', $this.parent().width());
-                $this.parent().css('min-height', $this.height());
+              bilancio_header.css('width', bilancio_header.parent().width());
+                bilancio_header.parent().css('min-height', bilancio_header.height());
             });
         });
     </script>

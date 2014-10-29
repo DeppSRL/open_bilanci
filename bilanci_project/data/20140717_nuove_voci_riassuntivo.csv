@@ -1,0 +1,114 @@
+slug,denominazione,slug_parent
+preventivo-entrate-avanzo-di-amministrazione,Avanzo di amministrazione,preventivo-entrate
+preventivo-spese-disavanzo-di-amministrazione,Disavanzo di amministrazione,preventivo-spese
+preventivo-entrate-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-emissione-di-prestiti-obbligazionari,Emissione di prestiti obbligazionari,preventivo-entrate-prestiti
+preventivo-entrate-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,preventivo-entrate-prestiti
+preventivo-spese-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,preventivo-spese-prestiti
+preventivo-spese-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,preventivo-spese-prestiti
+preventivo-spese-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,preventivo-spese-prestiti
+preventivo-spese-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,preventivo-spese-prestiti
+preventivo-spese-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,preventivo-spese-prestiti
+preventivo-spese-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,preventivo-spese-spese-per-investimenti-interventi
+consuntivo-entrate-accertamenti-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-entrate-accertamenti-prestiti
+consuntivo-entrate-accertamenti-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-entrate-accertamenti-prestiti
+consuntivo-entrate-accertamenti-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,consuntivo-entrate-accertamenti-prestiti
+consuntivo-entrate-accertamenti-prestiti-emissioni-di-prestiti-obbligazionari,Emissioni di prestiti obbligazionari,consuntivo-entrate-accertamenti-prestiti
+consuntivo-entrate-riscossioni-in-conto-competenza-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-entrate-riscossioni-in-conto-competenza-prestiti
+consuntivo-entrate-riscossioni-in-conto-competenza-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-entrate-riscossioni-in-conto-competenza-prestiti
+consuntivo-entrate-riscossioni-in-conto-competenza-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,consuntivo-entrate-riscossioni-in-conto-competenza-prestiti
+consuntivo-entrate-riscossioni-in-conto-competenza-prestiti-emissioni-di-prestiti-obbligazionari,Emissioni di prestiti obbligazionari,consuntivo-entrate-riscossioni-in-conto-competenza-prestiti
+consuntivo-entrate-riscossioni-in-conto-residui-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-entrate-riscossioni-in-conto-residui-prestiti
+consuntivo-entrate-riscossioni-in-conto-residui-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-entrate-riscossioni-in-conto-residui-prestiti
+consuntivo-entrate-riscossioni-in-conto-residui-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,consuntivo-entrate-riscossioni-in-conto-residui-prestiti
+consuntivo-entrate-riscossioni-in-conto-residui-prestiti-emissioni-di-prestiti-obbligazionari,Emissioni di prestiti obbligazionari,consuntivo-entrate-riscossioni-in-conto-residui-prestiti
+consuntivo-entrate-cassa-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-entrate-cassa-prestiti
+consuntivo-entrate-cassa-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-entrate-cassa-prestiti
+consuntivo-entrate-cassa-prestiti-assunzioni-di-mutui-e-prestiti,Assunzioni di mutui e prestiti,consuntivo-entrate-cassa-prestiti
+consuntivo-entrate-cassa-prestiti-emissioni-di-prestiti-obbligazionari,Emissioni di prestiti obbligazionari,consuntivo-entrate-cassa-prestiti
+consuntivo-spese-cassa-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-spese-cassa-prestiti
+consuntivo-spese-cassa-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-spese-cassa-prestiti
+consuntivo-spese-cassa-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,consuntivo-spese-cassa-prestiti
+consuntivo-spese-cassa-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,consuntivo-spese-cassa-prestiti
+consuntivo-spese-cassa-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,consuntivo-spese-cassa-prestiti
+consuntivo-spese-cassa-prestiti-quota-capitale-per-estinzione-anticipata-di-prestiti,Quota capitale per estinzione anticipata di prestiti,consuntivo-spese-cassa-prestiti
+consuntivo-spese-impegni-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-spese-impegni-prestiti
+consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-spese-impegni-prestiti
+consuntivo-spese-impegni-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,consuntivo-spese-impegni-prestiti
+consuntivo-spese-impegni-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,consuntivo-spese-impegni-prestiti
+consuntivo-spese-impegni-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,consuntivo-spese-impegni-prestiti
+consuntivo-spese-impegni-prestiti-quota-capitale-per-estinzione-anticipata-di-prestiti,Quota capitale per estinzione anticipata di prestiti,consuntivo-spese-impegni-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-competenza-prestiti-quota-capitale-per-estinzione-anticipata-di-prestiti,Quota capitale per estinzione anticipata di prestiti,consuntivo-spese-pagamenti-in-conto-competenza-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-anticipazioni-di-cassa,Anticipazioni di cassa,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-finanziamenti-a-breve-termine,Finanziamenti a breve termine,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-quota-capitale-di-mutui-e-prestiti,Quota capitale di mutui e prestiti,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-prestiti-obbligazionari,Prestiti obbligazionari,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-quota-capitale-di-debiti-pluriennali,Quota capitale di debiti pluriennali,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-pagamenti-in-conto-residui-prestiti-quota-capitale-per-estinzione-anticipata-di-prestiti,Quota capitale per estinzione anticipata di prestiti,consuntivo-spese-pagamenti-in-conto-residui-prestiti
+consuntivo-spese-impegni-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,consuntivo-spese-impegni-spese-per-investimenti-interventi
+consuntivo-spese-pagamenti-in-conto-competenza-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,consuntivo-spese-pagamenti-in-conto-competenza-spese-per-investimenti-interventi
+consuntivo-spese-pagamenti-in-conto-residui-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,consuntivo-spese-pagamenti-in-conto-residui-spese-per-investimenti-interventi
+consuntivo-spese-cassa-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni,Concessioni di crediti e anticipazioni,consuntivo-spese-cassa-spese-per-investimenti-interventi
+consuntivo-riassuntivo,RIASSUNTIVO,consuntivo
+consuntivo-riassuntivo-gestione-finanziaria,Gestione finanziaria,consuntivo-riassuntivo
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui,Gestione residui,consuntivo-riassuntivo-gestione-finanziaria
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza,Gestione competenza,consuntivo-riassuntivo-gestione-finanziaria
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale,Gestione totale,consuntivo-riassuntivo-gestione-finanziaria
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-fondo-di-cassa-al-1°-gennaio,Fondo di cassa al 1° gennaio,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-riscossioni,Riscossioni,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-pagamenti,Pagamenti,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-fondo-di-cassa-al-31-dicembre,Fondo di cassa al 31 dicembre,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-pagamenti-per-azioni-esecutive-non-regolarizzate-al-31.12,Pagamenti per azioni esecutive non regolarizzate al 31.12,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-differenza,Differenza,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-residui-attivi,Residui attivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-residui-passivi,Residui passivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-residui-risultato-di-amministrazione,Risultato di amministrazione = (6+7-8),consuntivo-riassuntivo-gestione-finanziaria-gestione-residui
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-fondo-di-cassa-al-1°-gennaio,Fondo di cassa al 1° gennaio,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-riscossioni,Riscossioni,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-pagamenti,Pagamenti,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-fondo-di-cassa-al-31-dicembre,Fondo di cassa al 31 dicembre,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-pagamenti-per-azioni-esecutive-non-regolarizzate-al-31.12,Pagamenti per azioni esecutive non regolarizzate al 31.12,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-differenza,Differenza,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-residui-attivi,Residui attivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-residui-passivi,Residui passivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-risultato-di-amministrazione,Risultato di amministrazione = (6+7-8),consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-fondo-di-cassa-al-1°-gennaio,Fondo di cassa al 1° gennaio,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-riscossioni,Riscossioni,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-pagamenti,Pagamenti,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-fondo-di-cassa-al-31-dicembre,Fondo di cassa al 31 dicembre,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-pagamenti-per-azioni-esecutive-non-regolarizzate-al-31.12,Pagamenti per azioni esecutive non regolarizzate al 31.12,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-differenza,Differenza,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-residui-attivi,Residui attivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-residui-passivi,Residui passivi,consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione,Risultato di amministrazione = (6+7-8),consuntivo-riassuntivo-gestione-finanziaria-gestione-totale
+consuntivo-riassuntivo-risultato-di-amministrazione,Risultato di amministrazione,consuntivo-riassuntivo
+consuntivo-riassuntivo-risultato-di-amministrazione-vincolato,Vincolato,consuntivo-riassuntivo-risultato-di-amministrazione
+consuntivo-riassuntivo-risultato-di-amministrazione-per-spese-in-conto-capitale,Per Spese in Conto Capitale,consuntivo-riassuntivo-risultato-di-amministrazione
+consuntivo-riassuntivo-risultato-di-amministrazione-per-fondo-ammortamento,Per fondo ammortamento,consuntivo-riassuntivo-risultato-di-amministrazione
+consuntivo-riassuntivo-risultato-di-amministrazione-non-vincolato,Non vincolato,consuntivo-riassuntivo-risultato-di-amministrazione
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente,Utilizzo avanzo di amministrazione esercizio precedente,consuntivo-riassuntivo
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-reinvestimento-quote-accantonate-per-ammortamento,Reinvestimento quote accantonate per ammortamento,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-finanziamento-debiti-fuori-bilancio,Finanziamento debiti fuori bilancio,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-salvaguardia-equilibri-di-bilancio,Salvaguardia equilibri di bilancio,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-correnti-non-ripetitive,Spese correnti non ripetitive,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-correnti-in-sede-di-assestamento,Spese correnti in sede di assestamento,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-di-investimento,Spese di investimento,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-estinzione-anticipata-dei-prestiti,Estinzione anticipata dei prestiti,consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente
+consuntivo-riassuntivo-riaccertamento-dei-residui,Riaccertamento dei residui,consuntivo-riassuntivo
+consuntivo-riassuntivo-riaccertamento-dei-residui-eventuale-disavanzo-da-riaccertamento-dei-residui,Eventuale disavanzo da riaccertamento dei residui,consuntivo-riassuntivo-riaccertamento-dei-residui
+consuntivo-riassuntivo-riaccertamento-dei-residui-eventuale-disavanzo-da-riaccertamento-dei-residui-di-cui-di-parte-corrente,Eventuale disavanzo da riaccertamento dei residui di cui di parte corrente,consuntivo-riassuntivo-riaccertamento-dei-residui
+consuntivo-riassuntivo-riaccertamento-dei-residui-eventuale-disavanzo-da-riaccertamento-dei-residui-di-cui-di-parte-capitale,Eventuale disavanzo da riaccertamento dei residui di cui di parte capitale,consuntivo-riassuntivo-riaccertamento-dei-residui
+consuntivo-riassuntivo-debiti-fuori-bilancio,Debiti fuori bilancio,consuntivo-riassuntivo
+consuntivo-riassuntivo-debiti-fuori-bilancio-sentenze-esecutive,Sentenze esecutive,consuntivo-riassuntivo-debiti-fuori-bilancio
+consuntivo-riassuntivo-debiti-fuori-bilancio-copertura-di-disavanzi-di-consorzi-aziende-speciali-e-di-istituzioni,"Copertura di disavanzi di consorzi, aziende speciali e di istituzioni",consuntivo-riassuntivo-debiti-fuori-bilancio
+consuntivo-riassuntivo-debiti-fuori-bilancio-ricapitalizzazione,Ricapitalizzazione,consuntivo-riassuntivo-debiti-fuori-bilancio
+consuntivo-riassuntivo-debiti-fuori-bilancio-procedure-espropriative-o-di-occupazione-d-urgenza-per-opere-di-pubblica-utilita,Procedure espropriative o di occupazione d'urgenza per opere di pubblica utilità,consuntivo-riassuntivo-debiti-fuori-bilancio
+consuntivo-riassuntivo-debiti-fuori-bilancio-acquisizione-di-beni-e-servizi,Acquisizione di Beni e Servizi,consuntivo-riassuntivo-debiti-fuori-bilancio
+consuntivo-riassuntivo-esecuzione-forzata,Esecuzione forzata,consuntivo-riassuntivo
+consuntivo-riassuntivo-esecuzione-forzata-procedimenti-di-esecuzione-forzata,Procedimenti di esecuzione forzata,consuntivo-riassuntivo-esecuzione-forzata

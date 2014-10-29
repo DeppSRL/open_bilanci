@@ -1,0 +1,30 @@
+slug,denominazione,slug_parent
+consuntivo-riassuntivo-debito,Debito,consuntivo-riassuntivo
+consuntivo-riassuntivo-debito-consistenza-iniziale,Consistenza Iniziale,consuntivo-riassuntivo-debito
+consuntivo-riassuntivo-debito-consistenza-finale,Consistenza Finale,consuntivo-riassuntivo-debito
+consuntivo-riassuntivo-residui-attivi,Residui Attivi,consuntivo-riassuntivo
+consuntivo-riassuntivo-residui-attivi-iniziali,Iniziali,consuntivo-riassuntivo-residui-attivi
+consuntivo-riassuntivo-residui-attivi-iniziali-tributarie,Tributarie,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-iniziali-contributi-trasferimenti,Trasferimenti,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-iniziali-extratributarie,Extratributarie,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-iniziali-in-conto-capitale,In conto capitale,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-iniziali-accensione-prestiti,Accensione prestiti,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-iniziali-servizi-per-conto-terzi,Servizi per conto terzi,consuntivo-riassuntivo-residui-attivi-iniziali
+consuntivo-riassuntivo-residui-attivi-riscossi,Riscossi,consuntivo-riassuntivo-residui-attivi
+consuntivo-riassuntivo-residui-attivi-riscossi-tributarie,Tributarie,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-attivi-riscossi-contributi-trasferimenti,Contributi trasferimenti,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-attivi-riscossi-extratributarie,Extratributarie,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-attivi-riscossi-in-conto-capitale,In conto capitale,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-attivi-riscossi-accensione-prestiti,Accensione prestiti,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-attivi-riscossi-servizi-per-conto-terzi,Per conto terzi,consuntivo-riassuntivo-residui-attivi-riscossi
+consuntivo-riassuntivo-residui-passivi,Residui Passivi,consuntivo-riassuntivo
+consuntivo-riassuntivo-residui-passivi-iniziali,Iniziali,consuntivo-riassuntivo-residui-passivi
+consuntivo-riassuntivo-residui-passivi-iniziali-correnti,Correnti,consuntivo-riassuntivo-residui-passivi-iniziali
+consuntivo-riassuntivo-residui-passivi-iniziali-in-conto-capitale,In conto capitale,consuntivo-riassuntivo-residui-passivi-iniziali
+consuntivo-riassuntivo-residui-passivi-iniziali-rimborso-prestiti,Rimborso prestiti,consuntivo-riassuntivo-residui-passivi-iniziali
+consuntivo-riassuntivo-residui-passivi-iniziali-servizi-per-conto-terzi,Servizi per conto terzi,consuntivo-riassuntivo-residui-passivi-iniziali
+consuntivo-riassuntivo-residui-passivi-pagati,Pagati,consuntivo-riassuntivo-residui-passivi
+consuntivo-riassuntivo-residui-passivi-pagati-correnti,Correnti,consuntivo-riassuntivo-residui-passivi-pagati
+consuntivo-riassuntivo-residui-passivi-pagati-in-conto-capitale,In conto capitale,consuntivo-riassuntivo-residui-passivi-pagati
+consuntivo-riassuntivo-residui-passivi-pagati-rimborso-prestiti,Rimborso prestiti,consuntivo-riassuntivo-residui-passivi-pagati
+consuntivo-riassuntivo-residui-passivi-pagati-servizi-per-conto-terzi,Servizi per conto terzi,consuntivo-riassuntivo-residui-passivi-pagati

@@ -3,6 +3,7 @@ import logging
 from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
@@ -180,9 +181,12 @@ class Command(BaseCommand):
                 filters.update(territorio__cod_finloc__in=cities)
             if years:
                 filters.update(anno__in=years)
-            ValoreBilancio.objects.filter(**filters).delete()
 
+            # Perform the time-consuming delete only if db is not empty
+            if ValoreBilancio.objects.all().count():
+                ValoreBilancio.objects.filter(**filters).delete()
 
+        set_autocommit(autocommit=False)
         for city in cities:
 
             try:
@@ -273,6 +277,9 @@ class Command(BaseCommand):
                     self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
                 del vb_dict
                 del vb_filters
+
+                # actually save data into posgres
+                commit()
 
 
     def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):

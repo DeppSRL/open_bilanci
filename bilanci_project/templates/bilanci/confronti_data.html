@@ -1,12 +1,12 @@
 {%  extends "bilanci/confronti_home.html" %}
 {% load staticfiles %}
 {% load confronti_helpbox %}
-{% load confronti_parameter_list %}
 {% load section_title %}
 {% load section_values_type %}
+{% load popover_info  %}
 
 {% block page_title %}
-    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ parameter_name }}
+    Confronto Comune {{ territorio_1.denominazione }} con {{ territorio_2.denominazione }} su {{ selected_parameter_name }}
 {% endblock %}
 
 {% block helpbox_1 %}
@@ -17,101 +17,85 @@
     {% confronti_helpbox territorio_2  contesto_2 %}
 {% endblock %}
 
-{% block confronti_parameter_menu_toggle %}
 
-    {# menu handle is hidden on pageload   #}
-    <div id="side-controls" style="display: block; left: -50px; top: 343px;">
-        <a href="#" role="button" class="slider-arrow show" id="push-menu"><span class="icon sprite-toggle-menu"></span></a>
-    </div>
+{# block confronti description contains the settings button and the description of the comparison parameter   #}
 
-{% endblock %}
-
-{% block share_box %}
-
-    <!-- AddThis Button BEGIN -->
-    <a class="share addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5370d1fa1cb562ad">
-         <strong>i tuoi confronti</strong> <span class="fa fa-share-alt"></span>
-    </a>
-    <script type="text/javascript">
-        var addthis_config = {"data_track_addressbar":false   };
-        var addthis_share =
-        {
-            "url":"{{ share_url|safe }}"
-        }
-    </script>
-    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5370d1fa1cb562ad"></script>
-    <!-- AddThis Button END -->
-{% endblock %}
-
-{# comparison list menu  #}
-{% block confronti_parameter_menu %}
-    <aside id="sidebar" class="hidden">
-
-        <form id="parameter-list-form"  method="get">
-            <div class="panel panel-default" id="side-menu">
-                <div class="panel-body" id="confronti_parameter_container">
-
-                    <a role="button" href="#" class="active pull-right" id="hide-menu"><span class="icon sprite-toggle-menu"></span></a>
-
-
-                    <h3 class="menu-title" style="margin-bottom:20px;">
-                        Seleziona
-                    </h3>
-                    <div class="dropdown" >
-
-                         <select id="confronti-dropdown" class="parameter-dropdown">
-                              <option value="indicatori" selected="selected">INDICATORI</option>
-                              <option value="entrate">ENTRATE</option>
-                              <option value="spese">SPESE</option>
-                         </select>
-                        <div class="separator"></div>
-
-                        {% confronti_parameter_list 'indicatori' indicator_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
-                        {% confronti_parameter_list 'entrate' entrate_list territorio_1.slug territorio_2.slug parameter_type parameter.slug %}
-                        {% confronti_parameter_list 'spese' spese_list territorio_1.slug territorio_2.slug parameter_type parameter.slug%}
-                    </div>
-                </div>
-            </div>
-        </form>
-
-    </aside>
+{% block confronti_description %}
+    <!-- start _hierarchical_control_bar -->
+    {% include 'bilanci/_hierarchical_control_bar.html' with page_type='confronti' share_label='il tuo confronto' %}
+    <!-- /_hierarchical_control_bar -->
 {% endblock %}
 
 {% block results %}
     <div id="results" class="row">
         <div class="col-md-12">
-            <div class="panel panel-default panel-nobg">
+            <div class="panel panel-default panel-nobg" style="margin-bottom: 0;">
                 <div class="panel-body">
-                    <div class="row">
-                        <div class='{% if parameter_type != 'indicatori' %}col-md-6{% else %}col-md-12{% endif %}'>
-                            <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO" secondary_bold_text=parameter_name %}</h3>
-                        </div>
 
-                        {% if parameter_type != 'indicatori' %}
-                            <div class='col-md-6'>
-                                {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                    {#  values_type                   #}
+                    <div class="row">
+                        <div class='col-md-6 '>
+                            <span class="selection">BILANCI CONSUNTIVI</span>
+                        </div>
+                        <div class='col-md-6 '>
+                            <div class="cas_com_box pull-right">
+                                {% if selected_par_type == 'indicatori' %}
+                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=False %}
+                                {% else %}
+                                    {% section_values_type cas_com_type='cassa' values_type='real' tooltip=True per_capita=True %}
+                                {% endif %}
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <hr style="border-top: 1px solid #b9c5c4;margin-top: 9px;">
+                        </div>
+                    </div>
+
+
+                    {#  linechart               #}
                     <div class="row">
                         <div class='col-md-12'>
                             {% include 'commons/_lines_chart_over_the_years.html' %}
                         </div>
                     </div>
+                    <div class="row">
+                        <div class='col-md-12'>
+                            <hr class="gray-border-bot" style="margin-top: 0; margin-bottom: 25px;">
+                        </div>
+                    </div>
+
                 </div>
             </div>
+            {#  miniclassifiche indicatori    #}
+            {% if selected_par_type == 'indicatori' %}
+                <div class="panel panel-default panel-nobg">
+                    <div class="panel-body" style="padding-top: 0;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% include 'bilanci/_miniclassifiche.html' with territorio=territorio_1 territorio_cluster=territorio_1_cluster indicatore_position=indicatore_positions_1 incarichi_attivi=incarichi_attivi_1 active_indicator_slug=parameter.slug selected_cluster_str=selected_cluster_str_1 %}
+
+                            </div>
+                            <div class="col-md-6">
+                                {% include 'bilanci/_miniclassifiche.html' with territorio=territorio_2 territorio_cluster=territorio_2_cluster indicatore_position=indicatore_positions_2 incarichi_attivi=incarichi_attivi_2 active_indicator_slug=parameter.slug selected_cluster_str=selected_cluster_str_2%}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div><!-- /#results -->
+
+
 {% endblock %}
 
 
 {% block extra_js %}
 
-
     <script src="{% static 'scripts/visup/all.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/linechart_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/confronti_utils.js' %}" type="text/javascript"></script>
-    <script src="{% static 'scripts/side_menu_utils.js' %}" type="text/javascript"></script>
     <script src="{% static 'scripts/parameter_menu_utils.js' %}" type="text/javascript"></script>
 
 
@@ -120,16 +104,11 @@
         $(document).ready(function(){
 
             init_confronti_page();
-            {% if parameter_type == 'indicatori' %}
+            {% if selected_par_type == 'indicatori' %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"%","%");
             {% else %}
                 init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro");
             {% endif %}
-
-            // binds the indicator menu toggle with the graph resize if in the classifiche or confronti page
-            if($('#push-menu').length){
-                $("#push-menu").on("click", function(){ linechart.resize();});
-            }
 
             init_parameter_menu('confronti');
         });
@@ -140,7 +119,7 @@
 
         //    initialize the line graph with data
 
-        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=parameter_type parameter_slug=parameter.slug %}",
+        d3.json("{% url 'confronti-data-json' territorio_1_opid=territorio_1.op_id territorio_2_opid=territorio_2.op_id parameter_type=selected_par_type parameter_slug=selected_parameter.slug %}",
             function (i) {
             linechart.data(i)
         });
@@ -153,9 +132,7 @@
 
 {% block extra_css %}
 {#    <!-- visup css-->#}
-    <link href='http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-    <link href="{% static 'css/visup-style.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/visup/style.css' %}" media="screen" rel="stylesheet" type="text/css" />
 
 {#    <!-- / visup css-->#}
 {% endblock %}

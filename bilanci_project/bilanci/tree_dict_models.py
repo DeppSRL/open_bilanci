@@ -88,6 +88,8 @@ class VoceNotFound(Exception):
 
 
 
+
+
 class EntrateBudgetMixin(object):
     """
     Defines the _compute_sum method for the entrate BudgetTrees
@@ -356,7 +358,7 @@ class BudgetTreeDict(OrderedDict):
                 col_idx = -1
             try:
                 ret = int(round(float(normalized_voce[col_idx].replace('.', '').replace(',','.'))))
-            except ValueError:
+            except (IndexError, ValueError):
                 ret = 0
 
         return ret
@@ -502,6 +504,84 @@ class PreventivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
 
         # allows constructs such as
         # tree = BudgetDictTree().build_tree(leaves, mapping)
+
+
+        self.pop('logger')
+        return self
+
+class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
+
+    def build_tree(self, leaves, mapping=None):
+        """
+        Builds a BudgetTreeDict for the consuntivo riassuntivo section.
+
+        The leaves of Riassuntivo branch are divided in two sets:
+        * leaves of Gestione finanziaria
+        * other leaves
+
+        The leaves of Gestione finanziaria sub-branch are divided in three sub-sub-branches:
+        * gestione totale
+        * gestione residui
+        * gestione competenza
+
+        The data of each Gestione is stored in the same table but in different columns, for that
+        reason the section dictionary here is used slightly differently compared to the Consuntivo Spese Budget treedict
+
+        When mapping is not passed, an empty tree (default value = 0) is built.
+        """
+
+        self.logger.debug("{0}".format(leaves))
+
+
+        residui_mapping = {
+            'iniziali': 0,
+            'iniziali a': 0,
+            'riscossi': 1,
+            'riscossi b': 1,
+            'pagati': 1,
+            'pagati b': 1,
+        }
+
+
+        columns_mapping = {
+            u'Gestione finanziaria':
+                {
+                'gestione residui': 0,
+                'gestione competenza': 1,
+                'gestione totale': 2,
+                },
+            u'Debito':{
+                'consistenza iniziale': 0,
+                'consistenza iniziale (a)': 0,
+                'consistenza finale': 6,
+                'consistenza finale (a+b-d-f)': 6,
+                },
+            u'Residui attivi':  residui_mapping,
+            u'Residui passivi': residui_mapping,
+
+        }
+
+
+        ##
+        #  translate tree leaves
+        ##
+
+        for source_bc in leaves:
+
+            section_idx = None
+            if source_bc[1] in columns_mapping.keys():
+                section_idx = columns_mapping[source_bc[1]][source_bc[2].lower()]
+
+            value = None
+            if mapping:
+                value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
+
+            # massage source_bc, before adding the leaf,
+            # since the structure of the tree needs to consider
+            # the sections
+            bc = source_bc[:]
+            # add the leaf to the tree, with the computed value
+            self.add_leaf(bc, value)
 
 
         self.pop('logger')

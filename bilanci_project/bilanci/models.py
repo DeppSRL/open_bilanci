@@ -121,9 +121,28 @@ class ValoreIndicatore(models.Model):
         return u"%s: %s" % (self.indicatore, self.valore,)
 
 
+##
+# CodiceVoce: maps Xml bilancio codes to simplified bilancio Voce
+##
+class CodiceVoce(models.Model):
+    voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
+    anno = models.PositiveSmallIntegerField(db_index=True)
+    quadro_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    voce_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    colonna_cod = models.CharField(max_length=5, null=False, blank=False, default='')
+    denominazione_voce = models.TextField(max_length=1000)
+    denominazione_colonna = models.TextField(max_length=100)
 
+    class Meta:
+        verbose_name_plural = u'Codici voce'
 
+    def __unicode__(self):
+        if self.colonna_cod:
+            return u"%s - %s %s-%s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)
+        else:
+            return u"%s - %s %s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod,)
 
+    @staticmethod
+    def get_bilancio_codes(anno, tipo_certificato):
 
-
-
+        return CodiceVoce.objects.filter(anno=anno,voce__slug__startswith=tipo_certificato).order_by('voce__slug')

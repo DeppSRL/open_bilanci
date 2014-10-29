@@ -19,20 +19,11 @@ def voice_values(context, voice_slug, values, is_interventi=False):
     absolute_value = ''
     percapita_value = ''
 
-    if "spese-correnti" in voice_slug and not is_interventi:
-        inv_voice_slug = voice_slug.replace("spese-correnti", "spese-per-investimenti")
-
-        if voice_slug in values['absolute'].keys() and inv_voice_slug in values['absolute'].keys():
-            absolute_value = values['absolute'][voice_slug] + values['absolute'][inv_voice_slug]
-
-        if voice_slug in values['percapita'].keys() and inv_voice_slug in values['percapita'].keys():
-            percapita_value = values['percapita'][voice_slug] + values['percapita'][inv_voice_slug]
-    else:
-        if voice_slug in values['absolute'].keys():
+    if voice_slug in values['absolute'].keys():
             absolute_value = values['absolute'][voice_slug]
 
-        if voice_slug in values['percapita'].keys():
-            percapita_value = values['percapita'][voice_slug]
+    if voice_slug in values['percapita'].keys():
+        percapita_value = values['percapita'][voice_slug]
 
     return {
         'absolute_value': absolute_value,
@@ -43,17 +34,22 @@ def voice_values(context, voice_slug, values, is_interventi=False):
 @register.inclusion_tag("bilanci/_voice_composition.html", takes_context=True)
 def voice_composition(context, voice_slug, values):
 
+    # from the voce slug (in the somma funzioni branch) gets the investimenti and spese correnti values
+    # and computes the % of investment of the voice
+
     if "interventi" in voice_slug.lower():
         return {}
+    subslug_somma_funzioni = 'spese-somma-funzioni'
 
-    inv_voice_slug = voice_slug.replace("spese-correnti", "spese-per-investimenti")
+    investimenti_voice_slug = voice_slug.replace(subslug_somma_funzioni, "spese-per-investimenti-funzioni")
+    correnti_voice_slug = voice_slug.replace(subslug_somma_funzioni, "spese-correnti-funzioni")
 
     if voice_slug in values['absolute'].keys():
-        correnti = float(values['absolute'][voice_slug])
+        correnti = float(values['absolute'][correnti_voice_slug])
 
-        if inv_voice_slug in values['absolute'].keys():
-            investimenti = float(values['absolute'][inv_voice_slug])
-            total = correnti + investimenti
+        if investimenti_voice_slug in values['absolute'].keys():
+            investimenti = float(values['absolute'][investimenti_voice_slug])
+            total = values['absolute'][voice_slug]
 
             if total:
                 correnti_perc = correnti / total * 100.0
@@ -69,5 +65,3 @@ def voice_composition(context, voice_slug, values):
                 'investimenti_value': investimenti,
                 'investimenti_perc': investimenti_perc,
             }
-
-

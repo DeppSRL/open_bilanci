@@ -5,31 +5,126 @@
 {% load chi_guadagna_perde %}
 {% load popover_info %}
 
-
 {% block page_title %}
-    Bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
+    {% if selected_section == 'overview' %}
+        Overview
+    {% else %}
+        {{ selected_section }} - {{ selected_subsection }}
+    {% endif %}
+    per il bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}, anno {{ selected_year }}
 {% endblock %}
+
+{% block bilancio_description %}
+
+    <div class="col-md-7 gTitle">
+        {#    description #}
+        {% section_title bold_text="COMPOSIZIONE" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
+    </div>
+
+{% endblock %}
+
+{% block bilancio_controls %}
+
+    <div class="cas_com_box pull-right">
+
+        {# values type    #}
+        {% if tipo_bilancio == "consuntivo" %}
+            {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+        {% else %}
+            {% section_values_type values_type=values_type tooltip=True %}
+        {% endif %}
+
+        {#   settings menu  #}
+        <div class="btn-group nolenght">
+                <button id="open-settings" type="button" class="btn btn-ob nolenght change dropdown-toggle" data-toggle="dropdown">
+                <span class="pull-left">CAMBIA</span><span class="fa fa-caret-down pull-right"></span><span class="fa fa-gear pull-right"></span>
+                </button>
+         </div>
+        <div id="settings" class="closed">
+            <form id="settings-list-form" method="get">
+                {#  hidden inputs     #}
+                <input type="hidden" id="budget_year" name="year" value="{{ selected_year }}">
+                <input type="hidden" id="budget_type" name="type" value="{{ selected_bilancio_type }}">
+
+                <div class="panel panel-default ">
+                    <ul class="list-group">
+                        <li class="list-group-item label">Mostra per</li>
+                        <li class="list-group-item">
+                            <div class="row">
+
+                            {# if bilancio_type is preventivo: cassa/competenza selection menu is disabled #}
+                                <div class="col-md-5">
+                                    <input type="radio" value="cassa"
+                                        id="cas_com_type_cassa" name="cas_com_type"
+
+                                        {% if selected_bilancio_type == "preventivo" %}disabled
+                                        {% else %}
+                                            {% if cas_com_type == "cassa" %}checked="checked"{% endif %}
+                                        {% endif %}
+                                            />
+                                    <label for="cas_com_type_cassa"
+                                        {% if selected_bilancio_type == "preventivo" %}style="color:#d3d3d3"{% endif %}>
+                                        Cassa {% popover_info 'cassa' %}
+                                    </label>
+                                </div>
+                                <div class="col-md-7">
+                                    <input type="radio" value="competenza"
+                                           id="cas_com_type_competenza" name="cas_com_type"
+
+                                           {% if selected_bilancio_type == "preventivo" %}disabled
+                                           {% else %}
+                                               {% if cas_com_type == "competenza" %}checked="checked"{% endif %}
+                                           {% endif %}
+                                            />
+                                    <label for="cas_com_type_competenza"
+                                        {% if selected_bilancio_type == "preventivo" %}style="color:#d3d3d3"{% endif %}>
+                                        Competenza {% popover_info 'competenza' %}
+                                    </label>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item label">Valori</li>
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <input type="radio" value="real"
+                                               {% if values_type == "real" %}checked="checked"{% endif %}
+                                               id="values_type_real" name="values_type">
+                                    <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
+                                </div>
+                                <div class="col-md-7">
+                                    <input type="radio" value="nominal"
+                                               {% if values_type == "nominal" %}checked="checked"{% endif %}
+                                               id="values_type_nominal" name="values_type">
+                                    <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="list-group">
+                        <li class="list-group-item text-center">
+                            <input type="submit" class="btn btn-blu" value="Aggiorna">
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        {#  / settings menu  #}
+
+    </div>
+
+{% endblock %}
+
 
 
 {% block bilanci_content %}
 
-    <div class="row" style="margin-top: 15px;">
-        <div class="col-md-12">
-            {% if tipo_bilancio == "consuntivo" %}
-                {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
-            {% else %}
-                {% section_values_type values_type=values_type tooltip=True %}
-            {% endif %}
-            <h3 style="margin-top: 0; font-size: 18px;">
-                {% section_title bold_text="BILANCIO" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
-            </h3>
-        </div>
-    </div>
-
     <div class="row" >
         <div class="col-md-12">
            Qual è la politica di chi amministra il Comune? Quali sono le sue priorità?<br/>
-Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e come si distribuiscono
+            Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e come si distribuiscono
             <span style="font-weight: bold; color:#7d8e17">GLI AUMENTI</span> in alto
             e <span style="font-weight: bold; color:#9b2d1b">LE RIDUZIONI</span> in basso. {% popover_info 'widget-bilancio' %}
         </div>
@@ -37,15 +132,28 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
 
 
     <div class="tab-content composition-widget-container">
-        <iframe class="composition-widget" frameborder='0' style="width: 100%;height: 722px;"
+        <iframe class="composition-widget" frameborder='0'
                 src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="gray-border-top">
+        </div>
+    </div>
     <div id="balance" class="row">
         <div class="col-md-12">
-            <h3><strong>CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }} </strong>
-                <br class="hidden-lg">&nbsp;A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
-            </h3>
+            <span class="selection">CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }}</span> A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <hr class="gray-border-bot">
+        </div>
+    </div>
+    <div id='balance' class="row">
+        <div class="col-md-12">
             <div class="row">
                 <div class="col-sm-6"><h4>ENTRATE</h4></div>
                 <div class="col-sm-6"><h4>SPESE</h4></div>
@@ -53,12 +161,12 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
             <div class="row">
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde type='entrate' territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde link=chiguadagnaperde_entrate_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde type='spese' territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde link=chiguadagnaperde_spese_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
                     </div>
                 </div>
             </div>
@@ -90,26 +198,24 @@ Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e c
                 'reference_url': "{% url "bilanci-overview" slug=territorio.slug %}?year={{ selected_year }}&type={{ selected_bilancio_type }}"
             };
 
-
             init_selector(selector_init_obj);
-            {#  starts sindaci timeline           #}
-            init_main_linechart({{ timeline_start_year }},{{ timeline_end_year }},"€ p.c.", "Euro", false);
-            feed_main_linechart();
+
+            {# adds sindaci timeline to yr selector  #}
+
+            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}",
+                function (i) {
+
+                year_selector.data({
+                  "timeSpans": i['timeSpans']
+                });
             });
 
-        function feed_main_linechart(){
-            d3.json("{% url 'incarichi-voce-json' territorio_opid=territorio_opid voce_slug='preventivo-entrate' %}" +
-                    "?values_type={{ values_type }}",
-                    function (i) {
-                linechart.data(i)
-                {#  selectes the considered yr in the sindaci timeline   #}
-                linechart.year({{ selected_year }});
-            });
-
-        }
-
+        });
 
     </script>
+
+    {% block extra_js_composizione %}{% endblock %}
+    {% block extra_js_dettaglio %}{% endblock %}
 
 {% endblock %}
 

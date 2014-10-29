@@ -85,19 +85,22 @@ function init_selector(selector_init_obj){
     * */
     var selector_init_array = {
         padding: {
-            left: 40
+            left: 0,
+            right: 0
         },
+        barPadding: 1,
         timeline: {
             start: start_year,
             end: end_year,
-            circleRadius: 11,
+            circleRadius: 6,
             defaultYear: selected_year
         },
         buttons: {
             button1: "PREVENTIVO",
             button2: "CONSUNTIVO",
             selected: selected_button,
-            visible: visible_buttons
+            visible: visible_buttons,
+            head: "Scegli il bilancio"
         },
         colors: {
             base: "#c6d1cf",
@@ -126,8 +129,6 @@ function init_selector(selector_init_obj){
         else
             year_selector.on("clickButton1", clicked_button);
     }
-
-
 
 }
 
