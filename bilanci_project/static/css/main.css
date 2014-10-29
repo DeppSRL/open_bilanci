@@ -3640,6 +3640,10 @@ a[rel=info-popover]:visited {
 /*
 navbar
 */
+#bilancio-header #services-comune-name img {
+  max-height: 100px;
+  max-width: 100px;
+}
 #bilancio-header .affix-only {
   display: none;
 }
@@ -3736,6 +3740,9 @@ affix navbar
 #bilancio-header.affix .affix-only {
   display: block;
   float: left;
+}
+#bilancio-header.affix .no-affix {
+  display: none;
 }
 #bilancio-header.affix .share,
 #bilancio-header.affix .share-box {

@@ -1,28 +1,41 @@
 {# adds comune logo or comune name with back link if present #}
 
-{% if comune_logo %}
+<div class="row no-affix" id="services-comune-name">
 
-    {% if comune_backlink %}
-        <a href="{{ comune_backlink }}">
-    {% endif %}
+    {% if pagina_comune.logo %}
+        <div class="col-md-2">
+            {% if pagina_comune.backlink %}
 
-    <img src="{{ comune_logo }}" style="max-height: 100px; max-width: 100px;"/>
+                <a href="{{ pagina_comune.backlink }}">
+                    <img src="{{ pagina_comune.logo.url }}"/>
+                </a>
+            {% else %}
 
-    {% if comune_backlink %}
-        </a>
-    {% endif %}
-    <h1 class="panel-title affix-only" style="text-transform: uppercase;">
-        {{territorio.denominazione}}
-    </h1>
+                <img src="{{ pagina_comune.logo.url }}" />
+            {% endif %}
 
-{% else %}
-    {% if comune_backlink %}
-        <a href="{{ comune_backlink }}">
+        </div>
+        <div class="col-md-10">
+            {% if pagina_comune.tipologia_logo == '0' %}
+                <strong>Comune di</strong><br/>
+                <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <div class="col-md-12">
+            {% if pagina_comune.backlink  %}
+
+                <a href="{{ pagina_comune.backlink  }}">
+                    <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+                </a>
+            {% else %}
+
+                <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+            {% endif %}
+        </div>
+
     {% endif %}
-     <h1 class="panel-title" style="text-transform: uppercase;">
-        {{territorio.denominazione}}
-    </h1>
-    {% if comune_backlink %}
-        </a>
-    {% endif %}
-{% endif %}
+</div>
+
+<h1 class="panel-title affix-only" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>

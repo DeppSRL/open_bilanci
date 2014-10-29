@@ -1487,17 +1487,13 @@ class BilancioView(DetailView):
 
     def get_servizi_comune_context(self):
 
-        # gets PaginaComune data to pass onto the context: text, logo and backlink
+        # gets PaginaComune data to pass onto the context
         try:
             p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
         except ObjectDoesNotExist:
-            return None, None, None, None
+            return None
         else:
-            logo_url = None
-            if p_comune.logo:
-                logo_url = p_comune.logo.url
-
-            return  logo_url, p_comune.header_text, p_comune.footer_text, p_comune.backlink
+            return p_comune
 
 
     def get_menu_voices(self,):
@@ -1885,10 +1881,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
 
-        # if servizi_comuni then passes the header/footer text to the template
+        # if servizi_comuni then passes the Pagina Comune data to the template
         if self.servizi_comuni:
-            context['comune_logo'],context['comune_header_text'], context['comune_footer_text'], context['comune_backlink'] =\
-                self.get_servizi_comune_context()
+            context['pagina_comune'] = self.get_servizi_comune_context()
 
         # chi guadagna / perde
 
@@ -2211,8 +2206,7 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
 
         # if servizi_comuni then passes the header/footer text to the template
         if self.servizi_comuni:
-            context['comune_logo'],context['comune_header_text'], context['comune_footer_text'], context['comune_backlink'] =\
-                self.get_servizi_comune_context()
+            context['pagina_comune'] = self.get_servizi_comune_context()
 
 
         context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
