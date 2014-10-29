@@ -1821,8 +1821,26 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 
         if must_redirect:
-            destination_view = 'bilanci-overview'
+            querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
+                        self.year,
+                        self.main_bilancio_type,
+                        self.values_type,
+                        self.cas_com_type
+                    )
+
             redirect_kwargs = {'slug':self.territorio.slug}
+
+            if self.selected_section == 'overview':
+                destination_view = 'bilanci-overview'
+            else:
+                redirect_kwargs['section'] = self.selected_section
+
+                if self.fun_int_view == 'interventi':
+                    querystring +='&fun_int_view='+self.fun_int_view
+
+                destination_view = "bilanci-{0}".format(self.selected_subsection)
+
+
             urlconf = None
 
             if self.servizi_comuni:
@@ -1832,14 +1850,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 
             return HttpResponseRedirect(
-                reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) +\
-                "?year={0}&type={1}&values_type={2}&cas_com_type={3}".\
-                    format(
-                        self.year,
-                        self.main_bilancio_type,
-                        self.values_type,
-                        self.cas_com_type
-                    )
+                reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
                 )
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
@@ -1913,10 +1924,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
 class BilancioComposizioneView(BilancioOverView):
     template_name = 'bilanci/bilancio_composizione.html'
+    selected_subsection = 'composizione'
 
     def get_context_data(self, **kwargs ):
         context = super(BilancioComposizioneView, self).get_context_data(**kwargs)
-        context['selected_subsection'] = 'composizione'
+        context['selected_subsection'] = self.selected_subsection
 
         # chi guadagna / perde
         if self.selected_section == 'entrate':
@@ -1953,6 +1965,7 @@ class BilancioDettaglioView(BilancioOverView):
     model = Territorio
 
     template_name = 'bilanci/bilancio_dettaglio.html'
+    selected_subsection = 'dettaglio'
 
     def get(self, request, *args, **kwargs):
 
@@ -1960,7 +1973,6 @@ class BilancioDettaglioView(BilancioOverView):
         # if year or type parameter are missing redirects to a page for default year / default bilancio type
         ##
 
-        must_redirect = False
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'overview')
         self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
@@ -2097,7 +2109,7 @@ class BilancioDettaglioView(BilancioOverView):
         context['year'] = self.year
         context['bilancio_type'] = self.main_bilancio_type
         context['bilancio_type_title'] = self.main_bilancio_type[:-1]+"i"
-        context['selected_subsection'] = 'dettaglio'
+        context['selected_subsection'] = self.selected_subsection
 
 
         if self.selected_section == 'spese':
