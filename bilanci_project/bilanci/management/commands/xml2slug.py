@@ -50,7 +50,7 @@ class Command(BaseCommand):
     dryrun = False
     bilancio_year = None
 
-    def save_voce_codice(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
+    def save_codice_voce(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
 
         try:
             voce = Voce.objects.get(slug = voce_slug)
@@ -168,7 +168,7 @@ class Command(BaseCommand):
                                 format(quadro_cod,voce_cod,voce_slug))
                             continue
 
-                        self.save_voce_codice(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
+                        self.save_codice_voce(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
 
                     else:
 
@@ -184,7 +184,7 @@ class Command(BaseCommand):
                             colonna_slug = colonna[4]
                             if denominazione_colonna.lower() != 'totale':
                                 colonna_voce_slug = "{0}-{1}".format(voce_slug, colonna_slug)
-                                self.save_voce_codice(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
+                                self.save_codice_voce(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
 
                 else:
 
@@ -208,10 +208,10 @@ class Command(BaseCommand):
 
                         colonna_voce_slug = voce_slug.replace(first_colonna_slug, colonna_slug)
 
-                        self.save_voce_codice(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
+                        self.save_codice_voce(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
 
             else:
 
-                self.save_voce_codice(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
+                self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
 
         return
