@@ -214,6 +214,7 @@ class AutonomiaFinanziariaIndicator(BaseIndicator):
     """
     slug = 'autonomia-finanziaria'
     label = 'Autonomia finanziaria'
+    published = True
     used_voci_slugs = {
         'it': 'consuntivo-entrate-accertamenti-imposte-e-tasse',
         'ex': 'consuntivo-entrate-accertamenti-entrate-extratributarie',
@@ -235,6 +236,7 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
 
     slug = 'bonta-previsione-spesa-corrente'
     label = u'Bontà di previsione della spesa corrente'
+    published = False
     used_voci_slugs = {
         'psc': 'preventivo-spese-spese-correnti',
         'csc': 'consuntivo-spese-impegni-spese-correnti',
@@ -248,13 +250,14 @@ class BontaPrevisioneSpesaCorrenteIndicator(BaseIndicator):
 
 
 
-class QuotaSpesaPersonaleIndicator(BaseIndicator):
+class SpesaPerIlPersonaleIndicator(BaseIndicator):
     """
     consuntivo-spese-cassa-spese-correnti-interventi-personale /
     consuntivo-spese-cassa-spese-correnti * 100
     """
-    slug = 'quota-spesa-personale'
-    label = u'Quota della spesa per il personale'
+    slug = 'spesa-per-il-personale'
+    label = u'Spesa per il personale'
+    published = True
     used_voci_slugs = {
         'sp': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
         'sc': 'consuntivo-spese-cassa-spese-correnti',
@@ -272,8 +275,9 @@ class PropensioneInvestimentoIndicator(ThreeYearsMeanIndicatorType):
     consuntivo-spese-cassa-spese-per-investimenti /
     consuntivo-spese-cassa-spese-correnti * 100
     """
-    slug = 'propensione-investimento-triennio'
-    label = u"Propensione all’investimento - media sul triennio (t-2, t-1, t)"
+    slug = 'investimenti'
+    label = u"Investimenti"
+    published = True
     used_voci_slugs = {
         'si': 'consuntivo-spese-cassa-spese-per-investimenti',
         'sc': 'consuntivo-spese-cassa-spese-correnti',
@@ -293,6 +297,7 @@ class VelocitaRiscossioneEntrateProprieIndicator(BaseIndicator):
     """
     slug = 'velocita-riscossione-entrate-proprie'
     label = u"Velocità di riscossione delle entrate proprie"
+    published = False
     used_voci_slugs = {
         'ecit': 'consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse',
         'ecex': 'consuntivo-entrate-riscossioni-in-conto-competenza-entrate-extratributarie',
@@ -315,6 +320,7 @@ class VelocitaGestioneSpeseCorrentiIndicator(BaseIndicator):
     """
     slug = 'velocita-gestione-spese-correnti'
     label = u"Velocità di gestione delle spese correnti"
+    published = False
     used_voci_slugs = {
         'sp': 'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti',
         'si': 'consuntivo-spese-impegni-spese-correnti',
@@ -336,8 +342,9 @@ class GradoRigiditaStrutturaleSpesaIndicator(BaseIndicator):
 
     """
 
-    slug = 'grado-rigidita-strutturale-spesa'
-    label = u'Grado di rigidità strutturale della spesa'
+    slug = 'rigidita-della-spesa'
+    label = u'Rigidità della spesa'
+    published = True
     used_voci_slugs = {
         'scip': 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
         'csisciipeofd': 'consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
@@ -368,7 +375,8 @@ class EquilibrioParteCorrenteIndicator(BaseIndicator):
     """
 
     slug = 'equilibrio-parte-corrente'
-    label = u'Equilibrio di parte corrente'
+    label = u'Equilibrio della parte corrente'
+    published = True
     used_voci_slugs = {
         'ecit': 'consuntivo-entrate-cassa-imposte-e-tasse',
         'eccp':  'consuntivo-entrate-cassa-contributi-pubblici',
@@ -406,6 +414,7 @@ class SaldoCorrenteLordoIndicator(BaseIndicator):
 
     slug = 'saldo-corrente-lordo'
     label = u'Saldo corrente lordo'
+    published = False
     used_voci_slugs = {
       'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
       'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
@@ -456,6 +465,7 @@ class SaldoNettoDaFinanziarieIndicator(BaseIndicator):
 
     slug = 'saldo-netto-da-finanziarie'
     label = u'Saldo netto da finanziarie'
+    published = False
     used_voci_slugs = {
         'peaa' : 'preventivo-entrate-avanzo-di-amministrazione',
         'peit' : 'preventivo-entrate-imposte-e-tasse',
@@ -495,6 +505,7 @@ class AvanzoNettoAmministrazioneIndicator(BaseIndicator):
 
     slug = 'avanzo-netto-amministrazione'
     label = u'Avanzo netto Amministrazione'
+    published = False
     used_voci_slugs = {
         'trda' : 'consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione',
         'csc' : 'consuntivo-spese-cassa',
@@ -519,6 +530,7 @@ class SpesaPerInteresseIndicator(BaseIndicator):
 
     slug = 'spesa-per-interesse'
     label = u'Spesa per interesse'
+    published = False
     used_voci_slugs = {
         'sciipeofd' : 'consuntivo-spese-impegni-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
         'csi' : 'consuntivo-spese-impegni',
@@ -544,6 +556,7 @@ class IndebitamentoNettoGarantitoIndicator(BaseIndicator):
 
     slug = 'indebitamento-netto-garantito'
     label = u'Indebitamento netto e garantito'
+    published = False
     used_voci_slugs = {
         'cea' : 'consuntivo-entrate-accertamenti',
         'csi' : 'consuntivo-spese-impegni',
@@ -568,6 +581,7 @@ class IndebitamentoDirettoBreveTermineIndicator(BaseIndicator):
 
     slug = 'indebitamento-diretto-breve-termine'
     label = u'Indebitamento diretto a breve termine'
+    published = False
     used_voci_slugs = {
         'csipfbt' : 'consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine',
         'csi' : 'consuntivo-spese-impegni',
@@ -600,6 +614,7 @@ class VariazioneTriennaleIndebitamentoNettoGarantitoIndicator(ThreeYearsMeanIndi
     """
     slug = 'variazione-triennale-indebitamento-netto-garantito'
     label = u"Variazione triennale dell'indebitamento netto e garantito sulle entrate correnti"
+    published = False
     used_voci_slugs = {
         'cea' : 'consuntivo-entrate-accertamenti',
         'csi' : 'consuntivo-spese-impegni',
@@ -637,6 +652,7 @@ class RisultatoAmministrazioneIndicator(BaseIndicator):
 
     slug = 'risultato-amministrazione'
     label = u"Risultato d'amministrazione"
+    published = False
     used_voci_slugs = {
         'crra' : 'consuntivo-riassuntivo-gestione-finanziaria-gestione-totale-risultato-di-amministrazione',
     }
@@ -651,7 +667,7 @@ class RisultatoAmministrazioneIndicator(BaseIndicator):
 
 
 
-class DebitoComplessivoEntrateCorrentiIndicator(BaseIndicator):
+class DebitoComplessivoIndicator(BaseIndicator):
 
     """
         [
@@ -667,7 +683,8 @@ class DebitoComplessivoEntrateCorrentiIndicator(BaseIndicator):
     """
 
     slug = 'debito-complessivo-entrate-correnti'
-    label = u"Debito complessivo su entrate correnti"
+    label = u"Debito complessivo"
+    published = True
     used_voci_slugs = {
         'crdcf' : 'consuntivo-riassuntivo-debito-consistenza-finale',
         'crdfb' : 'consuntivo-riassuntivo-debiti-fuori-bilancio',
@@ -691,7 +708,7 @@ class DebitoComplessivoEntrateCorrentiIndicator(BaseIndicator):
 
 
 
-class CostoMedioIndebitamentoIndicator(BaseIndicator):
+class CostoIndebitamentoIndicator(BaseIndicator):
 
     """
         (consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi /
@@ -700,8 +717,9 @@ class CostoMedioIndebitamentoIndicator(BaseIndicator):
 
     """
 
-    slug = 'costo-medio-indebitamento'
-    label = u"Costo medio di indebitamento"
+    slug = 'costo-indebitamento'
+    label = u"Costo dell'indebitamento"
+    published = True
     used_voci_slugs = {
         'cscsciipofd' : 'consuntivo-spese-cassa-spese-correnti-interventi-interessi-passivi-e-oneri-finanziari-diversi',
         'crdci' : 'consuntivo-riassuntivo-debito-consistenza-iniziale',
@@ -729,6 +747,7 @@ class AutonomiaImpositivaIndicator(BaseIndicator):
 
     slug = 'autonomia-impositiva'
     label = u"Autonomia impositiva"
+    published = False
     used_voci_slugs = {
         'ceaiet' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
         'ceacp' : 'consuntivo-entrate-accertamenti-contributi-pubblici',
@@ -757,8 +776,9 @@ class GradoDipendenzaErarialeIndicator(BaseIndicator):
 
     """
 
-    slug = 'grado-dipendenza-erariale'
-    label = u"Grado dipendenza erariale dallo Stato"
+    slug = 'dipendenza-dallo-stato'
+    label = u"Dipendenza dallo Stato"
+    published = True
     used_voci_slugs = {
         'ceacpcds' : 'consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato',
         'ceaiet' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
@@ -786,6 +806,7 @@ class CapacitaSpesaComplessivaIndicator(BaseIndicator):
 
     slug = 'capacita-spesa-complessiva'
     label = u"Capacità di spesa complessiva"
+    published = False
     used_voci_slugs = {
         'csc' : 'consuntivo-spese-cassa',
         'csi' : 'consuntivo-spese-impegni',
@@ -811,6 +832,7 @@ class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
 
     slug = 'affidabilita-residui-attivi'
     label = u"Affidabilità dei residui attivi"
+    published = True
     used_voci_slugs = {
         'rai' : 'consuntivo-riassuntivo-residui-attivi-iniziali',
         'rar' : 'consuntivo-riassuntivo-residui-attivi-riscossi',
@@ -826,7 +848,7 @@ class AffidabilitaResiduiAttiviIndicator(ThreeYearsMeanIndicatorType):
 
 
 
-class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
+class SmaltimentoResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
         consuntivo-riassuntivo-residui-passivi-iniziali
@@ -835,8 +857,9 @@ class AffidabilitaResiduiPassiviIndicator(ThreeYearsMeanIndicatorType):
 
     """
 
-    slug = 'affidabilita-residui-passivi'
-    label = u"Affidabilità dei residui passivi"
+    slug = 'smaltimento-residui-passivi'
+    label = u"Smaltimento dei residui passivi"
+    published = True
     used_voci_slugs = {
         'rpi' : 'consuntivo-riassuntivo-residui-passivi-iniziali',
         'rpr' : 'consuntivo-riassuntivo-residui-passivi-pagati',
@@ -861,6 +884,7 @@ class SpesaPersonalePerAbitanteIndicator(PerCapitaIndicatorType):
 
     slug = 'spesa-personale-per-abitante'
     label = u"Spesa per il personale per abitante"
+    published = False
     used_voci_slugs = {
         'scip' : 'consuntivo-spese-cassa-spese-correnti-interventi-personale',
     }
@@ -883,6 +907,7 @@ class PressioneTributariaePerAbitanteIndicator(PerCapitaIndicatorType):
 
     slug = 'pressione-tributaria-per-abitante'
     label = u"Pressione tributaria per abitante"
+    published = False
     used_voci_slugs = {
         'ceait' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
     }
@@ -907,6 +932,7 @@ class InvestimentiPerAbitanteIndicator(PerCapitaIndicatorType):
 
     slug = 'investimenti-per-abitante'
     label = u"Investimenti per abitante"
+    published = False
     used_voci_slugs = {
         'cscsi' : 'consuntivo-spese-cassa-spese-per-investimenti',
         'cscsiicca' : 'consuntivo-spese-cassa-spese-per-investimenti-interventi-concessioni-di-crediti-e-anticipazioni',
@@ -930,6 +956,7 @@ class TrasferimentiCorrentiDalloStatoPerAbitanteIndicator(PerCapitaIndicatorType
 
     slug = 'trasferimenti-correnti-dallo-stato-per-abitante'
     label = u"Trasferimenti correnti dallo Stato per abitante"
+    published = False
     used_voci_slugs = {
         'cea' : 'consuntivo-entrate-accertamenti-contributi-pubblici-contributi-dallo-stato',
     }
@@ -952,6 +979,7 @@ class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicatorType):
 
     slug = 'pressione-finanziaria-per-abitante'
     label = u"Pressione finanziaria per abitante"
+    published = False
     used_voci_slugs = {
         'ceatit' : 'consuntivo-entrate-accertamenti-imposte-e-tasse',
         'ceaee' : 'consuntivo-entrate-accertamenti-entrate-extratributarie',
@@ -964,4 +992,5 @@ class PressioneFinanziariaPerAbitanteIndicator(PerCapitaIndicatorType):
         ceaee = self.get_val(data_dict, city, year, 'ceaee')
 
         return ceatit + ceaee
+
 

@@ -9,6 +9,7 @@ class VoceAdmin(TreeAdmin):
     list_per_page = 1000
 
 class IndicatoreAdmin(admin.ModelAdmin):
+    ordering = ('-published', 'denominazione')
     list_filter = ('published',)
     pass
 
