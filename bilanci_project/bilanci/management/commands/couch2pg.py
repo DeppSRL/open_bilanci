@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import logging
 from optparse import make_option
+from pprint import pprint
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.db.transaction import set_autocommit, commit
@@ -10,6 +11,7 @@ from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
+from .somma_funzioni import SommaFunzioniMixin
 
 
 class Command(BaseCommand):
@@ -47,6 +49,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
+        make_option('--force-google',
+                    dest='force_google',
+                    action='store_true',
+                    default=False,
+                    help='Force reloading mapping file and simplified subtrees leaves from gdocs (invalidate the csv cache)'),
         make_option('--patch-somma-funzioni-only',
                     dest='patch_somma_funzioni_only',
                     action='store_true',
@@ -62,6 +69,7 @@ class Command(BaseCommand):
     help = 'Import values from the simplified couchdb database into a Postgresql server'
 
     logger = logging.getLogger('management')
+    simplified_subtrees_leaves = None
     comuni_dicts = {}
 
 
@@ -77,6 +85,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+        force_google = options['force_google']
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
         patch_somma_funzioni_only = options['patch_somma_funzioni_only']
@@ -149,7 +158,7 @@ class Command(BaseCommand):
 
         # create the tree if it does not exist or if forced to do so
         if create_tree or Voce.objects.count() == 0:
-            self.create_voci_tree()
+            self.create_voci_tree(force_google=force_google)
 
 
         # build the map of slug to pk for the Voce tree
@@ -315,7 +324,7 @@ class Command(BaseCommand):
             pass
 
 
-    def create_voci_tree(self):
+    def create_voci_tree(self, force_google):
         """
         Create a Voci tree. If the tree exists, then it is deleted.
         """
@@ -323,11 +332,14 @@ class Command(BaseCommand):
             Voce.objects.all().delete()
 
         # get simplified leaves (from csv or gdocs), to build the voices tree
-        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves()
+        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
         self.create_voci_preventivo_tree()
 
         self.create_voci_consuntivo_tree()
+
+        sf = SommaFunzioniMixin()
+        sf.create_somma_funzioni()
 
 
     def create_voci_preventivo_tree(self):
@@ -398,7 +410,8 @@ class Command(BaseCommand):
         current_node = subtree_node
         for item in bc:
             if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
-                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
+
+                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(unicode(i)) for i in bc[0:bc.index(item)+1]))
                 node = Voce(denominazione=item, slug=slug)
                 node.insert_at(current_node, save=True, position='last-child')
                 if bc[-1] == item:

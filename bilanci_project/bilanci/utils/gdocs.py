@@ -134,7 +134,7 @@ def get_simple_map(connection=None, force_google=False, n_header_lines=0):
 
 
 
-def get_simplified_leaves(connection=None, force_google=False, n_header_lines=0):
+def get_simplified_leaves(force_google=False, n_header_lines=0):
     """
     Try a local CSV version of the documents, or retrieve them from google
 

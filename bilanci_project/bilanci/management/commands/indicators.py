@@ -70,9 +70,15 @@ class Command(BaseCommand):
         # massaging cities option and getting cities finloc codes
         cities_codes = options['cities']
         if not cities_codes:
-            raise Exception("Missing city parameter")
+            self.logger.error("Missing cities parameter")
+            exit()
+
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
+        if len(cities) == 0 :
+            self.logger.error("No cities found with id:{0}".format(cities_codes))
+            exit()
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
 
@@ -113,7 +119,8 @@ class Command(BaseCommand):
                 indicator_obj, created = Indicatore.objects.get_or_create(
                     slug=indicator_instance.slug,
                     defaults={
-                        'denominazione': indicator_instance.label
+                        'denominazione': indicator_instance.label,
+                        'published': indicator_instance.published
                     }
                 )
                 if not created:
