@@ -111,3 +111,4 @@ class SommaFunzioniMixin(object):
         # insert somma-funzioni in consuntivo cassa / impegni
         self.create_branch_consuntivo('consuntivo-spese-cassa')
         self.create_branch_consuntivo('consuntivo-spese-impegni')
+        return

@@ -110,7 +110,6 @@ class Command(BaseCommand):
         ###
         cities_codes = options['cities']
         start_from = options['start_from']
-
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
         if not cities_codes:
@@ -176,13 +175,15 @@ class Command(BaseCommand):
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
         # build the list of voci ids to apply the somma_funzioni patch
+
+        voci_correnti_ids = []
+        voci_correnti_slugs = []
+
         nodes_to_pach_slugs = [
             'preventivo-spese-spese-somma-funzioni',
             'consuntivo-spese-cassa-spese-somma-funzioni',
             'consuntivo-spese-impegni-spese-somma-funzioni',
         ]
-        voci_correnti_ids = []
-        voci_correnti_slugs = []
         for node_to_patch_slug in nodes_to_pach_slugs:
             _voci = self.voci_dict[node_to_patch_slug]
             _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
