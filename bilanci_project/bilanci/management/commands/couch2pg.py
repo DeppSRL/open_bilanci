@@ -59,6 +59,14 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Only apply the patch to compute somma-funzioni. Does not import other budget data.'),
+        make_option('--tree-node-slug',
+                    dest='tree_node_slug',
+                    default=None,
+                    help='Slug to point to a tree node to start the import from.'),
+        make_option('--couch-path',
+                    dest='couch_path',
+                    default=None,
+                    help='CouchDB keys sequence (CSV) to identify the import starting point. Must be specified together with the treee-node-slug option.'),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -89,6 +97,9 @@ class Command(BaseCommand):
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
         patch_somma_funzioni_only = options['patch_somma_funzioni_only']
+
+        tree_node_slug = options['tree_node_slug']
+        couch_path = options['couch_path']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -243,28 +254,43 @@ class Command(BaseCommand):
                 # for the given city and year
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
-                city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
-                    population=population
-                )
-                city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
-                    population=population
-                )
+                if couch_path and tree_node_slug:
+                    # start from a custom node
+                    city_year_budget_node_dict = city_year_budget_dict.copy()
+                    for k in couch_path:
+                        city_year_budget_node_dict = city_year_budget_node_dict[k]
 
+                    city_year_node_tree_patch = tree_models.make_tree_from_dict(
+                        city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
+                        population=population
+                    )
 
-                if not patch_somma_funzioni_only:
+                    if not patch_somma_funzioni_only:
+                        v = self.voci_dict[tree_node_slug]
+                        ValoreBilancio.objects.filter(
+                            territorio=territorio, anno=year,
+                            voce__in=v.get_descendants(include_self=True)
+                        ).delete()
+                        tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
+                else:
+                    # do all preventivo and consuntivo nodes
+                    city_year_preventivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
+                        population=population
+                    )
+                    city_year_consuntivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
+                        population=population
+                    )
 
-                    ### persist the BilancioItem values
+                    if not patch_somma_funzioni_only:
+                        # previously remove all values for a city and a year
+                        # used to speed up records insertion
+                        ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
 
-                    # previously remove all values for a city and a year
-                    # used to speed up records insertion
-                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+                        tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
+                        tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
-                    # add values fastly, without checking their existance
-                    # do that for the whole tree (preventivo, consuntivo, ...)
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
 
                 vb_filters = {
