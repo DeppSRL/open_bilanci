@@ -4068,6 +4068,9 @@ div.miniclass-incarichi {
 .table > tbody > tr.miniclass-border:last-child {
   border-bottom: 0;
 }
+#miniclass-indicatori {
+  margin-top: 15px;
+}
 #miniclass-indicatori .panel-heading {
   padding-bottom: 0;
 }
