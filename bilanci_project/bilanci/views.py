@@ -2191,25 +2191,24 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
         year = settings.SELECTOR_DEFAULT_YEAR
 
         last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
-
-        context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
-        context['last_indicatore_yr'] = last_indicatore_yr
-        context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
-        context['comune_context'] = Contesto.get_context(int(year),self.territorio)
-        context['territorio_opid'] =self.territorio.op_id
-        context['territorio_cluster'] =Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
-        context['n_comuni_cluster'] =Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
-        context['selected_cluster_str'] = str(self.territorio.cluster)
-        context['selected_regioni_str'] =",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
-
-        context['menu_voices'] = self.get_menu_voices()
+        if last_indicatore_yr:
+            context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio = self.territorio, anno=last_indicatore_yr)
+            context['last_indicatore_yr'] = last_indicatore_yr
+            context['indicatore_position'] = self.get_indicatore_positions(territorio=self.territorio, anno = last_indicatore_yr)
 
         # if servizi_comuni then passes the header/footer text to the template
         if self.servizi_comuni:
             context['pagina_comune'] = self.get_servizi_comune_context()
 
-
+        context['comune_context'] = Contesto.get_context(int(year),self.territorio)
+        context['territorio_opid'] = self.territorio.op_id
+        context['territorio_cluster'] = Territorio.objects.get(territorio=Territorio.TERRITORIO.L, cluster=self.territorio.cluster).denominazione
+        context['n_comuni_cluster'] = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C, cluster=self.territorio.cluster).count()
+        context['selected_cluster_str'] = str(self.territorio.cluster)
+        context['selected_regioni_str'] = ",".join([str(k) for k in list(Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk',flat=True))])
+        context['menu_voices'] = self.get_menu_voices()
         context['indicator_list'] = Indicatore.objects.filter(published=True).order_by('denominazione')
+        
         # creates the query string to call the IncarichiIndicatori Json view in template
         context['selected_indicators'] = selected_indicators_slugs
         context['selected_indicators_qstring'] = '?slug='+'&slug='.join(selected_indicators_slugs)
@@ -2726,15 +2725,18 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
         last_indicatore_yr_1 = self.territorio_1.latest_year_indicatore(slug='autonomia-finanziaria')
         last_indicatore_yr_2 = self.territorio_2.latest_year_indicatore(slug='autonomia-finanziaria')
 
-        last_indicatore_yr = last_indicatore_yr_1
-        if last_indicatore_yr_1 > last_indicatore_yr_2:
-            last_indicatore_yr = last_indicatore_yr_2
+        if last_indicatore_yr_2 and last_indicatore_yr_1:
+            # if there is valid data for miniclassifiche, adds the data to the context
 
-        context['last_indicatore_yr'] = last_indicatore_yr
-        context['indicatore_positions_1'] = self.get_indicatore_positions(territorio=self.territorio_1, anno = last_indicatore_yr)
-        context['indicatore_positions_2'] = self.get_indicatore_positions(territorio=self.territorio_2, anno = last_indicatore_yr)
-        context['incarichi_attivi_1'] = Incarico.get_incarichi_attivi(territorio = self.territorio_1, anno=last_indicatore_yr)
-        context['incarichi_attivi_2'] = Incarico.get_incarichi_attivi(territorio = self.territorio_2, anno=last_indicatore_yr)
+            last_indicatore_yr = last_indicatore_yr_1
+            if last_indicatore_yr_1 > last_indicatore_yr_2:
+                last_indicatore_yr = last_indicatore_yr_2
+
+            context['last_indicatore_yr'] = last_indicatore_yr
+            context['indicatore_positions_1'] = self.get_indicatore_positions(territorio=self.territorio_1, anno = last_indicatore_yr)
+            context['indicatore_positions_2'] = self.get_indicatore_positions(territorio=self.territorio_2, anno = last_indicatore_yr)
+            context['incarichi_attivi_1'] = Incarico.get_incarichi_attivi(territorio = self.territorio_1, anno=last_indicatore_yr)
+            context['incarichi_attivi_2'] = Incarico.get_incarichi_attivi(territorio = self.territorio_2, anno=last_indicatore_yr)
 
         return context
 
