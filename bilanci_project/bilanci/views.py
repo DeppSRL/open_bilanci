@@ -1387,11 +1387,12 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         incarichi_set_1 = self.get_incarichi_struct(territorio_1_opid, highlight_color = territorio_1_color)
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
 
-        if incarichi_set_1:
+        if incarichi_set_1 is not None and incarichi_set_2 is not None:
+
             incarichi_set_1.extend(incarichi_set_2)
             incarichi = incarichi_set_1
         else:
-            incarichi = incarichi_set_2
+            incarichi = None
 
         # get voce bilancio from GET parameter
         parameter_slug = kwargs['parameter_slug']
@@ -2338,7 +2339,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         elif self.parameter_type == 'entrate' or self.parameter_type == 'spese-interventi' or self.parameter_type == 'spese-funzioni':
             self.parameter = get_object_or_404(Voce, slug = parameter_slug)
         else:
-            return reverse('404')
+            return HttpResponseRedirect(reverse('404'))
 
         self.anno = kwargs['anno']
         self.anno_int = int(self.anno)

@@ -33,6 +33,10 @@
             $this.parent().parent().find('input[type=checkbox]').not($this).prop('checked', $this.prop('checked'));
         });
 
+        $('.dropdown-menu input, .dropdown-menu label').click(function(e) {
+            e.stopPropagation();
+        });
+
 
 
 

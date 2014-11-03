@@ -26,9 +26,12 @@
         <div class="col-md-12">
             {% if pagina_comune.backlink  %}
 
-                <a href="{{ pagina_comune.backlink  }}">
-                    <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
-                </a>
+                <h1 class="panel-title" style="text-transform: uppercase;">
+                    <a href="{{ pagina_comune.backlink  }}">
+                        {{territorio.denominazione}}
+                    </a>
+                </h1>
+                
             {% else %}
 
                 <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
