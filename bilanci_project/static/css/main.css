@@ -3644,6 +3644,11 @@ navbar
   max-height: 100px;
   max-width: 100px;
 }
+#bilancio-header #services-comune-name a,
+#bilancio-header #services-comune-name a:hover {
+  text-decoration: none;
+  color: #2a3036;
+}
 #bilancio-header .affix-only {
   display: none;
 }
