@@ -2338,7 +2338,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         elif self.parameter_type == 'entrate' or self.parameter_type == 'spese-interventi' or self.parameter_type == 'spese-funzioni':
             self.parameter = get_object_or_404(Voce, slug = parameter_slug)
         else:
-            return reverse('404')
+            return HttpResponseRedirect(reverse('404'))
 
         self.anno = kwargs['anno']
         self.anno_int = int(self.anno)
