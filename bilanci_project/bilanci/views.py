@@ -1388,7 +1388,8 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         incarichi_set_2 = self.get_incarichi_struct(territorio_2_opid, highlight_color = territorio_2_color)
 
         if incarichi_set_1:
-            incarichi_set_1.extend(incarichi_set_2)
+            if incarichi_set_2:
+                incarichi_set_1.extend(incarichi_set_2)
             incarichi = incarichi_set_1
         else:
             incarichi = incarichi_set_2
