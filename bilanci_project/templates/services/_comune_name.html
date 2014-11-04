@@ -22,7 +22,7 @@
         <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-12{% endif %}">
             {% if pagina_comune.backlink %}
 
-                <a href="{{ pagina_comune.backlink }}">
+                <a href="{{ pagina_comune.backlink }}" title="Torna al sito istituzionale">
                     <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
                         src="{{ pagina_comune.logo.url }}" />
                 </a>
@@ -45,7 +45,7 @@
             {% if pagina_comune.backlink  %}
 
                 <h1 class="panel-title" style="text-transform: uppercase;">
-                    <a href="{{ pagina_comune.backlink  }}">
+                    <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
                         {{territorio.denominazione}}
                     </a>
                 </h1>
