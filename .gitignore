@@ -29,6 +29,9 @@ assets/
 #south
 bilanci_project/*/migrations/
 
+#robots
+robots.txt
+
 #dump files
 dump_indicatori
 dump_territori
