@@ -3640,9 +3640,12 @@ a[rel=info-popover]:visited {
 /*
 navbar
 */
-#bilancio-header #services-comune-name img {
+#bilancio-header #services-comune-name img.logo {
   max-height: 100px;
-  max-width: 100px;
+  max-width: 97px;
+}
+#bilancio-header #services-comune-name img.trademark {
+  max-height: 100px;
 }
 #bilancio-header #services-comune-name a,
 #bilancio-header #services-comune-name a:hover {

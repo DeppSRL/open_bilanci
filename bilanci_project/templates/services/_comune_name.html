@@ -1,21 +1,39 @@
 {# adds comune logo or comune name with back link if present #}
 
+<div class="row no-affix">
+    <div class="pull-right download-box">
+        {% if csv_package_file %}
+            <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+               class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="pull-right download-box affix-only">
+    {% if csv_package_file %}
+        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
+    {% endif %}
+</div>
+
 <div class="row no-affix" id="services-comune-name">
 
     {% if pagina_comune.logo %}
-        <div class="col-md-2">
+        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-12{% endif %}">
             {% if pagina_comune.backlink %}
 
                 <a href="{{ pagina_comune.backlink }}">
-                    <img src="{{ pagina_comune.logo.url }}"/>
+                    <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                        src="{{ pagina_comune.logo.url }}" />
                 </a>
             {% else %}
 
-                <img src="{{ pagina_comune.logo.url }}" />
+                <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                     src="{{ pagina_comune.logo.url }}" />
             {% endif %}
 
         </div>
-        <div class="col-md-10">
+        <div class="col-md-11">
             {% if pagina_comune.tipologia_logo == '0' %}
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
