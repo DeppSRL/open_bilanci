@@ -207,6 +207,7 @@ THIRD_PARTY_APPS = (
     'mptt',
     'front',
     'tinymce',
+    'robots',
 )
 
 # Apps specific for this project go here.
