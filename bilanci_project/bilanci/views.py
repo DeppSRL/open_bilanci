@@ -212,7 +212,10 @@ class StaticPageView(TemplateView, ServiziComuniMixin):
 
         page_url = request.get_full_path().replace("/pages/","")
         if page_url not in settings.ENABLED_STATIC_PAGES:
-            return HttpResponseRedirect(reverse('404'))
+            if self.servizi_comuni:
+                return HttpResponseRedirect(reverse('bilanci-overview-services', urlconf = services.urls))
+            else:
+                return HttpResponseRedirect(reverse('404'))
         return super(StaticPageView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
