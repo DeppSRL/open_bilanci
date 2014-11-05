@@ -23,8 +23,28 @@ import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
-
 from territori.models import Territorio, Contesto, Incarico
+
+
+class ServiziComuniMixin(object):
+    territorio = None
+    servizi_comuni = False
+
+    def check_servizi_comuni(self, request):
+        # identifies if the request comes from a Comuni host
+        if request.servizi_comuni:
+            self.servizi_comuni = True
+
+    def get_servizi_comune_context(self):
+
+        # gets PaginaComune data to pass onto the context
+        try:
+            p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
+        except ObjectDoesNotExist:
+            return None
+        else:
+            return p_comune
+
 
 
 class ShareUrlMixin(object):
@@ -180,6 +200,31 @@ class HierarchicalMenuMixin(object):
             'spese_interventi': spese_interventi
         }
 
+class StaticPageView(TemplateView, ServiziComuniMixin):
+    template_name = 'static_page.html'
+
+    def get(self, request, *args, **kwargs):
+
+        # check if the request comes from Comuni host
+        self.check_servizi_comuni(request)
+        if self.servizi_comuni:
+            self.territorio = Territorio.objects.get(slug=kwargs['slug'])
+
+        page_url = request.get_full_path().replace("/pages/","")
+        if page_url not in settings.ENABLED_STATIC_PAGES:
+            return HttpResponseRedirect(reverse('404'))
+        return super(StaticPageView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(StaticPageView, self).get_context_data( **kwargs)
+
+        # if servizi_comuni then passes the Pagina Comune data to the template
+        if self.servizi_comuni:
+            context['pagina_comune'] = self.get_servizi_comune_context()
+            context['territorio'] = self.territorio
+            self.template_name = 'services/static_page.html'
+
+        return context
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -1473,28 +1518,13 @@ class BilancioRedirectView(RedirectView):
             return reverse('404')
 
 
-class BilancioView(DetailView):
+
+class BilancioView(DetailView, ServiziComuniMixin):
 
     model = Territorio
     context_object_name = "territorio"
     territorio= None
     servizi_comuni = False
-
-
-    def check_servizi_comuni(self, request):
-        # identifies if the request comes from a Comuni host
-        if request.servizi_comuni:
-            self.servizi_comuni = True
-
-    def get_servizi_comune_context(self):
-
-        # gets PaginaComune data to pass onto the context
-        try:
-            p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
-        except ObjectDoesNotExist:
-            return None
-        else:
-            return p_comune
 
 
     def get_menu_voices(self,):
@@ -2744,5 +2774,6 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
 class PageNotFoundTemplateView(TemplateView):
     template_name = '404.html'
+
 
 

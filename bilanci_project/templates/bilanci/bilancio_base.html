@@ -20,17 +20,13 @@
         <div id="bilancio-header">
 
             {% if request.servizi_comuni  %}
+
                 {% include 'services/_comune_name.html' %}
+
             {% else %}
-                <div class="pull-right download-box">
-                    {% if csv_package_file %}
-                        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
-                           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
-                    {% endif %}
-                </div>
-                <h1 class="panel-title" style="text-transform: uppercase;">
-                    {{territorio.denominazione}}
-                </h1>
+
+                {% include 'bilanci/_comune_name.html' %}
+
             {% endif %}
 
             <p class="details">
@@ -60,22 +56,26 @@
                 {% endif %}
             </p>
 
-            <span id="affix-breadcrumbs" class="affix-only">
-                {#                AFFIX BREADCRUMBS#}
-                 {% if selected_section == 'indicatori' %}
-                    {{ selected_section|upper }}
-                {% elif selected_section == 'overview' %}
-                    BILANCIO › OVERVIEW
-                {% else %}
-                    BILANCIO › {{ selected_section|upper }} › {{ selected_subsection|upper }}
-                {% endif %}
+            {% block affix_breadcrumbs %}
+                <span id="affix-breadcrumbs" class="affix-only">
+                    {#                AFFIX BREADCRUMBS#}
+                     {% if selected_section == 'indicatori' %}
+                        {{ selected_section|upper }}
+                    {% elif selected_section == 'overview' %}
+                        BILANCIO › OVERVIEW
+                    {% else %}
+                        BILANCIO › {{ selected_section|upper }} › {{ selected_subsection|upper }}
+                    {% endif %}
 
-                {% if selected_section != 'indicatori' %}
-                    -
-                    {{ tipo_bilancio|upper }} {{ selected_year }}
-                {% endif %}
+                    {% if selected_section != 'indicatori' %}
+                        -
+                        {{ tipo_bilancio|upper }} {{ selected_year }}
+                    {% endif %}
 
-            </span>
+                </span>
+
+            {% endblock %}
+
 
             {#  navbar #}
 
@@ -84,88 +84,93 @@
             {% endblock %}
         </div>
 
+        {% block breadcrumbs %}
 
-        {# breadcrumbs   #}
-        <div class="row">
-            <div class="col-md-12">
-                <div class="bread">
-                    <p>Sei in:</p>
-                    <ol class="breadcrumb">
-                        {% if selected_section == 'indicatori' %}
-                            <li>{{ selected_section }}</li>
-                        {% elif selected_section == 'overview' %}
-                            <li>Bilancio › Overview </li>
-                        {% else %}
-                            <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
-                        {% endif %}
-                    </ol>
+            {# breadcrumbs   #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="bread">
+                        <p>Sei in:</p>
+                        <ol class="breadcrumb">
+                            {% if selected_section == 'indicatori' %}
+                                <li>{{ selected_section }}</li>
+                            {% elif selected_section == 'overview' %}
+                                <li>Bilancio › Overview </li>
+                            {% else %}
+                                <li>Bilancio › {{ selected_section }} › {{ selected_subsection }}</li>
+                            {% endif %}
+                        </ol>
+                    </div>
                 </div>
             </div>
-        </div>
-        {# /breadcrumbs   #}
+            {# /breadcrumbs   #}
 
+        {% endblock %}
 
-        {# page subtitle: bilancio / entrate /spese/ indicatori  #}
-        <div class="row page-subtitle">
-            <div class="col-md-8">
-                <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+        {% block page_controls %}
+            {# page subtitle: bilancio / entrate /spese/ indicatori  #}
+            <div class="row page-subtitle">
+                <div class="col-md-8">
+                    <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
+                </div>
+                <div class="col-md-4 share-box">
+                    {% include "bilanci/_share_button.html" %}
+                </div>
             </div>
-            <div class="col-md-4 share-box">
-                {% include "bilanci/_share_button.html" %}
-            </div>
-        </div>
 
-        {% block year_selector %}
+            {% block year_selector %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <hr class="gray-border-top">
+                    </div>
+                </div>
+                {# year selector widget #}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row timeline">
+                            <div class="col-sm-12">
+                                <div class="year-selector"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+
             <div class="row">
                 <div class="col-md-12">
                     <hr class="gray-border-top">
                 </div>
             </div>
-            {# year selector widget #}
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row timeline">
-                        <div class="col-sm-12">
-                            <div class="year-selector"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endblock %}
 
-        <div class="row">
-            <div class="col-md-12">
-                <hr class="gray-border-top">
-            </div>
-        </div>
+            {# control row for bilancio: description "Consuntivo 2012 dettaglio" , values_type and control button #}
+            <div class="row" style="margin-bottom: 10px;">
 
-        {# control row for bilancio: description "Consuntivo 2012 dettaglio" , values_type and control button #}
-        <div class="row" style="margin-bottom: 10px;">
-
-             {#    description #}
-            {% block bilancio_description %}
-
-            {% endblock %}
-
-            {# values types + control button "CAMBIA"  #}
-            <div class="col-md-5">
-                {% block bilancio_controls %}
+                 {#    description #}
+                {% block bilancio_description %}
 
                 {% endblock %}
 
-            </div>
-            {% block bilancio_indicatori_selection_menu %}{% endblock %}
-        </div>
-        {#  /control row          #}
+                {# values types + control button "CAMBIA"  #}
+                <div class="col-md-5">
+                    {% block bilancio_controls %}
 
-        <div class="row">
-            <div class="col-md-12">
-                <hr class="gray-border-bot">
+                    {% endblock %}
+
+                </div>
+                {% block bilancio_indicatori_selection_menu %}{% endblock %}
             </div>
+            {#  /control row          #}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <hr class="gray-border-bot">
+                </div>
+            </div>
+            {#   / bilancio info data           #}
         </div>
-        {#   / bilancio info data           #}
-    </div>
-    
+
+    {% endblock %}
+
     <div class="panel-body">
         <div class="row">
             <div id="content" class="col-sm-12">
