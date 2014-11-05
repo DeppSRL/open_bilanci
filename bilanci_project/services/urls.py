@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^(?P<section>[-\w]+)/dettaglio$', BilancioDettaglioView.as_view(), name='bilanci-dettaglio-services'),
     #
     url(r'^indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori-services'),
+    url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
 
     # url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found-services'),
 
