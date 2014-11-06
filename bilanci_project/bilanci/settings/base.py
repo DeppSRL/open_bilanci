@@ -460,7 +460,9 @@ INDICATOR_COLORS = ['#cc6633',
                     '#993527',
                     '#c3a150',
                     '#666c14',
-                    '#5f6b78']
+                    '#5f6b78',
+                    '#e2a8b0',
+                    '#c6d041']
 
 # euros range to define two sums equal
 # due to round of floats to integers,
