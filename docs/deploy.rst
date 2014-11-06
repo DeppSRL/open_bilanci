@@ -32,11 +32,23 @@ When deploying Open bilanci on an empty database follow these steps:
 
 - Check that Voce tree is showing Voce correctly
 
+- Disable DEBUG on .env file
+- Restart uwsgi
+- check DEBUG value in python shell
+
+.. code-block:: bash
+
+    python manage.py shell_plus
 
 - Launch the import on all cities, all years
 .. code-block:: bash
 
-    python manage.py couch2pg -v2 --create-tree --force-google --cities=roma --years=2003
+    python manage.py couch2pg -v2 --create-tree --force-google --cities=all --years=2003-2013
     
     
+
+Create new branches of Bilancio Voce and import data
+----------------------------------------------------
+
+
     
