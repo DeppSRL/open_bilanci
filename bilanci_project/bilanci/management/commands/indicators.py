@@ -66,6 +66,10 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and options['cities'] == 'all':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
 
         # massaging cities option and getting cities finloc codes
         cities_codes = options['cities']
