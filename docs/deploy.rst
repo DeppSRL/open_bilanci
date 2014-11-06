@@ -24,6 +24,15 @@ When deploying Open bilanci on an empty database follow these steps:
 
 - Enter the backend and go to the Bilanci -> Voce admin panel.
 
+- Move Preventivo - Spese up to be the first child of Preventivo
+
+- Move Consuntivo - Spese up to be the first child of Consuntivo
+
+- Check that Consuntivo - Riassuntivo is present
+
+- Check that Voce tree is showing Voce correctly
+
+
 - Launch the import on all cities, all years
 .. code-block:: bash
 
