@@ -49,6 +49,32 @@ When deploying Open bilanci on an empty database follow these steps:
 
 Create new branches of Bilancio Voce and import data
 ----------------------------------------------------
+ - Update bilancio Voce tree
 
+ See `Updating Voce tree structure`_.
+.. _`Updating Voce tree structure`: https://github.com/DeppSRL/open_bilanci/blob/master/docs/bilancio_tree.rst#updating-voce-tree-structure/
+
+
+- Launch the import on all cities, all years and on the new branch created
+
+.. code-block:: bash
+
+    python manage.py couch2pg -v2 --cities=all --years=2003-2013 --tree-node-slug=BRANCH-ROOT-SLUG --couch-path=COUCH,PATH,LIST
+    
+
+Where the BRANCH-ROOT-SLUG is the voce.slug value of the root node of the new branch and COUCH,PATH,LIST is a list of node names that lead to the new branch root node in the couchdb tree.
+**Couch-path is case-sensitive.**
+
+Example: if the branch added starts with the node with slug 
+
+consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-di-investimento
+
+Then tree-node-slug is: 
+
+*consuntivo-riassuntivo-utilizzo-avanzo-di-amministrazione-esercizio-precedente-spese-di-investimento*
+
+and couch-path is: 
+
+*Consuntivo, RIASSUNTIVO, Utilizzo avanzo di amministrazione esercizio precedente, Spese di investimento*
 
     
