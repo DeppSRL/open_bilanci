@@ -59,7 +59,7 @@ The *Voci* sheet will have the following columns:
 Voci
 --------------------------------------------------------------------------------------------------------
  
-quadro_denominazione  titolo_denominazione  cad_cod  voce_denominazione  quadro_cod  voce_cod  voce_slug
+quadro_denominazione  titolo_denominazione  cat_cod  voce_denominazione  quadro_cod  voce_cod  voce_slug
 
 ====================  ====================  =======  ==================  ==========  ========  ========= 
 
@@ -83,6 +83,70 @@ The *slug* sheet will have the following columns:
 +======+ 
 | slug | 
 +------+ 
+
+
+Copying the values to the Google Drive document
+-----------------------------------------------
+
+Open the pdf file and copy-paste the 
+
+**quadro_denominazione, titolo_denominazione, cat_cod, voce_denominazione, quadro_cod, voce_cod**
+
+values in the right cells for *Voci* and for colonne
+
+**quadro_denominazione, quadro_cod, col_cod, col_denominazione**
+
+for *Colonne* sheets.
+
+About the **slugs** sheet:  get the normalized slugs contained in the Voce table relative to the bilancio type considered.
+For the voce that have more than one column keep only the slugs relative to the first column.
+
+**Example:**
+Insert
+
+
+.. code-block:: bash
+
+    consuntivo-entrate-accertamenti-contributi-pubblici
+
+But skip
+
+
+.. code-block:: bash
+
+    consuntivo-entrate-riscossioni-in-conto-competenza-contributi-pubblici
+    consuntivo-entrate-riscossioni-in-conto-residui-contributi-pubblici
+
+The association script will make automagically the association.
+
+
+Bilancio Codes - simplified slugs association for Voci
+------------------------------------------------------
+
+This step requires that a skilled operator associates the normalized slugs with the voci in the *Voci* sheet 
+keeping in mind the rule aforementioned.
+
+**For Consuntivo:** if Quadro 4 and 5 have the same structure and voce counts then only compile Quadro 4 Impegni part,
+the other parts of Quadro 4 will be a copy of that.
+
+Same for Quadro 5: if the structure is the same of Quadro 4 the Voce / slugs will be copied replacing the different root slugs.
+
+
+Bilancio Codes - simplified slugs association for Colonne
+------------------------------------------------------
+
+
+The sheet *Colonne* requires the association of column names with partial slugs.
+
+Example:
+
+
++-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
+| quadro_denominazione                      | quadro_cod | col_cod | col_denominazione         | slug                                | 
++===========================================+============+=========+===========================+=====================================+
+| QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI | 04         | 4       | Utilizzo di beni di terzi | altre-spese-per-interventi-correnti |
++-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
+
 
 
 Integrating the Document with Django app
@@ -117,51 +181,6 @@ Adds the constant in the **settings/base.py** file using the same name but lower
     }
 
 In this way the Google doc is now accessible by management tasks.
-
-
-Copying the values to the Google Drive document
------------------------------------------------
-
-Open the pdf file and copy-paste the values in the right cells for *Voci* and *Colonne* sheets.
-
-About the slugs:  get the normalized slugs contained in the Voce table relative to the bilancio type considered.
-Then for the voce that have more than one column keep only the slugs relative to the first column.
-
-Example:
-Insert
-
-
-.. code-block:: bash
-
-    consuntivo-entrate-accertamenti-contributi-pubblici
-
-But skip
-
-
-.. code-block:: bash
-
-    consuntivo-entrate-riscossioni-in-conto-competenza-contributi-pubblici
-    consuntivo-entrate-riscossioni-in-conto-residui-contributi-pubblici
-
-The association script will make automagically the association.
-
-
-Codes - simplified slugs association
-------------------------------------
-
-This step requires that a skilled operator associates the normalized slugs with the voci in the *Voci* sheet 
-keeping in mind the rule aforementioned.
-
-The sheet *Colonne* requires the association of column names with partial slugs.
-
-Example:
-
-
-+-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
-| quadro_denominazione                      | quadro_cod | col_cod | col_denominazione         | slug                                | 
-+===========================================+============+=========+===========================+=====================================+
-| QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI | 04         | 4       | Utilizzo di beni di terzi | altre-spese-per-interventi-correnti |
-+-------------------------------------------+------------+---------+---------------------------+-------------------------------------+ 
 
 
 Generate the code-slug map
