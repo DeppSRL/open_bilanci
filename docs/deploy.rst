@@ -52,6 +52,7 @@ Create new branches of Bilancio Voce and import data
 - Update bilancio Voce tree
 
 See `Updating Voce tree structure`_.
+
 .. _`Updating Voce tree structure`: https://github.com/DeppSRL/open_bilanci/blob/master/docs/bilancio_tree.rst#updating-voce-tree-structure/
 
 
