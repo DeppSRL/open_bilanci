@@ -49,9 +49,9 @@ When deploying Open bilanci on an empty database follow these steps:
 
 Create new branches of Bilancio Voce and import data
 ----------------------------------------------------
- - Update bilancio Voce tree
+- Update bilancio Voce tree
 
- See `Updating Voce tree structure`_.
+See `Updating Voce tree structure`_.
 .. _`Updating Voce tree structure`: https://github.com/DeppSRL/open_bilanci/blob/master/docs/bilancio_tree.rst#updating-voce-tree-structure/
 
 
