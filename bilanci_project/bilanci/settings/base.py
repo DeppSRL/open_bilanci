@@ -207,6 +207,7 @@ THIRD_PARTY_APPS = (
     'mptt',
     'front',
     'tinymce',
+    'robots',
 )
 
 # Apps specific for this project go here.
@@ -449,7 +450,6 @@ TERRITORIO_2_COLOR = '#a51206'
 CLUSTER_LINE_COLOR = '#f7b5a1'
 
 DEFAULT_INDICATOR_SLUG = 'autonomia-finanziaria'
-
 DEFAULT_VOCE_SLUG_CONFRONTI = 'consuntivo-entrate-cassa-imposte-e-tasse'
 DEFAULT_VOCE_SLUG_CLASSIFICHE = DEFAULT_VOCE_SLUG_CONFRONTI
 
@@ -459,7 +459,10 @@ INDICATOR_COLORS = ['#cc6633',
                     '#999924',
                     '#993527',
                     '#c3a150',
-                    '#666c14']
+                    '#666c14',
+                    '#5f6b78',
+                    '#e2a8b0',
+                    '#c6d041']
 
 # euros range to define two sums equal
 # due to round of floats to integers,
@@ -486,3 +489,16 @@ CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-corren
 
 CLASSIFICHE_PAGINATE_BY = 15
 EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')
+
+ENABLED_STATIC_PAGES = [
+    'faq',
+    'indicatori',
+    'bilancio_comune',
+    'mappa',
+    'confronti',
+    'classifiche',
+    'software',
+    'licenza',
+    'informativa',
+    'credits',
+    ]

@@ -3640,14 +3640,20 @@ a[rel=info-popover]:visited {
 /*
 navbar
 */
-#bilancio-header #services-comune-name img {
+#bilancio-header #services-comune-name img.logo {
   max-height: 100px;
-  max-width: 100px;
+  max-width: 97px;
 }
-#bilancio-header #services-comune-name a,
-#bilancio-header #services-comune-name a:hover {
+#bilancio-header #services-comune-name img.trademark {
+  max-height: 100px;
+}
+#bilancio-header #services-comune-name a {
   text-decoration: none;
   color: #2a3036;
+}
+#bilancio-header #services-comune-name a:hover {
+  text-decoration: none;
+  color: #56686e;
 }
 #bilancio-header .affix-only {
   display: none;

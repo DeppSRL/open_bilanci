@@ -23,8 +23,28 @@ import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404
 from bilanci.utils import couch
-
 from territori.models import Territorio, Contesto, Incarico
+
+
+class ServiziComuniMixin(object):
+    territorio = None
+    servizi_comuni = False
+
+    def check_servizi_comuni(self, request):
+        # identifies if the request comes from a Comuni host
+        if request.servizi_comuni:
+            self.servizi_comuni = True
+
+    def get_servizi_comune_context(self):
+
+        # gets PaginaComune data to pass onto the context
+        try:
+            p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
+        except ObjectDoesNotExist:
+            return None
+        else:
+            return p_comune
+
 
 
 class ShareUrlMixin(object):
@@ -61,6 +81,68 @@ class ShareUrlMixin(object):
                 self.share_url = short_url_obj.short_url
 
         return super(ShareUrlMixin, self).get(request, *args, **kwargs)
+
+
+
+class NavigationMenuMixin(object):
+    entrate_kwargs = { 'section': 'entrate'}
+    spese_kwargs = { 'section': 'spese'}
+
+    def get_menu_voices(self,):
+
+        # generates menu_voices structure based on if the request comes from Servizi comune or main app
+
+        urlconf = None
+        destination_views = {
+            'overview': 'bilanci-overview',
+            'dettaglio': 'bilanci-dettaglio',
+            'composizione': 'bilanci-composizione',
+            'indicatori': 'bilanci-indicatori',
+        }
+
+        kwargs = {
+            'overview': {'slug':self.territorio.slug},
+            'indicatori': {'slug':self.territorio.slug},
+        }
+
+        if hasattr(self, 'entrate_kwargs'):
+            kwargs['entrate'] = self.entrate_kwargs
+
+        if hasattr(self, 'spese_kwargs'):
+            kwargs['spese'] = self.spese_kwargs
+
+        # if the request comes from Comune host then changes the url in the nav menu
+        # basically resolving the path with services.urls and popping the territorio slug from kwargs
+        if self.servizi_comuni:
+            urlconf = services.urls
+            destination_views = {
+                'overview': 'bilanci-overview-services',
+                'dettaglio': 'bilanci-dettaglio-services',
+                'composizione': 'bilanci-composizione-services',
+                'indicatori': 'bilanci-indicatori-services',
+            }
+            kwargs['indicatori']=None
+            kwargs['overview']=None
+            if 'entrate' in kwargs.keys():
+                kwargs['entrate'].pop("slug", None)
+            if 'spese' in kwargs.keys():
+                kwargs['spese'].pop("slug", None)
+
+
+        menu_voices = OrderedDict([
+            ('bilancio', reverse(destination_views['overview'], kwargs=kwargs['overview'], urlconf=urlconf)),
+            ('entrate', OrderedDict([
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('entrate',None), urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('entrate',None), urlconf=urlconf))
+            ])),
+            ('spese', OrderedDict([
+                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
+                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
+            ])),
+            ('indicatori', reverse(destination_views['indicatori'], kwargs=kwargs['indicatori'], urlconf=urlconf))
+        ])
+
+        return menu_voices
 
 
 class MiniClassificheMixin(object):
@@ -180,6 +262,37 @@ class HierarchicalMenuMixin(object):
             'spese_interventi': spese_interventi
         }
 
+class StaticPageView(TemplateView, ServiziComuniMixin, NavigationMenuMixin):
+
+    template_name = 'static_page.html'
+
+    def get(self, request, *args, **kwargs):
+
+        # check if the request comes from Comuni host
+        self.check_servizi_comuni(request)
+        if self.servizi_comuni:
+            self.territorio = Territorio.objects.get(slug=kwargs['slug'])
+
+        page_url = request.get_full_path().replace("/pages/","")
+        if page_url not in settings.ENABLED_STATIC_PAGES:
+            if self.servizi_comuni:
+                return HttpResponseRedirect(reverse('bilanci-overview-services', urlconf = services.urls))
+            else:
+                return HttpResponseRedirect(reverse('404'))
+        return super(StaticPageView, self).get(request, *args, **kwargs)
+
+
+    def get_context_data(self, **kwargs):
+        context = super(StaticPageView, self).get_context_data( **kwargs)
+
+        # if servizi_comuni then passes the Pagina Comune data to the template
+        if self.servizi_comuni:
+            context['pagina_comune'] = self.get_servizi_comune_context()
+            context['territorio'] = self.territorio
+            context['menu_voices'] = self.get_menu_voices()
+            self.template_name = 'services/static_page.html'
+
+        return context
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -1473,85 +1586,13 @@ class BilancioRedirectView(RedirectView):
             return reverse('404')
 
 
-class BilancioView(DetailView):
+class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
 
     model = Territorio
     context_object_name = "territorio"
     territorio= None
     servizi_comuni = False
 
-
-    def check_servizi_comuni(self, request):
-        # identifies if the request comes from a Comuni host
-        if request.servizi_comuni:
-            self.servizi_comuni = True
-
-    def get_servizi_comune_context(self):
-
-        # gets PaginaComune data to pass onto the context
-        try:
-            p_comune = PaginaComune.objects.get(territorio = self.territorio,active = True)
-        except ObjectDoesNotExist:
-            return None
-        else:
-            return p_comune
-
-
-    def get_menu_voices(self,):
-
-        # generates menu_voices structure based on if the request comes from Servizi comune or main app
-
-        urlconf = None
-        destination_views = {
-            'overview': 'bilanci-overview',
-            'dettaglio': 'bilanci-dettaglio',
-            'composizione': 'bilanci-composizione',
-            'indicatori': 'bilanci-indicatori',
-        }
-
-        kwargs = {
-            'overview': {'slug':self.territorio.slug},
-            'indicatori': {'slug':self.territorio.slug},
-        }
-
-        if hasattr(self, 'entrate_kwargs'):
-            kwargs['entrate'] = self.entrate_kwargs
-
-        if hasattr(self, 'spese_kwargs'):
-            kwargs['spese'] = self.spese_kwargs
-
-        # if the request comes from Comune host then changes the url in the nav menu
-        # basically resolving the path with services.urls and popping the territorio slug from kwargs
-        if self.servizi_comuni:
-            urlconf = services.urls
-            destination_views = {
-                'overview': 'bilanci-overview-services',
-                'dettaglio': 'bilanci-dettaglio-services',
-                'composizione': 'bilanci-composizione-services',
-                'indicatori': 'bilanci-indicatori-services',
-            }
-            kwargs['indicatori']=None
-            kwargs['overview']=None
-            if 'entrate' in kwargs.keys():
-                kwargs['entrate'].pop("slug", None)
-            if 'spese' in kwargs.keys():
-                kwargs['spese'].pop("slug", None)
-
-
-        menu_voices = OrderedDict([
-            ('bilancio', reverse(destination_views['overview'], kwargs=kwargs['overview'], urlconf=urlconf)),
-            ('entrate', OrderedDict([
-                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('entrate',None), urlconf=urlconf)),
-                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('entrate',None), urlconf=urlconf))
-            ])),
-            ('spese', OrderedDict([
-                ('dettaglio', reverse(destination_views['dettaglio'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
-                ('composizione', reverse(destination_views['composizione'], kwargs=kwargs.get('spese',None), urlconf=urlconf)),
-            ])),
-            ('indicatori', reverse(destination_views['indicatori'], kwargs=kwargs['indicatori'], urlconf=urlconf))
-        ])
-
-        return menu_voices
 
     def get_complete_file(self, file_name):
         """
@@ -1598,8 +1639,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     territorio = None
-    entrate_kwargs = None
-    spese_kwargs = None
     values_type = None
     cas_com_type = None
     fun_int_view = None
@@ -1737,10 +1776,15 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             verification_voice = self.comp_bilancio_type+'-entrate'
             self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year-1, slug = verification_voice )
 
-        else:
+        elif self.main_bilancio_type == 'consuntivo':
             self.comp_bilancio_type = 'preventivo'
             verification_voice = self.comp_bilancio_type+'-entrate'
             self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
+        else:
+            return HttpResponseRedirect(
+                reverse('404')
+                )
+
 
         if self.comp_bilancio_year is None:
             self.comparison_not_available = True
@@ -2744,5 +2788,6 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
 
 class PageNotFoundTemplateView(TemplateView):
     template_name = '404.html'
+
 
 

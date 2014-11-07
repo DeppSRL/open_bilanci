@@ -11,11 +11,12 @@ from bilanci.views import BilancioRedirectView, \
     IncarichiIndicatoriJSONView, HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView,\
     ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView,\
     ClassificheRedirectView, ClassificheListView, CompositionWidgetView, BilancioNotFoundView,\
-    ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView
+    ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView, StaticPageView
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^robots\.txt$', include('robots.urls')),
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^login$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name='login', ),
     url(r'^logout$', 'django.contrib.auth.views.logout_then_login', name='logout', ),
@@ -72,7 +73,8 @@ urlpatterns = patterns('',
         ),
 
 
-    url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
+    # url(r'^pages/', TemplateView.as_view(template_name='static_page.html'), name='static_page'),
+    url(r'^pages/', StaticPageView.as_view(), name='static_page'),
 
     url(r'^page-not-found$', PageNotFoundTemplateView.as_view(), name='404'),
 

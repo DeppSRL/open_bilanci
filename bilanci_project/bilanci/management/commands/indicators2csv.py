@@ -34,7 +34,7 @@ class Command(BaseCommand):
         make_option('--cities',
                     dest='cities',
                     default='',
-                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All" or "capoluoghi"'),
+                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "all" or "capoluoghi"'),
         make_option('--single-file',
                     dest='single_file',
                     action='store_true',

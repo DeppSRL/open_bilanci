@@ -8,11 +8,13 @@
     Indicatori del bilancio {{ tipo_bilancio }} per il Comune di {{ territorio }}
 {% endblock %}
 
-{% block year_selector %}{% endblock %}
-
-{% block bilancio_indicatori_selection_menu %}
-{#    {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}#}
+{% block subtitle %}
+Indicatori
+    <a href="/pages/indicatori" style="display: inline;">
+        <span class="fa fa-fw fa-question-circle" style="vertical-align: top;"></span></a>
 {% endblock %}
+
+{% block year_selector %}{% endblock %}
 
 {% block bilancio_description %}
 
@@ -28,6 +30,7 @@
 {% endblock %}
 
 {% block bilanci_content %}
+
     <div class="tab-pane fade in" id="dettaglio">
         <h3>{% section_title bold_text="ANDAMENTO NEL TEMPO"   %}</h3>
 
@@ -42,8 +45,15 @@
                 {% include 'bilanci/_miniclassifiche.html' %}
             </div>
         </div>
+        {% else %}
+        <div class="row" style="min-height: 100px;">
+            <div class="col-md-12">
+
+            </div>
+        </div>
 
     {% endif %}
+
 
 {% endblock %}
 

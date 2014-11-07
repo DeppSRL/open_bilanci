@@ -98,6 +98,11 @@ class Command(BaseCommand):
         tree_node_slug = options['tree_node_slug']
         couch_path_string = options['couch_path_string']
 
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and options['cities'] == 'all':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
+
         if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
             self.logger.error("Couch path and tree node must be both specified. Quitting")
             exit()

@@ -49,14 +49,18 @@ class Command(BaseCommand):
     comuni_dicts = {}
     dryrun = False
     bilancio_year = None
+    added_voce_slug = []
 
     def save_codice_voce(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
 
         try:
             voce = Voce.objects.get(slug = voce_slug)
         except ObjectDoesNotExist:
-            self.logger.error("Voce with slug:{0} is not present in DB and Codice voce cannot be saved".format(voce_slug))
+            self.logger.error(u"Voce with slug:{0} is not present in DB and Codice voce cannot be saved".format(voce_slug))
             return
+
+        if voce_slug not in self.added_voce_slug:
+            self.added_voce_slug.append(voce_slug)
 
         if self.dryrun is False:
 
@@ -71,7 +75,9 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.logger.info("CodiceVoce created: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+                self.logger.info(u"CodiceVoce created: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+            else:
+                self.logger.info(u"CodiceVoce already present: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
 
 
         return
@@ -140,10 +146,15 @@ class Command(BaseCommand):
                 colonne_quadro = colonne_regroup[(quadro_denominazione_voce,quadro_cod,)]
 
             n_colonne_quadro = len(colonne_quadro)
-            # if the quadro / titolo considered is associated with N colonne then generates a set of N slugs from voce
-            # else
+            # if the quadro / titolo considered is associated with 0 colonne
             # writes the current voce_slug in the db
-            if n_colonne_quadro > 0:
+            # else
+            # generates a set of N slugs from voce
+            if n_colonne_quadro == 0:
+
+                self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
+
+            else:
 
                 if quadro_cod == '04' or quadro_cod == '05':
                     # deal with funzioni / interventi
@@ -177,13 +188,23 @@ class Command(BaseCommand):
                         # similarly to funzioni the only data associated with interventi is the grand total so once
                         # the "Totale" row is reached all the interventi cols are associated with the row code and saved
                         ##
+                        funzioni_string = '-funzioni'
+                        root_voce_slug = voce_slug
+                        if funzioni_string in root_voce_slug:
+                            root_voce_slug = root_voce_slug.replace(funzioni_string,'')
 
                         for colonna in colonne_quadro:
                             colonna_cod = colonna[2]
                             denominazione_colonna = colonna[3]
                             colonna_slug = colonna[4]
+
                             if denominazione_colonna.lower() != 'totale':
-                                colonna_voce_slug = "{0}-{1}".format(voce_slug, colonna_slug)
+
+                                colonna_root_slug = colonna_slug
+                                if root_voce_slug in colonna_root_slug:
+                                    colonna_root_slug = colonna_root_slug.replace(root_voce_slug,'')
+
+                                colonna_voce_slug = "{0}{1}".format(root_voce_slug, colonna_root_slug)
                                 self.save_codice_voce(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
 
                 else:
@@ -206,12 +227,14 @@ class Command(BaseCommand):
                         denominazione_colonna = colonna[3]
                         colonna_slug = colonna[4]
 
+                        if colonna_slug == '':
+                            continue
+
+
                         colonna_voce_slug = voce_slug.replace(first_colonna_slug, colonna_slug)
 
                         self.save_codice_voce(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
 
-            else:
-
-                self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
+        self.logger.info("Added {0} unique Voce slug".format(len(self.added_voce_slug)))
 
         return

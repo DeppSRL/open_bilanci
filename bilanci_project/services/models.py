@@ -10,8 +10,8 @@ from territori.models import Territorio
 class PaginaComune(models.Model):
 
     TIPOLOGIA = Choices(
-        (u'0', u'LOGO_SEMPLICE', u'Logo senza nome Comune'),
-        (u'1', u'LOGO_NOME', u'Logo con nome Comune'),
+        (u'0', u'LOGO', u'Logo senza nome Comune'),
+        (u'1', u'TRADEMARK', u'Logo con nome Comune'),
     )
 
     host = models.TextField(blank=False, null=False, default='')

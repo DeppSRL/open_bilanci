@@ -1,6 +1,6 @@
 __author__ = 'stefano'
-from bilanci.views import BilancioNotFoundView, BilancioRedirectView, BilancioOverView, BilancioDettaglioView, BilancioComposizioneView, BilancioIndicatoriView, \
-    IncarichiVoceJSONView, IncarichiIndicatoriJSONView, CompositionWidgetView
+from bilanci.views import BilancioOverView, BilancioDettaglioView, BilancioComposizioneView, BilancioIndicatoriView, \
+    StaticPageView, PageNotFoundTemplateView
 
 from django.conf import settings
 from django.conf.urls import patterns, include, url
@@ -13,10 +13,10 @@ urlpatterns = patterns('',
 
     url(r'^(?P<section>[-\w]+)/composizione$', BilancioComposizioneView.as_view(), name='bilanci-composizione-services'),
     url(r'^(?P<section>[-\w]+)/dettaglio$', BilancioDettaglioView.as_view(), name='bilanci-dettaglio-services'),
-    #
     url(r'^indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori-services'),
 
-    # url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found-services'),
+    url(r'^pages/', StaticPageView.as_view(), name='static_page'),
+    url(r'^page-not-found$', PageNotFoundTemplateView.as_view(), name='404'),
 
 
 ) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ROOT)
