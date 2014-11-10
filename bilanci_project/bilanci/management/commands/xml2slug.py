@@ -19,7 +19,7 @@ class Command(BaseCommand):
                     help='Year to fetch'),
 
         make_option('--type',
-                    dest='type',
+                    dest='bilancio_type',
                     default='c',
                     help='Select bilancio type: [(p)reventivo | (c)onsuntivo]'),
 
@@ -49,7 +49,10 @@ class Command(BaseCommand):
     comuni_dicts = {}
     dryrun = False
     bilancio_year = None
+    bilancio_type = None
+    voci = None
     added_voce_slug = []
+    fill_in_mapping = {}
 
     def save_codice_voce(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
 
@@ -79,8 +82,66 @@ class Command(BaseCommand):
             else:
                 self.logger.info(u"CodiceVoce already present: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
 
+        return
+
+
+    def get_voci_titolo(self, cod_quadro, quadro_denominazione_contains, slug_startswith=None):
+        # get voci from Quadro / titolo
+        # using
+        # x[0] == quadro_denominazione
+        # x[4] == quadro_cod
+        # x[6] == voce_slug
+
+        lambda_cod_denominazione_slug = lambda x: x[4] == cod_quadro and quadro_denominazione_contains.lower() in x[0].lower() and x[6].startswith(slug_startswith)
+        lambda_cod_denominazione = lambda x: x[4] == cod_quadro and quadro_denominazione_contains.lower() in x[0].lower()
+
+        if slug_startswith is None:
+            lambda_func = lambda_cod_denominazione
+        else:
+            lambda_func = lambda_cod_denominazione_slug
+
+        return filter(lambda_func, self.voci)
+
+    def convert_slugs(self, voci_set, old_subslug, new_subslug):
+
+        #  given a set of voci and a substring of slug
+        # gets the Voce with denominazione contained in the fill_in_mapping
+        # then gets the impegni slug (voce_impegni_slug) substitutes 'impegni' with the substring
+        # and sets the new slug for the voce in self.voci
+
+        for v in voci_set:
+            voce_denominazione = v[3]
+            if voce_denominazione in self.fill_in_mapping.keys():
+                voce_impegni_slug = self.fill_in_mapping[voce_denominazione]
+                voce_replaced_slug = voce_impegni_slug.replace(old_subslug, new_subslug)
+                v[6] = voce_replaced_slug
 
         return
+
+    def fill_in_voci(self):
+
+        # fills in the voci mapping table using the Q4 impegni as reference to complete the
+        #  q4 conto competenza, conto residui and q5 impegni, conto competenza, residui
+
+        voci_q4_impegni = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI', slug_startswith='consuntivo-spese-impegni-')
+        voci_q4_cc = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (B) - PAGAMENTI IN CONTO COMPETENZA',)
+        voci_q4_cr = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (C) - PAGAMENTI IN CONTO RESIDUI',)
+
+        voci_q5_impegni = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (A) - IMPEGNI')
+        voci_q5_cc = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (B) - PAGAMENTI IN CONTO COMPETENZA')
+        voci_q5_cr = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (C) - PAGAMENTI IN CONTO RESIDUI')
+
+        # creates a map that links voce_denominazione with voce_slug
+        for voce_q4 in voci_q4_impegni:
+            self.fill_in_mapping[voce_q4[3]] = voce_q4[6]
+
+        # convert slugs for q4 conto competenza, residui
+        self.convert_slugs(voci_set=voci_q4_cc, old_subslug='impegni', new_subslug='pagamenti-in-conto-competenza')
+        self.convert_slugs(voci_set=voci_q4_cr, old_subslug='impegni', new_subslug='pagamenti-in-conto-residui')
+        # convert slugs for q5 impegni, conto competenza, residui
+        self.convert_slugs(voci_set=voci_q5_impegni, old_subslug='impegni-spese-correnti', new_subslug='impegni-spese-per-investimenti')
+        self.convert_slugs(voci_set=voci_q5_cc, old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-competenza-spese-per-investimenti')
+        self.convert_slugs(voci_set=voci_q5_cr, old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-residui-spese-per-investimenti')
 
 
     def handle(self, *args, **options):
@@ -97,11 +158,11 @@ class Command(BaseCommand):
         self.dryrun = options['dryrun']
         force_google = options['force_google']
         self.bilancio_year = options['year']
-        type = options['type']
+        bilancio_type = options['bilancio_type']
 
-        if type.lower() == 'c':
+        if bilancio_type.lower() == 'c':
             bilancio_type = 'consuntivo'
-        elif type.lower() == 'p':
+        elif bilancio_type.lower() == 'p':
             bilancio_type = 'preventivo'
         else:
             self.logger.error("Bilancio type must be C or P")
@@ -109,7 +170,6 @@ class Command(BaseCommand):
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
-
 
 
         ###
@@ -121,7 +181,7 @@ class Command(BaseCommand):
         # metadata voci
         # quadro_denominazione, titolo_denominazione , cat_cod, voce_denominazione, quadro_cod, voce_cod, voce_slug
 
-        voci = codes_map['voci']
+        self.voci = codes_map['voci']
         # metadata colonne
         # quadro_denominazione, quadro_cod, col_cod, col_denominazione
         colonne = codes_map['colonne']
@@ -130,15 +190,20 @@ class Command(BaseCommand):
         q_keygen = lambda x: (x[0], x[1] )
         colonne_regroup = dict((k,list(v)) for k,v in groupby(colonne, key=q_keygen))
 
-        for voce in voci:
+        # function fill-in-voci creates the mapping for Q4 (conto competenza / conto residui) and Q5 (impegni /conto competenza / conto residui)
+        # from Q4 impegni where the mapping has been made by the operator on the gdoc file
+
+        self.fill_in_voci()
+
+        for voce in self.voci:
             denominazione_voce = voce[3]
             quadro_cod = voce[4]
             voce_cod = voce[5]
             quadro_denominazione_voce = voce[0]
             voce_slug = voce[6]
 
-            if not voce_slug:
-                # self.logger.debug(u"Voce slug not present for voce:{0}".format(denominazione_voce))
+            if voce_slug is None or voce_slug == '' or voce_slug == u'':
+                # if voce slug is empty skip row
                 continue
 
             colonne_quadro = []
@@ -159,34 +224,11 @@ class Command(BaseCommand):
                 if quadro_cod == '04' or quadro_cod == '05':
                     # deal with funzioni / interventi
 
-                    if denominazione_voce.lower() != 'totale':
-                        ##
-                        # FUNZIONI:
-                        # for each funzione the grand total is the only data that gets imported, so the
-                        # code for the total column is found and associated with the funzione
-                        ##
-
-                        # finds the colonna with label 'totale' and gets the colonna code
-                        colonna_totale = None
-                        for colonna in colonne_quadro:
-                            if colonna[3].lower() == 'totale':
-                                colonna_totale = colonna
-
-                        if colonna_totale:
-                            colonna_totale_cod = colonna_totale[2]
-                        else:
-                            self.logger.error(u'Colonna totale not found for Q:{0}, cod_voce:{1}, voce_slug {2}. Skipping'.\
-                                format(quadro_cod,voce_cod,voce_slug))
-                            continue
-
-                        self.save_codice_voce(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
-
-                    else:
-
+                    if denominazione_voce.lower() == 'totale':
                         ##
                         # INTERVENTI:
-                        # similarly to funzioni the only data associated with interventi is the grand total so once
-                        # the "Totale" row is reached all the interventi cols are associated with the row code and saved
+                        # the only data associated with interventi is the grand total so once the "Totale" row
+                        # is reached all the interventi cols are associated with the 'totale' row code and saved
                         ##
                         funzioni_string = '-funzioni'
                         root_voce_slug = voce_slug
@@ -206,6 +248,32 @@ class Command(BaseCommand):
 
                                 colonna_voce_slug = "{0}{1}".format(root_voce_slug, colonna_root_slug)
                                 self.save_codice_voce(colonna_voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna)
+                    else:
+
+                        ##
+                        # FUNZIONI:
+                        # for each funzione the grand total is the only data that gets imported, so the
+                        # code for the total column is found and associated with the funzione
+                        ##
+
+                        # finds the colonna with label 'totale' and gets the colonna code
+                        colonna_totale = None
+                        for colonna in colonne_quadro:
+                            if colonna[3].lower() == 'totale':
+                                colonna_totale = colonna
+                                break
+
+                        if colonna_totale:
+                            colonna_totale_cod = colonna_totale[2]
+                        else:
+                            self.logger.error(u'Colonna totale not found for Q:{0}, cod_voce:{1}, voce_slug {2}. Skipping'.\
+                                format(quadro_cod,voce_cod,voce_slug))
+                            continue
+
+                        self.save_codice_voce(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
+
+
+
 
                 else:
 
