@@ -124,12 +124,67 @@ Bilancio Codes - simplified slugs association for Voci
 ------------------------------------------------------
 
 This step requires that a skilled operator associates the normalized slugs with the voci in the *Voci* sheet 
-keeping in mind the rule aforementioned.
+keeping in mind the rule aforementioned: **the slug used in the Voci sheet must be only the ones relative to the first column of the table, 
+association for other columns will happen automatically**.
 
-**For Consuntivo:** if Quadro 4 and 5 have the same structure and voce counts then only compile Quadro 4 Impegni part,
-the other parts of Quadro 4 will be a copy of that.
+For example:
 
-Same for Quadro 5: if the structure is the same of Quadro 4 the Voce / slugs will be copied replacing the different root slugs.
+QUADRO 9 - QUADRO RIASSUNTIVO DELLA GESTIONE FINANZIARIA has 3 columns: 
+
+Gestione Residui
+
+Gestione Competenza
+
+Gestione Totale
+
+
+The voci in the Voci sheet must be associated only with gestione residui branch slugs.
+In the colonne sheet just report the part of slug that must be replaced.
+
+For example:
+voce_slug = consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-riscossioni
+
+colonne_slug = 
+gestione-residui
+
+gestione-competenza
+
+gestione-totale
+
+
+**Special cases: Q4/ Q5**
+
+If the voci are the same in Q4/Q5 then fill in just the voci for Q4 Impegni.
+The other voci will be filled automatically by xml2slug management task.
+
+
+For the columns: interventi are different for spese correnti / spese per investimenti so fill in columns for Q4 Impegni and Q5 Impegni.
+The other columns will be filled automatically by xml2slug management task.
+
+**IMPORTANT NOTE**
+
+The method of filling the column sheet is different for Q4/Q5: 
+fill in the exact slug of the intervento for the impegni table.
+
+Example for Q4 Impegni:
+
+consuntivo-spese-impegni-spese-correnti-interventi-personale
+
+consuntivo-spese-impegni-spese-correnti-interventi-altre-spese-per-interventi-correnti
+
+and for TOTALE (in Colonne sheet)
+
+consuntivo-spese-impegni-spese-correnti-interventi
+
+Example for Q5 Impegni:
+
+consuntivo-spese-impegni-spese-per-investimenti-interventi-acquisizione-di-beni-immobili
+
+consuntivo-spese-impegni-spese-per-investimenti-interventi-altri-investimenti-per-interventi
+
+and for TOTALE (in Colonne sheet)
+
+consuntivo-spese-impegni-spese-per-investimenti-interventi
 
 
 Bilancio Codes - simplified slugs association for Colonne
