@@ -131,25 +131,34 @@ For example:
 
 QUADRO 9 - QUADRO RIASSUNTIVO DELLA GESTIONE FINANZIARIA has 3 columns: 
 
-Gestione Residui
+.. code-block:: bash
 
-Gestione Competenza
+    Gestione Residui
 
-Gestione Totale
+    Gestione Competenza
+
+    Gestione Totale
 
 
 The voci in the Voci sheet must be associated only with gestione residui branch slugs.
 In the colonne sheet just report the part of slug that must be replaced.
 
 For example:
-voce_slug = consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-riscossioni
+voce_slug is
 
-colonne_slug = 
-gestione-residui
+.. code-block:: bash
 
-gestione-competenza
+    consuntivo-riassuntivo-gestione-finanziaria-gestione-competenza-riscossioni
 
-gestione-totale
+colonne_slugs should be
+
+.. code-block:: bash
+
+    gestione-residui
+
+    gestione-competenza
+
+    gestione-totale
 
 
 **Special cases: Q4/ Q5**
@@ -168,23 +177,31 @@ fill in the exact slug of the intervento for the impegni table.
 
 Example for Q4 Impegni:
 
-consuntivo-spese-impegni-spese-correnti-interventi-personale
+.. code-block:: bash
 
-consuntivo-spese-impegni-spese-correnti-interventi-altre-spese-per-interventi-correnti
+    consuntivo-spese-impegni-spese-correnti-interventi-personale
+
+    consuntivo-spese-impegni-spese-correnti-interventi-altre-spese-per-interventi-correnti
 
 and for TOTALE (in Colonne sheet)
 
-consuntivo-spese-impegni-spese-correnti-interventi
+.. code-block:: bash
+
+    consuntivo-spese-impegni-spese-correnti-interventi
 
 Example for Q5 Impegni:
 
-consuntivo-spese-impegni-spese-per-investimenti-interventi-acquisizione-di-beni-immobili
+.. code-block:: bash
 
-consuntivo-spese-impegni-spese-per-investimenti-interventi-altri-investimenti-per-interventi
+    consuntivo-spese-impegni-spese-per-investimenti-interventi-acquisizione-di-beni-immobili
+
+    consuntivo-spese-impegni-spese-per-investimenti-interventi-altri-investimenti-per-interventi
 
 and for TOTALE (in Colonne sheet)
 
-consuntivo-spese-impegni-spese-per-investimenti-interventi
+.. code-block:: bash
+
+    consuntivo-spese-impegni-spese-per-investimenti-interventi
 
 
 Bilancio Codes - simplified slugs association for Colonne
