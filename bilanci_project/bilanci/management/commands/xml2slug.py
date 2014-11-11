@@ -280,7 +280,6 @@ class Command(BaseCommand):
             # else
             # generates a set of N slugs from voce
             if n_colonne_quadro == 0:
-
                 self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'1',denominazione_voce,'')
 
             else:
@@ -336,7 +335,11 @@ class Command(BaseCommand):
 
                         self.save_codice_voce(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
 
-
+                # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE
+                # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
+                elif quadro_cod == '09' and quadro_denominazione_voce =='QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE':
+                    self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'3',denominazione_voce,'')
+                    pass
 
 
                 else:
