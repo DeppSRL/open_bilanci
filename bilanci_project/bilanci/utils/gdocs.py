@@ -348,7 +348,7 @@ def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilanc
     # get the voices subtrees from gDoc spreadsheet
     # skip the first n_headers lines
     try:
-        logger.info("reading preventivo entrate ...")
+        logger.info("Reading {} from drive".format(bilancio_type_year))
         voci = list_sheet.worksheet("Voci").get_all_values()[n_header_lines:]
         colonne = list_sheet.worksheet("Colonne").get_all_values()[n_header_lines:]
 

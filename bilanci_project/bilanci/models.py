@@ -138,9 +138,9 @@ class CodiceVoce(models.Model):
 
     def __unicode__(self):
         if self.colonna_cod:
-            return u"%s - %s %s-%s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)
+            return u"%s - %s (%s-%s-%s)" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod, self.colonna_cod)
         else:
-            return u"%s - %s %s-%s" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod,)
+            return u"%s - %s (%s-%s)" % (self.anno, self.voce.slug, self.quadro_cod, self.voce_cod,)
 
     @staticmethod
     def get_bilancio_codes(anno, tipo_certificato):

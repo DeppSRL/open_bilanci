@@ -4,7 +4,6 @@ from optparse import make_option
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
-from bs4 import BeautifulSoup
 from bilanci.models import CodiceVoce, Voce
 from bilanci.utils import gdocs
 
@@ -19,7 +18,7 @@ class Command(BaseCommand):
                     help='Year to fetch'),
 
         make_option('--type',
-                    dest='bilancio_type',
+                    dest='self.bilancio_type',
                     default='c',
                     help='Select bilancio type: [(p)reventivo | (c)onsuntivo]'),
 
@@ -51,8 +50,11 @@ class Command(BaseCommand):
     bilancio_year = None
     bilancio_type = None
     voci = None
+    colonne = None
+    di_cui_string = ' di cui:'
     added_voce_slug = []
-    fill_in_mapping = {}
+    fill_in_mapping_voci = {}
+    fill_in_mapping_colonne = {'04':{}, '05':{}}
 
     def save_codice_voce(self, voce_slug, voce_cod, quadro_cod, colonna_cod, denominazione_voce, denominazione_colonna ):
 
@@ -61,9 +63,6 @@ class Command(BaseCommand):
         except ObjectDoesNotExist:
             self.logger.error(u"Voce with slug:{0} is not present in DB and Codice voce cannot be saved".format(voce_slug))
             return
-
-        if voce_slug not in self.added_voce_slug:
-            self.added_voce_slug.append(voce_slug)
 
         if self.dryrun is False:
 
@@ -78,22 +77,25 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.logger.info(u"CodiceVoce created: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+                self.logger.debug(u"CodiceVoce created: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+                if voce_slug not in self.added_voce_slug:
+                    self.added_voce_slug.append(voce_slug)
+
             else:
-                self.logger.info(u"CodiceVoce already present: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
+                self.logger.debug(u"CodiceVoce already present: {0}:{1}-{2}-{3}".format(voce.slug, voce_cod, quadro_cod, colonna_cod))
 
         return
 
 
-    def get_voci_titolo(self, cod_quadro, quadro_denominazione_contains, slug_startswith=None):
-        # get voci from Quadro / titolo
+    def get_voci_titolo(self, cod_quadro, quadro_denominazione, slug_startswith=None):
+        # get voci from Quadro / denominazione
         # using
         # x[0] == quadro_denominazione
         # x[4] == quadro_cod
         # x[6] == voce_slug
 
-        lambda_cod_denominazione_slug = lambda x: x[4] == cod_quadro and quadro_denominazione_contains.lower() in x[0].lower() and x[6].startswith(slug_startswith)
-        lambda_cod_denominazione = lambda x: x[4] == cod_quadro and quadro_denominazione_contains.lower() in x[0].lower()
+        lambda_cod_denominazione_slug = lambda x: x[4] == cod_quadro and quadro_denominazione.lower() in x[0].lower() and x[6].startswith(slug_startswith)
+        lambda_cod_denominazione = lambda x: x[4] == cod_quadro and quadro_denominazione.lower() in x[0].lower()
 
         if slug_startswith is None:
             lambda_func = lambda_cod_denominazione
@@ -102,19 +104,48 @@ class Command(BaseCommand):
 
         return filter(lambda_func, self.voci)
 
-    def convert_slugs(self, voci_set, old_subslug, new_subslug):
+
+    def convert_voci_slugs(self, cod_quadro,quadro_denominazione , old_subslug, new_subslug):
 
         #  given a set of voci and a substring of slug
         # gets the Voce with denominazione contained in the fill_in_mapping
         # then gets the impegni slug (voce_impegni_slug) substitutes 'impegni' with the substring
         # and sets the new slug for the voce in self.voci
 
+        voci_set = self.get_voci_titolo(cod_quadro=cod_quadro, quadro_denominazione=quadro_denominazione)
+
         for v in voci_set:
-            voce_denominazione = v[3]
-            if voce_denominazione in self.fill_in_mapping.keys():
-                voce_impegni_slug = self.fill_in_mapping[voce_denominazione]
+            voce_denominazione = v[3].replace(self.di_cui_string,'')
+            if voce_denominazione in self.fill_in_mapping_voci.keys():
+                voce_impegni_slug = self.fill_in_mapping_voci[voce_denominazione]
                 voce_replaced_slug = voce_impegni_slug.replace(old_subslug, new_subslug)
                 v[6] = voce_replaced_slug
+
+        return
+
+
+    def get_colonne_titolo(self, cod_quadro, quadro_denominazione):
+        # get colonne from Quadro / denominazione
+        # using
+        # x[0] == quadro_denominazione
+        # x[1] == quadro_cod
+        # x[2] == col_cod
+        # x[3] == col_denominazione
+        # x[4] == slug
+        lambda_colonne = lambda x: x[1] == cod_quadro and quadro_denominazione.lower() in x[0].lower()
+        return filter(lambda_colonne, self.colonne)
+
+
+    def convert_colonne_slugs(self, cod_quadro, quadro_denominazione, old_subslug, new_subslug):
+        # same as convert_voci_slugs for columns
+        colonne_set = self.get_colonne_titolo(cod_quadro, quadro_denominazione)
+        considered_col_mapping = self.fill_in_mapping_colonne[cod_quadro]
+        for c in colonne_set:
+            colonna_denominazione = c[3]
+            if colonna_denominazione in considered_col_mapping.keys():
+                colonna_impegni_slug = considered_col_mapping[colonna_denominazione]
+                colonna_replaced_slug = colonna_impegni_slug.replace(old_subslug, new_subslug)
+                c[4] = colonna_replaced_slug
 
         return
 
@@ -123,25 +154,51 @@ class Command(BaseCommand):
         # fills in the voci mapping table using the Q4 impegni as reference to complete the
         #  q4 conto competenza, conto residui and q5 impegni, conto competenza, residui
 
-        voci_q4_impegni = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI', slug_startswith='consuntivo-spese-impegni-')
-        voci_q4_cc = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (B) - PAGAMENTI IN CONTO COMPETENZA',)
-        voci_q4_cr = self.get_voci_titolo(cod_quadro='04', quadro_denominazione_contains='QUADRO 4 - SPESE CORRENTI - (C) - PAGAMENTI IN CONTO RESIDUI',)
-
-        voci_q5_impegni = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (A) - IMPEGNI')
-        voci_q5_cc = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (B) - PAGAMENTI IN CONTO COMPETENZA')
-        voci_q5_cr = self.get_voci_titolo(cod_quadro='05', quadro_denominazione_contains='QUADRO 5 - SPESE IN CONTO CAPITALE - (C) - PAGAMENTI IN CONTO RESIDUI')
+        voci_q4_impegni = self.get_voci_titolo(cod_quadro='04', quadro_denominazione='QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI', slug_startswith='consuntivo-spese-impegni-')
 
         # creates a map that links voce_denominazione with voce_slug
         for voce_q4 in voci_q4_impegni:
-            self.fill_in_mapping[voce_q4[3]] = voce_q4[6]
+            # skips voce with denominazione == di cui:
+            if voce_q4[3] == 'di cui:':
+                continue
+            # if voce denominazione contains " di cui:" then removes the " di cui:"
+            # so the voce "EXAMPLE di cui:" is associated to "EXAMPLE"
+
+            if self.di_cui_string in voce_q4[3]:
+                voce_q4[3] = voce_q4[3].replace(self.di_cui_string,"")
+
+            self.fill_in_mapping_voci[voce_q4[3]] = voce_q4[6]
 
         # convert slugs for q4 conto competenza, residui
-        self.convert_slugs(voci_set=voci_q4_cc, old_subslug='impegni', new_subslug='pagamenti-in-conto-competenza')
-        self.convert_slugs(voci_set=voci_q4_cr, old_subslug='impegni', new_subslug='pagamenti-in-conto-residui')
+        self.convert_voci_slugs(cod_quadro='04', quadro_denominazione='QUADRO 4 - SPESE CORRENTI - (B) - PAGAMENTI IN CONTO COMPETENZA', old_subslug='impegni', new_subslug='pagamenti-in-conto-competenza')
+        self.convert_voci_slugs(cod_quadro='04', quadro_denominazione='QUADRO 4 - SPESE CORRENTI - (C) - PAGAMENTI IN CONTO RESIDUI', old_subslug='impegni', new_subslug='pagamenti-in-conto-residui')
+
         # convert slugs for q5 impegni, conto competenza, residui
-        self.convert_slugs(voci_set=voci_q5_impegni, old_subslug='impegni-spese-correnti', new_subslug='impegni-spese-per-investimenti')
-        self.convert_slugs(voci_set=voci_q5_cc, old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-competenza-spese-per-investimenti')
-        self.convert_slugs(voci_set=voci_q5_cr, old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-residui-spese-per-investimenti')
+        self.convert_voci_slugs(cod_quadro='05', quadro_denominazione='QUADRO 5 - SPESE IN CONTO CAPITALE - (A) - IMPEGNI', old_subslug='impegni-spese-correnti', new_subslug='impegni-spese-per-investimenti')
+        self.convert_voci_slugs(cod_quadro='05', quadro_denominazione='QUADRO 5 - SPESE IN CONTO CAPITALE - (B) - PAGAMENTI IN CONTO COMPETENZA', old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-competenza-spese-per-investimenti')
+        self.convert_voci_slugs(cod_quadro='05', quadro_denominazione='QUADRO 5 - SPESE IN CONTO CAPITALE - (C) - PAGAMENTI IN CONTO RESIDUI', old_subslug='impegni-spese-correnti', new_subslug='pagamenti-in-conto-residui-spese-per-investimenti')
+
+    def fill_in_colonne(self):
+        # fills in the colonne mapping table using the Q4 impegni as reference to complete the
+        #  q4 conto competenza, conto residui and q5 impegni, conto competenza, residui
+
+        colonne_q4_impegni = self.get_colonne_titolo(cod_quadro='04', quadro_denominazione = 'QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI')
+        colonne_q5_impegni = self.get_colonne_titolo(cod_quadro='05', quadro_denominazione = 'QUADRO 5 - SPESE IN CONTO CAPITALE - (A) - IMPEGNI')
+
+        # creates two mapping dictionaries for spese correnti / investimenti (q4/q5)
+        for col_q4 in colonne_q4_impegni:
+            self.fill_in_mapping_colonne['04'][col_q4[3]] = col_q4[4]
+
+        for col_q5 in colonne_q5_impegni:
+            self.fill_in_mapping_colonne['05'][col_q5[3]] = col_q5[4]
+
+        self.convert_colonne_slugs(cod_quadro='04', quadro_denominazione='QUADRO 4 - SPESE CORRENTI - (B) - PAGAMENTI IN CONTO COMPETENZA', old_subslug='impegni', new_subslug='pagamenti-in-conto-competenza')
+        self.convert_colonne_slugs(cod_quadro='04',quadro_denominazione='QUADRO 4 - SPESE CORRENTI - (C) - PAGAMENTI IN CONTO RESIDUI', old_subslug='impegni', new_subslug='pagamenti-in-conto-residui')
+
+        # convert slugs for q5 impegni, conto competenza, residui
+        self.convert_colonne_slugs(cod_quadro='05', quadro_denominazione='QUADRO 5 - SPESE IN CONTO CAPITALE - (B) - PAGAMENTI IN CONTO COMPETENZA', old_subslug='impegni-spese-per-investimenti', new_subslug='pagamenti-in-conto-competenza-spese-per-investimenti')
+        self.convert_colonne_slugs(cod_quadro='05', quadro_denominazione='QUADRO 5 - SPESE IN CONTO CAPITALE - (C) - PAGAMENTI IN CONTO RESIDUI', old_subslug='impegni-spese-per-investimenti', new_subslug='pagamenti-in-conto-residui-spese-per-investimenti')
+
 
 
     def handle(self, *args, **options):
@@ -158,12 +215,12 @@ class Command(BaseCommand):
         self.dryrun = options['dryrun']
         force_google = options['force_google']
         self.bilancio_year = options['year']
-        bilancio_type = options['bilancio_type']
+        self.bilancio_type = options['self.bilancio_type']
 
-        if bilancio_type.lower() == 'c':
-            bilancio_type = 'consuntivo'
-        elif bilancio_type.lower() == 'p':
-            bilancio_type = 'preventivo'
+        if self.bilancio_type.lower() == 'c':
+            self.bilancio_type = 'consuntivo'
+        elif self.bilancio_type.lower() == 'p':
+            self.bilancio_type = 'preventivo'
         else:
             self.logger.error("Bilancio type must be C or P")
             return
@@ -172,11 +229,14 @@ class Command(BaseCommand):
             self.logger = logging.getLogger('management_append')
 
 
+        # delete CodiceVoce for the specified bilancio, if any
+        CodiceVoce.objects.filter(anno=int(self.bilancio_year), voce__slug__startswith=self.bilancio_type).delete()
+
         ###
         #   Mapping files from gdoc
         ###
         # connect to google account and fetch tree mapping and simple tree structure
-        codes_map = gdocs.get_bilancio_codes_map(n_header_lines=1, force_google=force_google, bilancio_type=bilancio_type, bilancio_year=self.bilancio_year)
+        codes_map = gdocs.get_bilancio_codes_map(n_header_lines=1, force_google=force_google, bilancio_type=self.bilancio_type, bilancio_year=self.bilancio_year)
 
         # metadata voci
         # quadro_denominazione, titolo_denominazione , cat_cod, voce_denominazione, quadro_cod, voce_cod, voce_slug
@@ -184,16 +244,20 @@ class Command(BaseCommand):
         self.voci = codes_map['voci']
         # metadata colonne
         # quadro_denominazione, quadro_cod, col_cod, col_denominazione
-        colonne = codes_map['colonne']
+        self.colonne = codes_map['colonne']
 
         # regroup colonne on (quadro_denominazione, quadro_cod)
         q_keygen = lambda x: (x[0], x[1] )
-        colonne_regroup = dict((k,list(v)) for k,v in groupby(colonne, key=q_keygen))
+        colonne_regroup = dict((k,list(v)) for k,v in groupby(self.colonne, key=q_keygen))
 
         # function fill-in-voci creates the mapping for Q4 (conto competenza / conto residui) and Q5 (impegni /conto competenza / conto residui)
         # from Q4 impegni where the mapping has been made by the operator on the gdoc file
 
         self.fill_in_voci()
+        self.fill_in_colonne()
+
+        # write file voci_filled.csv: the complete mapping of voci codes with slugs
+        gdocs.write_to_csv(path_name='bilancio_{0}_{1}'.format(self.bilancio_type, self.bilancio_year), contents={'voci_filled':self.voci, 'colonne_filled': self.colonne})
 
         for voce in self.voci:
             denominazione_voce = voce[3]
@@ -303,6 +367,34 @@ class Command(BaseCommand):
 
                         self.save_codice_voce(colonna_voce_slug,voce_cod, quadro_cod,colonna_cod, denominazione_voce, denominazione_colonna)
 
+        # check insertion: have all the nodes of the bilancio tree been mapped?
         self.logger.info("Added {0} unique Voce slug".format(len(self.added_voce_slug)))
+
+        if self.bilancio_type == 'consuntivo':
+            tree_slugs = set(
+                Voce.objects.get(slug=self.bilancio_type).get_descendants().\
+                    exclude(slug__contains='consuntivo-entrate-cassa').\
+                    exclude( slug__contains='consuntivo-spese-cassa').\
+                    exclude(slug__contains='-spese-somma-funzioni').values_list('slug',flat=True))
+        else:
+            tree_slugs = set(
+                Voce.objects.get(slug=self.bilancio_type).get_descendants().\
+                    exclude(slug__contains='-spese-somma-funzioni').values_list('slug',flat=True))
+
+
+        # gets the voci slugs that have not been mapped in the process
+
+        not_mapped_slugs = sorted(tree_slugs - set(self.added_voce_slug))
+        if len(not_mapped_slugs)>0:
+            not_mapped_path = "data/gdocs_csv_cache/bilancio_{0}_{1}/{2}.csv".format(self.bilancio_type, self.bilancio_year, 'not_mapped_slugs')
+
+            self.logger.warning("THERE ARE {0} VOCE SLUG FROM BILANCIO TREE HAS NOT BEEN MAPPED (Bilancio subtree has {1} nodes) ".format(len(not_mapped_slugs), len(tree_slugs)))
+            self.logger.warning("{0} file written for check".format(not_mapped_path))
+
+
+            file_not_mapped = open(not_mapped_path, mode='wb')
+            for item in not_mapped_slugs:
+                file_not_mapped.write("%s\n" % item)
+
 
         return

@@ -14,7 +14,8 @@ class IndicatoreAdmin(admin.ModelAdmin):
     pass
 
 class CodiceVoceAdmin(admin.ModelAdmin):
-    pass
+    ordering = ('anno', 'voce__slug')
+    list_filter = ('anno',)
 
 admin.site.register(Voce, VoceAdmin)
 admin.site.register(CodiceVoce, CodiceVoceAdmin)
