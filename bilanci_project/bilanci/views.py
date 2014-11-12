@@ -659,7 +659,7 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
         if voce_slug:
             voce_bilancio = get_object_or_404(Voce, slug = voce_slug)
         else:
-            return
+            return HttpResponseRedirect(reverse('404'))
 
 
         incarichi_set = self.get_incarichi_struct(territorio_opid, highlight_color = settings.TERRITORIO_1_COLOR)
