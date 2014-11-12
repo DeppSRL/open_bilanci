@@ -408,9 +408,5 @@ class Command(BaseCommand):
             gdocs.write_to_csv(path_name=bilancio_type_year, contents={not_mapped_filename:not_mapped_slugs},csv_base_dir=log_base_dir)
             self.logger.warning("THERE ARE {0} VOCE SLUG FROM BILANCIO TREE HAS NOT BEEN MAPPED (Bilancio subtree has {1} nodes) ".format(len(not_mapped_slugs), len(tree_slugs)))
             self.logger.warning("{0}{1}.csv file written for check".format(log_base_dir,not_mapped_filename))
-            # file_not_mapped = open(not_mapped_path, mode='wb')
-            # for item in not_mapped_slugs:
-            #     file_not_mapped.write("%s\n" % item)
-
 
         return
