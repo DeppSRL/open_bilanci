@@ -1781,9 +1781,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             verification_voice = self.comp_bilancio_type+'-entrate'
             self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year, slug = verification_voice )
         else:
-            return HttpResponseRedirect(
-                reverse('404')
-                )
+            return HttpResponseRedirect(reverse('404'))
 
 
         if self.comp_bilancio_year is None:

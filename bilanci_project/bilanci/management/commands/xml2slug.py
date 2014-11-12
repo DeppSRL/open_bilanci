@@ -349,11 +349,15 @@ class Command(BaseCommand):
 
                         self.save_codice_voce(voce_slug, voce_cod, quadro_cod,colonna_totale_cod, denominazione_voce,'')
 
+                # for quadro QUADRO 9 BIS - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE
+                # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
+                # elif quadro_cod == '08' and quadro_denominazione_voce =='QUADRO 8 - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE - VALORE RIFERITO ALLE QUOTE IN CONTO CAPITALE':
+                #     self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'3',denominazione_voce,'')
+
                 # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE
                 # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
                 elif quadro_cod == '09' and quadro_denominazione_voce =='QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE':
                     self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'3',denominazione_voce,'')
-                    pass
 
 
                 else:
@@ -402,11 +406,16 @@ class Command(BaseCommand):
         # gets the voci slugs that have not been mapped in the process
 
         not_mapped_slugs = sorted(tree_slugs - set(self.added_voce_slug))
-        if len(not_mapped_slugs)>0:
-            not_mapped_filename = "{0}_umatch_slugs".format(bilancio_type_year,)
-            log_base_dir = "{0}/log/".format(settings.REPO_ROOT)
-            gdocs.write_to_csv(path_name=bilancio_type_year, contents={not_mapped_filename:not_mapped_slugs},csv_base_dir=log_base_dir)
+
+        if len(not_mapped_slugs) > 0:
+
+            # create a list of lists to be written with unicodewriter
+            nms_to_write = [[nms] for nms in not_mapped_slugs]
+
+            not_mapped_filename = "{0}_unmatch_slugs".format(bilancio_type_year,)
+            log_base_dir = "{0}/".format(settings.REPO_ROOT)
+            gdocs.write_to_csv(path_name='log', contents={not_mapped_filename:nms_to_write},csv_base_dir=log_base_dir)
             self.logger.warning("THERE ARE {0} VOCE SLUG FROM BILANCIO TREE HAS NOT BEEN MAPPED (Bilancio subtree has {1} nodes) ".format(len(not_mapped_slugs), len(tree_slugs)))
-            self.logger.warning("{0}{1}.csv file written for check".format(log_base_dir,not_mapped_filename))
+            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir,not_mapped_filename))
 
         return
