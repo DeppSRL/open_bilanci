@@ -239,7 +239,7 @@ class Command(BaseCommand):
         ###
         #   Mapping files from gdoc or from file
         ###
-        codes_map = None
+        codes_map = {}
         if not force_google:
             codes_map = gdocs.read_from_csv(bilancio_type_year)
 
