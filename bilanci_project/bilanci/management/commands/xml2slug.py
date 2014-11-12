@@ -212,10 +212,12 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        is_mapping_incomplete = False
         self.dryrun = options['dryrun']
         force_google = options['force_google']
         self.bilancio_year = options['year']
         self.bilancio_type = options['self.bilancio_type']
+
 
         if self.bilancio_type.lower() == 'c':
             self.bilancio_type = 'consuntivo'
@@ -225,6 +227,8 @@ class Command(BaseCommand):
             self.logger.error("Bilancio type must be C or P")
             return
 
+        bilancio_type_year = 'bilancio_{0}_{1}'.format(self.bilancio_type, self.bilancio_year)
+
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
@@ -233,10 +237,16 @@ class Command(BaseCommand):
         CodiceVoce.objects.filter(anno=int(self.bilancio_year), voce__slug__startswith=self.bilancio_type).delete()
 
         ###
-        #   Mapping files from gdoc
+        #   Mapping files from gdoc or from file
         ###
-        # connect to google account and fetch tree mapping and simple tree structure
-        codes_map = gdocs.get_bilancio_codes_map(n_header_lines=1, force_google=force_google, bilancio_type=self.bilancio_type, bilancio_year=self.bilancio_year)
+        codes_map = None
+        if not force_google:
+            codes_map = gdocs.read_from_csv(bilancio_type_year)
+
+        if codes_map == {}:
+            codes_map = gdocs.get_bilancio_codes_from_google(n_header_lines=1, bilancio_type_year=bilancio_type_year)
+            is_mapping_incomplete = True
+
 
         # metadata voci
         # quadro_denominazione, titolo_denominazione , cat_cod, voce_denominazione, quadro_cod, voce_cod, voce_slug
@@ -250,14 +260,18 @@ class Command(BaseCommand):
         q_keygen = lambda x: (x[0], x[1] )
         colonne_regroup = dict((k,list(v)) for k,v in groupby(self.colonne, key=q_keygen))
 
-        # function fill-in-voci creates the mapping for Q4 (conto competenza / conto residui) and Q5 (impegni /conto competenza / conto residui)
-        # from Q4 impegni where the mapping has been made by the operator on the gdoc file
 
-        self.fill_in_voci()
-        self.fill_in_colonne()
+        if is_mapping_incomplete:
+            # if the mapping has been retrieved from google then it needs completion
 
-        # write file voci_filled.csv: the complete mapping of voci codes with slugs
-        gdocs.write_to_csv(path_name='bilancio_{0}_{1}'.format(self.bilancio_type, self.bilancio_year), contents={'voci_filled':self.voci, 'colonne_filled': self.colonne})
+            # function fill-in-voci creates the mapping for Q4 (conto competenza / conto residui) and Q5 (impegni /conto competenza / conto residui)
+            # from Q4 impegni where the mapping has been made by the operator on the gdoc file
+            self.fill_in_voci()
+            self.fill_in_colonne()
+
+            # write file voci.csv, colone.csv: the complete mapping of voci codes with slugs
+            # overwrites the partial mapping contained in the gdoc
+            gdocs.write_to_csv(path_name='bilancio_{0}_{1}'.format(self.bilancio_type, self.bilancio_year), contents={'voci':self.voci, 'colonne': self.colonne})
 
         for voce in self.voci:
             denominazione_voce = voce[3]
@@ -389,15 +403,14 @@ class Command(BaseCommand):
 
         not_mapped_slugs = sorted(tree_slugs - set(self.added_voce_slug))
         if len(not_mapped_slugs)>0:
-            not_mapped_path = "data/gdocs_csv_cache/bilancio_{0}_{1}/{2}.csv".format(self.bilancio_type, self.bilancio_year, 'not_mapped_slugs')
-
+            not_mapped_filename = "{0}_umatch_slugs".format(bilancio_type_year,)
+            log_base_dir = "{0}/log/".format(settings.REPO_ROOT)
+            gdocs.write_to_csv(path_name=bilancio_type_year, contents={not_mapped_filename:not_mapped_slugs},csv_base_dir=log_base_dir)
             self.logger.warning("THERE ARE {0} VOCE SLUG FROM BILANCIO TREE HAS NOT BEEN MAPPED (Bilancio subtree has {1} nodes) ".format(len(not_mapped_slugs), len(tree_slugs)))
-            self.logger.warning("{0} file written for check".format(not_mapped_path))
-
-
-            file_not_mapped = open(not_mapped_path, mode='wb')
-            for item in not_mapped_slugs:
-                file_not_mapped.write("%s\n" % item)
+            self.logger.warning("{0}{1}.csv file written for check".format(log_base_dir,not_mapped_filename))
+            # file_not_mapped = open(not_mapped_path, mode='wb')
+            # for item in not_mapped_slugs:
+            #     file_not_mapped.write("%s\n" % item)
 
 
         return

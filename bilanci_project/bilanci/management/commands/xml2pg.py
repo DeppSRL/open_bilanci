@@ -46,7 +46,7 @@ class Command(BaseCommand):
         # CodiceVoce: get all elements for anno, tipo_certificato
         ##
         codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato)
-        codici_keygen = lambda x: (x.voce.slug)
+        codici_keygen = lambda x: x.voce.slug
         codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
 
         for voce_slug, codice_list in codici_regroup.iteritems():
