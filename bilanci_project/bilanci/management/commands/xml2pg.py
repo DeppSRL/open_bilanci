@@ -2,9 +2,11 @@ from collections import OrderedDict
 from itertools import groupby
 import logging
 from optparse import make_option
+import pprint
 from django.conf import settings
 from django.core.management import BaseCommand
 from bs4 import BeautifulSoup
+from unidecode import unidecode
 from bilanci.utils.comuni import FLMapper
 from bilanci.models import CodiceVoce, ValoreBilancio, Voce
 from territori.models import Territorio, Contesto, ObjectDoesNotExist
@@ -37,38 +39,70 @@ class Command(BaseCommand):
     territorio = None
     tipo_certificato = None
     anno = None
-    xml_colonne_regroup = None
+    colonne_regroup = None
     popolazione_residente = None
 
-    def import_bilancio(self, soup, popolazione_residente, dryrun):
+
+    def create_colonne_map(self, bilancio):
 
         ##
-        # CodiceVoce: get all elements for anno, tipo_certificato
+        # creates a colonne mapping from the xml file
         ##
-        codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato)
+
+        colonne_xml = bilancio.find_all('colonne')
+        colonne_list = []
+        for colonne_element in colonne_xml:
+
+            for colonna_element in colonne_element.contents:
+                if colonna_element != u'\n':
+
+                    colonne_list.append({
+                        'voce':colonna_element.parent['voce'],
+                        'quadro':colonna_element.parent['quadro'],
+                        'colonna': colonna_element['num'],
+                        'valore': colonna_element.contents[0]
+                        })
+
+        colonne_list_keygen = lambda x: (x['quadro'], x['voce'], x['colonna'])
+        self.colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
+
+        ##
+        # CodiceVoce: get all elements for anno, tipo_certificato and regroup by voce__slug
+        ##
+        codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato).order_by('voce__slug')
         codici_keygen = lambda x: x.voce.slug
         codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
 
+
+
+
+
+    def import_bilancio(self, bilancio, popolazione_residente, dryrun):
+
+        self.create_colonne_map(bilancio)
+
+
+
         for voce_slug, codice_list in codici_regroup.iteritems():
             xml_code_found = True
-            self.logger.info("Getting data for {0}".format(voce_slug))
+            self.logger.debug(u"Getting data for {0}".format(voce_slug))
 
             valore_totale = 0
             # adds up all the xml codice needed to calculate a single voce
             for codice in codice_list:
-                if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.xml_colonne_regroup.keys():
-                    self.logger.error("Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
+                if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.colonne_regroup.keys():
+                    self.logger.error(u"Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
                         format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
                     xml_code_found = False
                     break
 
-                valore_string = unicode(self.xml_colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
+                valore_string = unicode(self.colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
                 if valore_string.lower() != 's' and valore_string.lower() != 'n':
                     valore_totale += float(valore_string)
 
 
             if xml_code_found:
-                self.logger.info("Write {0}:{1} on db".format(voce_slug, valore_totale))
+                self.logger.info(u"Write {0}:{1} on db".format(voce_slug, valore_totale))
                 vb = ValoreBilancio()
                 vb.voce = Voce.objects.get(slug = voce_slug)
                 vb.anno = int(self.anno)
@@ -81,13 +115,11 @@ class Command(BaseCommand):
                 if not dryrun:
                     vb.save()
 
-
-
         return
 
     def import_context(self, soup, dryrun):
 
-        popolazione_residente = self.xml_colonne_regroup[('01','001','1')]['valore']
+        popolazione_residente = self.colonne_regroup[('01','001','1')]['valore']
 
         try:
             contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
@@ -96,15 +128,16 @@ class Command(BaseCommand):
             new_contesto = Contesto()
             new_contesto.anno = self.anno
             new_contesto.territorio = self.territorio
-            new_contesto.bil_popolazione_residente = popolazione_residente
+            sep="."
+            new_contesto.bil_popolazione_residente = int(popolazione_residente.split(sep, 1)[0])
 
             if not dryrun:
                 new_contesto.save()
         else:
 
             if contesto_db.bil_popolazione_residente != popolazione_residente:
-                self.logger.error("Popolazione residente in xml file ({0}) != pop.residente stored in db ({1})".\
-                    format(contesto_db.bil_popolazione_residente, popolazione_residente))
+                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})".\
+                    format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
 
         return popolazione_residente
 
@@ -129,13 +162,13 @@ class Command(BaseCommand):
 
         # open input file
         try:
-            soup = BeautifulSoup(open(input_file),"xml")
+            bilancio = BeautifulSoup(open(input_file),"xml")
         except IOError:
             self.logger.error("File {0} not found".format(input_file))
             return
 
         # get finloc, year, tipo bilancio
-        certificato = soup.certificato
+        certificato = bilancio.certificato
         self.anno = certificato['anno']
         tipo_certificato_code = certificato['tipoCertificato']
 
@@ -156,31 +189,10 @@ class Command(BaseCommand):
         self.territorio = Territorio.objects.get(cod_finloc = codfinloc)
         self.logger.info(u"Comune: {0}".format(self.territorio.cod_finloc))
 
-        ##
-        # XML file: get all colonna elements and creates a xml codes map
-        ##
-
-        colonne_xml = soup.find_all('colonne')
-        colonne_list = []
-        for colonne_element in colonne_xml:
-
-            for colonna_element in colonne_element.contents:
-                if colonna_element != u'\n':
-
-                    colonne_list.append({
-                        'voce':colonna_element.parent['voce'],
-                        'quadro':colonna_element.parent['quadro'],
-                        'colonna': colonna_element['num'],
-                        'valore': colonna_element.contents[0]
-                        })
-
-        colonne_list_keygen = lambda x: (x['quadro'], x['voce'], x['colonna'])
-        self.xml_colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
-
 
         if self.tipo_certificato == 'consuntivo':
             # import territorio context data from xml file and set self.popolazione_residente
-            popolazione_residente = self.import_context(soup, dryrun)
+            popolazione_residente = self.import_context(bilancio, dryrun)
         else:
             try:
                 contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
@@ -192,4 +204,4 @@ class Command(BaseCommand):
                 popolazione_residente = contesto_db.bil_popolazione_residente
 
         # import bilancio data into Postgres db, calculate per capita values
-        self.import_bilancio(soup, popolazione_residente, dryrun)
+        self.import_bilancio(bilancio, popolazione_residente, dryrun)
