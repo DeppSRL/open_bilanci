@@ -40,6 +40,7 @@ class Command(BaseCommand):
     tipo_certificato = None
     anno = None
     colonne_regroup = None
+    codici_regroup = None
     popolazione_residente = None
 
 
@@ -71,9 +72,41 @@ class Command(BaseCommand):
         ##
         codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato).order_by('voce__slug')
         codici_keygen = lambda x: x.voce.slug
-        codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+        self.codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+
+        if self.tipo_certificato == 'consuntivo':
+            # add cassa branch
+            entrate_cassa = list(Voce.objects.get(slug = 'consuntivo-entrate-cassa').get_descendants(include_self=True))
+            spese_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa').get_descendants(include_self=True).exclude(slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
+            entrate_cassa.extend(spese_cassa)
+
+            self.add_branch(node_set=entrate_cassa, is_cassa=True)
+
+            # set somma_funzioni_ set for consuntivo
+            funzioni_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_impegni = list(Voce.objects.get(slug = 'consuntivo-spese-impegni-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_cassa.extend(funzioni_impegni)
+            somma_funzioni_set = funzioni_cassa
+        else:
+            # set somma_funzioni_ set for preventivo
+            funzioni_preventivo = list(Voce.objects.get(slug = 'preventivo-spese-spese-somma-funzioni').get_descendants(include_self=True))
+            somma_funzioni_set = funzioni_preventivo
+
+        # add somma_funzioni branch
+        self.add_branch(node_set=somma_funzioni_set, is_cassa=False)
 
 
+    def add_branch(self, node_set, is_cassa=False):
+        # add branches (somma funzioni, cassa) to the codici regroup dict
+        # to do so asks the model which are the slugs of each Voce which is a descendant of the rootnode
+        # example: for Voce
+        for node in node_set:
+            if is_cassa:
+                composition = node.get_components_cassa()
+            else:
+                composition = node.get_components_somma_funzioni()
+
+            self.codici_regroup[node.slug] = [self.codici_regroup[comp_slug] for comp_slug in composition]
 
 
 
@@ -83,7 +116,7 @@ class Command(BaseCommand):
 
 
 
-        for voce_slug, codice_list in codici_regroup.iteritems():
+        for voce_slug, codice_list in self.codici_regroup.iteritems():
             xml_code_found = True
             self.logger.debug(u"Getting data for {0}".format(voce_slug))
 

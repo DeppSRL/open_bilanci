@@ -23,8 +23,48 @@ class Voce(MPTTModel):
     denominazione = models.CharField(max_length=200)
     descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
-
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+
+    # get_components_cassa:
+    # for the Voce in the spese-cassa branch
+    # returns the Voce that are components of that Voce.
+    # For CASSA elements: return Conto-residui and Conto-competenza Voce
+
+    def get_components_cassa(self):
+        cassa_prefix = "consuntivo-spese-cassa"
+        c_residui_prefix = "consuntivo-spese-cassa"
+        c_competenza_prefix = "consuntivo-spese-cassa"
+
+        if cassa_prefix in self.slug:
+            slug_residui = self.slug.replace(cassa_prefix, c_residui_prefix )
+            slug_competenza = self.slug.replace(cassa_prefix, c_competenza_prefix )
+
+            return Voce.objects.filter(slug__in = [slug_residui, slug_competenza])
+
+        return None
+
+
+    # get_components_somma_funzioni
+    # for the Voce in the somma-funzioni branch
+    # returns the Voce that are components of that Voce.
+    # For SPESE-SOMMA-FUNZIONI elements: return Spese-correnti and Spese-per-investimenti Voce
+
+    def get_components_somma_funzioni(self):
+        somma_funzioni_prefix = "spese-somma-funzioni"
+        somma_funzioni_branches = [
+            "preventivo-spese-spese-somma-funzioni",
+            "consuntivo-spese-cassa-spese-somma-funzioni",
+            "consuntivo-spese-impegni-spese-somma-funzioni"
+        ]
+
+        spese_correnti_prefix = "spese-correnti"
+        spese_investimenti_prefix = "spese-correnti"
+        if filter((lambda x: x in self.slug), somma_funzioni_branches) > 0:
+            slug_correnti = self.slug.replace(somma_funzioni_prefix, spese_correnti_prefix)
+            slug_investimenti= self.slug.replace(somma_funzioni_prefix, spese_investimenti_prefix)
+            return Voce.objects.filter(slug__in = [slug_correnti, slug_investimenti])
+
+        return None
 
 
 
