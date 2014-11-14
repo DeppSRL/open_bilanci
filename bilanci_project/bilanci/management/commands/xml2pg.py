@@ -36,6 +36,7 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    dryrun = None
     territorio = None
     tipo_certificato = None
     anno = None
@@ -43,8 +44,47 @@ class Command(BaseCommand):
     codici_regroup = None
     popolazione_residente = None
 
+    def import_context(self,):
+        sep="."
+        popolazione_str = self.colonne_regroup[('01','001','1')]['valore']
+        popolazione_residente = int(popolazione_str.split(sep, 1)[0])
 
-    def create_colonne_map(self, bilancio):
+        try:
+            contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+
+        except ObjectDoesNotExist:
+            new_contesto = Contesto()
+            new_contesto.anno = self.anno
+            new_contesto.territorio = self.territorio
+            new_contesto.bil_popolazione_residente = popolazione_residente
+
+            if not self.dryrun:
+                new_contesto.save()
+        else:
+
+            if contesto_db.bil_popolazione_residente != popolazione_residente:
+                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})". \
+                    format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
+
+        return popolazione_residente
+
+    def set_popolazione_residente(self, ):
+
+        if self.tipo_certificato == 'consuntivo':
+            # import territorio context data from xml file and set self.popolazione_residente
+            self.popolazione_residente = self.import_context()
+        else:
+            try:
+                contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+            except ObjectDoesNotExist:
+                self.logger.error(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
+                    self.territorio.denominazione, self.anno
+                ))
+            else:
+                self.popolazione_residente = contesto_db.bil_popolazione_residente
+
+
+    def create_mapping(self, bilancio):
 
         ##
         # creates a colonne mapping from the xml file
@@ -106,15 +146,16 @@ class Command(BaseCommand):
             else:
                 composition = node.get_components_somma_funzioni()
 
-            self.codici_regroup[node.slug] = [self.codici_regroup[comp_slug] for comp_slug in composition]
+            pprint.pprint(node.slug)
+            pprint.pprint(composition)
+            self.codici_regroup[node.slug] = [self.codici_regroup[comp_node.slug] for comp_node in composition]
 
 
 
-    def import_bilancio(self, bilancio, popolazione_residente, dryrun):
+    def import_bilancio(self, bilancio):
 
-        self.create_colonne_map(bilancio)
-
-
+        self.create_mapping(bilancio)
+        self.set_popolazione_residente()
 
         for voce_slug, codice_list in self.codici_regroup.iteritems():
             xml_code_found = True
@@ -142,37 +183,11 @@ class Command(BaseCommand):
                 vb.territorio = self.territorio
                 vb.valore = valore_totale
 
-                if popolazione_residente is not None:
-                    vb.valore_procapite = valore_totale/float(popolazione_residente)
+                if self.popolazione_residente is not None:
+                    vb.valore_procapite = valore_totale/float(self.popolazione_residente)
 
-                if not dryrun:
+                if not self.dryrun:
                     vb.save()
-
-        return
-
-    def import_context(self, soup, dryrun):
-
-        popolazione_residente = self.colonne_regroup[('01','001','1')]['valore']
-
-        try:
-            contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
-
-        except ObjectDoesNotExist:
-            new_contesto = Contesto()
-            new_contesto.anno = self.anno
-            new_contesto.territorio = self.territorio
-            sep="."
-            new_contesto.bil_popolazione_residente = int(popolazione_residente.split(sep, 1)[0])
-
-            if not dryrun:
-                new_contesto.save()
-        else:
-
-            if contesto_db.bil_popolazione_residente != popolazione_residente:
-                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})".\
-                    format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
-
-        return popolazione_residente
 
 
     def handle(self, *args, **options):
@@ -186,7 +201,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        dryrun = options['dryrun']
+        self.dryrun = options['dryrun']
         input_file = options['input_file']
         popolazione_residente = None
 
@@ -222,19 +237,5 @@ class Command(BaseCommand):
         self.territorio = Territorio.objects.get(cod_finloc = codfinloc)
         self.logger.info(u"Comune: {0}".format(self.territorio.cod_finloc))
 
-
-        if self.tipo_certificato == 'consuntivo':
-            # import territorio context data from xml file and set self.popolazione_residente
-            popolazione_residente = self.import_context(bilancio, dryrun)
-        else:
-            try:
-                contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
-                    self.territorio.denominazione, self.anno
-                ))
-            else:
-                popolazione_residente = contesto_db.bil_popolazione_residente
-
         # import bilancio data into Postgres db, calculate per capita values
-        self.import_bilancio(bilancio, popolazione_residente, dryrun)
+        self.import_bilancio(bilancio)

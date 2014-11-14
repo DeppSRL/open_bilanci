@@ -31,13 +31,26 @@ class Voce(MPTTModel):
     # For CASSA elements: return Conto-residui and Conto-competenza Voce
 
     def get_components_cassa(self):
-        cassa_prefix = "consuntivo-spese-cassa"
-        c_residui_prefix = "consuntivo-spese-cassa"
-        c_competenza_prefix = "consuntivo-spese-cassa"
+        cassa_branches = ["consuntivo-spese-cassa", "consuntivo-entrate-cassa"]
+        c_residui_prefixes = ["consuntivo-spese-pagamenti-in-conto-residui","consuntivo-entrate-riscossioni-in-conto-residui"]
+        c_competenza_prefixes = ["consuntivo-spese-pagamenti-in-conto-competenza","consuntivo-entrate-riscossioni-in-conto-competenza"]
 
-        if cassa_prefix in self.slug:
-            slug_residui = self.slug.replace(cassa_prefix, c_residui_prefix )
-            slug_competenza = self.slug.replace(cassa_prefix, c_competenza_prefix )
+        cassa_branch_set = filter((lambda x: x in self.slug), cassa_branches)
+        if cassa_branch_set > 0:
+            cassa_branch = cassa_branch_set[0]
+            i = 1
+
+            if cassa_branch == cassa_branches[0]:
+                i = 0
+            elif cassa_branch != cassa_branches[1]:
+                # this should NOT HAPPEN, ERROR
+                raise BaseException
+
+            c_residui = c_residui_prefixes[i]
+            c_competenza = c_competenza_prefixes[i]
+
+            slug_residui = self.slug.replace(cassa_branch, c_residui )
+            slug_competenza = self.slug.replace(cassa_branch, c_competenza)
 
             return Voce.objects.filter(slug__in = [slug_residui, slug_competenza])
 
