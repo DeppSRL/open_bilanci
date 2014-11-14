@@ -146,9 +146,18 @@ class Command(BaseCommand):
             else:
                 composition = node.get_components_somma_funzioni()
 
-            pprint.pprint(node.slug)
-            pprint.pprint(composition)
-            self.codici_regroup[node.slug] = [self.codici_regroup[comp_node.slug] for comp_node in composition]
+            # pprint.pprint(node.slug)
+            # pprint.pprint(composition)
+            if composition is None:
+                self.logger.error("{0} returned None for composition".format(node.slug))
+                return
+
+            try:
+                 x = self.codici_regroup[composition[0].slug]
+                 x.extend(self.codici_regroup[composition[1].slug])
+                 self.codici_regroup[node.slug] = x
+            except KeyError:
+                self.logger.error("Cannot compute {0}: slug missing in codici_regroup".format(node.slug, ))
 
 
 
@@ -164,6 +173,7 @@ class Command(BaseCommand):
             valore_totale = 0
             # adds up all the xml codice needed to calculate a single voce
             for codice in codice_list:
+                pprint.pprint(codice)
                 if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.colonne_regroup.keys():
                     self.logger.error(u"Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
                         format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
