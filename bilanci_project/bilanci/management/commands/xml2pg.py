@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from bs4 import BeautifulSoup
 from unidecode import unidecode
+from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
 from bilanci.models import CodiceVoce, ValoreBilancio, Voce
 from territori.models import Territorio, Contesto, ObjectDoesNotExist
@@ -36,6 +37,7 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    composition_errors = []
     dryrun = None
     territorio = None
     tipo_certificato = None
@@ -148,8 +150,9 @@ class Command(BaseCommand):
 
             # pprint.pprint(node.slug)
             # pprint.pprint(composition)
-            if composition is None:
+            if composition is None or len(composition)==0:
                 self.logger.error("{0} returned None for composition".format(node.slug))
+                self.composition_errors.append(node.slug)
                 return
 
             try:
@@ -158,6 +161,7 @@ class Command(BaseCommand):
                  self.codici_regroup[node.slug] = x
             except KeyError:
                 self.logger.error("Cannot compute {0}: slug missing in codici_regroup".format(node.slug, ))
+                self.composition_errors.append(node.slug)
 
 
 
@@ -173,7 +177,6 @@ class Command(BaseCommand):
             valore_totale = 0
             # adds up all the xml codice needed to calculate a single voce
             for codice in codice_list:
-                pprint.pprint(codice)
                 if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.colonne_regroup.keys():
                     self.logger.error(u"Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
                         format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
@@ -249,3 +252,14 @@ class Command(BaseCommand):
 
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
+
+        if len(self.composition_errors) > 0:
+
+            # create a list of lists to be written with unicodewriter
+            errors_to_write = [[nms] for nms in self.composition_errors]
+            bilancio_type_year = self.tipo_certificato+"_"+self.anno
+            composition_filename = "{0}_composition_errors".format(bilancio_type_year,)
+            log_base_dir = "{0}/".format(settings.REPO_ROOT)
+            gdocs.write_to_csv(path_name='log', contents={composition_filename:errors_to_write},csv_base_dir=log_base_dir)
+            self.logger.warning("{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
+            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir,composition_filename))
