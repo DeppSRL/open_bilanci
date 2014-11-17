@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from itertools import groupby
 import logging
+import pprint
 from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
@@ -43,6 +44,7 @@ class Command(BaseCommand):
     anno = None
     colonne_regroup = None
     codici_regroup = None
+    unmapped_slugs = None
     popolazione_residente = None
 
     def import_context(self,):
@@ -88,11 +90,12 @@ class Command(BaseCommand):
 
 
     def create_mapping(self, bilancio):
-
         ##
-        # creates a colonne mapping from the xml file
+        # create mapping creates a mapping for colonne: the Values of the bilancio file
+        # and the CodiceVoce objects: which are the associations between codici bilancio and slug of Voce tree
         ##
 
+        # creates a colonne mapping from the data contained in the xml file
         colonne_xml = bilancio.find_all('colonne')
         colonne_list = []
         for colonne_element in colonne_xml:
@@ -111,19 +114,35 @@ class Command(BaseCommand):
         self.colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
 
         ##
-        # CodiceVoce: get all elements for anno, tipo_certificato and regroup by voce__slug
+        # creates a mapping (codici_regroup) on CodiceVoce:
+        # get all elements for anno, tipo_certificato and regroup by voce__slug
         ##
-        codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato).order_by('voce__slug')
+
+        codici = CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato).order_by('voce__slug')
         codici_keygen = lambda x: x.voce.slug
         self.codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+
+        # checks difference between mapped slugs and total tree size
+        # if there are voce of the bilancio tree which are not mapped with CodiceVoce then:
+        # they will be computed as sums of their direct natural children
+        # NOTE: natural children are the first level children of a Voce, excluding Voce which are in computed branches
+        # as CASSA branch or SOMMA-FUNZIONI branch
+
+        natural_desc = set(Voce.objects.get(slug = self.tipo_certificato).get_natural_descendants().values_list('slug', flat=True))
+        self.logger.debug("Codici regroup count:{0}, natural_descent_count:{1}".format(len(self.codici_regroup.keys()),len(natural_desc)))
+        self.unmapped_slugs = natural_desc - set(self.codici_regroup.keys())
+        if len(self.unmapped_slugs) > 0:
+            self.add_summed_voci()
+
 
         if self.tipo_certificato == 'consuntivo':
             # add cassa branch
             entrate_cassa = list(Voce.objects.get(slug = 'consuntivo-entrate-cassa').get_descendants(include_self=True))
-            spese_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa').get_descendants(include_self=True).exclude(slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
+            spese_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa').get_descendants(include_self=True).\
+                exclude(slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
             entrate_cassa.extend(spese_cassa)
 
-            self.add_branch(node_set=entrate_cassa, is_cassa=True)
+            self.add_computed_branch(node_set=entrate_cassa, is_cassa=True)
 
             # set somma_funzioni_ set for consuntivo
             funzioni_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa-spese-somma-funzioni').get_descendants(include_self=True))
@@ -136,39 +155,89 @@ class Command(BaseCommand):
             somma_funzioni_set = funzioni_preventivo
 
         # add somma_funzioni branch
-        self.add_branch(node_set=somma_funzioni_set, is_cassa=False)
+        self.add_computed_branch(node_set=somma_funzioni_set, is_cassa=False)
 
 
-    def add_branch(self, node_set, is_cassa=False):
-        # add branches (somma funzioni, cassa) to the codici regroup dict
-        # to do so asks the model which are the slugs of each Voce which is a descendant of the rootnode
-        # example: for Voce
+    def add_summed_voci(self):
+        # add_summed_voci adds to self.codici_regroup the mapping for the natural Voce which dont have
+        # an explicit mapping in the CodiceVoce table. Those Voce will be mapped as a sum of the values of their
+        # first level natural children
+
+        # get unmapped nodes from the slugs. Order the nodes from the leaf to the root so the script
+        # adds the leaf to the mapping before the root: in this way KeyErrors are minimized
+        unmapped_nodes = Voce.objects.filter(slug__in = self.unmapped_slugs).order_by('-level')
+
+        for unmapped_node in unmapped_nodes:
+            # skip riassuntivo branch, sums in that branch are not needed
+            if 'consuntivo-riassuntivo' in unmapped_node.slug:
+                continue
+
+            natural_children_slugs = unmapped_node.get_natural_children().values_list('slug', flat=True)
+
+            children_codes = []
+            for child_slug in natural_children_slugs:
+                try:
+                    children_codes.extend(self.codici_regroup[child_slug])
+                except KeyError:
+                    self.logger.warning(u"Mapping missing slug:{0} could not find child key:{1}".format(unmapped_node.slug, child_slug))
+                    continue
+
+            self.codici_regroup[unmapped_node.slug] = children_codes
+
+        return
+
+
+    def add_computed_branch(self, node_set, is_cassa=False):
+        # add_computed_branch (somma funzioni, cassa) to the codici regroup dict
+        # to do so asks the model which are the slugs of each Voce which is a component of such node
+        # EXAMPLE:
+        # for Voce with slug 'consuntivo-spese-cassa-spese-correnti'
+        # and is_cassa=True
+        # components will be
+        # 'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti' and
+        # 'consuntivo-spese-pagamenti-in-conto-residui-spese-correnti'
+        # so in codici_regroup for the key 'consuntivo-spese-cassa-spese-correnti'
+        # the corresponding value will be
+        # codici_regroup['consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti'] added to
+        # codici_regroup['consuntivo-spese-pagamenti-in-conto-residui-spese-correnti']
+
         for node in node_set:
             if is_cassa:
                 composition = node.get_components_cassa()
             else:
                 composition = node.get_components_somma_funzioni()
 
-            # pprint.pprint(node.slug)
-            # pprint.pprint(composition)
             if composition is None or len(composition)==0:
                 self.logger.error("{0} returned None for composition".format(node.slug))
                 self.composition_errors.append(node.slug)
                 return
 
             try:
-                 x = self.codici_regroup[composition[0].slug]
-                 x.extend(self.codici_regroup[composition[1].slug])
-                 self.codici_regroup[node.slug] = x
+                 code_set = self.codici_regroup[composition[0].slug]
+                 code_set.extend(self.codici_regroup[composition[1].slug])
+                 self.codici_regroup[node.slug] = code_set
             except KeyError:
                 self.logger.error("Cannot compute {0}: slug missing in codici_regroup".format(node.slug, ))
                 self.composition_errors.append(node.slug)
+            except IndexError:
+                self.logger.error("Cannot compute {0}: composition incomplete".format(node.slug, ))
+
 
 
 
     def import_bilancio(self, bilancio):
 
+
+        # before importing new data, deletes old data, if present
+        ValoreBilancio.objects.filter(
+            territorio=self.territorio,
+            anno=self.anno,
+            voce = Voce.objects.get(slug = self.rootnode_slug).get_descendants(include_self=True)
+        ).delete()
+
+        # create mapping between codici bilancio (in Google document) and voce_slug of simplified tree
         self.create_mapping(bilancio)
+
         self.set_popolazione_residente()
 
         for voce_slug, codice_list in self.codici_regroup.iteritems():
@@ -193,7 +262,7 @@ class Command(BaseCommand):
                 self.logger.info(u"Write {0} = {1}".format(voce_slug, valore_totale))
                 vb = ValoreBilancio()
                 vb.voce = Voce.objects.get(slug = voce_slug)
-                vb.anno = int(self.anno)
+                vb.anno = self.anno
                 vb.territorio = self.territorio
                 vb.valore = valore_totale
 
@@ -217,7 +286,6 @@ class Command(BaseCommand):
 
         self.dryrun = options['dryrun']
         input_file = options['input_file']
-        popolazione_residente = None
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -231,7 +299,7 @@ class Command(BaseCommand):
 
         # get finloc, year, tipo bilancio
         certificato = bilancio.certificato
-        self.anno = certificato['anno']
+        self.anno = int(certificato['anno'])
         tipo_certificato_code = certificato['tipoCertificato']
 
         valuta = certificato['tipoValuta']
@@ -261,12 +329,13 @@ class Command(BaseCommand):
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
 
+        # output composition errors, if any
         if len(self.composition_errors) > 0:
 
             # create a list of lists to be written with unicodewriter
             errors_to_write = [[nms] for nms in self.composition_errors]
-            bilancio_type_year = self.tipo_certificato+"_"+self.anno
-            composition_filename = "{0}_composition_errors".format(bilancio_type_year,)
+            bilancio_type_year = u"{0}_{1}".format(self.tipo_certificato[:4], self.anno)
+            composition_filename = "{0}_{1}_comp_err".format(self.territorio.slug,bilancio_type_year,)
             log_base_dir = "{0}/".format(settings.REPO_ROOT)
             gdocs.write_to_csv(path_name='log', contents={composition_filename:errors_to_write},csv_base_dir=log_base_dir)
             self.logger.warning("{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))

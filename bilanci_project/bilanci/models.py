@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models import Q
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 import re
@@ -24,6 +25,39 @@ class Voce(MPTTModel):
     descrizione = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=256, blank=True, null=True, unique=True)
     parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+
+    # get_natural_descendants:
+    # given a Voce returns the descendants of such node
+    # filtering out the nodes in branches which are computed:
+    # the CASSA branch and the SOMMA-FUNZIONI branch
+
+    def get_natural_descendants(self):
+        return self.get_descendants(include_self=False).\
+            exclude(
+                Q(slug__startswith="consuntivo-spese-cassa") |
+                Q(slug__startswith="consuntivo-entrate-cassa")).\
+            exclude(
+                Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
+            )
+
+    # get_natural_children:
+    # given a Voce returns the children of such node
+    # filtering out the nodes in branches which are computed:
+    # the CASSA branch and the SOMMA-FUNZIONI branch
+
+    def get_natural_children(self):
+        return self.get_children().\
+            exclude(
+                Q(slug__startswith="consuntivo-spese-cassa") |
+                Q(slug__startswith="consuntivo-entrate-cassa")).\
+            exclude(
+                Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
+            )
+
 
     # get_components_cassa:
     # for the Voce in the spese-cassa branch
