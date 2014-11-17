@@ -208,7 +208,7 @@ class Command(BaseCommand):
                 composition = node.get_components_somma_funzioni()
 
             if composition is None or len(composition)==0:
-                self.logger.error("{0} returned None for composition".format(node.slug))
+                self.logger.error("{0} returned None for composition with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
                 return
 
@@ -217,12 +217,11 @@ class Command(BaseCommand):
                  code_set.extend(self.codici_regroup[composition[1].slug])
                  self.codici_regroup[node.slug] = code_set
             except KeyError:
-                self.logger.error("Cannot compute {0}: slug missing in codici_regroup".format(node.slug, ))
+                self.logger.error("Cannot compute {0}: slug missing in codici_regroup with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
             except IndexError:
-                self.logger.error("Cannot compute {0}: composition incomplete".format(node.slug, ))
-
-
+                self.logger.error("Cannot compute {0}: composition incomplete with is_cassa:{1}".format(node.slug, is_cassa))
+                self.composition_errors.append(node.slug)
 
 
     def import_bilancio(self, bilancio):

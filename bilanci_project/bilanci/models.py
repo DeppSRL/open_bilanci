@@ -104,8 +104,8 @@ class Voce(MPTTModel):
             "consuntivo-spese-impegni-spese-somma-funzioni"
         ]
 
-        spese_correnti_prefix = "spese-correnti"
-        spese_investimenti_prefix = "spese-correnti"
+        spese_correnti_prefix = "spese-correnti-funzioni"
+        spese_investimenti_prefix = "spese-per-investimenti-funzioni"
         if filter((lambda x: x in self.slug), somma_funzioni_branches) > 0:
             slug_correnti = self.slug.replace(somma_funzioni_prefix, spese_correnti_prefix)
             slug_investimenti= self.slug.replace(somma_funzioni_prefix, spese_investimenti_prefix)
