@@ -5,6 +5,7 @@ from optparse import make_option
 from django.conf import settings
 from django.core.management import BaseCommand
 from bs4 import BeautifulSoup
+from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
 from bilanci.models import CodiceVoce, ValoreBilancio, Voce
 from territori.models import Territorio, Contesto, ObjectDoesNotExist
@@ -34,6 +35,8 @@ class Command(BaseCommand):
     dryrun = None
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    composition_errors = []
+    dryrun = None
     territorio = None
     tipo_certificato = None
     rootnode_slug = None
@@ -42,10 +45,10 @@ class Command(BaseCommand):
     codici_regroup = None
     popolazione_residente = None
 
-
-    def import_context(self, soup, dryrun):
-
-        popolazione_residente = self.colonne_regroup[('01','001','1')]['valore']
+    def import_context(self,):
+        sep="."
+        popolazione_str = self.colonne_regroup[('01','001','1')]['valore']
+        popolazione_residente = int(popolazione_str.split(sep, 1)[0])
 
         try:
             contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
@@ -54,29 +57,30 @@ class Command(BaseCommand):
             new_contesto = Contesto()
             new_contesto.anno = self.anno
             new_contesto.territorio = self.territorio
-            sep="."
-            new_contesto.bil_popolazione_residente = int(popolazione_residente.split(sep, 1)[0])
+            new_contesto.bil_popolazione_residente = popolazione_residente
 
-            if not dryrun:
+            if not self.dryrun:
                 new_contesto.save()
         else:
-            # if popolazione != popolazione in db doesn't save the data
+
             if contesto_db.bil_popolazione_residente != popolazione_residente:
-                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})".\
+                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})". \
                     format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
 
         return popolazione_residente
 
-    def get_popolazione_residente(self, bilancio):
+
+    def set_popolazione_residente(self, ):
 
         if self.tipo_certificato == 'consuntivo':
             # import territorio context data from xml file and set self.popolazione_residente
-            self.popolazione_residente = self.import_context(bilancio, self.dryrun)
+            self.popolazione_residente = self.import_context()
+
         else:
             try:
                 contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
             except ObjectDoesNotExist:
-                self.logger.warning(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
+                self.logger.error(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
                     self.territorio.denominazione, self.anno
                 ))
             else:
@@ -111,27 +115,61 @@ class Command(BaseCommand):
         ##
         codici = CodiceVoce.get_bilancio_codes(anno=int(self.anno), tipo_certificato=self.tipo_certificato).order_by('voce__slug')
         codici_keygen = lambda x: x.voce.slug
-        self.codici_regroup = OrderedDict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+        self.codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+
+        if self.tipo_certificato == 'consuntivo':
+            # add cassa branch
+            entrate_cassa = list(Voce.objects.get(slug = 'consuntivo-entrate-cassa').get_descendants(include_self=True))
+            spese_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa').get_descendants(include_self=True).exclude(slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
+            entrate_cassa.extend(spese_cassa)
+
+            self.add_branch(node_set=entrate_cassa, is_cassa=True)
+
+            # set somma_funzioni_ set for consuntivo
+            funzioni_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_impegni = list(Voce.objects.get(slug = 'consuntivo-spese-impegni-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_cassa.extend(funzioni_impegni)
+            somma_funzioni_set = funzioni_cassa
+        else:
+            # set somma_funzioni_ set for preventivo
+            funzioni_preventivo = list(Voce.objects.get(slug = 'preventivo-spese-spese-somma-funzioni').get_descendants(include_self=True))
+            somma_funzioni_set = funzioni_preventivo
+
+        # add somma_funzioni branch
+        self.add_branch(node_set=somma_funzioni_set, is_cassa=False)
+
+
+    def add_branch(self, node_set, is_cassa=False):
+        # add branches (somma funzioni, cassa) to the codici regroup dict
+        # to do so asks the model which are the slugs of each Voce which is a descendant of the rootnode
+        # example: for Voce
+        for node in node_set:
+            if is_cassa:
+                composition = node.get_components_cassa()
+            else:
+                composition = node.get_components_somma_funzioni()
+
+            # pprint.pprint(node.slug)
+            # pprint.pprint(composition)
+            if composition is None or len(composition)==0:
+                self.logger.error("{0} returned None for composition".format(node.slug))
+                self.composition_errors.append(node.slug)
+                return
+
+            try:
+                 x = self.codici_regroup[composition[0].slug]
+                 x.extend(self.codici_regroup[composition[1].slug])
+                 self.codici_regroup[node.slug] = x
+            except KeyError:
+                self.logger.error("Cannot compute {0}: slug missing in codici_regroup".format(node.slug, ))
+                self.composition_errors.append(node.slug)
 
 
 
     def import_bilancio(self, bilancio):
 
-        # delete previous ValoreBilancio for the current bilancio
-
-        self.logger.info(u"Deleting previous values for {0} yr:{1} bilancio:{2}".format(self.territorio.denominazione, self.anno, self.tipo_certificato))
-
-        ValoreBilancio.objects.filter(
-            territorio=self.territorio,
-            anno=self.anno,
-            voce__in = Voce.objects.get(slug=self.rootnode_slug).get_descendants(include_self=True)
-            ).delete()
-
         self.create_mapping(bilancio)
-
-        self.get_popolazione_residente(bilancio)
-
-
+        self.set_popolazione_residente()
 
         for voce_slug, codice_list in self.codici_regroup.iteritems():
             xml_code_found = True
@@ -164,15 +202,6 @@ class Command(BaseCommand):
 
                 if not self.dryrun:
                     vb.save()
-
-        if self.tipo_certificato == 'consuntivo':
-            # self.calculate_cassa_branch()
-            pass
-
-        # calculate SOMMA FUNZIONI BRANCHES branch
-        # self.calculate_somma_funzioni_branch()
-
-        return
 
 
     def handle(self, *args, **options):
@@ -231,3 +260,14 @@ class Command(BaseCommand):
 
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
+
+        if len(self.composition_errors) > 0:
+
+            # create a list of lists to be written with unicodewriter
+            errors_to_write = [[nms] for nms in self.composition_errors]
+            bilancio_type_year = self.tipo_certificato+"_"+self.anno
+            composition_filename = "{0}_composition_errors".format(bilancio_type_year,)
+            log_base_dir = "{0}/".format(settings.REPO_ROOT)
+            gdocs.write_to_csv(path_name='log', contents={composition_filename:errors_to_write},csv_base_dir=log_base_dir)
+            self.logger.warning("{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
+            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir,composition_filename))
