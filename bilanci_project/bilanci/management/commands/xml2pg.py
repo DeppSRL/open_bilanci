@@ -228,6 +228,8 @@ class Command(BaseCommand):
 
 
         # before importing new data, deletes old data, if present
+        self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(self.territorio.denominazione, self.anno, self.tipo_certificato))
+
         ValoreBilancio.objects.filter(
             territorio=self.territorio,
             anno=self.anno,
@@ -239,6 +241,7 @@ class Command(BaseCommand):
 
         self.set_popolazione_residente()
 
+        self.logger.info("Inserting XML values into Postgres db...")
         for voce_slug, codice_list in self.codici_regroup.iteritems():
             xml_code_found = True
             self.logger.debug(u"Getting data for {0}".format(voce_slug))
@@ -258,7 +261,7 @@ class Command(BaseCommand):
 
 
             if xml_code_found:
-                self.logger.info(u"Write {0} = {1}".format(voce_slug, valore_totale))
+                self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
                 vb = ValoreBilancio()
                 vb.voce = Voce.objects.get(slug = voce_slug)
                 vb.anno = self.anno
@@ -339,3 +342,5 @@ class Command(BaseCommand):
             gdocs.write_to_csv(path_name='log', contents={composition_filename:errors_to_write},csv_base_dir=log_base_dir)
             self.logger.warning("{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
             self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir,composition_filename))
+        else:
+            self.logger.info("All Codes from bilancio file were inserted correctly")
