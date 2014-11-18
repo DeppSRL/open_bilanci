@@ -28,7 +28,9 @@
                 <div class="col-md-8 col-md-offset-2">
 
                     <h1>
-                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small>{% if settings.SITE_VERSION %}<small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</span>
+                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small>
+                            {% if settings.SITE_VERSION %}
+                                <small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</span>
                     </h1>
 
                     <h2>
@@ -162,50 +164,7 @@
                             <p class="small tags">{% for tag in blog_post.tags %}{% if tag.term.0|lower == tag.term.0 %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
                         </footer>
                     </li>
-                    {% empty %}
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <div class="text">
-                            <p>
-                                Considerata l’apertura del Governo Renzi sui temi della
-                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                                Openpolis intendono rilanciare il tema Opensiope.</strong>
-                            </p>
-                        </div>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <div class="text">
-                            <p>
-                                Considerata l’apertura del Governo Renzi sui temi della
-                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                                Openpolis intendono rilanciare il tema Opensiope.</strong>
-                            </p>
-                        </div>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <p class="text">
-                            Considerata l’apertura del Governo Renzi sui temi della
-                            trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                            Openpolis intendono rilanciare il tema Opensiope.</strong>
-                        </p>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
+                    
                     {% endfor %}
 
                 </ul>
