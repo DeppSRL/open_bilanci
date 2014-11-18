@@ -4,7 +4,7 @@ import logging
 import pprint
 from optparse import make_option
 from django.conf import settings
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from bs4 import BeautifulSoup
 from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
@@ -13,7 +13,6 @@ from territori.models import Territorio, Contesto, ObjectDoesNotExist
 
 
 class Command(BaseCommand):
-
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
                     dest='dryrun',
@@ -47,13 +46,13 @@ class Command(BaseCommand):
     unmapped_slugs = None
     popolazione_residente = None
 
-    def import_context(self,):
-        sep="."
-        popolazione_str = self.colonne_regroup[('01','001','1')]['valore']
+    def import_context(self, ):
+        sep = "."
+        popolazione_str = self.colonne_regroup[('01', '001', '1')]['valore']
         popolazione_residente = int(popolazione_str.split(sep, 1)[0])
 
         try:
-            contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+            contesto_db = Contesto.objects.get(anno=self.anno, territorio=self.territorio)
 
         except ObjectDoesNotExist:
             new_contesto = Contesto()
@@ -66,8 +65,9 @@ class Command(BaseCommand):
         else:
 
             if contesto_db.bil_popolazione_residente != popolazione_residente:
-                self.logger.error("Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})". \
-                    format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
+                self.logger.error(
+                    "Popolazione residente year:{0} in xml file ({1}) != pop.residente stored in db ({2})". \
+                        format(self.anno, contesto_db.bil_popolazione_residente, popolazione_residente))
 
         return popolazione_residente
 
@@ -80,11 +80,12 @@ class Command(BaseCommand):
 
         else:
             try:
-                contesto_db = Contesto.objects.get(anno = self.anno, territorio = self.territorio)
+                contesto_db = Contesto.objects.get(anno=self.anno, territorio=self.territorio)
             except ObjectDoesNotExist:
-                self.logger.error(u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
-                    self.territorio.denominazione, self.anno
-                ))
+                self.logger.error(
+                    u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
+                        self.territorio.denominazione, self.anno
+                    ))
             else:
                 self.popolazione_residente = contesto_db.bil_popolazione_residente
 
@@ -102,25 +103,25 @@ class Command(BaseCommand):
 
             for colonna_element in colonne_element.contents:
                 if colonna_element != u'\n':
-
                     colonne_list.append({
-                        'voce':colonna_element.parent['voce'],
-                        'quadro':colonna_element.parent['quadro'],
+                        'voce': colonna_element.parent['voce'],
+                        'quadro': colonna_element.parent['quadro'],
                         'colonna': colonna_element['num'],
                         'valore': colonna_element.contents[0]
-                        })
+                    })
 
         colonne_list_keygen = lambda x: (x['quadro'], x['voce'], x['colonna'])
-        self.colonne_regroup = dict((k,list(v)[0]) for k,v in groupby(colonne_list, key=colonne_list_keygen))
+        self.colonne_regroup = dict((k, list(v)[0]) for k, v in groupby(colonne_list, key=colonne_list_keygen))
 
         ##
         # creates a mapping (codici_regroup) on CodiceVoce:
         # get all elements for anno, tipo_certificato and regroup by voce__slug
         ##
 
-        codici = CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato).order_by('voce__slug')
+        codici = CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato).order_by(
+            'voce__slug')
         codici_keygen = lambda x: x.voce.slug
-        self.codici_regroup = dict((k,list(v)) for k,v in groupby(codici, key=codici_keygen))
+        self.codici_regroup = dict((k, list(v)) for k, v in groupby(codici, key=codici_keygen))
 
         # checks difference between mapped slugs and total tree size
         # if there are voce of the bilancio tree which are not mapped with CodiceVoce then:
@@ -128,30 +129,36 @@ class Command(BaseCommand):
         # NOTE: natural children are the first level children of a Voce, excluding Voce which are in computed branches
         # as CASSA branch or SOMMA-FUNZIONI branch
 
-        natural_desc = set(Voce.objects.get(slug = self.tipo_certificato).get_natural_descendants().values_list('slug', flat=True))
-        self.logger.debug("Codici regroup count:{0}, natural_descent_count:{1}".format(len(self.codici_regroup.keys()),len(natural_desc)))
+        natural_desc = set(
+            Voce.objects.get(slug=self.tipo_certificato).get_natural_descendants().values_list('slug', flat=True))
+        self.logger.debug("Codici regroup count:{0}, natural_descent_count:{1}".format(len(self.codici_regroup.keys()),
+                                                                                       len(natural_desc)))
         self.unmapped_slugs = natural_desc - set(self.codici_regroup.keys())
         if len(self.unmapped_slugs) > 0:
             self.add_summed_voci()
 
-
         if self.tipo_certificato == 'consuntivo':
             # add cassa branch
-            entrate_cassa = list(Voce.objects.get(slug = 'consuntivo-entrate-cassa').get_descendants(include_self=True))
-            spese_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa').get_descendants(include_self=True).\
-                exclude(slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
+            entrate_cassa = list(Voce.objects.get(slug='consuntivo-entrate-cassa').get_descendants(include_self=True))
+            spese_cassa = list(
+                Voce.objects.get(slug='consuntivo-spese-cassa').get_descendants(include_self=True).exclude(
+                    slug__startswith='consuntivo-spese-cassa-spese-somma-funzioni'))
             entrate_cassa.extend(spese_cassa)
 
             self.add_computed_branch(node_set=entrate_cassa, is_cassa=True)
 
             # set somma_funzioni_ set for consuntivo
-            funzioni_cassa = list(Voce.objects.get(slug = 'consuntivo-spese-cassa-spese-somma-funzioni').get_descendants(include_self=True))
-            funzioni_impegni = list(Voce.objects.get(slug = 'consuntivo-spese-impegni-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_cassa = list(
+                Voce.objects.get(slug='consuntivo-spese-cassa-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_impegni = list(
+                Voce.objects.get(slug='consuntivo-spese-impegni-spese-somma-funzioni').get_descendants(
+                    include_self=True))
             funzioni_cassa.extend(funzioni_impegni)
             somma_funzioni_set = funzioni_cassa
         else:
             # set somma_funzioni_ set for preventivo
-            funzioni_preventivo = list(Voce.objects.get(slug = 'preventivo-spese-spese-somma-funzioni').get_descendants(include_self=True))
+            funzioni_preventivo = list(
+                Voce.objects.get(slug='preventivo-spese-spese-somma-funzioni').get_descendants(include_self=True))
             somma_funzioni_set = funzioni_preventivo
 
         # add somma_funzioni branch
@@ -165,7 +172,7 @@ class Command(BaseCommand):
 
         # get unmapped nodes from the slugs. Order the nodes from the leaf to the root so the script
         # adds the leaf to the mapping before the root: in this way KeyErrors are minimized
-        unmapped_nodes = Voce.objects.filter(slug__in = self.unmapped_slugs).order_by('-level')
+        unmapped_nodes = Voce.objects.filter(slug__in=self.unmapped_slugs).order_by('-level')
 
         for unmapped_node in unmapped_nodes:
             # skip riassuntivo branch, sums in that branch are not needed
@@ -179,7 +186,8 @@ class Command(BaseCommand):
                 try:
                     children_codes.extend(self.codici_regroup[child_slug])
                 except KeyError:
-                    self.logger.warning(u"Mapping missing slug:{0} could not find child key:{1}".format(unmapped_node.slug, child_slug))
+                    self.logger.warning(
+                        u"Mapping missing slug:{0} could not find child key:{1}".format(unmapped_node.slug, child_slug))
                     continue
 
             self.codici_regroup[unmapped_node.slug] = children_codes
@@ -207,20 +215,22 @@ class Command(BaseCommand):
             else:
                 composition = node.get_components_somma_funzioni()
 
-            if composition is None or len(composition)==0:
+            if composition is None or len(composition) == 0:
                 self.logger.error("{0} returned None for composition with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
                 return
 
             try:
-                 code_set = self.codici_regroup[composition[0].slug]
-                 code_set.extend(self.codici_regroup[composition[1].slug])
-                 self.codici_regroup[node.slug] = code_set
+                code_set = self.codici_regroup[composition[0].slug]
+                code_set.extend(self.codici_regroup[composition[1].slug])
+                self.codici_regroup[node.slug] = code_set
             except KeyError:
-                self.logger.error("Cannot compute {0}: slug missing in codici_regroup with is_cassa:{1}".format(node.slug, is_cassa))
+                self.logger.error(
+                    "Cannot compute {0}: slug missing in codici_regroup with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
             except IndexError:
-                self.logger.error("Cannot compute {0}: composition incomplete with is_cassa:{1}".format(node.slug, is_cassa))
+                self.logger.error(
+                    "Cannot compute {0}: composition incomplete with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
 
 
@@ -228,12 +238,13 @@ class Command(BaseCommand):
 
 
         # before importing new data, deletes old data, if present
-        self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(self.territorio.denominazione, self.anno, self.tipo_certificato))
+        self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
+            self.territorio.denominazione, self.anno, self.tipo_certificato))
 
         ValoreBilancio.objects.filter(
             territorio=self.territorio,
             anno=self.anno,
-            voce = Voce.objects.get(slug = self.rootnode_slug).get_descendants(include_self=True)
+            voce=Voce.objects.get(slug=self.rootnode_slug).get_descendants(include_self=True)
         ).delete()
 
         # create mapping between codici bilancio (in Google document) and voce_slug of simplified tree
@@ -250,26 +261,26 @@ class Command(BaseCommand):
             # adds up all the xml codice needed to calculate a single voce
             for codice in codice_list:
                 if (codice.quadro_cod, codice.voce_cod, codice.colonna_cod) not in self.colonne_regroup.keys():
-                    self.logger.error(u"Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce".\
+                    self.logger.error(u"Code {0}-{1}-{2} not found in XML file! Cannot compute {3} Voce". \
                         format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod, voce_slug))
                     xml_code_found = False
                     break
 
-                valore_string = unicode(self.colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
+                valore_string = unicode(
+                    self.colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
                 if valore_string.lower() != 's' and valore_string.lower() != 'n':
                     valore_totale += float(valore_string)
-
 
             if xml_code_found:
                 self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
                 vb = ValoreBilancio()
-                vb.voce = Voce.objects.get(slug = voce_slug)
+                vb.voce = Voce.objects.get(slug=voce_slug)
                 vb.anno = self.anno
                 vb.territorio = self.territorio
                 vb.valore = valore_totale
 
                 if self.popolazione_residente is not None:
-                    vb.valore_procapite = valore_totale/float(self.popolazione_residente)
+                    vb.valore_procapite = valore_totale / float(self.popolazione_residente)
 
                 if not self.dryrun:
                     vb.save()
@@ -294,7 +305,7 @@ class Command(BaseCommand):
 
         # open input file
         try:
-            bilancio = BeautifulSoup(open(input_file),"xml")
+            bilancio = BeautifulSoup(open(input_file), "xml")
         except IOError:
             self.logger.error("File {0} not found".format(input_file))
             return
@@ -322,7 +333,7 @@ class Command(BaseCommand):
         codfinloc = mapper.get_cities(codiceente)[0]
 
         try:
-            self.territorio = Territorio.objects.get(cod_finloc = codfinloc)
+            self.territorio = Territorio.objects.get(cod_finloc=codfinloc)
             self.logger.info(u"Comune: {0}".format(self.territorio.cod_finloc))
         except ObjectDoesNotExist:
             self.logger.error(u"Comune with codfinloc:{0} is not present on DB. Quitting".format(codfinloc))
@@ -337,10 +348,29 @@ class Command(BaseCommand):
             # create a list of lists to be written with unicodewriter
             errors_to_write = [[nms] for nms in self.composition_errors]
             bilancio_type_year = u"{0}_{1}".format(self.tipo_certificato[:4], self.anno)
-            composition_filename = "{0}_{1}_comp_err".format(self.territorio.slug,bilancio_type_year,)
+            composition_filename = "{0}_{1}_comp_err".format(self.territorio.slug, bilancio_type_year, )
             log_base_dir = "{0}/".format(settings.REPO_ROOT)
-            gdocs.write_to_csv(path_name='log', contents={composition_filename:errors_to_write},csv_base_dir=log_base_dir)
-            self.logger.warning("{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
-            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir,composition_filename))
+            gdocs.write_to_csv(path_name='log', contents={composition_filename: errors_to_write},
+                               csv_base_dir=log_base_dir)
+            self.logger.warning(
+                "{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
+            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir, composition_filename))
         else:
             self.logger.info("All Codes from bilancio file were inserted correctly")
+
+        ##
+        # Compute Indicators if bilancio is Consuntivo
+        ##
+
+        if self.tipo_certificato == 'consuntivo':
+            self.logger.info(u"Compute indicators for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
+                self.territorio.denominazione, self.anno, self.tipo_certificato))
+            numeric_finloc = self.territorio.cod_finloc
+            if "--" in numeric_finloc:
+                split_finloc = numeric_finloc.split("--")
+                numeric_finloc = split_finloc[1]
+
+            call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
+                         interactive=False)
+
+            # todo: add bilancio to the source table to mark this bilancio as coming from Comune xml source
