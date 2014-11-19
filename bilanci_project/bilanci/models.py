@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.db.models import Q
+from model_utils import Choices
 from mptt.fields import TreeForeignKey
 from mptt.models import MPTTModel
 import re
@@ -18,6 +19,7 @@ class VoceManager(models.Manager):
         """
         return dict([(v.slug, v) for v in self.all()])
 
+
 class Voce(MPTTModel):
     objects = VoceManager()
 
@@ -32,15 +34,15 @@ class Voce(MPTTModel):
     # the CASSA branch and the SOMMA-FUNZIONI branch
 
     def get_natural_descendants(self):
-        return self.get_descendants(include_self=False).\
+        return self.get_descendants(include_self=False). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-cassa") |
-                Q(slug__startswith="consuntivo-entrate-cassa")).\
+            Q(slug__startswith="consuntivo-spese-cassa") |
+            Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-                Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
-            )
+            Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
+        )
 
     # get_natural_children:
     # given a Voce returns the children of such node
@@ -48,15 +50,15 @@ class Voce(MPTTModel):
     # the CASSA branch and the SOMMA-FUNZIONI branch
 
     def get_natural_children(self):
-        return self.get_children().\
+        return self.get_children(). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-cassa") |
-                Q(slug__startswith="consuntivo-entrate-cassa")).\
+            Q(slug__startswith="consuntivo-spese-cassa") |
+            Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-                Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
-            )
+            Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
+        )
 
 
     # get_components_cassa:
@@ -66,8 +68,10 @@ class Voce(MPTTModel):
 
     def get_components_cassa(self):
         cassa_branches = ["consuntivo-spese-cassa", "consuntivo-entrate-cassa"]
-        c_residui_prefixes = ["consuntivo-spese-pagamenti-in-conto-residui","consuntivo-entrate-riscossioni-in-conto-residui"]
-        c_competenza_prefixes = ["consuntivo-spese-pagamenti-in-conto-competenza","consuntivo-entrate-riscossioni-in-conto-competenza"]
+        c_residui_prefixes = ["consuntivo-spese-pagamenti-in-conto-residui",
+                              "consuntivo-entrate-riscossioni-in-conto-residui"]
+        c_competenza_prefixes = ["consuntivo-spese-pagamenti-in-conto-competenza",
+                                 "consuntivo-entrate-riscossioni-in-conto-competenza"]
 
         cassa_branch_set = filter((lambda x: x in self.slug), cassa_branches)
         if cassa_branch_set > 0:
@@ -83,10 +87,10 @@ class Voce(MPTTModel):
             c_residui = c_residui_prefixes[i]
             c_competenza = c_competenza_prefixes[i]
 
-            slug_residui = self.slug.replace(cassa_branch, c_residui )
+            slug_residui = self.slug.replace(cassa_branch, c_residui)
             slug_competenza = self.slug.replace(cassa_branch, c_competenza)
 
-            return Voce.objects.filter(slug__in = [slug_residui, slug_competenza])
+            return Voce.objects.filter(slug__in=[slug_residui, slug_competenza])
 
         return None
 
@@ -108,11 +112,10 @@ class Voce(MPTTModel):
         spese_investimenti_prefix = "spese-per-investimenti-funzioni"
         if filter((lambda x: x in self.slug), somma_funzioni_branches) > 0:
             slug_correnti = self.slug.replace(somma_funzioni_prefix, spese_correnti_prefix)
-            slug_investimenti= self.slug.replace(somma_funzioni_prefix, spese_investimenti_prefix)
-            return Voce.objects.filter(slug__in = [slug_correnti, slug_investimenti])
+            slug_investimenti = self.slug.replace(somma_funzioni_prefix, spese_investimenti_prefix)
+            return Voce.objects.filter(slug__in=[slug_correnti, slug_investimenti])
 
         return None
-
 
 
     class MPTTMeta:
@@ -159,13 +162,29 @@ class Voce(MPTTModel):
         return self.get_level() - 1
 
 
-
     def __unicode__(self):
         return u"%s" % (self.slug,)
 
 
-class ValoreBilancio(models.Model):
+class ImportXmlBilancio(models.Model):
+    TIPO_CERTIFICATO = Choices(
+        (u'C', u'consuntivo', u'Consuntivo'),
+        (u'P', u'preventivo', u'Preventivo'),
+    )
 
+    tipologia = models.CharField(max_length=1, choices=TIPO_CERTIFICATO)
+    territorio = models.ForeignKey(Territorio, null=False, blank=False)
+    anno = models.PositiveSmallIntegerField(db_index=True)
+    created_at = models.DateField(auto_now=False, auto_now_add=True, )
+
+    def __unicode__(self):
+        if self.tipologia == self.TIPO_CERTIFICATO.consuntivo:
+            return u"%s %s Consuntivo" % (self.territorio.denominazione, self.anno, )
+        else:
+            return u"%s %s Preventivo" % (self.territorio.denominazione, self.anno, )
+
+
+class ValoreBilancio(models.Model):
     voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     anno = models.PositiveSmallIntegerField(db_index=True)
@@ -189,7 +208,6 @@ class Indicatore(models.Model):
 
     def __unicode__(self):
         return u"%s" % (self.denominazione,)
-
 
 
 class ValoreIndicatore(models.Model):
@@ -232,4 +250,4 @@ class CodiceVoce(models.Model):
     @staticmethod
     def get_bilancio_codes(anno, tipo_certificato):
 
-        return CodiceVoce.objects.filter(anno=anno,voce__slug__startswith=tipo_certificato).order_by('voce__slug')
+        return CodiceVoce.objects.filter(anno=anno, voce__slug__startswith=tipo_certificato).order_by('voce__slug')

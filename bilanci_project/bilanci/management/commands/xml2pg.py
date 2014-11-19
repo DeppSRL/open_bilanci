@@ -8,7 +8,7 @@ from django.core.management import BaseCommand, call_command
 from bs4 import BeautifulSoup
 from bilanci.utils import gdocs
 from bilanci.utils.comuni import FLMapper
-from bilanci.models import CodiceVoce, ValoreBilancio, Voce
+from bilanci.models import CodiceVoce, ValoreBilancio, Voce, ImportXmlBilancio
 from territori.models import Territorio, Contesto, ObjectDoesNotExist
 
 
@@ -164,7 +164,6 @@ class Command(BaseCommand):
         # add somma_funzioni branch
         self.add_computed_branch(node_set=somma_funzioni_set, is_cassa=False)
 
-
     def add_summed_voci(self):
         # add_summed_voci adds to self.codici_regroup the mapping for the natural Voce which dont have
         # an explicit mapping in the CodiceVoce table. Those Voce will be mapped as a sum of the values of their
@@ -193,7 +192,6 @@ class Command(BaseCommand):
             self.codici_regroup[unmapped_node.slug] = children_codes
 
         return
-
 
     def add_computed_branch(self, node_set, is_cassa=False):
         # add_computed_branch (somma funzioni, cassa) to the codici regroup dict
@@ -232,7 +230,6 @@ class Command(BaseCommand):
                 self.logger.error(
                     "Cannot compute {0}: composition incomplete with is_cassa:{1}".format(node.slug, is_cassa))
                 self.composition_errors.append(node.slug)
-
 
     def import_bilancio(self, bilancio):
 
@@ -358,6 +355,23 @@ class Command(BaseCommand):
         else:
             self.logger.info("All Codes from bilancio file were inserted correctly")
 
+        # adds bilancio to the source table to mark this bilancio as coming from Comune xml source
+        if self.tipo_certificato == 'preventivo':
+            tipologia = u"P"
+        else:
+            tipologia = u"C"
+
+        import_data = {'territorio': self.territorio, 'anno': self.anno, 'tipologia': tipologia}
+        if not self.dryrun:
+            try:
+                ImportXmlBilancio.objects.get(**import_data).delete()
+            except ObjectDoesNotExist:
+                pass
+
+        import_bilancio = ImportXmlBilancio(**import_data)
+        if not self.dryrun:
+            import_bilancio.save()
+
         ##
         # Compute Indicators if bilancio is Consuntivo
         ##
@@ -370,7 +384,6 @@ class Command(BaseCommand):
                 split_finloc = numeric_finloc.split("--")
                 numeric_finloc = split_finloc[1]
 
-            call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
-                         interactive=False)
-
-            # todo: add bilancio to the source table to mark this bilancio as coming from Comune xml source
+            if not self.dryrun:
+                call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
+                             interactive=False)
