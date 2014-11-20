@@ -131,6 +131,8 @@ class Command(BaseCommand):
 
         natural_desc = set(
             Voce.objects.get(slug=self.tipo_certificato).get_natural_descendants().values_list('slug', flat=True))
+
+
         self.logger.debug("Codici regroup count:{0}, natural_descent_count:{1}".format(len(self.codici_regroup.keys()),
                                                                                        len(natural_desc)))
         self.unmapped_slugs = natural_desc - set(self.codici_regroup.keys())
@@ -178,10 +180,14 @@ class Command(BaseCommand):
             if 'consuntivo-riassuntivo' in unmapped_node.slug:
                 continue
 
+            # debug
+            self.logger.debug("Add summed voci for:{0}".format(unmapped_node.slug))
             natural_children_slugs = unmapped_node.get_natural_children().values_list('slug', flat=True)
 
             children_codes = []
             for child_slug in natural_children_slugs:
+
+                self.logger.debug("Natural child:{0}".format(child_slug))
                 try:
                     children_codes.extend(self.codici_regroup[child_slug])
                 except KeyError:
@@ -219,9 +225,15 @@ class Command(BaseCommand):
                 return
 
             try:
-                code_set = self.codici_regroup[composition[0].slug]
-                code_set.extend(self.codici_regroup[composition[1].slug])
+                code_set = self.codici_regroup[composition[0].slug][:]
+                code_set.extend(self.codici_regroup[composition[1].slug][:])
                 self.codici_regroup[node.slug] = code_set
+
+                if node.slug.endswith('-funzioni-amministrazione'):
+                    self.logger.debug("Codeset for:{0}".format(node.slug))
+                    for c in code_set:
+                        self.logger.debug(c)
+
             except KeyError:
                 self.logger.error(
                     "Cannot compute {0}: slug missing in codici_regroup with is_cassa:{1}".format(node.slug, is_cassa))
@@ -232,7 +244,6 @@ class Command(BaseCommand):
                 self.composition_errors.append(node.slug)
 
     def import_bilancio(self, bilancio):
-
 
         # before importing new data, deletes old data, if present
         self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
@@ -252,7 +263,11 @@ class Command(BaseCommand):
         self.logger.info("Inserting XML values into Postgres db...")
         for voce_slug, codice_list in self.codici_regroup.iteritems():
             xml_code_found = True
-            self.logger.debug(u"Getting data for {0}".format(voce_slug))
+
+            # debug
+            suffix = '-funzioni-amministrazione'
+            if voce_slug.endswith(suffix):
+                self.logger.debug(u"Getting data for {0}".format(voce_slug))
 
             valore_totale = 0
             # adds up all the xml codice needed to calculate a single voce
@@ -266,10 +281,20 @@ class Command(BaseCommand):
                 valore_string = unicode(
                     self.colonne_regroup[(codice.quadro_cod, codice.voce_cod, codice.colonna_cod)]['valore'])
                 if valore_string.lower() != 's' and valore_string.lower() != 'n':
+
+                    # debug
+                    if voce_slug.endswith(suffix):
+                        self.logger.debug(
+                            "{0}-{1}-{2}:{3}".format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod,
+                                                     valore_string))
+
                     valore_totale += float(valore_string)
+                else:
+                    # expecting a string representing a number, got "S" or "N" instead
+                    raise Exception
 
             if xml_code_found:
-                self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
+
                 vb = ValoreBilancio()
                 vb.voce = Voce.objects.get(slug=voce_slug)
                 vb.anno = self.anno
@@ -280,6 +305,11 @@ class Command(BaseCommand):
                     vb.valore_procapite = valore_totale / float(self.popolazione_residente)
 
                 if not self.dryrun:
+
+                    # debug
+                    if voce_slug.endswith(suffix):
+                        self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
+
                     vb.save()
 
 
@@ -355,7 +385,9 @@ class Command(BaseCommand):
         else:
             self.logger.info("All Codes from bilancio file were inserted correctly")
 
+        ##
         # adds bilancio to the source table to mark this bilancio as coming from Comune xml source
+        ##
         if self.tipo_certificato == 'preventivo':
             tipologia = u"P"
         else:
@@ -371,6 +403,10 @@ class Command(BaseCommand):
         import_bilancio = ImportXmlBilancio(**import_data)
         if not self.dryrun:
             import_bilancio.save()
+
+
+        # debug
+        exit()
 
         ##
         # Compute Indicators if bilancio is Consuntivo
