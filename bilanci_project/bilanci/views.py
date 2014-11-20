@@ -21,7 +21,7 @@ from bilanci.managers import ValoriManager
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
 import services
 from shorturls.models import ShortUrl
-from django.http.response import HttpResponse, HttpResponseRedirect, Http404
+from django.http.response import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
 from bilanci.utils import couch
 from territori.models import Territorio, Contesto, Incarico
 
@@ -447,8 +447,8 @@ class IncarichiGetterMixin(object):
             if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
                 dict_widget['label'] = "Commissario".title()
-                dict_widget['icon'] = settings.INCARICO_MARKER_COMMISSARIO
-                dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
+                if incarico.motivo_commissariamento:
+                    dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
             else:
 
@@ -508,7 +508,7 @@ class IncarichiGetterMixin(object):
         if len(transformed_set):
             return [transformed_set]
         else:
-            return None
+            return []
 
 
     ##
@@ -757,13 +757,19 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
         legend_set = []
         for indicator_num, indicatore in enumerate(indicatori):
             indicatori_set.append(self.get_indicatore_struct(territorio, indicatore, line_id=indicator_num, line_color=settings.INDICATOR_COLORS[indicator_num]))
-            legend_set.append(
-                {
-                "color": settings.INDICATOR_COLORS[indicator_num],
-                "id": indicator_num,
-                "label": indicatore.denominazione.upper()
-                }
-            )
+
+            try:
+                color = settings.INDICATOR_COLORS[indicator_num]
+            except IndexError:
+                continue
+            else:
+                legend_set.append(
+                    {
+                    "color": color,
+                    "id": indicator_num,
+                    "label": indicatore.denominazione.upper()
+                    }
+                )
 
         return HttpResponse(
             content=json.dumps(
@@ -1535,12 +1541,12 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
             {
               "color": territorio_1_color,
               "id": 1,
-              "label": "{0}".format(territorio_1.denominazione)
+              "label": u"{0}".format(territorio_1.denominazione)
             },
             {
               "color": territorio_2_color,
               "id": 2,
-              "label": "{0}".format(territorio_2.denominazione)
+              "label": u"{0}".format(territorio_2.denominazione)
             },
         ]
 
@@ -1769,8 +1775,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             self.cas_com_type = "cassa"
 
         # identifies the bilancio for comparison, sets gdp multiplier based on deflator
+        try:
+            self.main_bilancio_year = int(self.year)
+        except ValueError:
+            return HttpResponseBadRequest()
 
-        self.main_bilancio_year = int(self.year)
         if self.main_bilancio_type == 'preventivo':
             self.comp_bilancio_type = 'consuntivo'
             verification_voice = self.comp_bilancio_type+'-entrate'
@@ -2113,8 +2122,11 @@ class BilancioDettaglioView(BilancioOverView):
         # which puts all the branch at the end of the alphabetical order
 
         if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
-            if self.main_bilancio_type == 'consuntivo':
-                base_slug = 'consuntivo-spese-cassa'
+            if self.main_bilancio_type == 'consuntivo' :
+                if self.cas_com_type == 'cassa':
+                    base_slug = 'consuntivo-spese-cassa'
+                else:
+                    base_slug = 'consuntivo-spese-impegni'
             else:
                 base_slug = 'preventivo-spese'
 
@@ -2341,8 +2353,6 @@ class ClassificheSearchView(MiniClassificheMixin, RedirectView):
         except NoReverseMatch:
             url = reverse('404')
 
-
-
         return HttpResponseRedirect(url)
 
     def get_redirect_url(self, *args, **kwargs):
@@ -2390,7 +2400,12 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         if self.anno_int > settings.CLASSIFICHE_END_YEAR or self.anno_int < settings.CLASSIFICHE_START_YEAR:
             return HttpResponseRedirect(reverse('classifiche-list',kwargs={'parameter_type':self.parameter_type , 'parameter_slug':self.parameter.slug,'anno':settings.CLASSIFICHE_END_YEAR}))
 
-        selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
+        # this try / except block is needed to prevent multiple requests from malicious bots
+        try:
+            selected_regioni_get = [int(k) for k in self.request.GET.getlist('r')]
+        except ValueError:
+            return HttpResponseBadRequest()
+
         if len(selected_regioni_get):
             self.selected_regioni = selected_regioni_get
 

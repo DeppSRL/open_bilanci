@@ -19,6 +19,16 @@ ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+########## MANAGER CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
+ADMINS = (
+    ('Developers', 'developers@openbilanci.it'),
+)
+
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
+MANAGERS = ADMINS
+########## END MANAGER CONFIGURATION
+
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#email-host
 #EMAIL_HOST = environ.get('EMAIL_HOST', 'smtp.gmail.com')
 
@@ -56,5 +66,10 @@ PATH_PREVENTIVI = BILANCI_PATH+"/%s/%s/Preventivo/%s.html"
 PATH_CONSUNTIVI = BILANCI_PATH+"/%s/%s/Consuntivo/%s.html"
 
 BILANCI_RAW_DB = 'bilanci_raw'
+
+ADMINS = (
+    ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
+    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+)
 
 

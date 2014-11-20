@@ -1,5 +1,6 @@
-Data
-====
+Data import: html -> Couch -> Pg
+====================================
+
 Data are fetched from the source as HTML files (no images, styles, or js scripts).
 This is done in order to prevent damage whenever tehy should disappear from the source.
 
@@ -8,10 +9,10 @@ HTML files are then parsed into couchdb documents. All tables are transformed in
 Budget titles and labels are normalized, by finding the MCD, defining a mapping and replicating the
 raw couchdb. This is a 2 steps process.
 
-The final product of the normalization process is a normalized database on couchdb that 
+The final product of the normalization process is a normalized database on couchdb that
 can be now reduced to a simplified form using a dedicated script (simplify.py).
 
-Due to application needs and operational functionalities the non-relational database is transferred to a 
+Due to application needs and operational functionalities the non-relational database is transferred to a
 relational Postgres db using the couch2pg.py script. The Postgres instance is the application db on which
 the application relies to build HTML pages, compute indicators and cluster averages.
 
@@ -31,15 +32,15 @@ HTML documents are parsed with the ``scrapy`` parser:
 
     cd /home/open_bilanci/scraper_project
     scrapy crawl bilanci_pages
-    
+
 Possible parameters for the scraper are the following
 
 .. code-block:: bash
 
    scrapy crawl bilanci_pages -a cities=CITY_NAME -a years=YEAR -a type=BILANCIO_TYPE
-   
-   
-Bilancio type parameter can have the following values: 
+
+
+Bilancio type parameter can have the following values:
 
 - c | C for Consuntivo
 - p | P for Preventivo
@@ -61,7 +62,7 @@ what to scrape (years and cities) and where to put the results:
 
     START_YEAR_SPIDER = 2002
     END_YEAR_SPIDER = 2003
-    
+
 The settings can be overridden and selected cities and years can be fetched:
 
 .. code-block:: bash
@@ -70,8 +71,8 @@ The settings can be overridden and selected cities and years can be fetched:
     scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
     scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
     scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
- 
-    
+
+
 
 Mirror
 ------
@@ -114,7 +115,7 @@ Data are parsed from HTML into the couchdb local server with the html2couch mana
     cd /home/open_bilanci/bilanci_project
     python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
     python manage.py html2couch --cities=Roma --years=2003,2004 -v2
-    
+
 The default value for the ``base_url`` parameter is http://finanzalocale.mirror.openpolis.it.
 The couchdb server is always localhost.
 
@@ -143,23 +144,21 @@ titoli and for voci):
     # load one of the view in view in couchdb_scripts/views in a given couchdb instance
     python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
     python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
-    # browse to the view and wait for view generation to finisc (status)
+    # browse to the view and wait for view generation to finish (status)
+    
 
-    # save views to json files (may take time, if launched for the first time)
-    curl -o output/[titoli|voci]_consuntivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_consuntivo/_view/[titoli|voci]_consuntivo?group_level=4
-    curl -o output/[titoli|voci]_preventivo.json http://staging.depp.it:5984/bilanci/_design/[titoli|voci]_preventivo/_view/[titoli|voci]_preventivo?group_level=4
-
-+ the results of the view documents are converted from json to csv with the script ``json2csv.py``:
-
++ when the process is finished the couchdb view results have to be merged with the existing
+  google drive documents on titoli / voci normalization.
+  To perform the task simply run
+  
   .. code-block:: bash
+  
+    python merge_keys.py -s [localhost | staging] -t [titoli | voci] -tb [preventivo |consuntivo] -o OUTPUT_CSV_FILE
+    
++ The script generates a csv file that merges the existing google drive normalization spreadsheet and the couchdb view results.
 
-
-    # convert json file to csv (the name is unchanged)
-    python json2csv.py -f=output/[titoli|voci]_consuntivo.json -t=[titoli|voci]
-    python json2csv.py -f=output/[titoli|voci]_preventivo.json -t=[titoli|voci]
-
-+ the csv file is uploaded to **Google Drive**, creating a new spreadsheet
-  and skilled operators perform the many-to-one key mapping, based on keys typography:
++ The csv file is uploaded to **Google Drive**, creating a new sheet in the before mentioned spreadsheet
+  and not-so-skilled operators can copy-paste the results into the original sheet following the procedure:
 
   .. code-block:: bash
 
@@ -177,7 +176,6 @@ titoli and for voci):
 
     # remove temporary sheets
 
-    # let the skilled operators operate (skillfully)
 
 + the mapping is read and used by the normalization management task,
   to create a new normalized couchdb database:
@@ -221,32 +219,31 @@ a simplified structure in which some keys get summed up to a single key in the a
 This last process converts the *normalized* ``bilanci_voci`` db,
 the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`` db.
 
-+ the ``voci_preventivo`` and ``voci_consuntivo`` views are *copied* automatically from the ``bilanci_titoli`` couchdb
-  when the ``translate_key`` script is invoked.
-+ the views are generated, by browsing and the json documents are downloaded:
+
++ To merge the actual normalized Voce slug with the simplified tree slug and update the simplification Gdoc spreadsheet simply run
+  
+  .. code-block:: bash
+  
+    python merge_keys.py -s [localhost | staging] -t simplify -tb [preventivo |consuntivo] -o OUTPUT_CSV_FILE
+    
++ The script generates a csv file that merges the existing google drive simplification spreadsheet and the couchdb view results.
+
++ The csv file is uploaded to **Google Drive**, creating a new sheet in the before mentioned spreadsheet
+  and not-so-skilled operators can copy-paste the results into the original sheet following the procedure:
 
   .. code-block:: bash
 
+    # open gDrive spreadsheet
+    # https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
 
-    # browse to the view and wait for view generation to finish (status)
+    # import csv *consuntivo* to a new, blank sheet
+    # select all and paste to *consuntivo* sheet
 
-    # save views to json files (may take time, if launched for the first time)
-    curl -o output/voci_consuntivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_consuntivo/_view/voci_consuntivo?group_level=4
-    curl -o output/voci_preventivo_norm.json http://staging.depp.it:5984/bilanci_voci/_design/voci_preventivo/_view/voci_preventivo?group_level=4
+    # import csv *preventivo* to a new sheet
+    # select all and paste to *preventivo* sheet
 
-+ the resulting documents are converted from json to csv:
+    # remove temporary sheets
 
-  .. code-block:: bash
-
-    # convert json file to csv (the name is unchanged)
-    python json2csv.py -f=output/voci_consuntivo_norm.json -t=voci
-    python json2csv.py -f=output/voci_preventivo_norm.json -t=voci
-
-+ the CSV is uploaded to the gDoc spreadsheet:
-
-  .. code-block:: bash
-
-    https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=9
 
 + the skilled operator proceeds to do the semplification mapping
 
@@ -277,53 +274,9 @@ The task is performed with the following command
 .. code-block:: bash
 
     python manage.py couch2pg --cities=all --years=2003-2011 -v3
-    
+
 
 All the data contained in the couch db is then copied to Postgres database.
-
-
-Data completion
----------------
-
-Once all the data resides in the application Postgres db there is few data which is needed to be imported to make the db
-functional to Bilanci app:
-
--  Territorio context data taken from Comune bilancio consuntivo
-
-.. code-block:: bash
-
-  python manage.py data_completion -f contesto --cities=all --year=2001-2012 -v2
-
--  Territorio Openpolis id, necessary to get political data from Openpolis API
-
-.. code-block:: bash
-
-    python manage.py set_opid -v2
-
-
-Then there are data which need to be computed on the data already present in the db
-
--  median values of bilanci for territori clusters
-
-.. code-block:: bash
-
-    python manage.py median --type=voci --years=2003-2013 -v2
-
-- indicators, and indicators median values (see a description of the indicators computation internals on :ref:`here <indicators>`
-
-.. code-block:: bash
-
-    python manage.py indicators --cities=all --years=2003-2013 -v2
-    python manage.py median --type=indicatori --years=2003-2013 -v2
-
-
-- generating downloadable packages of CSV files
-
-.. code-block:: bash
-
-    python manage.py couch2csv --cities=all --years=2003-2013 --compress -v2
-
-
 
 Development dataset
 -------------------
