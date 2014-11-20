@@ -3,5 +3,7 @@
 <p class="h3">
     &euro;&nbsp;{{ absolute_value|floatformat:"0"|intcomma }}{% if absolute_value != None%}{% endif %}
 </p>
-<p class="small"><strong>&euro;&nbsp;{{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}{% endif %}</strong> PROCAPITE</p>
+<p class="small">
+    <strong>&euro;&nbsp;{{ percapita_value|floatformat:"2" }}{% if percapita_value != None%}{% endif %}</strong> PROCAPITE
+</p>
 

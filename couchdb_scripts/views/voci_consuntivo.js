@@ -4,7 +4,7 @@
 
 function (doc) {
 var considered_keys= [ "consuntivo", "preventivo" ];
-var considered_quadro=['01','02','03','04','05','06'];
+var considered_quadro=['01','02','03','04','05','08','09','10','11','12','50'];
 var tipo_bilancio = considered_keys[0];
     if(doc!==null){
               if(tipo_bilancio in doc){
@@ -20,7 +20,9 @@ var tipo_bilancio = considered_keys[0];
                             if(funzione.indexOf("- ") == 0){
                              funzione = funzione.replace("- ","");
                              }
-                             emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
+                             if(funzione!=''){
+                                emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
+                             }
                          }
 
                      }

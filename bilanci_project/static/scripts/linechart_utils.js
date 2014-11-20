@@ -48,17 +48,22 @@ function init_main_linechart(timeline_start_year, timeline_end_year, axisUnit, t
 
 }
 
+/*
+ calls visup function to create linechart and feeds it
+* */
 function init_secondary_linechart(event){
-    event.stopPropagation();
+    event.preventDefault();
     var timeline_start_year = event.data.timeline_start_year;
     var timeline_end_year = event.data.timeline_end_year;
 
     var panel = $(this),
-        panel_id = panel.attr('id').split('-').pop();
+    panel_id = panel.attr('id').split('-').pop();
     var btn = $('#trend-chart-toggle-' + panel_id);
     var chart_container = $('#trend-chart-container-' + panel_id);
     var chart_td = chart_container.find('div.graph-box');
     var voce_slug = btn.attr('href').substring(1);
+    //activates graph button
+    btn.addClass('active');
 
     if (chart_td.find('div').length == 0) {
         chart_td.append($("<div>").addClass("trend-chart"));
@@ -86,41 +91,20 @@ function init_secondary_linechart(event){
 
     return false;
 
-    }
-
-//shows and resizes main linechart on page load and when a user activates "dettaglio" tab
-function show_main_linechart(timeline_start_year, timeline_end_year){
-
-    if(dettaglio_shown==false){
-        init_main_linechart( timeline_start_year , timeline_end_year,"€ p.c.", "Euro");
-        feed_main_linechart();
-        linechart.resize();
-        dettaglio_shown=true;
-
-    }
 }
 
 /*
-* switches the secondary timeline toggle on mouse over. avoids switching img after graph collapse
+ deactivates graph button on accordion hide
 * */
-
-function hover_secondary_toggle(event){
+function close_secondary_linechart(event){
     event.preventDefault();
-    var btn = $( this );
-    var chart_container = $('#trend-chart-container-' + btn.attr('id').split('-').pop());
-    var button_on_img = event.data.button_on_img;
-    var button_off_img = event.data.button_off_img;
-
-    if(chart_container[0].className == "hidden" &&(event.type != "mouseleave" || event.target.src != window.location.origin + button_off_img) ){
-
-        if(event.target.src == window.location.origin + button_on_img)
-            event.target.src = window.location.origin + button_off_img;
-        else
-            event.target.src = window.location.origin + button_on_img;
-
-    }
-
+    var panel = $(this),
+    panel_id = panel.attr('id').split('-').pop();
+    var btn = $('#trend-chart-toggle-' + panel_id);
+    btn.removeClass('active');
+    return false;
 }
+
 
 if(linechart){
     $(window).on('resize', function(){

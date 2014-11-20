@@ -1,0 +1,9 @@
+<div class="pull-right download-box">
+    {% if csv_package_file %}
+        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
+    {% endif %}
+</div>
+<h1 class="panel-title" style="text-transform: uppercase;">
+    {{territorio.denominazione}}
+</h1>

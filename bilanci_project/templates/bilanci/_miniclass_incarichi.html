@@ -1,0 +1,39 @@
+{% load staticfiles %}
+
+
+<div id="incarichi_attivi-{{ territorio.pk }}" >
+    <div class="media" >
+        {% if incarichi_attivi|length == 1  %}
+            <figure class="pull-left img-circle borded">
+                {% if  incarichi_attivi.0.pic_url %}
+                    <img class="media-object" src="{{ incarichi_attivi.0.pic_url|safe }}" alt='avatar'/>
+                {% else %}
+
+                    <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt='avatar'/>
+                {% endif %}
+
+            </figure>
+        {% endif %}
+        {% for incarico in incarichi_attivi  %}
+            <div class="media-body" >
+
+                <p class="h4" style="font-weight: bold;">
+                    <a target="_blank" href="{{ incarico.op_link }}">
+                        {{ incarico.nome.0|title }}. {{ incarico.cognome|title }}
+                    </a>
+                </p>
+                <p>
+                    {% if incarico.party_name %}
+                        {{ incarico.party_name|title}}<br/>
+                    {% elif incarico.party_acronym %}
+                        {{ incarico.party_acronym|title}}
+                    {% endif %}
+                    <span class="small">{{ incarico.data_inizio }}
+                        {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
+                    </span>
+                </p>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>

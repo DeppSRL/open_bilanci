@@ -1,0 +1,38 @@
+{% load popover_info  %}
+
+<ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}"
+        >
+
+    {% for p in parameter_list %}
+        {% for node in p%}
+            <li {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}class="active"{% endif %}>
+
+
+                {# sets the url for parameter list menu   #}
+                {% if page_type == 'confronti' %}
+
+                    {% if parameter_type == 'indicatori' %}
+                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-indicatori' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                    {% else %}
+
+                        <a id="{{ parameter_type }}/{{ node.slug }}" href="{% url 'confronti-spese-interventi' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}">
+                    {% endif %}
+
+                {% elif page_type == 'classifiche' %}
+
+                    <a id="{{ parameter_type }}/{{ node.slug }}"
+                                        href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}" >
+                {% endif %}
+
+                    {{ node.denominazione }}
+
+                </a>
+
+                {#  tooltip #}
+                {% popover_info node.slug %}
+            </li>
+
+        {% endfor %}
+    {% endfor %}
+
+</ul>

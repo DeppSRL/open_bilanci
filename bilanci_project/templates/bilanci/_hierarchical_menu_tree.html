@@ -1,0 +1,97 @@
+{% load mptt_tags %}
+{% load popover_info  %}
+<ul class="nav nav-stacked menu {% if parameter_type != selected_par_type %}hidden{% endif %}" id="submenu-{{ parameter_type }}">
+
+{#    if parameter_type == spese funzioni then creates the fake "Spese" general node   #}
+    {% if parameter_type == 'spese-funzioni' or parameter_type == 'spese-interventi' %}
+        <li class="openbydefault
+                {% if parameter_type == selected_par_type  and selected_parameter_slug == 'consuntivo-spese-cassa' %}active{% endif %}
+                "
+                >
+            <a href="#" class="toggler"><i class="fa fa-plus-circle"></i></a>
+            Spese
+            <ul class="nav nav-stacked hidden">
+    {% endif %}
+
+    {% for nodes in parameter_list %}
+        {% recursetree nodes %}
+            <li 
+                class="
+                    {% if node.slug == 'consuntivo-entrate-cassa' %}openbydefault{% endif %}
+                    {% if parameter_type == selected_par_type and node.slug == selected_parameter_slug %}active{% endif %}
+                    "
+                    >
+
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' and node.slug != 'consuntivo-entrate-cassa-prestiti' %}
+                    <a href="#" class="toggler">
+                        <i
+                            class="fa fa-plus-circle">
+
+                        </i>
+                    </a>
+                {% endif %}
+
+                {# sets the url for parameter list menu   #}
+
+                {#  avoids setting a href for entrate / spese / funzioni/ interventi in the menu   #}
+                {% if node.slug != 'consuntivo-entrate-cassa' and node.slug != 'consuntivo-spese-cassa-spese-somma-funzioni' and node.slug != 'consuntivo-spese-cassa-spese-per-investimenti-interventi' and node.slug != 'consuntivo-spese-cassa-spese-correnti-interventi' %}
+                    <a id="{{ parameter_type }}/{{ node.slug }}"
+
+                        {% if page_type == 'confronti' %}
+
+                            {% if parameter_type == 'entrate' %}
+
+                                href="{% url 'confronti-entrate' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}"
+
+                            {% else %}
+
+                                href="{% url 'confronti-spese-funzioni' territorio_1_slug=territorio_1_slug territorio_2_slug=territorio_2_slug parameter_slug=node.slug %}"
+
+                            {% endif %}
+
+                        {% elif page_type == 'classifiche' %}
+
+                            href="{% url 'classifiche-list' parameter_type=parameter_type parameter_slug=node.slug anno=selected_year %}{% if query_string %}?{{query_string}}{% endif %}"
+
+                        {% endif %}
+                    >
+                {% endif %}
+
+                {% if node.slug == 'consuntivo-entrate-cassa' %}
+                    Entrate
+                {% elif node.slug == 'consuntivo-spese-cassa-spese-somma-funzioni' %}
+                    Funzioni
+                {% elif node.slug == 'consuntivo-spese-cassa-spese-per-investimenti-interventi' %}
+                    Interventi - Spese per investimenti
+                {% elif node.slug == 'consuntivo-spese-cassa-spese-correnti-interventi' %}
+                    Interventi - Spese Correnti
+                {% else %}
+                    {{ node.denominazione }}
+                {% endif %}
+
+                {% if node.slug != 'consuntivo-entrate-cassa' and node.slug != 'consuntivo-spese-cassa-spese-somma-funzioni' and node.slug != 'consuntivo-spese-cassa-spese-per-investimenti-interventi' and node.slug != 'consuntivo-spese-cassa-spese-correnti-interventi' %}
+                    </a>
+                {% endif %}
+
+
+                {# tooltip           #}
+                {% popover_info node.slug %}
+
+                {% if not node.is_leaf_node and node.slug != 'consuntivo-spese-cassa-prestiti' and node.slug != 'consuntivo-entrate-cassa-prestiti' %}
+                    <ul class="nav nav-stacked hidden">
+                        {{ children }}
+                    </ul>
+                {% endif %}
+            </li>
+        {% endrecursetree %}
+    {% endfor %}
+
+
+{#    if parameter_type == spese funzioni then closes the fake "Spese" general node   #}
+    {% if parameter_type == 'spese-funzioni' or parameter_type == 'spese-interventi' %}
+            </ul>
+        </li>
+    {% endif %}
+
+
+</ul>

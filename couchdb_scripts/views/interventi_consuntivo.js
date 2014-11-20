@@ -1,7 +1,7 @@
 
 function (doc) {
 	var considered_keys= [ 'consuntivo', 'preventivo' ];
-	var considered_quadro=['04','05'];
+	var considered_quadro=['04','05','08','09','10','11','12'];
     var tipo_bilancio = considered_keys[0];
     if(doc!==null){
         if(tipo_bilancio in doc){
@@ -14,10 +14,10 @@ function (doc) {
                         for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
                             if('meta' in doc[tipo_bilancio][quadro_n][nome_titolo]){
                                 if('columns' in doc[tipo_bilancio][quadro_n][nome_titolo]['meta']){
-                                    // salto il primo valore che e' sempre "Funzioni e servizi /Interventi Correnti"
-                                    for(var k=1; k < doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'].length; k++){
+
+                                    for(var k=0; k < doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'].length; k++){
                                         var intervento_b = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'][k];
-                                        emit([intervento_b.toLowerCase(), quadro_n],1)
+                                        emit([quadro_n+nome_titolo, intervento_b.toLowerCase()],1)
                                     }
                                 }
                             }

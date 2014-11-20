@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.transaction import set_autocommit, commit
 from django.utils.module_loading import import_by_path
 from bilanci.models import Indicatore
 from bilanci.utils.comuni import FLMapper
@@ -24,7 +25,7 @@ class Command(BaseCommand):
         make_option('--cities',
                     dest='cities',
                     default='',
-                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or "All"'),
+                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or "all"'),
         make_option('--indicators',
                     dest='indicators',
                     default='all',
@@ -65,13 +66,23 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and options['cities'] == 'all':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
 
         # massaging cities option and getting cities finloc codes
         cities_codes = options['cities']
         if not cities_codes:
-            raise Exception("Missing city parameter")
+            self.logger.error("Missing cities parameter")
+            exit()
+
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
+        if len(cities) == 0 :
+            self.logger.error("No cities found with id:{0}".format(cities_codes))
+            exit()
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
 
@@ -112,7 +123,8 @@ class Command(BaseCommand):
                 indicator_obj, created = Indicatore.objects.get_or_create(
                     slug=indicator_instance.slug,
                     defaults={
-                        'denominazione': indicator_instance.label
+                        'denominazione': indicator_instance.label,
+                        'published': indicator_instance.published
                     }
                 )
                 if not created:
@@ -120,8 +132,10 @@ class Command(BaseCommand):
                     indicator_obj.save()
 
         # actual computation of the values
+
+        set_autocommit(False)
         for indicator in indicators_instances:
-            self.logger.debug(u"Indicator: {0}".format(
+            self.logger.info(u"Indicator: {0}".format(
                 indicator.label
             ))
             if dryrun:
@@ -130,3 +144,5 @@ class Command(BaseCommand):
             else:
                 # db storage
                 indicator.compute_and_commit(cities, years, logger=self.logger, skip_existing=skip_existing)
+
+            commit()

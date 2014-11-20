@@ -4,7 +4,7 @@ from django import template
 
 register = template.Library()
 
-@register.inclusion_tag("bilanci/classifiche_incarichi_politici.html", takes_context=True)
+@register.inclusion_tag("bilanci/_classifiche_incarichi_politici.html", takes_context=True)
 
 def classifiche_incarichi_politici(context, valore_obj):
 

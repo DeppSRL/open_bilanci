@@ -1,14 +1,17 @@
 from collections import OrderedDict
 import logging
 from optparse import make_option
+from pprint import pprint
 from django.conf import settings
 from django.core.management import BaseCommand
+from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
+from .somma_funzioni import SommaFunzioniMixin
 
 
 class Command(BaseCommand):
@@ -46,11 +49,19 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force recreating simplified tree leaves from csv file or gdocs (remove all values)'),
-        make_option('--patch-somma-funzioni-only',
-                    dest='patch_somma_funzioni_only',
+        make_option('--force-google',
+                    dest='force_google',
                     action='store_true',
                     default=False,
-                    help='Only apply the patch to compute somma-funzioni. Does not import other budget data.'),
+                    help='Force reloading mapping file and simplified subtrees leaves from gdocs (invalidate the csv cache)'),
+        make_option('--tree-node-slug',
+                    dest='tree_node_slug',
+                    default=None,
+                    help='Slug to point to a tree node to start the import from.'),
+        make_option('--couch-path',
+                    dest='couch_path_string',
+                    default=None,
+                    help='CouchDB keys sequence (CSV) to identify the import starting point. Must be specified together with the treee-node-slug option.'),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -61,6 +72,8 @@ class Command(BaseCommand):
     help = 'Import values from the simplified couchdb database into a Postgresql server'
 
     logger = logging.getLogger('management')
+    simplified_subtrees_leaves = None
+    years = None
     comuni_dicts = {}
 
 
@@ -75,10 +88,30 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        couch_path = None
+        partial_import = False
         dryrun = options['dryrun']
+        force_google = options['force_google']
         create_tree = options['create_tree']
         skip_existing = options['skip_existing']
-        patch_somma_funzioni_only = options['patch_somma_funzioni_only']
+
+        tree_node_slug = options['tree_node_slug']
+        couch_path_string = options['couch_path_string']
+
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and options['cities'] == 'all':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
+
+        if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
+            self.logger.error("Couch path and tree node must be both specified. Quitting")
+            exit()
+
+        if tree_node_slug and couch_path_string:
+            partial_import = True
+            tree_node_slug = unicode(tree_node_slug)
+            couch_path = [unicode(x) for x in couch_path_string.split(",")]
+
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -89,7 +122,6 @@ class Command(BaseCommand):
         ###
         cities_codes = options['cities']
         start_from = options['start_from']
-
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
         if not cities_codes:
@@ -148,41 +180,47 @@ class Command(BaseCommand):
 
         # create the tree if it does not exist or if forced to do so
         if create_tree or Voce.objects.count() == 0:
-            self.create_voci_tree()
+            self.create_voci_tree(force_google=force_google)
 
 
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
-        # build the list of voci ids to apply the somma_funzioni patch
-        nodes_to_pach_slugs = [
-            'preventivo-spese-spese-somma-funzioni',
-            'consuntivo-spese-cassa-spese-somma-funzioni',
-            'consuntivo-spese-impegni-spese-somma-funzioni',
-        ]
-        voci_correnti_ids = []
-        voci_correnti_slugs = []
-        for node_to_patch_slug in nodes_to_pach_slugs:
-            _voci = self.voci_dict[node_to_patch_slug]
-            _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
-            _ids = [
-                self.voci_dict[voce_corrente_slug].pk
-                for voce_corrente_slug in _slugs
-            ]
-            voci_correnti_ids.extend(_ids)
-            voci_correnti_slugs.extend(_slugs)
+        if partial_import is False:
+            # build the list of voci ids to apply the somma_funzioni patch
 
-            # delete all values added by the patch in ValoreBilancio
-            # only delete specified years, cities and the voices to patch
-            self.logger.info("** start deleting values for {0}".format(node_to_patch_slug))
-            filters = dict(voce__in=_ids)
-            if cities:
-                filters.update(territorio__cod_finloc__in=cities)
-            if years:
-                filters.update(anno__in=years)
-            ValoreBilancio.objects.filter(**filters).delete()
+            voci_correnti_ids = []
+            voci_correnti_slugs = []
 
+            nodes_to_pach_slugs = [
+                'preventivo-spese-spese-somma-funzioni',
+                'consuntivo-spese-cassa-spese-somma-funzioni',
+                'consuntivo-spese-impegni-spese-somma-funzioni',
+                ]
+            for node_to_patch_slug in nodes_to_pach_slugs:
+                _voci = self.voci_dict[node_to_patch_slug]
+                _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
+                _ids = [
+                    self.voci_dict[voce_corrente_slug].pk
+                    for voce_corrente_slug in _slugs
+                ]
+                voci_correnti_ids.extend(_ids)
+                voci_correnti_slugs.extend(_slugs)
 
+                # delete all values added by the patch in ValoreBilancio
+                # only delete specified years, cities and the voices to patch
+                self.logger.info("** start deleting values for {0}".format(node_to_patch_slug))
+                filters = dict(voce__in=_ids)
+                if cities:
+                    filters.update(territorio__cod_finloc__in=cities)
+                if years:
+                    filters.update(anno__in=years)
+
+                # Perform the time-consuming delete only if db is not empty
+                if ValoreBilancio.objects.all().count():
+                    ValoreBilancio.objects.filter(**filters).delete()
+
+        set_autocommit(autocommit=False)
         for city in cities:
 
             try:
@@ -194,8 +232,8 @@ class Command(BaseCommand):
             city_budget = couchdb.get(city)
 
             if city_budget is None:
-               self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
-               continue
+                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
+                continue
 
             # check values for the city inside ValoreBilancio,
             # skip if values are there and the skip-existing option was required
@@ -230,49 +268,84 @@ class Command(BaseCommand):
                 # for the given city and year
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
-                city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
-                    population=population
-                )
-                city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
-                    population=population
-                )
 
 
-                if not patch_somma_funzioni_only:
+                if partial_import is True:
+                    # start from a custom node
+                    path_not_found = False
+                    city_year_budget_node_dict = city_year_budget_dict.copy()
 
-                    ### persist the BilancioItem values
+                    for k in couch_path:
+                        try:
+                            city_year_budget_node_dict = city_year_budget_node_dict[k]
+                        except KeyError:
+                            self.logger.warning("Couch path:{0} not present for {1}, anno:{2}".format(couch_path, territorio.cod_finloc, str(year)))
+                            path_not_found = True
+                            break
+
+                    # if data path is found in the couch document, write data into postgres db
+                    if path_not_found is False:
+
+                        city_year_node_tree_patch = tree_models.make_tree_from_dict(
+                            city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
+                            population=population
+                        )
+
+                        v = None
+                        try:
+                            v = self.voci_dict[tree_node_slug]
+                        except KeyError:
+                            self.logger.error("Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(tree_node_slug))
+                            exit()
+
+                        # delete previous values if present
+                        ValoreBilancio.objects.filter(
+                            territorio=territorio, anno=year,
+                            voce__in=v.get_descendants(include_self=True)
+                        ).delete()
+                        tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
+                else:
+                    # do all preventivo and consuntivo nodes
+                    city_year_preventivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
+                        population=population
+                    )
+                    city_year_consuntivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
+                        population=population
+                    )
 
                     # previously remove all values for a city and a year
                     # used to speed up records insertion
                     ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
 
-                    # add values fastly, without checking their existance
-                    # do that for the whole tree (preventivo, consuntivo, ...)
                     tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
                     tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
+                    # applies somma-funzioni patch only if the script is working on the whole bilancio
 
-                vb_filters = {
-                    'territorio': territorio,
-                    'anno': year,
-                }
-                self.logger.debug("** start reading values")
-                vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore', 'valore_procapite')
-                self.logger.debug("** end reading values")
+                    vb_filters = {
+                        'territorio': territorio,
+                        'anno': year,
+                        }
+                    self.logger.debug("** start reading values")
+                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore', 'valore_procapite')
+                    self.logger.debug("** end reading values")
 
-                vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+                    vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
 
-                ##
-                # insert/overwrite compute somma-funzioni in preventivo
-                # for all not to be patched
-                ##
-                for voce_corrente_slug in voci_correnti_slugs:
-                    self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
-                del vb_dict
-                del vb_filters
+                    ##
+                    # insert/overwrite compute somma-funzioni in preventivo
+                    # for all not to be patched
+                    ##
+                    for voce_corrente_slug in voci_correnti_slugs:
+                        self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
+                    del vb_dict
+                    del vb_filters
+
+                # actually save data into posgres
+                commit()
 
 
     def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
@@ -308,7 +381,7 @@ class Command(BaseCommand):
             pass
 
 
-    def create_voci_tree(self):
+    def create_voci_tree(self, force_google):
         """
         Create a Voci tree. If the tree exists, then it is deleted.
         """
@@ -316,11 +389,14 @@ class Command(BaseCommand):
             Voce.objects.all().delete()
 
         # get simplified leaves (from csv or gdocs), to build the voices tree
-        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves()
+        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
         self.create_voci_preventivo_tree()
 
         self.create_voci_consuntivo_tree()
+
+        sf = SommaFunzioniMixin()
+        sf.create_somma_funzioni()
 
 
     def create_voci_preventivo_tree(self):
@@ -391,7 +467,8 @@ class Command(BaseCommand):
         current_node = subtree_node
         for item in bc:
             if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
-                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(i) for i in bc[0:bc.index(item)+1]))
+
+                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(unicode(i)) for i in bc[0:bc.index(item)+1]))
                 node = Voce(denominazione=item, slug=slug)
                 node.insert_at(current_node, save=True, position='last-child')
                 if bc[-1] == item:

@@ -33,82 +33,34 @@
             $this.parent().parent().find('input[type=checkbox]').not($this).prop('checked', $this.prop('checked'));
         });
 
+        $('.dropdown-menu input, .dropdown-menu label').click(function(e) {
+            e.stopPropagation();
+        });
+
+
+
 
     });
 }(jQuery);
 
+var autoOpenNestedAccordion = function (startElement) {
 
-var setupNestedAccordion = function() {
-
-    var panels_tree = $('.panel-tree');
-
-    // add sub collapse ( first level close its sub-tree)
-    panels_tree
-        .on('hidden.bs.collapse', '> .panel > .panel-collapse', function (e) {
-            e.stopPropagation();
-            $(this).find('.panel-collapse.in').collapse('hide');
-        });
-
-    // panels toggling
-    panels_tree
-        .on('hidden.bs.collapse', '.chart-container', function(e){
-            e.stopPropagation()
-        })
-        .on('show.bs.collapse', '.chart-container', function(e){
-            e.stopPropagation()
-        });
-
-    panels_tree
-
-        .on('hidden.bs.collapse', '.panel-collapse', function (e) {
-            e.stopPropagation();
-            var heading = $('#heading-' + $(this).attr('id'));
-            // replace minus with plus
-            heading.find('.fa-minus-circle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-
-            // remove bold style
-            heading.find('.entry .collapse-toggle').css({
-                'font-weight': 'inherit',
-                'text-decoration': 'none'
-            });
-            // hide secondary line chart button
-          heading.find('.trend-chart-toggle').addClass('hidden');
-            // hide graph
-            heading.parent().find('.chart-container.in').collapse('hide');
-
-        }).on('show.bs.collapse', '.panel-collapse', function (e) {
-            e.stopPropagation();
-            var heading = $('#heading-' + $(this).attr('id'));
-            // replace plus with minus
-            heading.find('.entry .collapse-toggle').css({
-                'font-weight': 'bold',
-                'text-decoration': 'none'
-            });
-            // add bold style
-            heading.find('.fa-plus-circle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
-            // show secondary line chart button
-          heading.find('.trend-chart-toggle').removeClass('hidden');
-        });
-
-    // add graph toggler
-    panels_tree.on('click', '.trend-chart-toggle', function(e) {
-        e.preventDefault();
-    });
-
-};
-
-var autoOpenNestedAccordion = function(startElement) {
-
-    var panels_tree = $('.panel-tree');
     // auto open accordion
-    if ( startElement != undefined ) {
+    if (startElement != undefined) {
+
+        // turn the parent toggle element icon from "+" to "-" as the accordion is going to be expanded
+        var parent_toggle_icons = $(startElement).parents('.collapse').prev('.panel').find('.panel-heading .row .entry a i');
+        parent_toggle_icons.removeClass('fa-plus-circle');
+        parent_toggle_icons.addClass('fa-minus-circle');
+        parent_toggle_icons.css('color','rgb(143, 151, 158)');
 
         // expand parents if exists
-        $(startElement, panels_tree).parents('.collapse').collapse('show');
-        $(startElement, panels_tree).collapse('show');
+        $(startElement).parents('.collapse').collapse('show');
+        $(startElement).collapse('show');
+        $(startElement + '> .row').addClass('highlighted');
     }
 
-}
+};
 
 function goToClassByScroll(classname){
       // Scroll
@@ -119,7 +71,55 @@ function goToClassByScroll(classname){
 
 function goToIdByScroll(div_id){
       // Scroll
-    $('html,body').animate({
-        scrollTop: $(div_id).offset().top-100},
-        'slow');
+
+    if($(div_id).offset() != undefined){
+        $('html,body').animate({
+            scrollTop: $(div_id).offset().top-100},
+            'slow');
+    }
+
+}
+
+//escapes a string to be used in a regex
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function init_parameter_menu(site_section){
+    //initialize side menu for classifiche / confronti
+    // default selected value: the one present in the url address
+
+    var parameter_type=null;
+    var dropdown_id = '#'+site_section+'-dropdown';
+
+    //if site_section is 'classifiche' the par type is whatever comes after classifiche in the page url:
+    //given the url : classifiche/indicatori/foo -> par_type = indicatori
+    var address_split = window.location.pathname.split('/');
+
+    if(site_section == 'classifiche')
+        parameter_type = address_split[2];
+    else
+        parameter_type = address_split[4];
+
+    var par_type_id = '#pl-'+parameter_type;
+
+    // on module load is selected the type of parameter present in the page url
+    $('.pl-list').hide();
+    $(par_type_id).show(0,function() {
+        $(par_type_id).children().show();
+        $(dropdown_id).val(parameter_type);
+    });
+
+    // binds the selector dropdown change to hide / show parameter lists
+      $(dropdown_id).change(function() {
+
+        var selected_element = '#pl-' + $(this).val();
+        $('.pl-list').hide(0,function() {
+            $(selected_element).children().show(0);
+        });
+        $(selected_element).show(0,function() {
+            $(selected_element).children().show(0);
+        });
+
+     });
 }

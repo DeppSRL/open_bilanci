@@ -4,7 +4,15 @@ from base import *
 
 ########## HOST CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
-ALLOWED_HOSTS = ['*']
+MAIN_HOST = ['www.openbilanci.it',]
+
+# Allowed hosts expansion: needed for servizi ai Comuni
+HOSTS_COMUNI = [
+
+]
+
+ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI
+
 ########## END HOST CONFIGURATION
 
 ########## EMAIL CONFIGURATION
@@ -58,5 +66,10 @@ PATH_PREVENTIVI = BILANCI_PATH+"/%s/%s/Preventivo/%s.html"
 PATH_CONSUNTIVI = BILANCI_PATH+"/%s/%s/Consuntivo/%s.html"
 
 BILANCI_RAW_DB = 'bilanci_raw'
+
+ADMINS = (
+    ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
+    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+)
 
 

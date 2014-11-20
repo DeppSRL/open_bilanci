@@ -1,0 +1,64 @@
+{# adds comune logo or comune name with back link if present #}
+
+<div class="row no-affix">
+    <div class="col-md-3 col-md-offset-9">
+        <div class="pull-right download-box">
+            {% if csv_package_file %}
+                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+                   class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="pull-right download-box affix-only">
+    {% if csv_package_file %}
+        <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+           class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
+    {% endif %}
+</div>
+
+<div class="row no-affix" id="services-comune-name">
+
+    {% if pagina_comune.logo %}
+        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-12{% endif %}">
+            {% if pagina_comune.backlink %}
+
+                <a href="{{ pagina_comune.backlink }}" title="Torna al sito istituzionale">
+                    <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                        src="{{ pagina_comune.logo.url }}" />
+                </a>
+            {% else %}
+
+                <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                     src="{{ pagina_comune.logo.url }}" />
+            {% endif %}
+
+        </div>
+        <div class="col-md-11">
+            {% if pagina_comune.tipologia_logo == '0' %}
+                <strong>Comune di</strong><br/>
+                <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <div class="col-md-12">
+            {% if pagina_comune.backlink  %}
+
+                <h1 class="panel-title" style="text-transform: uppercase;">
+                    <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
+                        {{territorio.denominazione}}
+                    </a>
+                </h1>
+                
+            {% else %}
+
+                <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
+            {% endif %}
+        </div>
+
+    {% endif %}
+</div>
+
+<h1 class="panel-title affix-only" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
