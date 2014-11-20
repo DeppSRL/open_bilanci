@@ -57,4 +57,9 @@ PATH_CONSUNTIVI = BILANCI_PATH+"/%s/%s/Consuntivo/%s.html"
 
 BILANCI_RAW_DB = 'bilanci_raw'
 
+ADMINS = (
+    ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
+    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+)
+
 
