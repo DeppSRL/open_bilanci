@@ -2124,8 +2124,11 @@ class BilancioDettaglioView(BilancioOverView):
         # which puts all the branch at the end of the alphabetical order
 
         if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
-            if self.main_bilancio_type == 'consuntivo':
-                base_slug = 'consuntivo-spese-cassa'
+            if self.main_bilancio_type == 'consuntivo' :
+                if self.cas_com_type == 'cassa':
+                    base_slug = 'consuntivo-spese-cassa'
+                else:
+                    base_slug = 'consuntivo-spese-impegni'
             else:
                 base_slug = 'preventivo-spese'
 
