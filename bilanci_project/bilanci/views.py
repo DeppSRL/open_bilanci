@@ -2077,7 +2077,6 @@ class BilancioDettaglioView(BilancioOverView):
         budget_values = ValoreBilancio.objects.filter(territorio = territorio, anno=self.year).\
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
-        values_type = self.values_type
 
         absolute_values = budget_values.values_list('voce__slug', 'valore')
         percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
@@ -2159,7 +2158,7 @@ class BilancioDettaglioView(BilancioOverView):
             else:
                 context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
 
-
+        context['values_type'] = self.values_type
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] =  bilancio_tree
         context['query_string'] = query_string
