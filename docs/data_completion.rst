@@ -33,7 +33,7 @@ Then there are data which need to be computed on the data already present in the
 .. code-block:: bash
 
     python manage.py indicators --cities=all --years=2003-2013 -v2
-    python manage.py median --type=indicatori --years=2003-2013 -v2
+    python manage.py median --type=indicatori --indicators=all --years=2003-2013 -v2
 
 
 - generating downloadable packages of CSV files
