@@ -18,7 +18,7 @@ from django.conf import settings
 from services.models import PaginaComune
 from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
 from bilanci.managers import ValoriManager
-from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore
+from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore, ImportXmlBilancio
 import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
@@ -1641,6 +1641,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     year = None
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
+    main_bilancio_xml = comp_bilancio_xml = False
     comparison_not_available = False
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
@@ -1664,18 +1665,14 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             main_denominazione_strip = main_denominazione.strip()
             comparison_value_dict = comp_dict.get(main_denominazione_strip,{})
             if comparison_value_dict == {}:
-                comparison_value_dict = comp_dict.get(main_denominazione_strip+" ",{})
+                comparison_value_dict = comp_dict.get(main_denominazione_strip+" ", {})
 
-
-            comparison_value = comparison_value_dict.get('valore',None)
+            comparison_value = comparison_value_dict.get('valore', None)
 
             variation_dict = {
                 'slug': main_value_dict['voce__slug'],
-                'denominazione' :main_denominazione_strip,
-                'variation': self.calculate_variation(
-                                main_value,
-                                comparison_value
-                       )
+                'denominazione': main_denominazione_strip,
+                'variation': self.calculate_variation(main_value, comparison_value)
                     }
 
             variations.append(variation_dict )
@@ -1826,24 +1823,24 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         rootnode_slugs = {
             'preventivo': {
-                'entrate':{
+                'entrate': {
                     'cassa': 'preventivo-entrate',
                     'competenza': 'preventivo-entrate'
                 },
-                'spese':{
+                'spese': {
                     'cassa': 'preventivo-spese',
                     'competenza': 'preventivo-spese'
                 },
 
             },
             'consuntivo': {
-                'entrate':{
+                'entrate': {
                     'cassa': 'consuntivo-entrate-cassa',
                     'competenza': 'consuntivo-entrate-accertamenti'
                 },
                 'spese': {
-                    'cassa':'consuntivo-spese-cassa',
-                    'competenza':'consuntivo-spese-impegni'
+                    'cassa': 'consuntivo-spese-cassa',
+                    'competenza': 'consuntivo-spese-impegni'
                 }
             }
         }
@@ -1866,7 +1863,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if str(best_bilancio_year) != self.year:
             must_redirect = True
             self.year = str(best_bilancio_year)
-
 
         if must_redirect:
             # sets querystring, destination view and kwargs parameter for the redirect
@@ -1903,10 +1899,13 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                     destination_view = "bilanci-{0}-services".format(self.selected_subsection)
                     redirect_kwargs = {'section':self.selected_section}
 
-
             return HttpResponseRedirect(
                 reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
                 )
+
+        # check if bilancio main / comparison have been imported from xml file
+        self.main_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.main_bilancio_year, self.main_bilancio_type)
+        self.comp_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.comp_bilancio_year, self.comp_bilancio_type)
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
 
@@ -1914,7 +1913,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     def get_context_data(self, **kwargs ):
 
         context = super(BilancioOverView, self).get_context_data(**kwargs)
-        
         query_string = self.request.META['QUERY_STRING']
 
         context['tipo_bilancio'] = self.main_bilancio_type
@@ -1932,6 +1930,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
+
+        context['main_bilancio_xml'] = self.main_bilancio_xml
+        context['comp_bilancio_xml'] = self.comp_bilancio_xml
 
         # if servizi_comuni then passes the Pagina Comune data to the template
         if self.servizi_comuni:

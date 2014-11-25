@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from model_utils import Choices
@@ -182,6 +183,18 @@ class ImportXmlBilancio(models.Model):
             return u"%s %s Consuntivo" % (self.territorio.denominazione, self.anno, )
         else:
             return u"%s %s Preventivo" % (self.territorio.denominazione, self.anno, )
+
+
+    @staticmethod
+    def is_present(territorio, anno, tipologia):
+        #checks if bilancio has been imported from XML file
+
+        try:
+            ImportXmlBilancio.objects.get(territorio=territorio, anno=anno, tipologia=tipologia)
+        except ObjectDoesNotExist:
+            return False
+
+        return True
 
 
 class ValoreBilancio(models.Model):
