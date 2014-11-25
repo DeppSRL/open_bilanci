@@ -148,7 +148,7 @@ co. 380 - 380 bis L. 228/12 (7)";"02";"130";"consuntivo-entrate-accertamenti-con
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"TITOLO I - SPESE CORRENTI 
 al netto della spesa 
 per alimentazione del fondo di
-solidarietà comunale (FSC)";"1";"";"";"";"";""
+solidarietà comunale (FSC)";"1";"TITOLO I - SPESE CORRENTI al netto della spesa per alimentazione del fondo di solidarietà comunale (FSC)";"03";"005";"consuntivo-spese-impegni-spese-correnti";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"TITOLO I - SPESE CORRENTI 
 al netto della spesa 
 per alimentazione del fondo di
@@ -157,7 +157,7 @@ solidarietà comunale (FSC)";"";"Spesa per alimentazione del fondo di solidariet
 al netto della spesa 
 per alimentazione del fondo di
 solidarietà comunale (FSC)";"";"TOTALE A PAREGGIO ( spese correnti + spesa per alimentazione fondo) (4)";"03";"007";"";""
-"QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"2 TITOLO II - SPESE IN C/CAPITALE";"2";"TITOLO II - SPESE IN C/CAPITALE";"03";"010";"";""
+"QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"2 TITOLO II - SPESE IN C/CAPITALE";"2";"TITOLO II - SPESE IN C/CAPITALE";"03";"010";"consuntivo-spese-impegni-spese-per-investimenti";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"3 TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"";"TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"03";"015";"consuntivo-spese-impegni-prestiti";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"3 TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"";"Rimborso di anticipazioni di cassa";"03";"020";"consuntivo-spese-impegni-prestiti-anticipazioni-di-cassa";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"3 TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"";"Rimborso di finanziamenti a breve termine";"03";"025";"consuntivo-spese-impegni-prestiti-finanziamenti-a-breve-termine";""
@@ -168,7 +168,7 @@ solidarietà comunale (FSC)";"";"TOTALE A PAREGGIO ( spese correnti + spesa per 
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"3 TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"";"Rimborso di quota capitale di debiti pluriennali";"03";"040";"consuntivo-spese-impegni-prestiti-quota-capitale-di-debiti-pluriennali";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"3 TITOLO III - SPESE PER RIMBORSO DI PRESTITI";"";"Rimborso di quota capitale per estinzione anticipata di prestiti (2)";"03";"043";"consuntivo-spese-impegni-prestiti-quota-capitale-per-estinzione-anticipata-di-prestiti";""
 "QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"TITOLO IV - SPESE PER SERVIZI PER CONTO DI TERZI";"";"TITOLO IV - SPESE PER SERVIZI PER CONTO DI TERZI";"03";"045";"consuntivo-spese-impegni-spese-per-conto-terzi";""
-"QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"TITOLO IV - SPESE PER SERVIZI PER CONTO DI TERZI";"";"TOTALE GENERALE DELLE SPESE";"03";"050";"";""
+"QUADRO 3 - RIEPILOGO GENERALE DELLE SPESE";"";"";"TOTALE GENERALE DELLE SPESE";"03";"050";"consuntivo-spese-impegni";""
 "QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI";"";"101";"Funzioni generali di amministrazione di gestione e di controllo";"04";"005";"consuntivo-spese-impegni-spese-correnti-funzioni-amministrazione";""
 "QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI";"";"";"Organi istituzionali, partecipazione e decentramento";"04";"007";"consuntivo-spese-impegni-spese-correnti-funzioni-amministrazione-organi-istituzionali";""
 "QUADRO 4 - SPESE CORRENTI - (A) - IMPEGNI";"";"";"di cui:";"";"";"";""

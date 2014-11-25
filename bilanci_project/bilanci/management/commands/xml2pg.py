@@ -42,7 +42,7 @@ class Command(BaseCommand):
     rootnode_slug = None
     anno = None
     colonne_regroup = None
-    codici_regroup = None
+    codici_regroup = OrderedDict()
     unmapped_slugs = None
     popolazione_residente = None
 
@@ -88,7 +88,6 @@ class Command(BaseCommand):
                     ))
             else:
                 self.popolazione_residente = contesto_db.bil_popolazione_residente
-
 
     def create_mapping(self, bilancio):
         ##
@@ -137,7 +136,7 @@ class Command(BaseCommand):
                                                                                        len(natural_desc)))
         self.unmapped_slugs = natural_desc - set(self.codici_regroup.keys())
         if len(self.unmapped_slugs) > 0:
-            self.add_summed_voci()
+            self.add_unmapped_voci()
 
         if self.tipo_certificato == 'consuntivo':
             # add cassa branch
@@ -166,8 +165,8 @@ class Command(BaseCommand):
         # add somma_funzioni branch
         self.add_computed_branch(node_set=somma_funzioni_set, is_cassa=False)
 
-    def add_summed_voci(self):
-        # add_summed_voci adds to self.codici_regroup the mapping for the natural Voce which dont have
+    def add_unmapped_voci(self):
+        # add_unmapped_voci adds to self.codici_regroup the mapping for the natural Voce which dont have
         # an explicit mapping in the CodiceVoce table. Those Voce will be mapped as a sum of the values of their
         # first level natural children
 
@@ -181,13 +180,13 @@ class Command(BaseCommand):
                 continue
 
             # debug
-            self.logger.debug("Add summed voci for:{0}".format(unmapped_node.slug))
+            self.logger.debug(u"Add summed voci for:{0}".format(unmapped_node.slug))
             natural_children_slugs = unmapped_node.get_natural_children().values_list('slug', flat=True)
 
             children_codes = []
             for child_slug in natural_children_slugs:
 
-                self.logger.debug("Natural child:{0}".format(child_slug))
+                self.logger.debug(u"Natural child:{0}".format(child_slug))
                 try:
                     children_codes.extend(self.codici_regroup[child_slug])
                 except KeyError:
@@ -229,10 +228,9 @@ class Command(BaseCommand):
                 code_set.extend(self.codici_regroup[composition[1].slug][:])
                 self.codici_regroup[node.slug] = code_set
 
-                if node.slug.endswith('-funzioni-amministrazione'):
-                    self.logger.debug("Codeset for:{0}".format(node.slug))
-                    for c in code_set:
-                        self.logger.debug(c)
+                self.logger.debug("Codeset for:{0}".format(node.slug))
+                for c in code_set:
+                    self.logger.debug(c)
 
             except KeyError:
                 self.logger.error(
@@ -265,9 +263,7 @@ class Command(BaseCommand):
             xml_code_found = True
 
             # debug
-            suffix = '-funzioni-amministrazione'
-            if voce_slug.endswith(suffix):
-                self.logger.debug(u"Getting data for {0}".format(voce_slug))
+            self.logger.debug(u"Getting data for {0}".format(voce_slug))
 
             valore_totale = 0
             # adds up all the xml codice needed to calculate a single voce
@@ -283,10 +279,9 @@ class Command(BaseCommand):
                 if valore_string.lower() != 's' and valore_string.lower() != 'n':
 
                     # debug
-                    if voce_slug.endswith(suffix):
-                        self.logger.debug(
-                            "{0}-{1}-{2}:{3}".format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod,
-                                                     valore_string))
+                    self.logger.debug(
+                        "{0}-{1}-{2}:{3}".format(codice.quadro_cod, codice.voce_cod, codice.colonna_cod,
+                                                 valore_string))
 
                     valore_totale += float(valore_string)
                 else:
@@ -307,8 +302,7 @@ class Command(BaseCommand):
                 if not self.dryrun:
 
                     # debug
-                    if voce_slug.endswith(suffix):
-                        self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
+                    self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
 
                     vb.save()
 
