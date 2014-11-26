@@ -19,7 +19,6 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written on the db'),
-
         make_option('--file',
                     dest='input_file',
                     default='',
@@ -36,7 +35,6 @@ class Command(BaseCommand):
     logger = logging.getLogger('management')
     comuni_dicts = {}
     composition_errors = []
-    dryrun = None
     territorio = None
     tipo_certificato = None
     rootnode_slug = None
@@ -243,15 +241,23 @@ class Command(BaseCommand):
 
     def import_bilancio(self, bilancio):
 
-        # before importing new data, deletes old data, if present
-        self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
-            self.territorio.denominazione, self.anno, self.tipo_certificato))
+        if not self.dryrun:
 
-        ValoreBilancio.objects.filter(
-            territorio=self.territorio,
-            anno=self.anno,
-            voce=Voce.objects.get(slug=self.rootnode_slug).get_descendants(include_self=True)
-        ).delete()
+            # before importing new data, deletes old data, if present
+            self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
+                self.territorio.denominazione, self.anno, self.tipo_certificato))
+            ValoreBilancio.objects.filter(
+                territorio=self.territorio,
+                anno=self.anno,
+                voce=Voce.objects.get(slug=self.rootnode_slug).get_descendants(include_self=True)
+            ).delete()
+
+            # delete Importxml data
+            ImportXmlBilancio.objects.filter(
+                territorio=self.territorio,
+                anno=self.anno,
+                tipologia=self.tipo_certificato
+            ).delete()
 
         # create mapping between codici bilancio (in Google document) and voce_slug of simplified tree
         self.create_mapping(bilancio)
@@ -382,12 +388,7 @@ class Command(BaseCommand):
         ##
         # adds bilancio to the source table to mark this bilancio as coming from Comune xml source
         ##
-        if self.tipo_certificato == 'preventivo':
-            tipologia = u"P"
-        else:
-            tipologia = u"C"
-
-        import_data = {'territorio': self.territorio, 'anno': self.anno, 'tipologia': tipologia}
+        import_data = {'territorio': self.territorio, 'anno': self.anno, 'tipologia': self.tipo_certificato}
         if not self.dryrun:
             try:
                 ImportXmlBilancio.objects.get(**import_data).delete()
@@ -398,9 +399,6 @@ class Command(BaseCommand):
         if not self.dryrun:
             import_bilancio.save()
 
-
-        # debug
-        exit()
 
         ##
         # Compute Indicators if bilancio is Consuntivo
