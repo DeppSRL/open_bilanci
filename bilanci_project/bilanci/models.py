@@ -167,36 +167,6 @@ class Voce(MPTTModel):
         return u"%s" % (self.slug,)
 
 
-class ImportXmlBilancio(models.Model):
-    TIPO_CERTIFICATO = Choices(
-        (u'C', u'consuntivo', u'Consuntivo'),
-        (u'P', u'preventivo', u'Preventivo'),
-    )
-
-    tipologia = models.CharField(max_length=1, choices=TIPO_CERTIFICATO)
-    territorio = models.ForeignKey(Territorio, null=False, blank=False)
-    anno = models.PositiveSmallIntegerField(db_index=True)
-    created_at = models.DateField(auto_now=False, auto_now_add=True, )
-
-    def __unicode__(self):
-        if self.tipologia == self.TIPO_CERTIFICATO.consuntivo:
-            return u"%s %s Consuntivo" % (self.territorio.denominazione, self.anno, )
-        else:
-            return u"%s %s Preventivo" % (self.territorio.denominazione, self.anno, )
-
-
-    @staticmethod
-    def is_present(territorio, anno, tipologia):
-        #checks if bilancio has been imported from XML file
-
-        try:
-            ImportXmlBilancio.objects.get(territorio=territorio, anno=anno, tipologia=tipologia)
-        except ObjectDoesNotExist:
-            return False
-
-        return True
-
-
 class ValoreBilancio(models.Model):
     voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
@@ -239,6 +209,36 @@ class ValoreIndicatore(models.Model):
         return u"%s: %s" % (self.indicatore, self.valore,)
 
 
+class ImportXmlBilancio(models.Model):
+    TIPO_CERTIFICATO = Choices(
+        (u'consuntivo', u'consuntivo', u'Consuntivo'),
+        (u'preventivo', u'preventivo', u'Preventivo'),
+    )
+
+    tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO)
+    territorio = models.ForeignKey(Territorio, null=False, blank=False)
+    anno = models.PositiveSmallIntegerField(db_index=True)
+    created_at = models.DateField(auto_now=False, auto_now_add=True, )
+
+    def __unicode__(self):
+        if self.tipologia == self.TIPO_CERTIFICATO.consuntivo:
+            return u"%s %s Consuntivo" % (self.territorio.denominazione, self.anno, )
+        else:
+            return u"%s %s Preventivo" % (self.territorio.denominazione, self.anno, )
+
+
+    @staticmethod
+    def is_present(territorio, anno, tipologia):
+        #checks if bilancio has been imported from XML file
+
+        try:
+            ImportXmlBilancio.objects.get(territorio=territorio, anno=anno, tipologia=tipologia)
+        except ObjectDoesNotExist:
+            return False
+
+        return True
+
+
 ##
 # CodiceVoce: maps Xml bilancio codes to simplified bilancio Voce
 ##
@@ -264,3 +264,5 @@ class CodiceVoce(models.Model):
     def get_bilancio_codes(anno, tipo_certificato):
 
         return CodiceVoce.objects.filter(anno=anno, voce__slug__startswith=tipo_certificato).order_by('voce__slug')
+
+

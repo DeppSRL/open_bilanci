@@ -310,10 +310,6 @@ LOGGING = {
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
 
-# scrapers settings
-START_YEAR = 2002
-END_YEAR = 2012
-
 OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
@@ -374,6 +370,10 @@ CACHE_PAGE_DURATION_SECS = 3600
 
 SOUTH_TESTS_MIGRATE = False
 
+##
+# Application variables
+##
+
 GDP_DEFLATORS = {
     2000: 0.777728432,
     2001: 0.800109527,
@@ -391,25 +391,6 @@ GDP_DEFLATORS = {
     2013: 1.014412693,
 }
 
-##
-# OP API VARIABLES:
-##
-
-OP_API_HOST = "http://api3.openpolis.it"
-OP_BLOG_CATEGORY = 'neibilanci'
-
-##
-# APPLICATION VARIABLES:
-# set the start / end of the time span considered for incarichi related to Territori
-##
-
-
-APP_DATE_FMT = '%Y-%m-%d'
-APP_START_DATE_STR = "2003-01-01"
-APP_END_DATE_STR = "2013-12-31"
-APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
-APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
-
 CAPOLUOGHI_PROVINCIA = [u'5190010010', u'1010020030', u'3110030020', u'4160090050', u'1020040030', u'3090050020', u'ASCOLI-PICENO--3110060070', u'1010070050', u'4150080080', u'4160090060', u'4160090070', u'2050100060', u'4150110080', u'1030120240', u'1010960040', u'2080130060', u'2040140050', u'1030150260', u'4160160010', u'5200170090',
                         u'5190180040', u'4140190060', u'5200170120', u'4150200220', u'5190210150', u'4180220220', u'4130230220', u'1030240720', u'4180250460', u'1030260350', u'4180970100', u'1010270780', u'5190280090', u'3110060190', u'2080290080', u'3090300170', u'4160310230', u'2080320110', u'3120330380', u'1070340250',
                         u'2060350070', u'3090360100', u'5200170330', u'1070370290', u'4140940230', u'5200530350', u'L-AQUILA--4130380490', u'LA-SPEZIA--1070390150', u'3120400110', u'4160410340', u'1030980420', u'3090420090', u'1030990310', u'3090430170', u'3110440230', u'1030450300', u'3090460100', u'4170470140', u'5190480470', u'1030491450',
@@ -419,9 +400,23 @@ CAPOLUOGHI_PROVINCIA = [u'5190010010', u'1010020030', u'3110030020', u'416009005
                         ]
 
 ##
-# BILANCIO GRAPHS VARIABLES:
-# set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
+# OP API VARIABLES:
 ##
+
+OP_API_HOST = "http://api3.openpolis.it"
+OP_BLOG_CATEGORY = 'neibilanci'
+
+
+##
+# TIMELINE VARIABLES:
+# set the start / end of the time span considered
+##
+
+APP_DATE_FMT = '%Y-%m-%d'
+APP_START_DATE_STR = "2003-01-01"
+APP_END_DATE_STR = "2013-12-31"
+APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
+APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 
 TERRITORI_CONTEXT_REFERENCE_YEAR = 2012
 
@@ -433,6 +428,12 @@ CLASSIFICHE_END_YEAR = 2012
 
 SELECTOR_DEFAULT_YEAR = 2013
 SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
+
+##
+# BILANCIO GRAPHS VARIABLES:
+# set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
+##
+
 
 # expiration time for a data in a session (seconds)
 SESSION_COOKIE_AGE = 7200
