@@ -1754,7 +1754,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return results
 
-
     def get(self, request, *args, **kwargs):
 
         ##
@@ -1797,7 +1796,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         if self.comp_bilancio_year is None:
             self.comparison_not_available = True
-
 
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
@@ -1929,7 +1927,10 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['selected_section'] = self.selected_section
         # get Comune context data from db
-        context['comune_context'] = Contesto.get_context(int(self.year), self.territorio)
+        territorio_contesto = self.territorio.latest_contesto()
+        if territorio_contesto:
+            context['bil_popolazione_residente'] = getattr(territorio_contesto, 'bil_popolazione_residente')
+
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
         context['selected_year'] = self.year
@@ -1966,7 +1967,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
         context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
-
         # creates link for voices in chi guadagna/perde based on whether the servizi comune is true
         if self.servizi_comuni:
             context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio-services',
@@ -1980,7 +1980,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['comparison_bilancio_type'] = self.comp_bilancio_type
         context['comparison_bilancio_year'] = self.comp_bilancio_year
         context['share_url'] = self.share_url
-
         context['menu_voices'] = self.get_menu_voices()
 
         return context
@@ -2031,26 +2030,6 @@ class BilancioDettaglioView(BilancioOverView):
     template_name = 'bilanci/bilancio_dettaglio.html'
     selected_subsection = 'dettaglio'
 
-    def get(self, request, *args, **kwargs):
-
-        ##
-        # if year or type parameter are missing redirects to a page for default year / default bilancio type
-        ##
-
-        self.territorio = self.get_object()
-        self.selected_section = kwargs.get('section', 'overview')
-        self.year = self.request.GET.get('year', settings.SELECTOR_DEFAULT_YEAR)
-        self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
-
-        self.values_type = self.request.GET.get('values_type', 'real')
-        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
-
-        if self.main_bilancio_type == "preventivo":
-            self.cas_com_type = "cassa"
-
-        return super(BilancioDettaglioView, self).get(request, *args, **kwargs)
-
-
     def get_slug(self):
         cassa_competenza_type = self.cas_com_type
         if self.cas_com_type == 'competenza':
@@ -2070,7 +2049,6 @@ class BilancioDettaglioView(BilancioOverView):
                 self.selected_section,
                 cassa_competenza_type
             )
-
 
     def get_context_data(self, **kwargs):
 
@@ -2254,8 +2232,6 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
         selected_indicators_slugs = self.verify_slug(self.request.GET.getlist('slug'))
 
         context['selected_section'] = self.selected_section
-        # get Comune context data from db
-        year = settings.SELECTOR_DEFAULT_YEAR
 
         last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
         if last_indicatore_yr:
@@ -2269,7 +2245,11 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
         if self.servizi_comuni:
             context['pagina_comune'] = self.get_servizi_comune_context()
 
-        context['comune_context'] = Contesto.get_context(int(year), self.territorio)
+        # get Comune context data from db
+        territorio_contesto = self.territorio.latest_contesto()
+        if territorio_contesto:
+            context['bil_popolazione_residente'] = getattr(territorio_contesto, 'bil_popolazione_residente')
+
         context['territorio_opid'] = self.territorio.op_id
         context['territorio_cluster'] = Territorio.objects.get(territorio=Territorio.TERRITORIO.L,
                                                                cluster=self.territorio.cluster).denominazione

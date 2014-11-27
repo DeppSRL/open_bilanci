@@ -151,24 +151,6 @@ class Territorio(models.Model):
         else:
             return contesto.bil_popolazione_residente
 
-
-    def latest_contesto(self, anno=None):
-        contesto = None
-        if self.territorio == Territorio.TERRITORIO.C:
-            if anno:
-                try:
-                    contesto = self.contesto_set.filter(anno__lte=anno).order_by('-anno')[0]
-                except (AttributeError, IndexError):
-                    return None
-
-            else:
-                try:
-                    contesto = self.contesto_set.all().order_by('-anno')[0]
-                except (AttributeError, IndexError):
-                    return None
-
-        return contesto
-
     def best_year_voce(self, year, slug):
 
         # checks if the voice with the specified slug exists for a specific year,
@@ -232,6 +214,22 @@ class Territorio(models.Model):
 
         return available_years[-1]
 
+    def latest_contesto(self, anno=None):
+        contesto = None
+        if self.territorio == Territorio.TERRITORIO.C:
+            if anno:
+                try:
+                    contesto = self.contesto_set.filter(anno__lte=anno).order_by('-anno')[0]
+                except (AttributeError, IndexError):
+                    return None
+
+            else:
+                try:
+                    contesto = self.contesto_set.all().order_by('-anno')[0]
+                except (AttributeError, IndexError):
+                    return None
+
+        return contesto
 
     def nearest_valid_population(self, year):
         """

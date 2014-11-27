@@ -32,8 +32,8 @@
             <p class="details">
                 {% if not request.servizi_comuni %}
                     <span class="inhabitants">
-                        {% if comune_context.bil_popolazione_residente %}
-                            {{ comune_context.bil_popolazione_residente|intcomma }} abitanti
+                        {% if bil_popolazione_residente %}
+                            {{ bil_popolazione_residente|intcomma }} abitanti
                         {% endif %}
                     </span>
                 {% endif %}
