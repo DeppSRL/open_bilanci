@@ -1,29 +1,28 @@
-from itertools import groupby, ifilter, repeat
-from operator import itemgetter
 import os
 import re
-import json
-from django.core.cache import cache
-import feedparser
 import zmq
+import json
 import requests
+import feedparser
+from operator import itemgetter
+from itertools import groupby, ifilter, repeat
 from collections import OrderedDict
 from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
 from datetime import datetime, timedelta
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
 from django.conf import settings
 from services.models import PaginaComune
-from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, TerritoriSearchFormClassifiche
-from bilanci.managers import ValoriManager
+from bilanci.forms import TerritoriComparisonSearchForm, EarlyBirdForm, TerritoriSearchFormHome, \
+    TerritoriSearchFormClassifiche
 from bilanci.models import ValoreBilancio, Voce, Indicatore, ValoreIndicatore, ImportXmlBilancio
 import services
 from shorturls.models import ShortUrl
-from django.http.response import HttpResponse, HttpResponseRedirect, Http404, HttpResponseBadRequest
-from bilanci.utils import couch
-from territori.models import Territorio, Contesto, Incarico
+from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
+from territori.models import Territorio, Incarico
 
 
 class ServiziComuniMixin(object):
@@ -1585,6 +1584,7 @@ class BilancioNotFoundView(NotFoundView):
         context['bilancio'] = True
         return context
 
+
 class TerritorioNotFoundView(NotFoundView):
     ##
     # show a page when a Comune is not present in the db
@@ -1598,27 +1598,26 @@ class TerritorioNotFoundView(NotFoundView):
 class BilancioRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
-        territorio = get_object_or_404(Territorio, slug=self.request.GET.get('territori', 0))
+        # get Territorio data from the request
+        try:
+            territorio = get_object_or_404(Territorio, slug=self.request.GET.get('territori', 0))
+        except Http404:
+            return HttpResponseRedirect(reverse('territorio-not-found'))
 
-        couch_data = couch.get(territorio.cod_finloc)
+        kwargs.update({'slug': territorio.slug})
 
-        # last year with data
-        if couch_data:
+        # redirects to bilancio-overview for the latest bilancio available
+        latest_bilancio = territorio.get_latest_bilancio()
+        if latest_bilancio is None:
+            return reverse('bilancio-not-found')
 
-            # put in new values via regular dict
-            year = sorted(couch_data.keys())[-3]
-            tipo_bilancio = "consuntivo"
-            if couch_data[year][tipo_bilancio] == {}:
-                tipo_bilancio = "preventivo"
-            kwargs.update({'slug': territorio.slug})
-            try:
-                url = reverse('bilanci-overview', args=args, kwargs=kwargs)
-            except NoReverseMatch:
-                return reverse('404')
+        anno, tipo_bilancio = latest_bilancio
+        try:
+            url = reverse('bilanci-overview', args=args, kwargs=kwargs)
+        except NoReverseMatch:
+            return reverse('territorio-not-found')
 
-            return url + '?year=' + year + "&type=" + tipo_bilancio
-        else:
-            return reverse('404')
+        return u"{0}?year={1}&type={2}".format(url, anno, tipo_bilancio)
 
 
 class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
@@ -1669,7 +1668,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     cas_com_type = None
     fun_int_view = None
     share_url = None
-
 
     def calc_variations_set(self, main_dict, comp_dict, ):
         # creates a variations list of dict based on voce denominazione
@@ -1780,7 +1778,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.check_servizi_comuni(request)
 
         # get data from the request
-        self.territorio = self.get_object()
+        try:
+            self.territorio = self.get_object()
+        except Http404:
+            return HttpResponseRedirect(reverse('territorio-not-found'))
+
         self.selected_section = kwargs.get('section', 'overview')
         self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
