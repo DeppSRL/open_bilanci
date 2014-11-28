@@ -406,6 +406,13 @@ CAPOLUOGHI_PROVINCIA = [u'5190010010', u'1010020030', u'3110030020', u'416009005
 OP_API_HOST = "http://api3.openpolis.it"
 OP_BLOG_CATEGORY = 'neibilanci'
 
+##
+# COOKIES
+# expiration time for a data in a session (seconds)
+##
+
+SESSION_COOKIE_AGE = 7200
+SESSION_SAVE_EVERY_REQUEST = True
 
 ##
 # TIMELINE VARIABLES:
@@ -434,10 +441,6 @@ SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
 ##
 
-
-# expiration time for a data in a session (seconds)
-SESSION_COOKIE_AGE = 7200
-SESSION_SAVE_EVERY_REQUEST = True
 
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'

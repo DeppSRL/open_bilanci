@@ -1571,6 +1571,30 @@ class ConfrontiDataJSONView(View, IncarichiGetterMixin):
         )
 
 
+class NotFoundView(TemplateView):
+    template_name = "bilanci/not_found.html"
+
+
+class BilancioNotFoundView(NotFoundView):
+    ##
+    # show a page when a Comune doesnt have any bilancio
+    ##
+
+    def get_context_data(self, **kwargs):
+        context = super(BilancioNotFoundView, self).get_context_data(**kwargs)
+        context['bilancio'] = True
+        return context
+
+class TerritorioNotFoundView(NotFoundView):
+    ##
+    # show a page when a Comune is not present in the db
+    ##
+    def get_context_data(self, **kwargs):
+        context = super(TerritorioNotFoundView, self).get_context_data(**kwargs)
+        context['territorio'] = True
+        return context
+
+
 class BilancioRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
 
@@ -1628,14 +1652,6 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
         context['csv_package_file'] = self.get_complete_file(csv_package_filename)
         context['open_data_url'] = settings.OPENDATA_URL
         return context
-
-
-class BilancioNotFoundView(TemplateView):
-    ##
-    # show a page when a Comune doesnt have any bilancio
-    ##
-
-    template_name = "bilanci/bilancio_not_found.html"
 
 
 class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
@@ -1763,13 +1779,15 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # check if the request comes from Comuni host
         self.check_servizi_comuni(request)
 
+        # get data from the request
         self.territorio = self.get_object()
         self.selected_section = kwargs.get('section', 'overview')
         self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
         self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
-
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
+        self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
+        int_year = int(self.year)
 
         if self.main_bilancio_type == "preventivo":
             self.cas_com_type = "cassa"
@@ -1807,12 +1825,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             self.main_gdp_multiplier = self.main_gdp_deflator
             if not self.comparison_not_available:
                 self.comp_gdp_multiplier = self.comp_gdb_deflator
-
-        if self.comp_bilancio_year is None:
-            self.comparison_not_available = True
-
-        self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
-        int_year = int(self.year)
 
         # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
