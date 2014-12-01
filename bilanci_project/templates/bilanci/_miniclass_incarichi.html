@@ -8,30 +8,43 @@
                 {% if  incarichi_attivi.0.pic_url %}
                     <img class="media-object" src="{{ incarichi_attivi.0.pic_url|safe }}" alt='avatar'/>
                 {% else %}
-
-                    <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt='avatar'/>
+                    {% if incarichi_attivi.0.tipologia != '2' %}
+                        <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt='avatar'/>
+                    {% else %}
+                        <img class="media-object" src="{% static 'img/commissario.png' %}" alt='avatar'/>
+                    {% endif %}
                 {% endif %}
 
             </figure>
         {% endif %}
         {% for incarico in incarichi_attivi  %}
             <div class="media-body" >
-
-                <p class="h4" style="font-weight: bold;">
-                    <a target="_blank" href="{{ incarico.op_link }}">
-                        {{ incarico.nome.0|title }}. {{ incarico.cognome|title }}
-                    </a>
-                </p>
-                <p>
-                    {% if incarico.party_name %}
-                        {{ incarico.party_name|title}}<br/>
-                    {% elif incarico.party_acronym %}
-                        {{ incarico.party_acronym|title}}
-                    {% endif %}
-                    <span class="small">{{ incarico.data_inizio }}
-                        {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
-                    </span>
-                </p>
+                {% if incarico.tipologia != '2' %}
+                    <p class="h4" style="font-weight: bold;">
+                        <a target="_blank" href="{{ incarico.op_link }}">
+                            {{ incarico.nome.0|title }}. {{ incarico.cognome|title }}
+                        </a>
+                    </p>
+                    <p>
+                        {% if incarico.party_name %}
+                            {{ incarico.party_name|title}}<br/>
+                        {% elif incarico.party_acronym %}
+                            {{ incarico.party_acronym|title}}
+                        {% endif %}
+                        <span class="small">{{ incarico.data_inizio }}
+                            {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
+                        </span>
+                    </p>
+                {% else %}
+                    <p>
+                        <strong>Commissario</strong>
+                    </p>
+                    <p>
+                        <span class="small">{{ incarico.data_inizio }}
+                            {% if incarico.data_inizio %} - {{ incarico.data_fine|default:"presente" }}{% endif %}
+                        </span>
+                    </p>
+                {% endif %}
             </div>
         {% endfor %}
 

@@ -445,6 +445,7 @@ class IncarichiGetterMixin(object):
             if incarico.tipologia == Incarico.TIPOLOGIA.commissario:
                 # commissari
                 dict_widget['label'] = "Commissario".title()
+                dict_widget['icon'] = settings.INCARICO_MARKER_COMMISSARIO
                 if incarico.motivo_commissariamento:
                     dict_widget['sublabel'] = incarico.motivo_commissariamento.title()
 
