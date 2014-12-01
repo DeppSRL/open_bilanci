@@ -184,7 +184,11 @@
         </div> <!-- /#balance -->
 
     {% else %}
-        il bilancio selezionato non e' presente nel db. seleziona un altro bilancio
+        {% if main_bilancio_is_recent %}
+            il bilancio selezionato non &egrave; stato fornito dal Comune al sito di finanza locale
+        {% else %}
+            il bilancio selezionato non &egrave; presente nel db. seleziona un altro bilancio
+        {% endif %}
     {% endif %} {# /main_bilancio_available #}
 
 {% endblock %}

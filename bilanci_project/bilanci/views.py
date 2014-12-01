@@ -1654,12 +1654,13 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     selected_section = "overview"
     accepted_bilancio_types = ['preventivo', 'consuntivo']
     main_bilancio_available = True
+    comp_bilancio_available = True
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
     main_bilancio_xml = comp_bilancio_xml = False
-    comparison_available = True
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
+    main_bilancio_is_recent = False
     territorio = None
     values_type = None
     cas_com_type = None
@@ -1805,7 +1806,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.comp_bilancio_year = self.territorio.best_year_voce(year=comparison_year, slug=verification_voice)
 
         if self.comp_bilancio_year is None:
-            self.comparison_available = False
+            self.comp_bilancio_available = False
 
     def get(self, request, *args, **kwargs):
 
@@ -1851,6 +1852,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         self.main_bilancio_year = int(self.main_bilancio_year)
 
+        if self.main_bilancio_year >= settings.TIMELINE_END_DATE.year - 1:
+            self.main_bilancio_is_recent = True
+
         # check low-priority parameters, forcing default values as fallback
         self.selected_section = kwargs.get('section', 'overview')
         self.values_type = self.request.GET.get('values_type', 'real')
@@ -1860,7 +1864,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             self.cas_com_type = "cassa"
         else:
             self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
-
 
 
         # if the request in the query string is incomplete the redirection will be used
@@ -1887,9 +1890,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         except ObjectDoesNotExist:
 
             self.main_bilancio_available = False
-            recent_bilancio_unavailable = False
-            if self.main_bilancio_year >= settings.TIMELINE_END_DATE.year - 1:
-                recent_bilancio_unavailable = True
 
         if must_redirect:
             # sets querystring, destination view and kwargs parameter for the redirect
@@ -1931,18 +1931,19 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             )
 
         if self.main_bilancio_available:
+
             # identifies the bilancio for comparison
             self.set_comparison_bilancio()
 
             # sets current gdp deflator / multiplier
             self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
 
-            if self.comparison_available:
+            if self.comp_bilancio_available:
                 self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
 
             if self.values_type == 'real':
                 self.main_gdp_multiplier = self.main_gdp_deflator
-                if self.comparison_available:
+                if self.comp_bilancio_available:
                     self.comp_gdp_multiplier = self.comp_gdb_deflator
 
             # check if bilancio main / comparison have been imported from xml file
@@ -2019,6 +2020,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
 
         context['main_bilancio_available'] = self.main_bilancio_available
+        context['main_bilancio_is_recent'] = self.main_bilancio_is_recent
         context['comparison_bilancio_type'] = self.comp_bilancio_type
         context['comparison_bilancio_year'] = self.comp_bilancio_year
         context['share_url'] = self.share_url
