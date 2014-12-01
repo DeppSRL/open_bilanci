@@ -61,7 +61,6 @@ class Voce(MPTTModel):
             Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
         )
 
-
     # get_components_cassa:
     # for the Voce in the spese-cassa branch
     # returns the Voce that are components of that Voce.

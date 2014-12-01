@@ -927,7 +927,7 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     main_bilancio_year = main_bilancio_type = None
     comp_bilancio_year = comp_bilancio_type = None
-    comparison_not_available = False
+    comparison_available = True
     values_type = None
     cas_com_type = None
 
@@ -1024,17 +1024,17 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                                                      slug=verification_voice)
 
         if self.comp_bilancio_year is None:
-            self.comparison_not_available = True
+            self.comparison_available = False
 
         # sets current gdp deflator
         self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
 
-        if not self.comparison_not_available:
+        if self.comparison_available:
             self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(self.comp_bilancio_year)]
 
         if self.values_type == 'real':
             self.main_gdp_multiplier = self.main_gdp_deflator
-            if not self.comparison_not_available:
+            if self.comparison_available:
                 self.comp_gdp_multiplier = self.comp_gdb_deflator
 
         if self.widget_type == 'overview':
@@ -1089,7 +1089,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
         comp_values_regroup = dict((k, list(v)[0]) for k, v in groupby(values, key=comp_keygen))
 
         return comp_values_regroup
-
 
     def compose_overview_data(self, main_values_regroup, variations):
         composition_data = []
@@ -1286,7 +1285,7 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
             s_main_totale['valore'] += disavanzo_bilancio['valore']
             s_main_totale['valore_procapite'] += disavanzo_bilancio['valore_procapite']
 
-        if not self.comparison_not_available:
+        if self.comparison_available:
 
             if len(self.comp_regroup_e):
                 e_comp_totale = self.comp_regroup_e[self.totale_label]
@@ -1349,7 +1348,7 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
         }
 
         # sets variation values if comparison bilancio is available
-        if not self.comparison_not_available:
+        if self.comparison_available:
             entrate_tot['variation'] = \
                 self.calculate_variation(
                     main_val=e_main_totale['valore'],
@@ -1443,7 +1442,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
                 w2.update(entrate_tot)
                 w3.update(spese_tot)
 
-
         # passing widget data to the context
         context['w1'] = w1
         context['w2'] = w2
@@ -1453,7 +1451,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context['w6'] = w6
 
         return context
-
 
     def get_context_data(self, **kwargs):
 
@@ -1602,7 +1599,7 @@ class BilancioRedirectView(RedirectView):
         try:
             territorio = get_object_or_404(Territorio, slug=self.request.GET.get('territori', 0))
         except Http404:
-            return HttpResponseRedirect(reverse('territorio-not-found'))
+            return reverse('territorio-not-found')
 
         kwargs.update({'slug': territorio.slug})
 
@@ -1625,7 +1622,6 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
     context_object_name = "territorio"
     territorio = None
     servizi_comuni = False
-
 
     def get_complete_file(self, file_name):
         """
@@ -1656,11 +1652,11 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
 class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "overview"
-    year = None
+    accepted_bilancio_types = ['preventivo', 'consuntivo']
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
     main_bilancio_xml = comp_bilancio_xml = False
-    comparison_not_available = False
+    comparison_available = True
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     territorio = None
@@ -1668,6 +1664,31 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     cas_com_type = None
     fun_int_view = None
     share_url = None
+
+    rootnode_slugs = {
+        'preventivo': {
+            'entrate': {
+                'cassa': 'preventivo-entrate',
+                'competenza': 'preventivo-entrate'
+            },
+            'spese': {
+                'cassa': 'preventivo-spese',
+                'competenza': 'preventivo-spese'
+            },
+
+        },
+        'consuntivo': {
+            'entrate': {
+                'cassa': 'consuntivo-entrate-cassa',
+                'competenza': 'consuntivo-entrate-accertamenti'
+            },
+            'spese': {
+                'cassa': 'consuntivo-spese-cassa',
+                'competenza': 'consuntivo-spese-impegni'
+            }
+        }
+    }
+
 
     def calc_variations_set(self, main_dict, comp_dict, ):
         # creates a variations list of dict based on voce denominazione
@@ -1732,13 +1753,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
                 values_not_null.append(value)
 
-
         # sets how many pos or neg values are needed to have a grand total
         # of 4 elements in the result list
         if n_negs < 2 or n_pos < 2:
 
             if n_negs < n_half_elements and n_pos < n_half_elements:
-
                 if n_negs == 0 and n_pos == 0:
                     return results
 
@@ -1768,6 +1787,25 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return results
 
+    def set_comparison_bilancio(self):
+
+        # comp_bilancio_type is the complimentary type of bilancio:
+        # if main_bilancio_type is preventivo -> consuntivo
+        # and viceversa
+
+        self.comp_bilancio_type = [x for x in self.accepted_bilancio_types if x != self.main_bilancio_type][0]
+        verification_voice = self.comp_bilancio_type + '-entrate'
+
+        if self.main_bilancio_type == 'preventivo':
+            comparison_year = self.main_bilancio_year - 1
+        else:
+            comparison_year = self.main_bilancio_year
+
+        self.comp_bilancio_year = self.territorio.best_year_voce(year=comparison_year, slug=verification_voice)
+
+        if self.comp_bilancio_year is None:
+            self.comparison_available = False
+
     def get(self, request, *args, **kwargs):
 
         ##
@@ -1783,50 +1821,46 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         except Http404:
             return HttpResponseRedirect(reverse('territorio-not-found'))
 
+        # check high-priority parameters: if these params are not present in the request:
+        # redirect to latest bilancio for territorio
+
+        self.main_bilancio_year = self.request.GET.get('year', None)
+        self.main_bilancio_type = self.request.GET.get('type', None)
+
+        if (self.main_bilancio_year is None or self.main_bilancio_type is None or
+                self.main_bilancio_type not in self.accepted_bilancio_types or
+                (isinstance(self.main_bilancio_year, str) is False and
+                isinstance(self.main_bilancio_year, unicode) is False)
+            ):
+
+            # get latest bilancio, redirect
+            latest_tuple = self.territorio.get_latest_bilancio()
+            if latest_tuple is not None:
+                latest_year, latest_type = latest_tuple
+                querystring = "?year={0}&type={1}".format(
+                    latest_year,
+                    latest_type
+                )
+                # redirect to latest bilancio overview
+                return HttpResponseRedirect(reverse('bilanci-overview', kwargs=kwargs)+querystring)
+
+            else:
+                #     redirect to "bilancio not found"
+                return HttpResponseRedirect(reverse('bilancio-not-found'))
+
+        self.main_bilancio_year = int(self.main_bilancio_year)
+
+        # check low-priority parameters, forcing default values as fallback
         self.selected_section = kwargs.get('section', 'overview')
-        self.year = self.request.GET.get('year', str(settings.SELECTOR_DEFAULT_YEAR))
-        self.main_bilancio_type = self.request.GET.get('type', settings.SELECTOR_DEFAULT_BILANCIO_TYPE)
         self.values_type = self.request.GET.get('values_type', 'real')
-        self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
-        int_year = int(self.year)
 
         if self.main_bilancio_type == "preventivo":
             self.cas_com_type = "cassa"
-
-        # identifies the bilancio for comparison, sets gdp multiplier based on deflator
-        try:
-            self.main_bilancio_year = int(self.year)
-        except ValueError:
-            return HttpResponseBadRequest()
-
-        if self.main_bilancio_type == 'preventivo':
-            self.comp_bilancio_type = 'consuntivo'
-            verification_voice = self.comp_bilancio_type + '-entrate'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year - 1,
-                                                                     slug=verification_voice)
-
-        elif self.main_bilancio_type == 'consuntivo':
-            self.comp_bilancio_type = 'preventivo'
-            verification_voice = self.comp_bilancio_type + '-entrate'
-            self.comp_bilancio_year = self.territorio.best_year_voce(year=self.main_bilancio_year,
-                                                                     slug=verification_voice)
         else:
-            return HttpResponseRedirect(reverse('404'))
+            self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
 
-        if self.comp_bilancio_year is None:
-            self.comparison_not_available = True
 
-        # sets current gdp deflator
-        self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
-
-        if not self.comparison_not_available:
-            self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(self.comp_bilancio_year)]
-
-        if self.values_type == 'real':
-            self.main_gdp_multiplier = self.main_gdp_deflator
-            if not self.comparison_not_available:
-                self.comp_gdp_multiplier = self.comp_gdb_deflator
 
         # if the request in the query string is incomplete the redirection will be used
         qs = self.request.META['QUERY_STRING']
@@ -1837,54 +1871,31 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # the rootnode slug to check for existance is determined
         ##
 
-        rootnode_slugs = {
-            'preventivo': {
-                'entrate': {
-                    'cassa': 'preventivo-entrate',
-                    'competenza': 'preventivo-entrate'
-                },
-                'spese': {
-                    'cassa': 'preventivo-spese',
-                    'competenza': 'preventivo-spese'
-                },
-
-            },
-            'consuntivo': {
-                'entrate': {
-                    'cassa': 'consuntivo-entrate-cassa',
-                    'competenza': 'consuntivo-entrate-accertamenti'
-                },
-                'spese': {
-                    'cassa': 'consuntivo-spese-cassa',
-                    'competenza': 'consuntivo-spese-impegni'
-                }
-            }
-        }
-
-        rootnode_slug = rootnode_slugs[self.main_bilancio_type]['entrate'][self.cas_com_type]
+        rootnode_slug = self.rootnode_slugs[self.main_bilancio_type]['entrate'][self.cas_com_type]
         if self.selected_section != 'overview':
-            rootnode_slug = rootnode_slugs[self.main_bilancio_type][self.selected_section][self.cas_com_type]
+            rootnode_slug = self.rootnode_slugs[self.main_bilancio_type][self.selected_section][self.cas_com_type]
 
-        # best_bilancio determines based on the slug and the selected year
-        # if that bilancio exists for that year
-        # if it doesn't exist it returns the closest smaller year
-        # in which that slug exists
+        # check if select bilancio, year exists:
+        # if exists: show bilancio selected section
+        # else:
+        # if the selected year is TIMELINE_END_DATE or TIMELINE_END_DATE -1: shows bilancio-not-found recente
+        #   else: shows bilancio-not-found passato
 
-        best_bilancio_year = self.territorio.best_year_voce(int_year, rootnode_slug)
+        try:
+            ValoreBilancio.objects.get(voce__slug=rootnode_slug, territorio=self.territorio, anno=self.main_bilancio_year)
+        except ObjectDoesNotExist:
 
-        # if best_bilancio is None -> there is no bilancio in the db to show for the selected territorio
-        if not best_bilancio_year:
+            recent_bilancio_unavailable = False
+            if self.main_bilancio_year >= settings.TIMELINE_END_DATE.year - 1:
+                recent_bilancio_unavailable = True
+
             return HttpResponseRedirect(reverse('bilancio-not-found'))
-
-        if str(best_bilancio_year) != self.year:
-            must_redirect = True
-            self.year = str(best_bilancio_year)
 
         if must_redirect:
             # sets querystring, destination view and kwargs parameter for the redirect
 
             querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
-                self.year,
+                self.main_bilancio_year,
                 self.main_bilancio_type,
                 self.values_type,
                 self.cas_com_type
@@ -1894,8 +1905,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 querystring += '&fun_int_view=' + self.fun_int_view
 
             if not self.servizi_comuni:
-                redirect_kwargs = {'slug': self.territorio.slug}
                 urlconf = None
+                redirect_kwargs = {'slug': self.territorio.slug}
 
                 if self.selected_section == 'overview':
                     destination_view = 'bilanci-overview'
@@ -1919,6 +1930,20 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
             )
 
+        # identifies the bilancio for comparison
+        self.set_comparison_bilancio()
+
+        # sets current gdp deflator / multiplier
+        self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
+
+        if self.comparison_available:
+            self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
+
+        if self.values_type == 'real':
+            self.main_gdp_multiplier = self.main_gdp_deflator
+            if self.comparison_available:
+                self.comp_gdp_multiplier = self.comp_gdb_deflator
+
         # check if bilancio main / comparison have been imported from xml file
         self.main_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.main_bilancio_year,
                                                               self.main_bilancio_type)
@@ -1926,7 +1951,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                                                               self.comp_bilancio_type)
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
-
 
     def get_context_data(self, **kwargs):
 
@@ -1947,7 +1971,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
-        context['selected_year'] = self.year
+        context['selected_year'] = self.main_bilancio_year
         context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
@@ -2076,7 +2100,7 @@ class BilancioDettaglioView(BilancioOverView):
 
         # gets the part of bilancio data which is referring to Voce nodes which are
         # descendants of bilancio_treenodes to minimize queries and data size
-        budget_values = ValoreBilancio.objects.filter(territorio=territorio, anno=self.year). \
+        budget_values = ValoreBilancio.objects.filter(territorio=territorio, anno=self.main_bilancio_year). \
             filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
         absolute_values = budget_values.values_list('voce__slug', 'valore')
@@ -2170,7 +2194,7 @@ class BilancioDettaglioView(BilancioOverView):
         context['bilancio_rootnode'] = bilancio_rootnode
         context['bilancio_tree'] = bilancio_tree
         context['query_string'] = query_string
-        context['year'] = self.year
+        context['year'] = self.main_bilancio_year
         context['bilancio_type'] = self.main_bilancio_type
         context['bilancio_type_title'] = self.main_bilancio_type[:-1] + "i"
         context['selected_subsection'] = self.selected_subsection

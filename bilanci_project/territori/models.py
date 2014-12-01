@@ -154,8 +154,8 @@ class Territorio(models.Model):
         # return value: tuple anno (int), tipo_bilancio ('preventivo','consuntivo')
         # or None if no bilancio is found
 
-        bilanci = list(self.valorebilancio_set.filter(voce__slug__in=['preventivo', 'consuntivo']).\
-            values('anno', 'voce__slug').order_by('anno', '-voce__slug'))
+        bilanci = list(self.valorebilancio_set.filter(voce__slug__in=['preventivo', 'consuntivo']).
+                    values('anno', 'voce__slug').order_by('anno', '-voce__slug'))
 
         if len(bilanci) == 0:
             return None
@@ -163,6 +163,9 @@ class Territorio(models.Model):
         return bilanci[-1]['anno'], bilanci[-1]['voce__slug']
 
     def best_year_voce(self, year, slug):
+
+        if isinstance(year, str) or isinstance(year, unicode):
+            year = int(year)
 
         # checks if the voice with the specified slug exists for a specific year,
         # if not return the closest previous year in which that voce was available
