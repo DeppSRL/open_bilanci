@@ -1653,6 +1653,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "overview"
     accepted_bilancio_types = ['preventivo', 'consuntivo']
+    main_bilancio_available = True
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
     main_bilancio_xml = comp_bilancio_xml = False
@@ -1885,11 +1886,10 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             ValoreBilancio.objects.get(voce__slug=rootnode_slug, territorio=self.territorio, anno=self.main_bilancio_year)
         except ObjectDoesNotExist:
 
+            self.main_bilancio_available = False
             recent_bilancio_unavailable = False
             if self.main_bilancio_year >= settings.TIMELINE_END_DATE.year - 1:
                 recent_bilancio_unavailable = True
-
-            return HttpResponseRedirect(reverse('bilancio-not-found'))
 
         if must_redirect:
             # sets querystring, destination view and kwargs parameter for the redirect
@@ -1930,25 +1930,26 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
             )
 
-        # identifies the bilancio for comparison
-        self.set_comparison_bilancio()
+        if self.main_bilancio_available:
+            # identifies the bilancio for comparison
+            self.set_comparison_bilancio()
 
-        # sets current gdp deflator / multiplier
-        self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
+            # sets current gdp deflator / multiplier
+            self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
 
-        if self.comparison_available:
-            self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
-
-        if self.values_type == 'real':
-            self.main_gdp_multiplier = self.main_gdp_deflator
             if self.comparison_available:
-                self.comp_gdp_multiplier = self.comp_gdb_deflator
+                self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
 
-        # check if bilancio main / comparison have been imported from xml file
-        self.main_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.main_bilancio_year,
-                                                              self.main_bilancio_type)
-        self.comp_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.comp_bilancio_year,
-                                                              self.comp_bilancio_type)
+            if self.values_type == 'real':
+                self.main_gdp_multiplier = self.main_gdp_deflator
+                if self.comparison_available:
+                    self.comp_gdp_multiplier = self.comp_gdb_deflator
+
+            # check if bilancio main / comparison have been imported from xml file
+            self.main_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.main_bilancio_year,
+                                                                  self.main_bilancio_type)
+            self.comp_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.comp_bilancio_year,
+                                                                  self.comp_bilancio_type)
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
 
@@ -1983,38 +1984,41 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if self.servizi_comuni:
             context['pagina_comune'] = self.get_servizi_comune_context()
 
-        # chi guadagna / perde
+        if self.main_bilancio_available:
 
-        # entrate data
-        main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type,
-                                                              page_type='overview')
-        comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type,
-                                                              page_type='overview')
-        main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
-        comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
-        variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e, )
-        variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
-        context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
+            # chi guadagna / perde
 
-        # spese data
-        main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
-        comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
-        main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
-        comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
-        variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s, )
-        variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
-        context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
+            # entrate data
+            main_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type,
+                                                                  page_type='overview')
+            comp_ss_e = self.get_slugset_entrate_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type,
+                                                                  page_type='overview')
+            main_regroup_e = self.get_data(main_ss_e, self.main_bilancio_year)
+            comp_regroup_e = self.get_data(comp_ss_e, self.comp_bilancio_year)
+            variations_e = self.calc_variations_set(main_regroup_e, comp_regroup_e, )
+            variations_e_sorted = sorted(variations_e, key=itemgetter('variation'))
+            context['entrate_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_e_sorted)
 
-        # creates link for voices in chi guadagna/perde based on whether the servizi comune is true
-        if self.servizi_comuni:
-            context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio-services',
-                                                               kwargs={'section': 'entrate'}, urlconf=services.urls)
-            context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio-services', kwargs={'section': 'spese'},
-                                                             urlconf=services.urls)
-        else:
-            context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio', kwargs=self.entrate_kwargs)
-            context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
+            # spese data
+            main_ss_s = self.get_slugset_spese_chiguadagnaperde(self.main_bilancio_type, self.cas_com_type)
+            comp_ss_s = self.get_slugset_spese_chiguadagnaperde(self.comp_bilancio_type, self.cas_com_type)
+            main_regroup_s = self.get_data(main_ss_s, self.main_bilancio_year)
+            comp_regroup_s = self.get_data(comp_ss_s, self.comp_bilancio_year)
+            variations_s = self.calc_variations_set(main_regroup_s, comp_regroup_s, )
+            variations_s_sorted = sorted(variations_s, key=itemgetter('variation'))
+            context['spese_chiguadagnaperde'] = self.get_chi_guardagna_perde(variations_s_sorted)
 
+            # creates link for voices in chi guadagna/perde based on whether the servizi comune is true
+            if self.servizi_comuni:
+                context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio-services',
+                                                                   kwargs={'section': 'entrate'}, urlconf=services.urls)
+                context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio-services', kwargs={'section': 'spese'},
+                                                                 urlconf=services.urls)
+            else:
+                context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio', kwargs=self.entrate_kwargs)
+                context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
+
+        context['main_bilancio_available'] = self.main_bilancio_available
         context['comparison_bilancio_type'] = self.comp_bilancio_type
         context['comparison_bilancio_year'] = self.comp_bilancio_year
         context['share_url'] = self.share_url
