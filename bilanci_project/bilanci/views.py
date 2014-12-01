@@ -1833,8 +1833,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if (self.main_bilancio_year is None or self.main_bilancio_type is None or
                 self.main_bilancio_type not in self.accepted_bilancio_types or
                 (isinstance(self.main_bilancio_year, str) is False and
-                isinstance(self.main_bilancio_year, unicode) is False)
-            ):
+                    isinstance(self.main_bilancio_year, unicode) is False)
+                    ):
 
             # get latest bilancio, redirect
             latest_tuple = self.territorio.get_latest_bilancio()

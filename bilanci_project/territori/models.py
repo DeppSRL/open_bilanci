@@ -154,8 +154,9 @@ class Territorio(models.Model):
         # return value: tuple anno (int), tipo_bilancio ('preventivo','consuntivo')
         # or None if no bilancio is found
 
-        bilanci = list(self.valorebilancio_set.filter(voce__slug__in=['preventivo', 'consuntivo']).
-                    values('anno', 'voce__slug').order_by('anno', '-voce__slug'))
+        bilanci = list(
+            self.valorebilancio_set.filter(voce__slug__in=['preventivo', 'consuntivo']).exclude(valore=0).
+            values('anno', 'voce__slug').order_by('anno', '-voce__slug'))
 
         if len(bilanci) == 0:
             return None
