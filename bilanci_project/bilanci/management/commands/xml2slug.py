@@ -277,8 +277,8 @@ class Command(BaseCommand):
 
         # metadata voci
         # quadro_denominazione, titolo_denominazione , cat_cod, voce_denominazione, quadro_cod, voce_cod, voce_slug
-
         self.voci = codes_map['voci']
+
         # metadata colonne
         # quadro_denominazione, quadro_cod, col_cod, col_denominazione
         self.colonne = codes_map['colonne']
@@ -289,8 +289,9 @@ class Command(BaseCommand):
 
         if is_mapping_incomplete:
             # if the mapping has been retrieved from google then it needs completion
-
-            # function fill-in-voci creates the mapping for Q4 (conto competenza / conto residui) and Q5 (impegni /conto competenza / conto residui)
+            # function fill-in-voci creates the mapping for
+            # Q4 (conto competenza / conto residui) and
+            # Q5 (impegni /conto competenza / conto residui)
             # from Q4 impegni where the mapping has been made by the operator on the gdoc file
             self.fill_in_voci()
             self.fill_in_colonne()
@@ -373,16 +374,18 @@ class Command(BaseCommand):
                         else:
                             self.logger.error(
                                 u'Colonna totale not found for Q:{0}, cod_voce:{1}, voce_slug {2}. Skipping'.
-                                    format(quadro_cod, voce_cod, voce_slug))
+                                format(quadro_cod, voce_cod, voce_slug))
+
                             continue
 
                         self.save_codice_voce(voce_slug, voce_cod, quadro_cod, colonna_totale_cod, denominazione_voce,
                                               '')
 
-                # for quadro QUADRO 9 BIS - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE
+                # for quadro QUADRO 8
                 # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
-                # elif quadro_cod == '08' and quadro_denominazione_voce =='QUADRO 8 - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE - VALORE RIFERITO ALLE QUOTE IN CONTO CAPITALE':
-                #     self.save_codice_voce(voce_slug, voce_cod, quadro_cod,'3',denominazione_voce,'')
+                # todo:
+                # elif quadro_cod == '08' and quadro_denominazione_voce == 'QUADRO 8 - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE - VALORE RIFERITO ALLE QUOTE IN CONTO CAPITALE':
+                #     self.save_codice_voce(voce_slug, voce_cod, quadro_cod, '3', denominazione_voce, '')
 
                 # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE
                 # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
@@ -421,20 +424,11 @@ class Command(BaseCommand):
         # check insertion: have all the nodes of the bilancio tree been mapped?
         self.logger.info(u"Added {0} unique Voce slug".format(len(self.added_voce_slug)))
 
-        if self.bilancio_type == 'consuntivo':
-            tree_slugs = set(
-                Voce.objects.get(slug=self.bilancio_type).get_descendants(). \
-                    exclude(slug__contains='consuntivo-entrate-cassa'). \
-                    exclude(slug__contains='consuntivo-spese-cassa'). \
-                    exclude(slug__contains='-spese-somma-funzioni').values_list('slug', flat=True))
-        else:
-            tree_slugs = set(
-                Voce.objects.get(slug=self.bilancio_type).get_descendants(). \
-                    exclude(slug__contains='-spese-somma-funzioni').values_list('slug', flat=True))
-
+        tree_slugs = set(
+            Voce.objects.get(slug=self.bilancio_type).get_natural_descendants().values_list('slug', flat=True)
+        )
 
         # gets the voci slugs that have not been mapped in the process
-
         not_mapped_slugs = sorted(tree_slugs - set(self.added_voce_slug))
 
         if len(not_mapped_slugs) > 0:

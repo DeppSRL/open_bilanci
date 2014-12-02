@@ -35,15 +35,15 @@ class Voce(MPTTModel):
     # the CASSA branch and the SOMMA-FUNZIONI branch
 
     def get_natural_descendants(self):
-        return self.get_descendants(include_self=False). \
+        return self.get_descendants(include_self=True). \
             exclude(
-            Q(slug__startswith="consuntivo-spese-cassa") |
-            Q(slug__startswith="consuntivo-entrate-cassa")). \
+                Q(slug__startswith="consuntivo-spese-cassa") |
+                Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-            Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
-            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
-        )
+                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
+                Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
+            )
 
     # get_natural_children:
     # given a Voce returns the children of such node
@@ -53,13 +53,13 @@ class Voce(MPTTModel):
     def get_natural_children(self):
         return self.get_children(). \
             exclude(
-            Q(slug__startswith="consuntivo-spese-cassa") |
-            Q(slug__startswith="consuntivo-entrate-cassa")). \
+                Q(slug__startswith="consuntivo-spese-cassa") |
+                Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-            Q(slug__startswith="preventivo-spese-spese-somma-funzioni") |
-            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni")
-        )
+                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
+                Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
+            )
 
     # get_components_cassa:
     # for the Voce in the spese-cassa branch
