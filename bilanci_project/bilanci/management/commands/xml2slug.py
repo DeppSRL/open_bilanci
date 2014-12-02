@@ -381,17 +381,10 @@ class Command(BaseCommand):
                         self.save_codice_voce(voce_slug, voce_cod, quadro_cod, colonna_totale_cod, denominazione_voce,
                                               '')
 
-                # for quadro QUADRO 8
-                # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
-                # todo:
-                # elif quadro_cod == '08' and quadro_denominazione_voce == 'QUADRO 8 - CONSISTENZE, ACCENSIONE E RIMBORSO PRESTITI PER ENTE EROGATORE - VALORE RIFERITO ALLE QUOTE IN CONTO CAPITALE':
-                #     self.save_codice_voce(voce_slug, voce_cod, quadro_cod, '3', denominazione_voce, '')
-
                 # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE
                 # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
                 elif quadro_cod == '09' and quadro_denominazione_voce == 'QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE':
                     self.save_codice_voce(voce_slug, voce_cod, quadro_cod, '3', denominazione_voce, '')
-
 
                 else:
 
@@ -402,7 +395,7 @@ class Command(BaseCommand):
                         # generate a slug for each colonna based on the slug of the first colonna:
                         # example: if the slug in the voci sheet is
                         # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati (Q02)
-                        # and Q02 has three colonna: accertamenti, riscossioni-in-conto-competenza, riscossioni-in-conto-residui
+                        # and Q02 has three cols: accertamenti, riscossioni-in-conto-competenza, riscossioni-in-conto-residui
                         # then 3 slugs will be generated using "accertamenti" as the reference string to be replaced
                         # consuntivo-entrate-accertamenti-imposte-e-tasse-imposte-casa-e-fabbricati
                         # consuntivo-entrate-riscossioni-in-conto-competenza-imposte-e-tasse-imposte-casa-e-fabbricati
