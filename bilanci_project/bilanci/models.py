@@ -220,6 +220,9 @@ class ImportXmlBilancio(models.Model):
     data_fornitura = models.DateField(auto_now=False, auto_now_add=False, )
     created_at = models.DateField(auto_now=False, auto_now_add=True, )
 
+    class Meta:
+        verbose_name_plural = u'Bilanci Xml importati'
+
     def __unicode__(self):
         if self.tipologia == self.TIPO_CERTIFICATO.consuntivo:
             return u"%s %s Consuntivo" % (self.territorio.denominazione, self.anno, )
