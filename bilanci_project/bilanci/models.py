@@ -217,6 +217,7 @@ class ImportXmlBilancio(models.Model):
     tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO)
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     anno = models.PositiveSmallIntegerField(db_index=True)
+    data_fornitura = models.DateField(auto_now=False, auto_now_add=False, )
     created_at = models.DateField(auto_now=False, auto_now_add=True, )
 
     def __unicode__(self):
