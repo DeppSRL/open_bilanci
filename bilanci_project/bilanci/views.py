@@ -1866,11 +1866,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         else:
             self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
 
-
-        # if the request in the query string is incomplete the redirection will be used
-        qs = self.request.META['QUERY_STRING']
-        must_redirect = len(qs.split('&')) < 3
-
         ##
         # based on the type of bilancio and the selected section
         # the rootnode slug to check for existance is determined
@@ -1889,8 +1884,11 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         try:
             ValoreBilancio.objects.get(voce__slug=rootnode_slug, territorio=self.territorio, anno=self.main_bilancio_year)
         except ObjectDoesNotExist:
-
             self.main_bilancio_available = False
+
+        # if the request in the query string is incomplete the redirection will be used to have a complete url
+        querystring = self.request.META['QUERY_STRING']
+        must_redirect = len(querystring.split('&')) < 3
 
         if must_redirect:
             # sets querystring, destination view and kwargs parameter for the redirect
