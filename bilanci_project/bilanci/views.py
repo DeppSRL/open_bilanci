@@ -1814,7 +1814,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         ##
         # if year or type parameter are missing redirects to a page for default year / default bilancio type
         ##
-
+        redirect_to_latest_bilancio = False
         # check if the request comes from Comuni host
         self.check_servizi_comuni(request)
 
@@ -1838,18 +1838,13 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
             # get latest bilancio, redirect
             latest_tuple = self.territorio.get_latest_bilancio()
-            if latest_tuple is not None:
-                latest_year, latest_type = latest_tuple
-                querystring = "?year={0}&type={1}".format(
-                    latest_year,
-                    latest_type
-                )
-                # redirect to latest bilancio overview
-                return HttpResponseRedirect(reverse('bilanci-overview', kwargs=kwargs)+querystring)
-
-            else:
+            if latest_tuple is None:
                 #     redirect to "bilancio not found"
                 return HttpResponseRedirect(reverse('bilancio-not-found'))
+
+            self.main_bilancio_year, self.main_bilancio_type = latest_tuple
+            # todo: fix this
+            redirect_to_latest_bilancio = True
 
         self.main_bilancio_year = int(self.main_bilancio_year)
 
@@ -1888,9 +1883,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         # if the request in the query string is incomplete the redirection will be used to have a complete url
         querystring = self.request.META['QUERY_STRING']
-        must_redirect = len(querystring.split('&')) < 3
-
-        if must_redirect:
+        
+        if len(querystring.split('&')) < 3 or redirect_to_latest_bilancio:
             # sets querystring, destination view and kwargs parameter for the redirect
 
             querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
