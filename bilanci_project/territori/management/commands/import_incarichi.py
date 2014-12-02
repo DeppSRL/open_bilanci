@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
 
-        make_option('--territori-type', 
+        make_option('--territori-type',
                     dest='territori_type',
                     action='store',
                     default='',
@@ -158,61 +158,6 @@ class Command(BaseCommand):
             all_cities.extend(altri_territori)
             return all_cities
 
-    def handle(self, *args, **options):
-        verbosity = options['verbosity']
-        if verbosity == '0':
-            self.logger.setLevel(logging.ERROR)
-        elif verbosity == '1':
-            self.logger.setLevel(logging.WARNING)
-        elif verbosity == '2':
-            self.logger.setLevel(logging.INFO)
-        elif verbosity == '3':
-            self.logger.setLevel(logging.DEBUG)
-
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        dryrun = options['dryrun']
-        delete = options['delete']
-        territori_type = options['territori_type']
-        ###
-        # cities
-        ###
-        cities_codes = options['cities']
-
-        if territori_type != '' and cities_codes != '':
-            self.logger.error("Cannot specify both territori_type and cities. Choose one")
-            return
-
-        self.apidomain = options['apidomain']
-        if options['auth']:
-            (user, pwd) = options['auth'].split(",")
-            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
-        else:
-            self.baseurl = "http://{0}".format(self.apidomain)
-
-        # sets cities_to_process: if territorio_type is set uses the macro-category: all, capoluoghi, other
-        # otherwise uses cities: single cities codes
-        if territori_type != '':
-            cities_to_process = self.get_territori_from_types(territori_type)
-
-        elif cities_codes != '':
-            cities = mapper.get_cities(cities_codes)
-            cities_to_process = self.get_territori_from_finloc(cities)
-
-        else:
-            self.logger.error("Must specify territory_type or cities")
-            return
-
-        self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
-
-
-        if delete:
-            self.logger.info(u"Deleting all Incarico for considered cities")
-            Incarico.objects.filter(territorio__in=cities_to_process).delete()
-            self.logger.info(u"Done.")
-
-        self.process_cities(cities_to_process, dryrun)
-        self.log_errors()
-
     def get_incarichi_api(self, territorio_opid):
 
         # get incarichi from politici/city_mayors for the considered time period
@@ -267,7 +212,6 @@ class Command(BaseCommand):
                             added_ids.append(idx)
                             added_ids.append(idx - 1)
 
-
     def check_overlapping_incarichi(self, incarichi_set):
 
         """
@@ -281,7 +225,6 @@ class Command(BaseCommand):
         """
 
         overlapping_incarichi = []
-
 
         # checks if interesting_incarichi are overlapping
         # if incarichi are overlapping, appends them in the overlapping_incarichi list
@@ -320,7 +263,6 @@ class Command(BaseCommand):
 
         return True, incarichi_set
 
-
     def commissari_regroup(self, incarichi_set):
 
         contigue_commissari_id = []
@@ -338,17 +280,17 @@ class Command(BaseCommand):
                         if inner_idx != outer_idx and incarico_inner['charge_type'] == u'Commissario':
                             if inner_idx not in same_period_commissari_id:
                                 if incarico_inner['date_start'] == incarico_outer['date_start'] \
-                                    and incarico_inner['date_end'] == incarico_outer['date_end']:
+                                        and incarico_inner['date_end'] == incarico_outer['date_end']:
                                     same_period_commissari_id.append(inner_idx)
-                                    self.logger.debug("Merge commissario {0} with {1}: same date_start/date_end". \
+                                    self.logger.debug(
+                                        "Merge commissario {0} with {1}: same date_start/date_end".
                                         format(self.format_incarico(incarico_inner),
-                                               self.format_incarico(incarico_outer)))
+                                        self.format_incarico(incarico_outer))
+                                    )
 
         for idx, incarico in enumerate(incarichi_set):
             if idx not in same_period_commissari_id:
                 incarichi_clean_set.append(incarico)
-
-
 
         # based on previous operation loops over incarichi_clean_set and unites commissari which are
         # less than max_n_days_between_commissari days apart in one single incarico
@@ -396,18 +338,17 @@ class Command(BaseCommand):
             # get incarichi for territorio
             incarichi_set = self.get_incarichi_api(territorio.op_id)
 
-            # check for data integrity
-
             if len(incarichi_set) == 0:
                 self.logger.error(
                     'No incarico available for city: {0}, skipping'.format(unidecode(territorio.denominazione)).upper())
                 continue
 
+            # check for data integrity
             self.date_integrity_check(incarichi_set)
 
             incarichi_set = self.commissari_regroup(incarichi_set)
 
-            # if data is ok transform data format to fit Visup widget specs
+            # if data is ok transform data format to be stored in the db
             date_check, incarichi_set = self.check_overlapping_incarichi(incarichi_set)
 
             if date_check:
@@ -451,7 +392,7 @@ class Command(BaseCommand):
                                 party_name=party_name,
                             )
                         except ObjectDoesNotExist:
-                            # self.logger.info(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
+                            # self.logger.debug(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
                             self.create_incarico(incarico_dict, territorio, tipologia)
 
             else:
@@ -513,7 +454,57 @@ class Command(BaseCommand):
 
                 self.logger.warning("Incarico: {0} is overlapping with {1}".format(incarico_0_str, incarico_1_str))
 
+    def handle(self, *args, **options):
+        verbosity = options['verbosity']
+        if verbosity == '0':
+            self.logger.setLevel(logging.ERROR)
+        elif verbosity == '1':
+            self.logger.setLevel(logging.WARNING)
+        elif verbosity == '2':
+            self.logger.setLevel(logging.INFO)
+        elif verbosity == '3':
+            self.logger.setLevel(logging.DEBUG)
+
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        dryrun = options['dryrun']
+        delete = options['delete']
+        territori_type = options['territori_type']
+        ###
+        # cities
+        ###
+        cities_codes = options['cities']
+
+        if territori_type != '' and cities_codes != '':
+            self.logger.error("Cannot specify both territori_type and cities. Choose one")
+            return
+
+        self.apidomain = options['apidomain']
+        if options['auth']:
+            (user, pwd) = options['auth'].split(",")
+            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
+        else:
+            self.baseurl = "http://{0}".format(self.apidomain)
+
+        # sets cities_to_process: if territorio_type is set uses the macro-category: all, capoluoghi, other
+        # otherwise uses cities: single cities codes
+        if territori_type != '':
+            cities_to_process = self.get_territori_from_types(territori_type)
+
+        elif cities_codes != '':
+            cities = mapper.get_cities(cities_codes)
+            cities_to_process = self.get_territori_from_finloc(cities)
+
+        else:
+            self.logger.error("Must specify territory_type or cities")
+            return
+
+        self.logger.info(u"Start charges import with dryrun: {0}".format(dryrun))
 
 
+        if delete:
+            self.logger.info(u"Deleting all Incarico for considered cities")
+            Incarico.objects.filter(territorio__in=cities_to_process).delete()
+            self.logger.info(u"Done.")
 
-
+        self.process_cities(cities_to_process, dryrun)
+        self.log_errors()
