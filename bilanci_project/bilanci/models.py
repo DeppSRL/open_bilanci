@@ -214,7 +214,7 @@ class ImportXmlBilancio(models.Model):
         (u'preventivo', u'preventivo', u'Preventivo'),
     )
 
-    tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO)
+    tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO, default='')
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     anno = models.PositiveSmallIntegerField(db_index=True)
     data_fornitura = models.DateField(auto_now=False, auto_now_add=False, )
