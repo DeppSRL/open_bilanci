@@ -14,7 +14,7 @@ class PaginaComune(models.Model):
         (u'1', u'TRADEMARK', u'Logo con nome Comune'),
     )
 
-    host = models.TextField(blank=False, null=False, default='')
+    host = models.TextField(blank=False, null=False, default='', help_text="IMPORTANT: use the format 'www.HOSTNAME.it' without http://")
     backlink = models.URLField(blank=False, null=False, default='')
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     header_text = HTMLField(_("Header text"), help_text=_("Testo che appare nella testata"), blank=True)
