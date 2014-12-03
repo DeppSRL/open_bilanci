@@ -1809,6 +1809,43 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if self.comp_bilancio_year is None:
             self.comp_bilancio_available = False
 
+    def get_bilancio_url(self):
+        # given all the variables, builds the url to redirect the app to the right bilancio page
+
+        querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
+            self.main_bilancio_year,
+            self.main_bilancio_type,
+            self.values_type,
+            self.cas_com_type
+        )
+
+        if self.selected_section == 'spese' and self.fun_int_view == 'interventi':
+            querystring += '&fun_int_view=' + self.fun_int_view
+
+        if not self.servizi_comuni:
+            urlconf = None
+            redirect_kwargs = {'slug': self.territorio.slug}
+
+            if self.selected_section == 'overview':
+                destination_view = 'bilanci-overview'
+            else:
+                redirect_kwargs['section'] = self.selected_section
+                destination_view = "bilanci-{0}".format(self.selected_subsection)
+
+        else:
+
+            urlconf = services.urls
+            redirect_kwargs = {}
+
+            if self.selected_section == 'overview':
+                destination_view = 'bilanci-overview-services'
+
+            else:
+                destination_view = "bilanci-{0}-services".format(self.selected_subsection)
+                redirect_kwargs = {'section': self.selected_section}
+
+        return reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
+
     def get(self, request, *args, **kwargs):
 
         ##
@@ -1843,7 +1880,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 return HttpResponseRedirect(reverse('bilancio-not-found'))
 
             self.main_bilancio_year, self.main_bilancio_type = latest_tuple
-            # todo: fix this
             redirect_to_latest_bilancio = True
 
         self.main_bilancio_year = int(self.main_bilancio_year)
@@ -1883,45 +1919,14 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         # if the request in the query string is incomplete the redirection will be used to have a complete url
         querystring = self.request.META['QUERY_STRING']
-        
-        if len(querystring.split('&')) < 3 or redirect_to_latest_bilancio:
+
+        # if the request didn't  have high-priority params: redirect to latest bilancio page
+        # if the request didn't have low-priority params: redirect to the page with complete url
+
+        if redirect_to_latest_bilancio or len(querystring.split('&')) < 3:
             # sets querystring, destination view and kwargs parameter for the redirect
 
-            querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
-                self.main_bilancio_year,
-                self.main_bilancio_type,
-                self.values_type,
-                self.cas_com_type
-            )
-
-            if self.selected_section == 'spese' and self.fun_int_view == 'interventi':
-                querystring += '&fun_int_view=' + self.fun_int_view
-
-            if not self.servizi_comuni:
-                urlconf = None
-                redirect_kwargs = {'slug': self.territorio.slug}
-
-                if self.selected_section == 'overview':
-                    destination_view = 'bilanci-overview'
-                else:
-                    redirect_kwargs['section'] = self.selected_section
-                    destination_view = "bilanci-{0}".format(self.selected_subsection)
-
-            else:
-
-                urlconf = services.urls
-                redirect_kwargs = {}
-
-                if self.selected_section == 'overview':
-                    destination_view = 'bilanci-overview-services'
-
-                else:
-                    destination_view = "bilanci-{0}-services".format(self.selected_subsection)
-                    redirect_kwargs = {'section': self.selected_section}
-
-            return HttpResponseRedirect(
-                reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
-            )
+            return HttpResponseRedirect(self.get_bilancio_url())
 
         if self.main_bilancio_available:
 
@@ -2011,6 +2016,18 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             else:
                 context['chiguadagnaperde_entrate_link'] = reverse('bilanci-dettaglio', kwargs=self.entrate_kwargs)
                 context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
+        else:
+
+            # get latest bilancio and store it for the context
+            # if latest tuple doesn't exists this means the bilancio was set but there is no bilancio in the db
+            # for the Comune: redirect
+            latest_tuple = self.territorio.get_latest_bilancio()
+            if latest_tuple is None:
+                #     redirect to "bilancio not found"
+                return HttpResponseRedirect(reverse('bilancio-not-found'))
+
+            self.main_bilancio_year, self.main_bilancio_type = latest_tuple
+            context['latest_bilancio_url'] = self.get_bilancio_url()
 
         context['main_bilancio_available'] = self.main_bilancio_available
         context['main_bilancio_is_recent'] = self.main_bilancio_is_recent
@@ -2090,131 +2107,130 @@ class BilancioDettaglioView(BilancioOverView):
     def get_context_data(self, **kwargs):
 
         context = super(BilancioDettaglioView, self).get_context_data(**kwargs)
-        territorio = self.get_object()
         query_string = self.request.META['QUERY_STRING']
         voce_slug = self.get_slug()
 
-        # gets the tree structure from db
-        bilancio_rootnode = Voce.objects.get(slug=voce_slug)
-
-        # gets the part of bilancio data which is referring to Voce nodes which are
-        # descendants of bilancio_treenodes to minimize queries and data size
-        budget_values = ValoreBilancio.objects.filter(territorio=territorio, anno=self.main_bilancio_year). \
-            filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
-
-        absolute_values = budget_values.values_list('voce__slug', 'valore')
-        percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
-
-        absolute_values = dict(
-            map(
-                lambda x: (x[0], x[1] * self.main_gdp_multiplier),
-                absolute_values
-            )
-        )
-        percapita_values = dict(
-            map(
-                lambda x: (x[0], x[1] * self.main_gdp_multiplier),
-                percapita_values
-            )
-        )
-
-
-        # avanzo / disavanzo fix: adds avanzo / disavanzo values to totale generale entrate / spese
-        if self.main_bilancio_type == 'preventivo':
-            if self.selected_section == 'spese':
-                absolute_values['preventivo-spese'] += absolute_values['preventivo-spese-disavanzo-di-amministrazione']
-                percapita_values['preventivo-spese'] += percapita_values[
-                    'preventivo-spese-disavanzo-di-amministrazione']
-            else:
-                absolute_values['preventivo-entrate'] += absolute_values['preventivo-entrate-avanzo-di-amministrazione']
-                percapita_values['preventivo-entrate'] += percapita_values[
-                    'preventivo-entrate-avanzo-di-amministrazione']
-
-        context['budget_values'] = {
-            'absolute': dict(absolute_values),
-            'percapita': dict(percapita_values)
-        }
-
         # checks if political context data is available to show/hide timeline widget in the template
         context['show_timeline'] = True
-        incarichi_set = Incarico.objects.filter(territorio=Territorio.objects.get(op_id=territorio.op_id))
+        incarichi_set = Incarico.objects.filter(territorio=self.territorio)
         if len(incarichi_set) == 0:
             context['show_timeline'] = False
 
-        # arranges the bilancio_tree to have the voce in the desired order: first the voce with children, then the leaves
-        # somma funzioni needs a special treatment because the denominazione starts with "_"
-        # which puts all the branch at the end of the alphabetical order
+        if self.main_bilancio_available:
+            # gets the tree structure from db
+            bilancio_rootnode = Voce.objects.get(slug=voce_slug)
 
-        if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
-            if self.main_bilancio_type == 'consuntivo':
-                if self.cas_com_type == 'cassa':
-                    base_slug = 'consuntivo-spese-cassa'
-                else:
-                    base_slug = 'consuntivo-spese-impegni'
-            else:
-                base_slug = 'preventivo-spese'
+            # gets the part of bilancio data which is referring to Voce nodes which are
+            # descendants of bilancio_treenodes to minimize queries and data size
+            budget_values = ValoreBilancio.objects.filter(territorio=self.territorio, anno=self.main_bilancio_year). \
+                filter(voce__in=bilancio_rootnode.get_descendants(include_self=True).values_list('pk', flat=True))
 
-            somma_funzioni = list(
-                Voce.objects.get(slug="{0}-spese-somma-funzioni".format(base_slug)).get_descendants(include_self=True))
-            prestiti = list(Voce.objects.get(slug="{0}-prestiti".format(base_slug)).get_descendants(include_self=True))
-            spese_conto_terzi = list(
-                Voce.objects.get(slug="{0}-spese-per-conto-terzi".format(base_slug)).get_descendants(include_self=True))
+            absolute_values = budget_values.values_list('voce__slug', 'valore')
+            percapita_values = budget_values.values_list('voce__slug', 'valore_procapite')
 
-            bilancio_tree = somma_funzioni
-            bilancio_tree.extend(prestiti)
-            bilancio_tree.extend(spese_conto_terzi)
+            absolute_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                    absolute_values
+                )
+            )
+            percapita_values = dict(
+                map(
+                    lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                    percapita_values
+                )
+            )
 
+            # avanzo / disavanzo fix: adds avanzo / disavanzo values to totale generale entrate / spese
             if self.main_bilancio_type == 'preventivo':
-                disavanzo = list(
-                    Voce.objects.get(slug="{0}-disavanzo-di-amministrazione".format(base_slug)).get_descendants(
-                        include_self=True))
-                bilancio_tree.extend(disavanzo)
-        else:
-            bilancio_tree = bilancio_rootnode.get_descendants(include_self=False)
-            first_level_voci = bilancio_tree.filter(level=bilancio_rootnode.level + 1, children__isnull=True)
-            bilancio_tree = list(bilancio_tree.exclude(level=bilancio_rootnode.level + 1, children__isnull=True))
-            bilancio_tree.extend(first_level_voci)
-
-
-        # get link for classifiche to insert in the accordion
-        if self.main_bilancio_type == 'consuntivo':
-            if self.selected_section == 'spese':
-                if self.fun_int_view == 'funzioni':
-
-                    context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()[
-                        'spese_funzioni']
+                if self.selected_section == 'spese':
+                    absolute_values['preventivo-spese'] += absolute_values['preventivo-spese-disavanzo-di-amministrazione']
+                    percapita_values['preventivo-spese'] += percapita_values[
+                        'preventivo-spese-disavanzo-di-amministrazione']
                 else:
-                    context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()[
-                        'spese_interventi']
+                    absolute_values['preventivo-entrate'] += absolute_values['preventivo-entrate-avanzo-di-amministrazione']
+                    percapita_values['preventivo-entrate'] += percapita_values[
+                        'preventivo-entrate-avanzo-di-amministrazione']
+
+            context['budget_values'] = {
+                'absolute': dict(absolute_values),
+                'percapita': dict(percapita_values)
+            }
+
+            # arranges the bilancio_tree to have the voce in the desired order: first the voce with children,
+            # then the leaves somma funzioni needs a special treatment because the denominazione starts with "_"
+            # which puts all the branch at the end of the alphabetical order
+
+            if self.selected_section == 'spese' and self.fun_int_view == 'funzioni':
+                if self.main_bilancio_type == 'consuntivo':
+                    if self.cas_com_type == 'cassa':
+                        base_slug = 'consuntivo-spese-cassa'
+                    else:
+                        base_slug = 'consuntivo-spese-impegni'
+                else:
+                    base_slug = 'preventivo-spese'
+
+                somma_funzioni = list(
+                    Voce.objects.get(slug="{0}-spese-somma-funzioni".format(base_slug)).get_descendants(include_self=True))
+                prestiti = list(Voce.objects.get(slug="{0}-prestiti".format(base_slug)).get_descendants(include_self=True))
+                spese_conto_terzi = list(
+                    Voce.objects.get(slug="{0}-spese-per-conto-terzi".format(base_slug)).get_descendants(include_self=True))
+
+                bilancio_tree = somma_funzioni
+                bilancio_tree.extend(prestiti)
+                bilancio_tree.extend(spese_conto_terzi)
+
+                if self.main_bilancio_type == 'preventivo':
+                    disavanzo = list(
+                        Voce.objects.get(slug="{0}-disavanzo-di-amministrazione".format(base_slug)).get_descendants(
+                            include_self=True))
+                    bilancio_tree.extend(disavanzo)
             else:
-                context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
+                bilancio_tree = bilancio_rootnode.get_descendants(include_self=False)
+                first_level_voci = bilancio_tree.filter(level=bilancio_rootnode.level + 1, children__isnull=True)
+                bilancio_tree = list(bilancio_tree.exclude(level=bilancio_rootnode.level + 1, children__isnull=True))
+                bilancio_tree.extend(first_level_voci)
+
+            context['bilancio_rootnode'] = bilancio_rootnode
+            context['bilancio_tree'] = bilancio_tree
+
+            # get link for classifiche to insert in the accordion
+            if self.main_bilancio_type == 'consuntivo':
+                if self.selected_section == 'spese':
+                    if self.fun_int_view == 'funzioni':
+
+                        context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()[
+                            'spese_funzioni']
+                    else:
+                        context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()[
+                            'spese_interventi']
+                else:
+                    context['classifiche_allowed_params'] = HierarchicalMenuMixin.get_classifiche_parameters()['entrate']
+
+            if self.selected_section == 'spese':
+                # Extend the context with funzioni/interventi view and switch variables
+
+                full_path = self.request.get_full_path()
+                if not 'fun_int_view' in full_path:
+                    fun_int_switch_url = full_path + "&fun_int_view=interventi"
+                else:
+                    if self.fun_int_view == 'funzioni':
+                        fun_int_switch_url = full_path.replace("&fun_int_view=funzioni", "&fun_int_view=interventi")
+                    else:
+                        fun_int_switch_url = full_path.replace("&fun_int_view=interventi", "&fun_int_view=funzioni")
+
+                context['fun_int_current_view'] = self.fun_int_view
+                context['fun_int_switch'] = {
+                    'label': 'interventi' if self.fun_int_view == 'funzioni' else 'funzioni',
+                    'url': fun_int_switch_url
+                }
 
         context['values_type'] = self.values_type
-        context['bilancio_rootnode'] = bilancio_rootnode
-        context['bilancio_tree'] = bilancio_tree
         context['query_string'] = query_string
         context['year'] = self.main_bilancio_year
         context['bilancio_type'] = self.main_bilancio_type
         context['bilancio_type_title'] = self.main_bilancio_type[:-1] + "i"
         context['selected_subsection'] = self.selected_subsection
-
-        if self.selected_section == 'spese':
-            # Extend the context with funzioni/interventi view and switch variables
-
-            full_path = self.request.get_full_path()
-            if not 'fun_int_view' in full_path:
-                fun_int_switch_url = full_path + "&fun_int_view=interventi"
-            else:
-                if self.fun_int_view == 'funzioni':
-                    fun_int_switch_url = full_path.replace("&fun_int_view=funzioni", "&fun_int_view=interventi")
-                else:
-                    fun_int_switch_url = full_path.replace("&fun_int_view=interventi", "&fun_int_view=funzioni")
-
-            context['fun_int_current_view'] = self.fun_int_view
-            context['fun_int_switch'] = {
-                'label': 'interventi' if self.fun_int_view == 'funzioni' else 'funzioni',
-                'url': fun_int_switch_url
-            }
 
         return context
 
