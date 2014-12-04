@@ -383,8 +383,8 @@ class IndicatorSlugVerifierMixin(object):
 class IncarichiGetterMixin(object):
     date_fmt = '%Y-%m-%d'
     #     sets the start / end of graphs
-    timeline_start_date = settings.TIMELINE_START_DATE.date()
-    timeline_end_date = settings.TIMELINE_END_DATE.date()
+    timeline_start_date = settings.APP_START_DATE.date()
+    timeline_end_date = settings.APP_END_DATE.date()
     #  max n. of days between two incarichi. if difference > max then a disabled incarico is added
     max_incarichi_gap = 30
     empty_gap_days = 5
@@ -921,8 +921,8 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
     show_help = False
     totale_label = "Totale"
     territorio = None
-    serie_start_year = settings.TIMELINE_START_DATE.year
-    serie_end_year = settings.TIMELINE_END_DATE.year
+    serie_start_year = settings.APP_START_YEAR
+    serie_end_year = settings.APP_END_DATE.year
     widget_type = None
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
@@ -999,7 +999,7 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
-        self.main_bilancio_year = int(kwargs.get('bilancio_year', settings.APP_END_DATE.year))
+        self.main_bilancio_year = int(kwargs.get('bilancio_year', settings.APP_END_YEAR))
         self.main_bilancio_type = kwargs.get('bilancio_type', 'consuntivo')
         self.widget_type = kwargs.get('widget_type', 'overview')
         territorio_slug = kwargs.get('territorio_slug', None)
@@ -1336,8 +1336,8 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
             'sublabel3': "{0} nei Bilanci {1} {2}-{3}".format(
                 self.widget_type.title() if self.widget_type == 'spese' else 'Entrate',
                 self.main_bilancio_type[:-1] + "i",
-                settings.APP_START_DATE.year,
-                settings.APP_END_DATE.year
+                settings.APP_START_YEAR,
+                settings.APP_END_YEAR
             ),
         }
 
@@ -1418,7 +1418,7 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
                                    '3': self.main_bilancio_year + 1}
 
                 for k, year in yrs_to_consider.iteritems():
-                    if settings.APP_START_DATE.year <= year <= settings.APP_END_DATE.year:
+                    if settings.APP_START_YEAR <= year <= settings.APP_END_YEAR:
                         try:
                             entrate = ValoreBilancio.objects.get(anno=year, voce__slug=self.main_tot_e,
                                                                  territorio=self.territorio).valore
@@ -1883,7 +1883,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         self.main_bilancio_year = int(self.main_bilancio_year)
 
-        if self.main_bilancio_year >= settings.TIMELINE_END_DATE.year - 1:
+        if self.main_bilancio_year >= settings.APP_END_YEAR - 1:
             self.main_bilancio_is_recent = True
 
         # check low-priority parameters, forcing default values as fallback
@@ -1908,7 +1908,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # check if select bilancio, year exists:
         # if exists: show bilancio selected section
         # else:
-        # if the selected year is TIMELINE_END_DATE or TIMELINE_END_DATE -1: shows bilancio-not-found recente
+        # if the selected year is APP_END_YEAR or APP_END_YEAR -1: shows bilancio-not-found recente
         #   else: shows bilancio-not-found passato
 
         try:

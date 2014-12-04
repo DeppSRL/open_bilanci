@@ -94,7 +94,7 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_DATE.year < int(y.strip()) < settings.APP_END_DATE.year]
+            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR < int(y.strip()) < settings.APP_END_YEAR]
 
         if not years:
             self.logger.error(u"No suitable year found in {0}".format(years))

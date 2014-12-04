@@ -319,8 +319,6 @@ URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certifica
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-
-
 # Google Account credentials
 GOOGLE_USER = env('GOOGLE_USER')
 GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
@@ -420,16 +418,15 @@ SESSION_SAVE_EVERY_REQUEST = True
 ##
 
 APP_DATE_FMT = '%Y-%m-%d'
-APP_START_DATE_STR = "2004-01-01"
-APP_END_DATE_STR = "2014-12-31"
-APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
-APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 
-TIMELINE_START_DATE = APP_START_DATE
-TIMELINE_END_DATE = APP_END_DATE
+APP_START_YEAR = 2003
+APP_END_YEAR = 2013
+APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
+APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
+LAST_VALID_CONSUNTIVO_YEAR = 2012
 CLASSIFICHE_START_YEAR = APP_START_DATE.year
-CLASSIFICHE_END_YEAR = 2012
+CLASSIFICHE_END_YEAR = LAST_VALID_CONSUNTIVO_YEAR
 
 TERRITORI_CONTEXT_REFERENCE_YEAR = CLASSIFICHE_END_YEAR
 
