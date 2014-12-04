@@ -87,7 +87,7 @@ class Territorio(models.Model):
     prov = models.CharField(max_length=2, blank=True, null=True)
     regione = models.CharField(max_length=32, blank=True, null=True)
     denominazione = models.CharField(max_length=128, db_index=True)
-    slug = models.SlugField(max_length=256, null=True, blank=True)
+    slug = models.SlugField(max_length=256, null=True, blank=True, db_index=True)
     territorio = models.CharField(max_length=1, choices=TERRITORIO, db_index=True)
     geom = models.MultiPolygonField(srid=4326, null=True, blank=True)
     cluster = models.CharField(max_length=1, choices=CLUSTER, db_index=True)
