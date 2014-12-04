@@ -2225,7 +2225,7 @@ class BilancioDettaglioView(BilancioOverView):
                 }
 
         context['link_to_classifiche_available'] = False
-        if self.main_bilancio_type == 'consuntivo' and self.main_bilancio_year:
+        if self.main_bilancio_type == 'consuntivo' and settings.CLASSIFICHE_START_YEAR <= self.main_bilancio_year <= settings.CLASSIFICHE_END_YEAR:
             context['link_to_classifiche_available'] = True
 
         context['values_type'] = self.values_type
