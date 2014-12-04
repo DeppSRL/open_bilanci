@@ -1,6 +1,6 @@
 {# show the link to classifiche for voices which are allowed to be in Classifiche #}
 
-{% if tipo_bilancio == 'consuntivo' %}
+{% if link_to_classifiche_available %}
     <div class="col-sm-1">
         {% if node.slug in classifiche_allowed_params %}
 

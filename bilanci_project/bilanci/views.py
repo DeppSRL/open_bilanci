@@ -1246,7 +1246,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         return context
 
-
     def get_widget_data(self):
 
         context = {}
@@ -1972,7 +1971,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
         context['selected_year'] = self.main_bilancio_year
-        context['selector_default_year'] = settings.SELECTOR_DEFAULT_YEAR
+        context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
 
@@ -2225,6 +2224,10 @@ class BilancioDettaglioView(BilancioOverView):
                     'url': fun_int_switch_url
                 }
 
+        context['link_to_classifiche_available'] = False
+        if self.main_bilancio_type == 'consuntivo' and self.main_bilancio_year:
+            context['link_to_classifiche_available'] = True
+
         context['values_type'] = self.values_type
         context['query_string'] = query_string
         context['year'] = self.main_bilancio_year
@@ -2424,7 +2427,6 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
     positions = {}
     prev_positions = {}
 
-
     def get(self, request, *args, **kwargs):
 
         # checks that parameter type is correct
@@ -2586,7 +2588,6 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
                 territorio_dict['variazione'] = self.prev_positions[territorio_id] - self.positions[territorio_id]
 
             object_list.append(territorio_dict)
-
 
         # updates obj list
         context['object_list'] = object_list
