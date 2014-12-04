@@ -18,4 +18,20 @@ Sets the timespan for:
 - the sitemap
 - the medians
 
+CLASSIFICHE_START_YEAR / CLASSIFICHE_END_YEAR
+---------------------------------------------
+
+Sets the timespan for:
+
+- Classifiche timeline
+
+
+TERRITORI_CONTEXT_REFERENCE_YEAR
+--------------------------------
+
+Sets the timespan for:
+
+- Territori -> get abitanti
+
+
 
