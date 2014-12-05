@@ -496,7 +496,7 @@ ENABLED_STATIC_PAGES = [
     'confronti',
     'classifiche',
     'software',
-    'licenza',
+    'licenze',
     'informativa',
     'credits',
     ]
