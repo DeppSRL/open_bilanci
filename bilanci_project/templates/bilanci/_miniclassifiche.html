@@ -38,11 +38,11 @@
                                 <input id="id_selected_cluster" name="selected_cluster" type="hidden" value="{{ selected_cluster_str|safe }}" />
                                 <input id="id_territorio_id" name="territorio_id" type="hidden" value="{{ territorio.pk|safe }}" />
 
-                                        <h5 class="pull-left">
-                                            <a href="" onclick="document.miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}.submit();return false;" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
-                                                {{ ip.indicatore_denominazione|upper }}
-                                            </a>
-                                        </h5>
+                                <h5 class="pull-left">
+                                    <a href="" onclick="document.miniclass_form_{{ territorio.pk|safe }}_{{ ip.indicatore_pk|safe }}.submit();return false;" data-toggle="tooltip" data-html="true" title="vai alla classifica di tutti i Comuni per questo indicatore">
+                                        {{ ip.indicatore_denominazione|upper }}
+                                    </a>
+                                </h5>
                                 <p class="pull-right">
                                     <span class="h2">{{ ip.position }}&deg;</span>
                                 </p>
