@@ -40,5 +40,5 @@ Then there are data which need to be computed on the data already present in the
 
 .. code-block:: bash
 
-    python manage.py couch2csv --cities=all --years=2003-2013 --compress -v2
+    python manage.py update_opendata --cities=all --years=2003-2013 --compress -v2
 
