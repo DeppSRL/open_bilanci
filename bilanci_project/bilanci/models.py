@@ -217,7 +217,7 @@ class ImportXmlBilancio(models.Model):
     tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO, default='')
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     anno = models.PositiveSmallIntegerField(db_index=True)
-    data_fornitura = models.DateField(auto_now=False, auto_now_add=False, )
+    data_fornitura = models.DateField(auto_now=False, auto_now_add=False, null=True )
     created_at = models.DateField(auto_now=False, auto_now_add=True, )
 
     class Meta:

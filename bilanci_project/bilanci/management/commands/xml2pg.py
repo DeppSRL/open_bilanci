@@ -380,6 +380,12 @@ class Command(BaseCommand):
             self.logger.error(u"Comune with codfinloc:{0} is not present on DB. Quitting".format(codfinloc))
             return
 
+        # from finloc extracts only the numeric part, removing the eventual name
+        numeric_finloc = self.territorio.cod_finloc
+        if "--" in numeric_finloc:
+            split_finloc = numeric_finloc.split("--")
+            numeric_finloc = split_finloc[1]
+
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
         # log errors in a file, if any
@@ -405,16 +411,25 @@ class Command(BaseCommand):
         if self.tipo_certificato == 'consuntivo':
             self.logger.info(u"Compute indicators for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
                 self.territorio.denominazione, self.anno, self.tipo_certificato))
-            numeric_finloc = self.territorio.cod_finloc
-            if "--" in numeric_finloc:
-                split_finloc = numeric_finloc.split("--")
-                numeric_finloc = split_finloc[1]
 
             if not self.dryrun:
                 call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
                              interactive=False)
 
         # copy xml file to open data folder
-        dst = os.path.join(settings.OPENDATA_XML_ROOT, self.territorio.cod_finloc, self.anno)+self.tipo_certificato + ".xml"
-        shutil.copyfile(src=input_file_path, dst=dst)
-        # todo: update open data zip file for considered Comune
+        xml_path = os.path.join(settings.OPENDATA_XML_ROOT, self.territorio.cod_finloc, certificato['anno'])
+        destination_file = xml_path+'/'+self.tipo_certificato + ".xml"
+
+        if not os.path.exists(xml_path):
+            os.makedirs(xml_path)
+
+        shutil.copyfile(src=input_file_path, dst=destination_file)
+        self.logger.info("Copied Xml file to {}".format(destination_file))
+
+        self.logger.info("Update open data zip file for {}".format(self.territorio.denominazione))
+
+        # updates open data zip file for considered Comune
+        if not self.dryrun:
+            years = "{0}-{1}".format(settings.APP_START_YEAR, settings.APP_END_YEAR)
+            call_command('update_opendata', verbosity=2, years=years, cities=numeric_finloc, compress=True,
+                         interactive=False)

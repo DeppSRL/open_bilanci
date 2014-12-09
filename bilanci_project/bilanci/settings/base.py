@@ -99,10 +99,10 @@ STATICFILES_FINDERS = (
 )
 ########## END STATIC FILE CONFIGURATION
 
-
-OPENDATA_ZIP_ROOT = os.path.join(root('open_data'), 'zip')
-OPENDATA_CSV_ROOT = os.path.join(root('open_data'), 'csv')
-OPENDATA_XML_ROOT = os.path.join(root('open_data'), 'xml')
+OPENDATA_ROOT = 'open_data'
+OPENDATA_ZIP_ROOT = os.path.join(root(OPENDATA_ROOT), 'zip')
+OPENDATA_CSV_ROOT = os.path.join(root(OPENDATA_ROOT), 'csv')
+OPENDATA_XML_ROOT = os.path.join(root(OPENDATA_ROOT), 'xml')
 OPENDATA_URL = '/opendata/'
 
 
@@ -329,9 +329,9 @@ GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
 GDOC_KEYS= {
     'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
-    'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
-    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY'),
-    'bilancio_consuntivo_2013':env('GDOC_BILANCIO_CONSUNTIVO_2013')
+    'simple_map': env('GDOC_VOCI_SIMPLE_MAP_KEY'),
+    'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
+    'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'

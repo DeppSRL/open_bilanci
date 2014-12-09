@@ -43,10 +43,10 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
-        make_option('--csv-base-dir',
-                    dest='csv_base_dir',
-                    default='data/csv/',
-                    help='Path to the directory where the CSV files will be written.'),
+        make_option('--output-path',
+                    dest='output_path',
+                    default=settings.OPENDATA_ROOT,
+                    help='Path to the base directory where the file(s) will be created: default to opendata folder'),
         make_option('--compress',
                     dest='compress',
                     action='store_true',
@@ -78,7 +78,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
-        csv_base_dir = options['csv_base_dir']
+        output_path = options['output_path']
         compress = options['compress']
         skip_existing = options['skip_existing']
 
@@ -94,6 +94,11 @@ class Command(BaseCommand):
 
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
+
+        if not cities:
+            self.logger.error("Cities cannot be null")
+            return
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
 
@@ -131,7 +136,9 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
-        csv_base_path = os.path.abspath(csv_base_dir)
+        output_abs_path = os.path.abspath(output_path)
+        csv_path = os.path.join(output_abs_path, 'csv')
+        zip_path = os.path.join(output_abs_path, 'zip')
 
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
@@ -139,7 +146,7 @@ class Command(BaseCommand):
         for city in cities:
 
             # check city path (skip if existing and skip-existing active)
-            city_path = os.path.join(csv_base_path, city)
+            city_path = os.path.join(csv_path, city)
             if not os.path.exists(city_path):
                 os.makedirs(city_path)
             else:
@@ -227,9 +234,10 @@ class Command(BaseCommand):
                 city_year_consuntivo_tree.emit_as_list(_list, ancestors_separator="/")
                 csv_writer.writerows(_list)
 
+            # if the zip file is requested, creates the zip folder,
+            # creates zip file
             if compress:
-                csv_path = os.path.join('data', 'csv')
-                zip_path = os.path.join('data', 'zip')
+
                 if not os.path.exists(zip_path):
                     os.mkdir(zip_path)
 
@@ -237,11 +245,6 @@ class Command(BaseCommand):
 
                 zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
                 self.logger.info("Compressed!")
-
-                # remove all tree under city_path
-                # with security control
-                if 'data' in city_path and 'csv' in city_path:
-                    shutil.rmtree(city_path)
 
     def write_csv(self, path, name, tree):
 
