@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^page-not-found$', PageNotFoundTemplateView.as_view(), name='404'),
 
 
-) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ROOT)
+) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ZIP_ROOT)
 
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     import debug_toolbar

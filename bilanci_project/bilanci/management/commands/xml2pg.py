@@ -1,6 +1,8 @@
 from collections import OrderedDict
 from itertools import groupby
 import logging
+import os
+import shutil
 import pprint
 from optparse import make_option
 from django.conf import settings
@@ -69,7 +71,6 @@ class Command(BaseCommand):
 
         return popolazione_residente
 
-
     def set_popolazione_residente(self, ):
 
         if self.tipo_certificato == 'consuntivo':
@@ -86,6 +87,23 @@ class Command(BaseCommand):
                     ))
             else:
                 self.popolazione_residente = contesto_db.bil_popolazione_residente
+
+    def log_errors(self,):
+        # output composition errors, if any
+        if len(self.composition_errors) > 0:
+
+            # create a list of lists to be written with unicodewriter
+            errors_to_write = [[nms] for nms in self.composition_errors]
+            bilancio_type_year = u"{0}_{1}".format(self.tipo_certificato[:4], self.anno)
+            composition_filename = "{0}_{1}_comp_err".format(self.territorio.slug, bilancio_type_year, )
+            log_base_dir = "{0}/".format(settings.REPO_ROOT)
+            gdocs.write_to_csv(path_name='log', contents={composition_filename: errors_to_write},
+                               csv_base_dir=log_base_dir)
+            self.logger.warning(
+                "{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
+            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir, composition_filename))
+        else:
+            self.logger.info("All Codes from bilancio file were inserted correctly")
 
     def create_mapping(self, bilancio):
         ##
@@ -128,7 +146,6 @@ class Command(BaseCommand):
 
         natural_desc = set(
             Voce.objects.get(slug=self.tipo_certificato).get_natural_descendants().values_list('slug', flat=True))
-
 
         self.logger.debug("Codici regroup count:{0}, natural_descent_count:{1}".format(len(self.codici_regroup.keys()),
                                                                                        len(natural_desc)))
@@ -242,7 +259,6 @@ class Command(BaseCommand):
     def import_bilancio(self, bilancio):
 
         if not self.dryrun:
-
             # before importing new data, deletes old data, if present
             self.logger.info(u"Deleting previous values for Comune: {0}, year: {1}, tipo_bilancio: {2}...".format(
                 self.territorio.denominazione, self.anno, self.tipo_certificato))
@@ -306,12 +322,10 @@ class Command(BaseCommand):
                     vb.valore_procapite = valore_totale / float(self.popolazione_residente)
 
                 if not self.dryrun:
-
                     # debug
                     self.logger.debug(u"Write {0} = {1}".format(voce_slug, valore_totale))
 
                     vb.save()
-
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -325,16 +339,16 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         self.dryrun = options['dryrun']
-        input_file = options['input_file']
+        input_file_path = options['input_file']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
         # open input file
         try:
-            bilancio = BeautifulSoup(open(input_file), "xml")
+            bilancio = BeautifulSoup(open(input_file_path), "xml")
         except IOError:
-            self.logger.error("File {0} not found".format(input_file))
+            self.logger.error("File {0} not found".format(input_file_path))
             return
 
         # get finloc, year, tipo bilancio
@@ -368,23 +382,8 @@ class Command(BaseCommand):
 
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
-
-        # output composition errors, if any
-        if len(self.composition_errors) > 0:
-
-            # create a list of lists to be written with unicodewriter
-            errors_to_write = [[nms] for nms in self.composition_errors]
-            bilancio_type_year = u"{0}_{1}".format(self.tipo_certificato[:4], self.anno)
-            composition_filename = "{0}_{1}_comp_err".format(self.territorio.slug, bilancio_type_year, )
-            log_base_dir = "{0}/".format(settings.REPO_ROOT)
-            gdocs.write_to_csv(path_name='log', contents={composition_filename: errors_to_write},
-                               csv_base_dir=log_base_dir)
-            self.logger.warning(
-                "{0} VOCE SLUG FROM BILANCIO TREE GAVE COMPOSITION ERRORS ".format(len(self.composition_errors)))
-            self.logger.warning("{0}log/{1}.csv file written for check".format(log_base_dir, composition_filename))
-        else:
-            self.logger.info("All Codes from bilancio file were inserted correctly")
-
+        # log errors in a file, if any
+        self.log_errors()
         ##
         # adds bilancio to the source table to mark this bilancio as coming from Comune xml source
         ##
@@ -398,7 +397,6 @@ class Command(BaseCommand):
         import_bilancio = ImportXmlBilancio(**import_data)
         if not self.dryrun:
             import_bilancio.save()
-
 
         ##
         # Compute Indicators if bilancio is Consuntivo
@@ -415,3 +413,8 @@ class Command(BaseCommand):
             if not self.dryrun:
                 call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
                              interactive=False)
+
+        # copy xml file to open data folder
+        dst = os.path.join(settings.OPENDATA_XML_ROOT, self.territorio.cod_finloc, self.anno)+self.tipo_certificato + ".xml"
+        shutil.copyfile(src=input_file_path, dst=dst)
+        # todo: update open data zip file for considered Comune

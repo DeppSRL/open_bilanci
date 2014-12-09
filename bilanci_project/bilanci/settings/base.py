@@ -100,7 +100,9 @@ STATICFILES_FINDERS = (
 ########## END STATIC FILE CONFIGURATION
 
 
-OPENDATA_ROOT = os.path.join(root('open_data'), 'zip')
+OPENDATA_ZIP_ROOT = os.path.join(root('open_data'), 'zip')
+OPENDATA_CSV_ROOT = os.path.join(root('open_data'), 'csv')
+OPENDATA_XML_ROOT = os.path.join(root('open_data'), 'xml')
 OPENDATA_URL = '/opendata/'
 
 
