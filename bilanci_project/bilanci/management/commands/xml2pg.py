@@ -419,11 +419,12 @@ class Command(BaseCommand):
         # copy xml file to open data folder
         xml_path = os.path.join(settings.OPENDATA_XML_ROOT, self.territorio.cod_finloc, certificato['anno'])
         destination_file = xml_path+'/'+self.tipo_certificato + ".xml"
+        
+        if not self.dryrun:
+            if not os.path.exists(xml_path):
+                os.makedirs(xml_path)
 
-        if not os.path.exists(xml_path):
-            os.makedirs(xml_path)
-
-        shutil.copyfile(src=input_file_path, dst=destination_file)
+            shutil.copyfile(src=input_file_path, dst=destination_file)
         self.logger.info("Copied Xml file to {}".format(destination_file))
 
         self.logger.info("Update open data zip file for {}".format(self.territorio.denominazione))
