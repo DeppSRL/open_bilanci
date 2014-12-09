@@ -11,7 +11,7 @@ from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
-from bilanci.utils.zipper import zipdir
+from bilanci.utils.zipper import zipdir_prefix
 from territori.models import Territorio, ObjectDoesNotExist
 
 
@@ -138,6 +138,7 @@ class Command(BaseCommand):
 
         output_abs_path = os.path.abspath(output_path)
         csv_path = os.path.join(output_abs_path, 'csv')
+        xml_path = os.path.join(output_abs_path, 'xml')
         zip_path = os.path.join(output_abs_path, 'zip')
 
         # build the map of slug to pk for the Voce tree
@@ -243,8 +244,14 @@ class Command(BaseCommand):
 
                 zipfilename = os.path.join(zip_path, "{}.zip".format(city))
 
-                zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
-                self.logger.info("Compressed!")
+                # zips the csv and the xml folders and creates a zip file containing both
+                # zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
+                opendata_zipfile = zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED)
+                zipdir_prefix(opendata_zipfile, csv_path, city, "csv")
+                zipdir_prefix(opendata_zipfile, xml_path, city, "xml")
+
+
+                self.logger.info("Created zip file: {}".format(zipfilename))
 
     def write_csv(self, path, name, tree):
 
