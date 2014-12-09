@@ -36,7 +36,7 @@ Then there are data which need to be computed on the data already present in the
     python manage.py median --type=indicatori --indicators=all --years=2003-2013 -v2
 
 
-- generating downloadable packages of CSV files
+- generating downloadable packages of opendata files (both csv and xml files)
 
 .. code-block:: bash
 
