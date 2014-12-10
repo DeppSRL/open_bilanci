@@ -7,7 +7,7 @@ from django.core.management import BaseCommand
 from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
-from bilanci.models import Voce, ValoreBilancio
+from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
@@ -15,8 +15,6 @@ from .somma_funzioni import SommaFunzioniMixin
 
 
 class Command(BaseCommand):
-
-
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
                     dest='dryrun',
@@ -57,11 +55,13 @@ class Command(BaseCommand):
         make_option('--tree-node-slug',
                     dest='tree_node_slug',
                     default=None,
-                    help='Slug to point to a tree node to start the import from.'),
+                    help='Voce slug of the tree model to start the import from. Example: consuntivo-entrate-imposte-e-tasse'),
         make_option('--couch-path',
                     dest='couch_path_string',
                     default=None,
-                    help='CouchDB keys sequence (CSV) to identify the import starting point. Must be specified together with the treee-node-slug option.'),
+                    help='CouchDB keys sequence (CSV) to identify the import starting point. '
+                         'Must be specified together with the treee-node-slug option. '
+                         'Example: consuntivo,entrate,imposte'),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -72,9 +72,81 @@ class Command(BaseCommand):
     help = 'Import values from the simplified couchdb database into a Postgresql server'
 
     logger = logging.getLogger('management')
+    partial_import = False
+    couch_path = None
     simplified_subtrees_leaves = None
+    tipo_bilancio = None
     years = None
+    cities = None
+    voci_dict = None
+    couchdb = None
     comuni_dicts = {}
+
+    def couch_connect(self, couchdb_server):
+        # connect to couch database
+        couchdb_server_alias = couchdb_server
+        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
+
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
+
+        self.couchdb = couch.connect(
+            couchdb_dbname,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
+
+    def set_years(self, years):
+        # set considered years considering cases with - and ,
+        # Example
+        # 2003-2006
+        # or 2003,2004,2010
+
+        if not years:
+            raise Exception("Missing years parameter")
+
+        if "-" in years:
+            (start_year, end_year) = years.split("-")
+            years_list = range(int(start_year), int(end_year) + 1)
+        else:
+            years_list = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
+
+        if not years_list:
+            raise Exception("No suitable year found in {0}".format(years))
+
+        self.years = years
+
+    def set_cities(self, cities_codes, start_from):
+        # set considered cities
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+
+        if not cities_codes:
+            if start_from:
+                cities_codes = 'all'
+                all_cities = mapper.get_cities(cities_codes)
+                try:
+                    self.cities = all_cities[all_cities.index(start_from):]
+                except ValueError:
+                    raise Exception("Start-from city not found in cities complete list")
+                else:
+                    self.logger.info("Processing cities starting from: {0}".format(start_from))
+            else:
+                raise Exception("Missing cities parameter or start-from parameter")
+
+        else:
+            self.cities = mapper.get_cities(cities_codes)
+
+    def get_considered_tipo_certificato(self, tree_node_slug, couch_path_string):
+        # based on the type of import set the type of bilancio that is considered
+
+        if tree_node_slug and couch_path_string:
+            self.partial_import = True
+            tree_node_slug = unicode(tree_node_slug)
+            self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
+
+            #todo: depending on tree node slug, couch path string sets considered tipo bilancio
+        else:
+            self.tipo_bilancio = ['preventivo', 'consuntivo']
+
 
 
     def handle(self, *args, **options):
@@ -88,8 +160,8 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        couch_path = None
-        partial_import = False
+
+
         dryrun = options['dryrun']
         force_google = options['force_google']
         create_tree = options['create_tree']
@@ -99,7 +171,7 @@ class Command(BaseCommand):
         couch_path_string = options['couch_path_string']
 
         # check if debug is active: the task may fail
-        if settings.DEBUG is True and options['cities'] == 'all':
+        if settings.DEBUG is True and options['cities'].lower() == 'all':
             self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
             exit()
 
@@ -107,121 +179,86 @@ class Command(BaseCommand):
             self.logger.error("Couch path and tree node must be both specified. Quitting")
             exit()
 
-        if tree_node_slug and couch_path_string:
-            partial_import = True
-            tree_node_slug = unicode(tree_node_slug)
-            couch_path = [unicode(x) for x in couch_path_string.split(",")]
-
-
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
+        ###
+        # connect to couchdb
+        ###
+        self.couch_connect(options['couchdb_server'])
 
         ###
         # cities
         ###
         cities_codes = options['cities']
         start_from = options['start_from']
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
 
-        if not cities_codes:
-            if start_from:
-                cities_codes = 'all'
-                cities = mapper.get_cities(cities_codes)
-                try:
-                    cities = cities[cities.index(start_from):]
-                except ValueError:
-                    raise Exception("Start-from city not found in cities complete list")
-                else:
-                    self.logger.info("Processing cities starting from: {0}".format(start_from))
-            else:
-                raise Exception("Missing cities parameter or start-from parameter")
+        self.set_cities(cities_codes, start_from)
 
-        else:
-            cities = mapper.get_cities(cities_codes)
-            if cities_codes.lower() != 'all':
-                self.logger.info("Processing cities: {0}".format(cities))
+        if cities_codes.lower() != 'all':
+            self.logger.info("Processing cities: {0}".format(self.cities))
 
         ###
-        # years
+        # set considered years
         ###
-        years = options['years']
-        if not years:
-            raise Exception("Missing years parameter")
+        self.set_years(options['years'])
 
-        if "-" in years:
-            (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
-        else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
-
-        if not years:
-            raise Exception("No suitable year found in {0}".format(years))
-
-        self.logger.info("Processing years: {0}".format(years))
-        self.years = years
+        self.get_considered_tipo_certificato(tree_node_slug, couch_path_string )
 
 
-        ###
-        # couchdb
-        ###
-
-        couchdb_server_alias = options['couchdb_server']
-        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
-
-        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
-            raise Exception("Unknown couchdb server alias.")
-
-        couchdb = couch.connect(
-            couchdb_dbname,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+        # get data about ImportXml: if there is data that has been imported from XML for a city/ year
+        # then the couch import must NOT overwrite that data
+        imported_xml = ImportXmlBilancio.objects.filter(territorio__in=self.cities, anno__in=self.years).\
+            order_by('territorio', 'anno')
 
 
         # create the tree if it does not exist or if forced to do so
         if create_tree or Voce.objects.count() == 0:
             self.create_voci_tree(force_google=force_google)
 
-
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
+        # SOMMA FUNZIONI PATCH
         if partial_import is False:
             # build the list of voci ids to apply the somma_funzioni patch
 
-            voci_correnti_ids = []
-            voci_correnti_slugs = []
+            slugs_somma_funzioni = []
 
             nodes_to_pach_slugs = [
                 'preventivo-spese-spese-somma-funzioni',
                 'consuntivo-spese-cassa-spese-somma-funzioni',
                 'consuntivo-spese-impegni-spese-somma-funzioni',
-                ]
-            for node_to_patch_slug in nodes_to_pach_slugs:
-                _voci = self.voci_dict[node_to_patch_slug]
+            ]
+            for node in nodes_to_pach_slugs:
+                _voci = self.voci_dict[node]
                 _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
-                _ids = [
-                    self.voci_dict[voce_corrente_slug].pk
-                    for voce_corrente_slug in _slugs
-                ]
-                voci_correnti_ids.extend(_ids)
-                voci_correnti_slugs.extend(_slugs)
+                slugs_somma_funzioni.extend(_slugs)
 
                 # delete all values added by the patch in ValoreBilancio
                 # only delete specified years, cities and the voices to patch
-                self.logger.info("** start deleting values for {0}".format(node_to_patch_slug))
-                filters = dict(voce__in=_ids)
-                if cities:
-                    filters.update(territorio__cod_finloc__in=cities)
-                if years:
-                    filters.update(anno__in=years)
+                self.logger.info("** start deleting values for {0}".format(node))
+                filters = dict(voce__slug__in=_slugs)
+                if self.cities:
+                    filters.update(territorio__cod_finloc__in=self.cities)
+                if self.years:
+                    filters.update(anno__in=self.years)
 
-                # Perform the time-consuming delete only if db is not empty
-                if ValoreBilancio.objects.all().count():
-                    ValoreBilancio.objects.filter(**filters).delete()
+                # deletes previous values for considered branches
+                ValoreBilancio.objects.filter(**filters).delete()
+
+        # if skip-existing flag is true: removes already present cities from the cities set
+        if skip_existing:
+            existing_cities = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities).\
+                distinct('territorio').values_list('territorio__cod_finloc')
+
+            if len(existing_cities) > 0:
+
+                self.logger.info(u"Skipping following cities {}, if already processed".format(existing_cities))
+                self.cities = filter(lambda c: c not in existing_cities, self.cities)
 
         set_autocommit(autocommit=False)
-        for city in cities:
+        for city in self.cities:
 
             try:
                 territorio = Territorio.objects.get(cod_finloc=city)
@@ -235,26 +272,16 @@ class Command(BaseCommand):
                 self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
                 continue
 
-            # check values for the city inside ValoreBilancio,
-            # skip if values are there and the skip-existing option was required
-            try:
-                _ = ValoreBilancio.objects.filter(territorio=territorio)[0]
-                if skip_existing:
-                    self.logger.info(u"Skipping city of {}, as already processed".format(city))
-                    continue
-            except IndexError:
-                pass
-
             self.logger.info(u"Processing city of {0}".format(city))
 
-            for year in years:
+            for year in self.years:
                 if str(year) not in city_budget:
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
                     continue
 
                 self.logger.info(u"- Processing year: {}".format(year))
 
-
+                # POPULATION
                 # fetch valid population, starting from this year
                 # if no population found, set it to None, as not to break things
                 try:
@@ -269,17 +296,19 @@ class Command(BaseCommand):
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
 
-
                 if partial_import is True:
                     # start from a custom node
                     path_not_found = False
                     city_year_budget_node_dict = city_year_budget_dict.copy()
 
-                    for k in couch_path:
+                    # get the starting node in couchdb data
+                    for k in self.couch_path:
                         try:
                             city_year_budget_node_dict = city_year_budget_node_dict[k]
                         except KeyError:
-                            self.logger.warning("Couch path:{0} not present for {1}, anno:{2}".format(couch_path, territorio.cod_finloc, str(year)))
+                            self.logger.warning(
+                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
+                                                                                      str(year)))
                             path_not_found = True
                             break
 
@@ -291,18 +320,21 @@ class Command(BaseCommand):
                             population=population
                         )
 
-                        v = None
+                        tree_node_voce = None
                         try:
-                            v = self.voci_dict[tree_node_slug]
+                            tree_node_voce = self.voci_dict[tree_node_slug]
                         except KeyError:
-                            self.logger.error("Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(tree_node_slug))
+                            self.logger.error(
+                                "Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(
+                                    tree_node_slug))
                             exit()
 
                         # delete previous values if present
                         ValoreBilancio.objects.filter(
                             territorio=territorio, anno=year,
-                            voce__in=v.get_descendants(include_self=True)
+                            voce__in=tree_node_voce.get_descendants(include_self=True)
                         ).delete()
+                        # writes new sub-tree
                         tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
                 else:
                     # do all preventivo and consuntivo nodes
@@ -327,26 +359,25 @@ class Command(BaseCommand):
                     vb_filters = {
                         'territorio': territorio,
                         'anno': year,
-                        }
+                    }
                     self.logger.debug("** start reading values")
-                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore', 'valore_procapite')
+                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
+                                                                                 'valore_procapite')
                     self.logger.debug("** end reading values")
 
                     vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-
 
                     ##
                     # insert/overwrite compute somma-funzioni in preventivo
                     # for all not to be patched
                     ##
-                    for voce_corrente_slug in voci_correnti_slugs:
-                        self.apply_somma_funzioni_patch(voce_corrente_slug, vb_filters, vb_dict)
+                    for voce_slug in slugs_somma_funzioni:
+                        self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                     del vb_dict
                     del vb_filters
 
                 # actually save data into posgres
                 commit()
-
 
     def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
         """
@@ -380,7 +411,6 @@ class Command(BaseCommand):
         except KeyError:
             pass
 
-
     def create_voci_tree(self, force_google):
         """
         Create a Voci tree. If the tree exists, then it is deleted.
@@ -398,7 +428,6 @@ class Command(BaseCommand):
         sf = SommaFunzioniMixin()
         sf.create_somma_funzioni()
 
-
     def create_voci_preventivo_tree(self):
 
         # create preventivo root
@@ -408,7 +437,7 @@ class Command(BaseCommand):
         # the preventivo subsections
         subtrees = OrderedDict([
             ('preventivo-entrate', 'Preventivo entrate'),
-            ('preventivo-spese',   'Preventivo spese'),
+            ('preventivo-spese', 'Preventivo spese'),
         ])
 
         # add all leaves from the preventivo sections under preventivo
@@ -419,7 +448,6 @@ class Command(BaseCommand):
                 # add this leaf to the subtree, adding all needed intermediate nodes
                 self.add_leaf(leaf_bc, subtree_node)
 
-
     def create_voci_consuntivo_tree(self):
         # create consuntivo root
         subtree_node = Voce(denominazione='Consuntivo', slug='consuntivo')
@@ -428,7 +456,8 @@ class Command(BaseCommand):
         subtrees = OrderedDict([
             ('consuntivo-entrate', {
                 'denominazione': u'Consuntivo entrate',
-                'sections': [u'Accertamenti', u'Riscossioni in conto competenza', u'Riscossioni in conto residui', u'Cassa']
+                'sections': [u'Accertamenti', u'Riscossioni in conto competenza', u'Riscossioni in conto residui',
+                             u'Cassa']
             }),
             ('consuntivo-spese', {
                 'denominazione': u'Consuntivo spese',
@@ -443,7 +472,6 @@ class Command(BaseCommand):
                     bc = leaf_bc[:]
                     bc.insert(1, section_name)
                     self.add_leaf(bc, subtree_node, section_slug=slugify(section_name))
-
 
     def add_leaf(self, breadcrumbs, subtree_node, section_slug=''):
         """
@@ -468,7 +496,7 @@ class Command(BaseCommand):
         for item in bc:
             if current_node.get_children().filter(denominazione__iexact=item).count() == 0:
 
-                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(unicode(i)) for i in bc[0:bc.index(item)+1]))
+                slug = u"{0}-{1}".format(prefix_slug, u"-".join(slugify(unicode(i)) for i in bc[0:bc.index(item) + 1]))
                 node = Voce(denominazione=item, slug=slug)
                 node.insert_at(current_node, save=True, position='last-child')
                 if bc[-1] == item:
