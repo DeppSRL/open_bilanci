@@ -74,310 +74,23 @@ class Command(BaseCommand):
     logger = logging.getLogger('management')
     partial_import = False
     couch_path = None
+    accepted_bilanci_types = ['preventivo', 'consuntivo']
+    somma_funzioni_branches = [
+        'preventivo-spese-spese-somma-funzioni',
+        'consuntivo-spese-cassa-spese-somma-funzioni',
+        'consuntivo-spese-impegni-spese-somma-funzioni',
+    ]
+    considered_tipo_bilancio = accepted_bilanci_types
+    considered_somma_funzioni = somma_funzioni_branches
     simplified_subtrees_leaves = None
-    tipo_bilancio = None
+    import_set = None
     years = None
     cities = None
+    cities_finloc = None
+    skip_existing = None
     voci_dict = None
     couchdb = None
     comuni_dicts = {}
-
-    def couch_connect(self, couchdb_server):
-        # connect to couch database
-        couchdb_server_alias = couchdb_server
-        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
-
-        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
-            raise Exception("Unknown couchdb server alias.")
-
-        self.couchdb = couch.connect(
-            couchdb_dbname,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
-
-    def set_years(self, years):
-        # set considered years considering cases with - and ,
-        # Example
-        # 2003-2006
-        # or 2003,2004,2010
-
-        if not years:
-            raise Exception("Missing years parameter")
-
-        if "-" in years:
-            (start_year, end_year) = years.split("-")
-            years_list = range(int(start_year), int(end_year) + 1)
-        else:
-            years_list = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
-
-        if not years_list:
-            raise Exception("No suitable year found in {0}".format(years))
-
-        self.years = years
-
-    def set_cities(self, cities_codes, start_from):
-        # set considered cities
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-
-        if not cities_codes:
-            if start_from:
-                cities_codes = 'all'
-                all_cities = mapper.get_cities(cities_codes)
-                try:
-                    self.cities = all_cities[all_cities.index(start_from):]
-                except ValueError:
-                    raise Exception("Start-from city not found in cities complete list")
-                else:
-                    self.logger.info("Processing cities starting from: {0}".format(start_from))
-            else:
-                raise Exception("Missing cities parameter or start-from parameter")
-
-        else:
-            self.cities = mapper.get_cities(cities_codes)
-
-    def get_considered_tipo_certificato(self, tree_node_slug, couch_path_string):
-        # based on the type of import set the type of bilancio that is considered
-
-        if tree_node_slug and couch_path_string:
-            self.partial_import = True
-            tree_node_slug = unicode(tree_node_slug)
-            self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
-
-            #todo: depending on tree node slug, couch path string sets considered tipo bilancio
-        else:
-            self.tipo_bilancio = ['preventivo', 'consuntivo']
-
-
-
-    def handle(self, *args, **options):
-        verbosity = options['verbosity']
-        if verbosity == '0':
-            self.logger.setLevel(logging.ERROR)
-        elif verbosity == '1':
-            self.logger.setLevel(logging.WARNING)
-        elif verbosity == '2':
-            self.logger.setLevel(logging.INFO)
-        elif verbosity == '3':
-            self.logger.setLevel(logging.DEBUG)
-
-
-
-        dryrun = options['dryrun']
-        force_google = options['force_google']
-        create_tree = options['create_tree']
-        skip_existing = options['skip_existing']
-
-        tree_node_slug = options['tree_node_slug']
-        couch_path_string = options['couch_path_string']
-
-        # check if debug is active: the task may fail
-        if settings.DEBUG is True and options['cities'].lower() == 'all':
-            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
-            exit()
-
-        if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
-            self.logger.error("Couch path and tree node must be both specified. Quitting")
-            exit()
-
-        if options['append'] is True:
-            self.logger = logging.getLogger('management_append')
-
-        ###
-        # connect to couchdb
-        ###
-        self.couch_connect(options['couchdb_server'])
-
-        ###
-        # cities
-        ###
-        cities_codes = options['cities']
-        start_from = options['start_from']
-
-        self.set_cities(cities_codes, start_from)
-
-        if cities_codes.lower() != 'all':
-            self.logger.info("Processing cities: {0}".format(self.cities))
-
-        ###
-        # set considered years
-        ###
-        self.set_years(options['years'])
-
-        self.get_considered_tipo_certificato(tree_node_slug, couch_path_string )
-
-
-        # get data about ImportXml: if there is data that has been imported from XML for a city/ year
-        # then the couch import must NOT overwrite that data
-        imported_xml = ImportXmlBilancio.objects.filter(territorio__in=self.cities, anno__in=self.years).\
-            order_by('territorio', 'anno')
-
-
-        # create the tree if it does not exist or if forced to do so
-        if create_tree or Voce.objects.count() == 0:
-            self.create_voci_tree(force_google=force_google)
-
-        # build the map of slug to pk for the Voce tree
-        self.voci_dict = Voce.objects.get_dict_by_slug()
-
-        # SOMMA FUNZIONI PATCH
-        if partial_import is False:
-            # build the list of voci ids to apply the somma_funzioni patch
-
-            slugs_somma_funzioni = []
-
-            nodes_to_pach_slugs = [
-                'preventivo-spese-spese-somma-funzioni',
-                'consuntivo-spese-cassa-spese-somma-funzioni',
-                'consuntivo-spese-impegni-spese-somma-funzioni',
-            ]
-            for node in nodes_to_pach_slugs:
-                _voci = self.voci_dict[node]
-                _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
-                slugs_somma_funzioni.extend(_slugs)
-
-                # delete all values added by the patch in ValoreBilancio
-                # only delete specified years, cities and the voices to patch
-                self.logger.info("** start deleting values for {0}".format(node))
-                filters = dict(voce__slug__in=_slugs)
-                if self.cities:
-                    filters.update(territorio__cod_finloc__in=self.cities)
-                if self.years:
-                    filters.update(anno__in=self.years)
-
-                # deletes previous values for considered branches
-                ValoreBilancio.objects.filter(**filters).delete()
-
-        # if skip-existing flag is true: removes already present cities from the cities set
-        if skip_existing:
-            existing_cities = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities).\
-                distinct('territorio').values_list('territorio__cod_finloc')
-
-            if len(existing_cities) > 0:
-
-                self.logger.info(u"Skipping following cities {}, if already processed".format(existing_cities))
-                self.cities = filter(lambda c: c not in existing_cities, self.cities)
-
-        set_autocommit(autocommit=False)
-        for city in self.cities:
-
-            try:
-                territorio = Territorio.objects.get(cod_finloc=city)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
-
-            # get all budgets for the city
-            city_budget = couchdb.get(city)
-
-            if city_budget is None:
-                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
-                continue
-
-            self.logger.info(u"Processing city of {0}".format(city))
-
-            for year in self.years:
-                if str(year) not in city_budget:
-                    self.logger.warning(u"- Year {} not found. Skipping.".format(year))
-                    continue
-
-                self.logger.info(u"- Processing year: {}".format(year))
-
-                # POPULATION
-                # fetch valid population, starting from this year
-                # if no population found, set it to None, as not to break things
-                try:
-                    (pop_year, population) = territorio.nearest_valid_population(year)
-                except TypeError:
-                    population = None
-
-                self.logger.debug("::Population: {0}".format(population))
-
-                # build a BilancioItem tree, out of the couch-extracted dict
-                # for the given city and year
-                # add the totals by extracting them from the dict, or by computing
-                city_year_budget_dict = city_budget[str(year)]
-
-                if partial_import is True:
-                    # start from a custom node
-                    path_not_found = False
-                    city_year_budget_node_dict = city_year_budget_dict.copy()
-
-                    # get the starting node in couchdb data
-                    for k in self.couch_path:
-                        try:
-                            city_year_budget_node_dict = city_year_budget_node_dict[k]
-                        except KeyError:
-                            self.logger.warning(
-                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
-                                                                                      str(year)))
-                            path_not_found = True
-                            break
-
-                    # if data path is found in the couch document, write data into postgres db
-                    if path_not_found is False:
-
-                        city_year_node_tree_patch = tree_models.make_tree_from_dict(
-                            city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
-                            population=population
-                        )
-
-                        tree_node_voce = None
-                        try:
-                            tree_node_voce = self.voci_dict[tree_node_slug]
-                        except KeyError:
-                            self.logger.error(
-                                "Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(
-                                    tree_node_slug))
-                            exit()
-
-                        # delete previous values if present
-                        ValoreBilancio.objects.filter(
-                            territorio=territorio, anno=year,
-                            voce__in=tree_node_voce.get_descendants(include_self=True)
-                        ).delete()
-                        # writes new sub-tree
-                        tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
-                else:
-                    # do all preventivo and consuntivo nodes
-                    city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                        city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
-                        population=population
-                    )
-                    city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                        city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
-                        population=population
-                    )
-
-                    # previously remove all values for a city and a year
-                    # used to speed up records insertion
-                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
-
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
-
-                    # applies somma-funzioni patch only if the script is working on the whole bilancio
-
-                    vb_filters = {
-                        'territorio': territorio,
-                        'anno': year,
-                    }
-                    self.logger.debug("** start reading values")
-                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
-                                                                                 'valore_procapite')
-                    self.logger.debug("** end reading values")
-
-                    vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-
-                    ##
-                    # insert/overwrite compute somma-funzioni in preventivo
-                    # for all not to be patched
-                    ##
-                    for voce_slug in slugs_somma_funzioni:
-                        self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                    del vb_dict
-                    del vb_filters
-
-                # actually save data into posgres
-                commit()
 
     def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
         """
@@ -506,4 +219,332 @@ class Command(BaseCommand):
 
             current_node = node
 
+    def couch_connect(self, couchdb_server):
+        # connect to couch database
+        couchdb_server_alias = couchdb_server
+        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
 
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
+
+        self.couchdb = couch.connect(
+            couchdb_dbname,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
+
+    def set_years(self, years):
+        # set considered years considering cases with - and ,
+        # Example
+        # 2003-2006
+        # or 2003,2004,2010
+
+        if not years:
+            raise Exception("Missing years parameter")
+
+        if "-" in years:
+            (start_year, end_year) = years.split("-")
+            years_list = range(int(start_year), int(end_year) + 1)
+        else:
+            years_list = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
+
+        if not years_list:
+            raise Exception("No suitable year found in {0}".format(years))
+
+        self.years = years_list
+
+    def set_cities(self, cities_codes, start_from):
+        # set considered cities
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+
+        if not cities_codes:
+            if start_from:
+                cities_codes = 'all'
+                all_cities = mapper.get_cities(cities_codes)
+                try:
+                    self.cities_finloc = all_cities[all_cities.index(start_from):]
+                except ValueError:
+                    raise Exception("Start-from city not found in cities complete list")
+                else:
+                    self.logger.info("Processing cities starting from: {0}".format(start_from))
+            else:
+                raise Exception("Missing cities parameter or start-from parameter")
+
+        else:
+            self.cities_finloc = mapper.get_cities(cities_codes)
+
+        # if skip-existing flag is true: removes already present cities from the cities set
+        if self.skip_existing:
+            existing_cities_finloc = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc).\
+                distinct('territorio__cod_finloc').order_by('territorio__cod_finloc')
+
+            if len(existing_cities_finloc) > 0:
+
+                self.logger.info(u"Skipping following cities {}, because already in db".format(existing_cities_finloc))
+                self.cities_finloc = filter(lambda c: c not in existing_cities_finloc, self.cities_finloc)
+
+        self.cities = Territorio.objects.filter(cod_finloc__in=self.cities_finloc)
+
+    def checks_partial_import(self, tree_node_slug, couch_path_string):
+        # based on the type of import set the type of bilancio that is considered
+        # sets branches of somma funzioni considered by the import
+
+        self.partial_import = True
+
+        #depending on tree node slug, couch path string sets considered tipo bilancio
+        tree_node_slug = unicode(tree_node_slug)
+        self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
+
+        tree_node = Voce.objects.get(slug=tree_node_slug)
+
+        self.considered_tipo_bilancio = tree_node.\
+            get_ancestors(include_self=True, ascending=False).\
+            get(slug__in=self.accepted_bilanci_types).slug
+
+        # checks which branches of somma-funzioni are interested by the import
+        self.considered_somma_funzioni = \
+            tree_node.get_descendants(include_self=True).\
+            filter(slug__in=self.somma_funzioni_branches).\
+            values_list('slug', flat=True)
+
+    def create_mapping(self):
+
+        # creates a dict with year as a key and value: a list of considered_bilancio_type(s)
+        years_dict = dict((year, self.considered_tipo_bilancio) for year in self.years)
+
+        # creates a dict in which for each city considered the value is the previous dict
+        import_set = dict((city.pk, years_dict) for city in self.cities)
+
+        # get data about ImportXml: if there is data that has been imported from XML for a city/ year
+        # then the couch import must NOT overwrite that data
+        imported_xml = ImportXmlBilancio.objects.\
+            filter(territorio__in=self.cities, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio).\
+            order_by('territorio', 'anno')
+
+        if len(imported_xml) > 0:
+            for i in imported_xml:
+                self.logger.info("Bilancio {} for yr:{} city:{} will be skipped: was imported with xml".\
+                    format(self.considered_tipo_bilancio, i.anno, i.territorio.denominazione))
+
+                import_set[i.territorio.pk][i.anno].pop(i.tipologia, None)
+                if len(import_set[i.territorio.pk][i.anno].keys()) == 0:
+                    import_set[i.territorio.pk].pop(i.anno, None)
+
+        self.import_set = import_set
+
+
+
+    def handle(self, *args, **options):
+        verbosity = options['verbosity']
+        if verbosity == '0':
+            self.logger.setLevel(logging.ERROR)
+        elif verbosity == '1':
+            self.logger.setLevel(logging.WARNING)
+        elif verbosity == '2':
+            self.logger.setLevel(logging.INFO)
+        elif verbosity == '3':
+            self.logger.setLevel(logging.DEBUG)
+
+        dryrun = options['dryrun']
+        force_google = options['force_google']
+        create_tree = options['create_tree']
+        self.skip_existing = options['skip_existing']
+
+        tree_node_slug = options['tree_node_slug']
+        couch_path_string = options['couch_path_string']
+
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and options['cities'].lower() == 'all':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
+
+        if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
+            self.logger.error("Couch path and tree node must be both specified. Quitting")
+            exit()
+
+        if options['append'] is True:
+            self.logger = logging.getLogger('management_append')
+
+        ###
+        # connect to couchdb
+        ###
+        self.couch_connect(options['couchdb_server'])
+
+        ###
+        # cities
+        ###
+        cities_codes = options['cities']
+        start_from = options['start_from']
+
+        self.set_cities(cities_codes, start_from)
+
+        if cities_codes.lower() != 'all':
+            self.logger.info("Processing cities: {0}".format(self.cities_finloc))
+
+        ###
+        # set considered years
+        ###
+        self.set_years(options['years'])
+
+        # if it's a partial import
+        # * checks which kind of bilancio is considered
+        # * checks which branch of somma-funzioni has to be calculated
+
+        if tree_node_slug and couch_path_string:
+            self.checks_partial_import(tree_node_slug, couch_path_string )
+
+        # create the tree if it does not exist or if forced to do so
+        if create_tree or Voce.objects.count() == 0:
+            self.create_voci_tree(force_google=force_google)
+
+        # build the map of slug to pk for the Voce tree
+        self.voci_dict = Voce.objects.get_dict_by_slug()
+
+        # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported
+        self.create_mapping()
+
+        # SOMMA FUNZIONI PATCH
+        if self.partial_import is False:
+            # build the list of voci ids to apply the somma_funzioni patch
+
+            slugs_somma_funzioni = []
+
+            for node in self.considered_somma_funzioni:
+                _voci = self.voci_dict[node]
+                _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
+                slugs_somma_funzioni.extend(_slugs)
+
+                # delete all values added by the patch in ValoreBilancio
+                # only delete specified years, cities and the voices to patch
+                self.logger.info("** start deleting values for {0}".format(node))
+                filters = dict(voce__slug__in=_slugs)
+                if self.cities_finloc:
+                    filters.update(territorio__cod_finloc__in=self.cities_finloc)
+                if self.years:
+                    filters.update(anno__in=self.years)
+
+                # deletes previous values for considered branches
+                ValoreBilancio.objects.filter(**filters).delete()
+
+
+
+        set_autocommit(autocommit=False)
+        for city in self.cities_finloc:
+
+            try:
+                territorio = Territorio.objects.get(cod_finloc=city)
+            except ObjectDoesNotExist:
+                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+
+            # get all budgets for the city
+            city_budget = self.couchdb.get(city)
+
+            if city_budget is None:
+                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
+                continue
+
+            self.logger.info(u"Processing city of {0}".format(city))
+
+            for year in self.years:
+                if str(year) not in city_budget:
+                    self.logger.warning(u"- Year {} not found. Skipping.".format(year))
+                    continue
+
+                self.logger.info(u"- Processing year: {}".format(year))
+
+                # POPULATION
+                # fetch valid population, starting from this year
+                # if no population found, set it to None, as not to break things
+                try:
+                    (pop_year, population) = territorio.nearest_valid_population(year)
+                except TypeError:
+                    population = None
+
+                self.logger.debug("::Population: {0}".format(population))
+
+                # build a BilancioItem tree, out of the couch-extracted dict
+                # for the given city and year
+                # add the totals by extracting them from the dict, or by computing
+                city_year_budget_dict = city_budget[str(year)]
+
+                if self.partial_import is True:
+                    # start from a custom node
+                    path_not_found = False
+                    city_year_budget_node_dict = city_year_budget_dict.copy()
+
+                    # get the starting node in couchdb data
+                    for k in self.couch_path:
+                        try:
+                            city_year_budget_node_dict = city_year_budget_node_dict[k]
+                        except KeyError:
+                            self.logger.warning(
+                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
+                                                                                      str(year)))
+                            path_not_found = True
+                            break
+
+                    # if data path is found in the couch document, write data into postgres db
+                    if path_not_found is False:
+
+                        city_year_node_tree_patch = tree_models.make_tree_from_dict(
+                            city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
+                            population=population
+                        )
+
+                        tree_node_voce = None
+                        try:
+                            tree_node_voce = self.voci_dict[tree_node_slug]
+                        except KeyError:
+                            self.logger.error(
+                                "Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(
+                                    tree_node_slug))
+                            exit()
+
+                        # delete previous values if present
+                        ValoreBilancio.objects.filter(
+                            territorio=territorio, anno=year,
+                            voce__in=tree_node_voce.get_descendants(include_self=True)
+                        ).delete()
+                        # writes new sub-tree
+                        tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
+                else:
+                    # do all preventivo and consuntivo nodes
+                    city_year_preventivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
+                        population=population
+                    )
+                    city_year_consuntivo_tree = tree_models.make_tree_from_dict(
+                        city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
+                        population=population
+                    )
+
+                    # previously remove all values for a city and a year
+                    # used to speed up records insertion
+                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
+                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
+
+                    # applies somma-funzioni patch only if the script is working on the whole bilancio
+
+                    vb_filters = {
+                        'territorio': territorio,
+                        'anno': year,
+                    }
+                    self.logger.debug("** start reading values")
+                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
+                                                                                 'valore_procapite')
+                    self.logger.debug("** end reading values")
+
+                    vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+
+                    ##
+                    # insert/overwrite compute somma-funzioni in preventivo
+                    # for all not to be patched
+                    ##
+                    for voce_slug in slugs_somma_funzioni:
+                        self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
+                    del vb_dict
+                    del vb_filters
+
+                # actually save data into posgres
+                commit()
