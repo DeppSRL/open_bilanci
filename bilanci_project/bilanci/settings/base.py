@@ -240,7 +240,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
         'reduced': {
             'format': "%(levelname)s %(message)s"
@@ -326,7 +326,7 @@ GOOGLE_USER = env('GOOGLE_USER')
 GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
 
 # Google Docs keys
-GDOC_KEYS= {
+GDOC_KEYS = {
     'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
     'simple_map': env('GDOC_VOCI_SIMPLE_MAP_KEY'),
@@ -501,4 +501,4 @@ ENABLED_STATIC_PAGES = [
     'licenze',
     'informativa',
     'credits',
-    ]
+]
