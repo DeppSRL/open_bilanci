@@ -88,7 +88,6 @@ class Command(BaseCommand):
     root_descendants = None
     import_set = None
     years = None
-    cities = None
     cities_finloc = None
     skip_existing = None
     voci_dict = None
@@ -107,25 +106,30 @@ class Command(BaseCommand):
 
         try:
             vb_c = vb_dict[voce_c_slug]
-            vb_i = vb_dict[voce_i_slug]
-
-            voce_sum = self.voci_dict[voce_sum_slug]
-
-            valore = vb_c['valore'] + vb_i['valore']
-            valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
-
-            self.logger.debug("** start adding values")
-            ValoreBilancio.objects.create(
-                territorio=vb_filters['territorio'],
-                anno=vb_filters['anno'],
-                voce=voce_sum,
-                valore=valore,
-                valore_procapite=valore_procapite
-            )
-            self.logger.debug("** end adding values")
-
         except KeyError:
-            pass
+            self.logger.error("Somma funz: cannot find correnti slug: {} in vb_dict".format(voce_c_slug))
+            return
+
+        try:
+            vb_i = vb_dict[voce_i_slug]
+        except KeyError:
+            self.logger.error("Somma funz: cannot find investimenti slug:{} in vb_dict".format(voce_i_slug))
+            return
+
+        voce_sum = self.voci_dict[voce_sum_slug]
+
+        valore = vb_c['valore'] + vb_i['valore']
+        valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
+
+        self.logger.debug("** start adding values")
+        ValoreBilancio.objects.create(
+            territorio=vb_filters['territorio'],
+            anno=vb_filters['anno'],
+            voce=voce_sum,
+            valore=valore,
+            valore_procapite=valore_procapite
+        )
+        self.logger.debug("** end adding values")
 
     def create_voci_tree(self, force_google):
         """
@@ -285,8 +289,6 @@ class Command(BaseCommand):
                 self.logger.info(u"Skipping following cities {}, because already in db".format(existing_cities_finloc))
                 self.cities_finloc = filter(lambda c: c not in existing_cities_finloc, self.cities_finloc)
 
-        self.cities = Territorio.objects.filter(cod_finloc__in=self.cities_finloc)
-
     def checks_partial_import(self, tree_node_slug, couch_path_string):
         # based on the type of import set the type of bilancio that is considered
         # sets branches of somma funzioni considered by the import
@@ -297,7 +299,15 @@ class Command(BaseCommand):
         tree_node_slug = unicode(tree_node_slug)
         self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
 
-        self.root_treenode = Voce.objects.get(slug=tree_node_slug)
+        # check that tree_node_slug exists in the Voce tree
+        try:
+            self.root_treenode = Voce.objects.get(slug=tree_node_slug)
+        except ObjectDoesNotExist:
+            self.logger.error(
+                "Voce with slug:{0} not present in Voce table. "
+                "Run update_bilancio_tree before running couch2pg".format(
+                    tree_node_slug))
+            exit()
 
         self.root_descendants = self.root_treenode.get_descendants(include_self=True)
 
@@ -326,30 +336,30 @@ class Command(BaseCommand):
         years_dict = dict((year, self.considered_tipo_bilancio) for year in self.years)
 
         # creates a dict in which for each city considered the value is the previous dict
-        import_set = dict((city.pk, years_dict) for city in self.cities)
+        import_set = dict((cod_finloc, years_dict) for cod_finloc in self.cities_finloc)
 
         # construct values_to_delete
-        values_to_delete = ValoreBilancio.objects.filter(territorio__in=self.cities, anno__in=self.years)
+        values_to_delete = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years)
         if self.partial_import:
             values_to_delete.filter(voce__slug__in=self.root_descendants)
 
         # get data about ImportXml: if there is data that has been imported from XML for a city/ year
         # then the couch import must NOT overwrite that data
         imported_xml = ImportXmlBilancio.objects.\
-            filter(territorio__in=self.cities, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio).\
+            filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio).\
             order_by('territorio', 'anno')
 
         if len(imported_xml) > 0:
             for i in imported_xml:
-                self.logger.info("Bilancio {} for yr:{} city:{} will be skipped: was imported with xml".\
-                    format(self.considered_tipo_bilancio, i.anno, i.territorio.denominazione))
+                self.logger.info("BILANCIO:{} YEAR:{} CITY:{} will be skipped: was imported with xml".\
+                    format(i.tipologia.title(), i.anno, i.territorio.denominazione))
 
-                #    bilancio keys are removed from import set
-                import_set[i.territorio.pk][i.anno].pop(i.tipologia, None)
+                #    bilancio type is removed from import set
+                import_set[i.territorio.cod_finloc][i.anno] = filter(lambda x: x != i.tipologia, import_set[i.territorio.cod_finloc][i.anno])
                 #    bilancio xml is removed from values_to_delete
                 values_to_delete = values_to_delete.exclude(territorio=i.territorio, anno=i.anno, voce__slug__startswith=i.tipologia)
-                if len(import_set[i.territorio.pk][i.anno].keys()) == 0:
-                    import_set[i.territorio.pk].pop(i.anno, None)
+                if len(import_set[i.territorio.cod_finloc][i.anno]) == 0:
+                    import_set[i.territorio.cod_finloc].pop(i.anno)
 
         # set the import_set
         self.import_set = import_set
@@ -427,25 +437,24 @@ class Command(BaseCommand):
         # deletes old values before import
         self.prepare_for_import()
 
-
         set_autocommit(autocommit=False)
-        for city in self.cities_finloc:
+        for city_finloc, city_years in self.import_set.iteritems():
 
             try:
-                territorio = Territorio.objects.get(cod_finloc=city)
+                territorio = Territorio.objects.get(cod_finloc=city_finloc)
             except ObjectDoesNotExist:
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
+                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city_finloc))
 
             # get all budgets for the city
-            city_budget = self.couchdb.get(city)
+            city_budget = self.couchdb.get(city_finloc)
 
             if city_budget is None:
-                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
+                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
                 continue
 
-            self.logger.info(u"Processing city of {0}".format(city))
+            self.logger.info(u"Processing city of {0}".format(city_finloc))
 
-            for year in self.years:
+            for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
                     continue
@@ -491,61 +500,42 @@ class Command(BaseCommand):
                             population=population
                         )
 
-                        tree_node_voce = None
-                        try:
-                            tree_node_voce = self.voci_dict[tree_node_slug]
-                        except KeyError:
-                            self.logger.error(
-                                "Voce with slug:{0} not present in Voce table. Run update_bilancio_tree before running couch2pg".format(
-                                    tree_node_slug))
-                            exit()
-
-                        # delete previous values if present
-                        ValoreBilancio.objects.filter(
-                            territorio=territorio, anno=year,
-                            voce__in=tree_node_voce.get_descendants(include_self=True)
-                        ).delete()
                         # writes new sub-tree
                         tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
                 else:
-                    # do all preventivo and consuntivo nodes
-                    city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                        city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
-                        population=population
-                    )
-                    city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                        city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
-                        population=population
-                    )
+                    # import tipo_bilancio considered
+                    # normally is preventivo and consuntivo
+                    # otherwise only one of them
 
-                    # previously remove all values for a city and a year
-                    # used to speed up records insertion
-                    ValoreBilancio.objects.filter(territorio=territorio, anno=year).delete()
+                    for tipo_bilancio in certificati_to_import:
+                        certificato_tree = tree_models.make_tree_from_dict(
+                            city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
+                            population=population
+                        )
+                        tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_preventivo_tree, self.voci_dict)
-                    tree_models.write_tree_to_vb_db(territorio, year, city_year_consuntivo_tree, self.voci_dict)
 
                     # applies somma-funzioni patch only if the script is working on the whole bilancio
 
-                    vb_filters = {
-                        'territorio': territorio,
-                        'anno': year,
-                    }
-                    self.logger.debug("** start reading values")
-                    vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
-                                                                                 'valore_procapite')
-                    self.logger.debug("** end reading values")
-
-                    vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-
-                    ##
-                    # insert/overwrite compute somma-funzioni in preventivo
-                    # for all not to be patched
-                    ##
-                    for voce_slug in slugs_somma_funzioni:
-                        self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                    del vb_dict
-                    del vb_filters
+                    # vb_filters = {
+                    #     'territorio': territorio,
+                    #     'anno': year,
+                    # }
+                    # self.logger.debug("** start reading values")
+                    # vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
+                    #                                                              'valore_procapite')
+                    # self.logger.debug("** end reading values")
+                    #
+                    # vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+                    #
+                    # ##
+                    # # insert/overwrite compute somma-funzioni in preventivo
+                    # # for all not to be patched
+                    # ##
+                    # for voce_slug in slugs_somma_funzioni:
+                    #     self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
+                    # del vb_dict
+                    # del vb_filters
 
                 # actually save data into posgres
                 commit()
