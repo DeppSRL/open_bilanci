@@ -94,7 +94,6 @@ class Voce(MPTTModel):
 
         return None
 
-
     # get_components_somma_funzioni
     # for the Voce in the somma-funzioni branch
     # returns the Voce that are components of that Voce.

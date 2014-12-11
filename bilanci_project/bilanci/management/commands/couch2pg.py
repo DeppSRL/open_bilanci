@@ -82,6 +82,8 @@ class Command(BaseCommand):
     ]
     considered_tipo_bilancio = accepted_bilanci_types
     considered_somma_funzioni = somma_funzioni_branches
+    # somma_funzioni_slug_baseset: dict that stores the slugs needed to compute somma funzioni branches
+    somma_funzioni_slug_baseset = {}
 
     #if the import is partial root_treenode is the root node of the sub-tree to be imported
     root_treenode = None
@@ -94,32 +96,26 @@ class Command(BaseCommand):
     couchdb = None
     comuni_dicts = {}
 
-    def apply_somma_funzioni_patch(self, voce_sum_slug, vb_filters, vb_dict):
+    def apply_somma_funzioni_patch(self, voce_sum, vb_filters, vb_dict):
         """
         Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
 
         Overwrite values if found.
         """
-        voce_c_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-correnti-funzioni')
-        voce_i_slug = voce_sum_slug.replace('spese-somma-funzioni', 'spese-per-investimenti-funzioni')
-        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum_slug))
 
-        try:
-            vb_c = vb_dict[voce_c_slug]
-        except KeyError:
-            self.logger.error("Somma funz: cannot find correnti slug: {} in vb_dict".format(voce_c_slug))
-            return
+        components = voce_sum.get_components_somma_funzioni()
+        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
 
-        try:
-            vb_i = vb_dict[voce_i_slug]
-        except KeyError:
-            self.logger.error("Somma funz: cannot find investimenti slug:{} in vb_dict".format(voce_i_slug))
-            return
+        vb = []
+        for c in components:
+            try:
+                vb.append(vb_dict[c.slug])
+            except KeyError:
+                self.logger.error("Somma funz: cannot find slug: {} in vb_dict".format(c.slug))
+                return
 
-        voce_sum = self.voci_dict[voce_sum_slug]
-
-        valore = vb_c['valore'] + vb_i['valore']
-        valore_procapite = vb_c['valore_procapite'] + vb_i['valore_procapite']
+        valore = vb[0]['valore'] + vb[1]['valore']
+        valore_procapite = vb[0]['valore_procapite'] + vb[1]['valore_procapite']
 
         self.logger.debug("** start adding values")
         ValoreBilancio.objects.create(
@@ -330,7 +326,8 @@ class Command(BaseCommand):
         # 3) gets the info about Xml import and removes the keys relative to cities, years and tipo_bilancio
         #    that have been imported via Xml
         # 4) excludes from values_to_delete the values of bilancio imported via XML: they won't be deleted
-        ##
+        # 5) fills somma_funzioni_slug_baseset with a dict that associates the slug of the root node of a
+        #    somma-funzioni branch with the set of slugs needed to create it
 
         # creates a dict with year as a key and value: a list of considered_bilancio_type(s)
         years_dict = dict((year, self.considered_tipo_bilancio) for year in self.years)
@@ -364,8 +361,21 @@ class Command(BaseCommand):
         # set the import_set
         self.import_set = import_set
         # deletes ValoriBilanci that will be imported afterwards: this speeds up the import
-        self.logger.info("Deleting values for selected cities, years and subtree (if any)")
+        if self.partial_import:
+            self.logger.info("Deleting values for selected cities, years and subtree")
+        else:
+            self.logger.info("Deleting values for selected cities, years")
+
         values_to_delete.delete()
+
+        # creates somma_funzioni_slug_baseset
+        for slug in self.considered_somma_funzioni:
+            components = Voce.objects.get(slug=slug).get_components_somma_funzioni()
+            descendants = []
+            for c in components:
+                descendants.extend(c.get_descendants(include_self=True))
+
+            self.somma_funzioni_slug_baseset[slug] = descendants
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -459,8 +469,6 @@ class Command(BaseCommand):
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
                     continue
 
-                self.logger.info(u"- Processing year: {}".format(year))
-
                 # POPULATION
                 # fetch valid population, starting from this year
                 # if no population found, set it to None, as not to break things
@@ -477,6 +485,7 @@ class Command(BaseCommand):
                 city_year_budget_dict = city_budget[str(year)]
 
                 if self.partial_import is True:
+                    self.logger.info(u"- Processing year: {}, subtree: {}".format(year, tree_node_slug))
                     # start from a custom node
                     path_not_found = False
                     city_year_budget_node_dict = city_year_budget_dict.copy()
@@ -508,34 +517,37 @@ class Command(BaseCommand):
                     # otherwise only one of them
 
                     for tipo_bilancio in certificati_to_import:
+                        self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         certificato_tree = tree_models.make_tree_from_dict(
                             city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
                             population=population
                         )
                         tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
+                    # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
+                    if len(self.considered_somma_funzioni) > 0:
+                        self.logger.debug("Somma funzioni patch")
 
-                    # applies somma-funzioni patch only if the script is working on the whole bilancio
+                        vb_filters = {
+                            'territorio': territorio,
+                            'anno': year,
+                        }
+                        for somma_funzioni_branch in self.considered_somma_funzioni:
 
-                    # vb_filters = {
-                    #     'territorio': territorio,
-                    #     'anno': year,
-                    # }
-                    # self.logger.debug("** start reading values")
-                    # vb = ValoreBilancio.objects.filter(**vb_filters).values_list('voce__slug', 'valore',
-                    #                                                              'valore_procapite')
-                    # self.logger.debug("** end reading values")
-                    #
-                    # vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-                    #
-                    # ##
-                    # # insert/overwrite compute somma-funzioni in preventivo
-                    # # for all not to be patched
-                    # ##
-                    # for voce_slug in slugs_somma_funzioni:
-                    #     self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                    # del vb_dict
-                    # del vb_filters
+                            # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
+                            # somma_funzioni_slug_baseset
+                            needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
+                            vb = ValoreBilancio.objects.\
+                                filter(**vb_filters).\
+                                filter( voce__slug__in=needed_slugs).\
+                                values_list('voce__slug', 'valore', 'valore_procapite')
+
+                            vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+
+                            for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
+                                self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
+                            del vb_dict
+
 
                 # actually save data into posgres
                 commit()
