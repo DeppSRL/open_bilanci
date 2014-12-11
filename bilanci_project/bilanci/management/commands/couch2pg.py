@@ -82,7 +82,10 @@ class Command(BaseCommand):
     ]
     considered_tipo_bilancio = accepted_bilanci_types
     considered_somma_funzioni = somma_funzioni_branches
-    simplified_subtrees_leaves = None
+
+    #if the import is partial root_treenode is the root node of the sub-tree to be imported
+    root_treenode = None
+    root_descendants = None
     import_set = None
     years = None
     cities = None
@@ -132,16 +135,16 @@ class Command(BaseCommand):
             Voce.objects.all().delete()
 
         # get simplified leaves (from csv or gdocs), to build the voices tree
-        self.simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
+        simplified_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
-        self.create_voci_preventivo_tree()
+        self.create_voci_preventivo_tree(simplified_leaves)
 
-        self.create_voci_consuntivo_tree()
+        self.create_voci_consuntivo_tree(simplified_leaves)
 
         sf = SommaFunzioniMixin()
         sf.create_somma_funzioni()
 
-    def create_voci_preventivo_tree(self):
+    def create_voci_preventivo_tree(self, simplified_leaves):
 
         # create preventivo root
         subtree_node = Voce(denominazione='Preventivo', slug='preventivo')
@@ -157,11 +160,11 @@ class Command(BaseCommand):
         # entrate and spese are already considered
         for subtree_slug, subtree_denominazione in subtrees.items():
 
-            for leaf_bc in self.simplified_subtrees_leaves[subtree_slug]:
+            for leaf_bc in simplified_leaves[subtree_slug]:
                 # add this leaf to the subtree, adding all needed intermediate nodes
                 self.add_leaf(leaf_bc, subtree_node)
 
-    def create_voci_consuntivo_tree(self):
+    def create_voci_consuntivo_tree(self, simplified_leaves):
         # create consuntivo root
         subtree_node = Voce(denominazione='Consuntivo', slug='consuntivo')
         subtree_node.insert_at(None, save=True, position='last-child')
@@ -181,7 +184,7 @@ class Command(BaseCommand):
         for subtree_slug, subtree_structure in subtrees.items():
 
             for section_name in subtree_structure['sections']:
-                for leaf_bc in self.simplified_subtrees_leaves[subtree_slug]:
+                for leaf_bc in simplified_leaves[subtree_slug]:
                     bc = leaf_bc[:]
                     bc.insert(1, section_name)
                     self.add_leaf(bc, subtree_node, section_slug=slugify(section_name))
@@ -294,25 +297,41 @@ class Command(BaseCommand):
         tree_node_slug = unicode(tree_node_slug)
         self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
 
-        tree_node = Voce.objects.get(slug=tree_node_slug)
+        self.root_treenode = Voce.objects.get(slug=tree_node_slug)
 
-        self.considered_tipo_bilancio = tree_node.\
+        self.root_descendants = self.root_treenode.get_descendants(include_self=True)
+
+        self.considered_tipo_bilancio = self.root_treenode.\
             get_ancestors(include_self=True, ascending=False).\
             get(slug__in=self.accepted_bilanci_types).slug
 
         # checks which branches of somma-funzioni are interested by the import
-        self.considered_somma_funzioni = \
-            tree_node.get_descendants(include_self=True).\
+        self.considered_somma_funzioni = self.root_descendants.\
             filter(slug__in=self.somma_funzioni_branches).\
             values_list('slug', flat=True)
 
-    def create_mapping(self):
+    def prepare_for_import(self):
+        ##
+        # prepare_for_import
+        # 1) creates the import_set: the complete dict of cities, years and tipo bilancio that will be imported by the
+        #    task
+        # 2) creates values_to_delete: a queryset that includes all ValoriBilancio
+        #    that correspond to the bilancio selected by the import
+        # 3) gets the info about Xml import and removes the keys relative to cities, years and tipo_bilancio
+        #    that have been imported via Xml
+        # 4) excludes from values_to_delete the values of bilancio imported via XML: they won't be deleted
+        ##
 
         # creates a dict with year as a key and value: a list of considered_bilancio_type(s)
         years_dict = dict((year, self.considered_tipo_bilancio) for year in self.years)
 
         # creates a dict in which for each city considered the value is the previous dict
         import_set = dict((city.pk, years_dict) for city in self.cities)
+
+        # construct values_to_delete
+        values_to_delete = ValoreBilancio.objects.filter(territorio__in=self.cities, anno__in=self.years)
+        if self.partial_import:
+            values_to_delete.filter(voce__slug__in=self.root_descendants)
 
         # get data about ImportXml: if there is data that has been imported from XML for a city/ year
         # then the couch import must NOT overwrite that data
@@ -325,13 +344,18 @@ class Command(BaseCommand):
                 self.logger.info("Bilancio {} for yr:{} city:{} will be skipped: was imported with xml".\
                     format(self.considered_tipo_bilancio, i.anno, i.territorio.denominazione))
 
+                #    bilancio keys are removed from import set
                 import_set[i.territorio.pk][i.anno].pop(i.tipologia, None)
+                #    bilancio xml is removed from values_to_delete
+                values_to_delete = values_to_delete.exclude(territorio=i.territorio, anno=i.anno, voce__slug__startswith=i.tipologia)
                 if len(import_set[i.territorio.pk][i.anno].keys()) == 0:
                     import_set[i.territorio.pk].pop(i.anno, None)
 
+        # set the import_set
         self.import_set = import_set
-
-
+        # deletes ValoriBilanci that will be imported afterwards: this speeds up the import
+        self.logger.info("Deleting values for selected cities, years and subtree (if any)")
+        values_to_delete.delete()
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -399,32 +423,9 @@ class Command(BaseCommand):
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
-        # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported
-        self.create_mapping()
-
-        # SOMMA FUNZIONI PATCH
-        if self.partial_import is False:
-            # build the list of voci ids to apply the somma_funzioni patch
-
-            slugs_somma_funzioni = []
-
-            for node in self.considered_somma_funzioni:
-                _voci = self.voci_dict[node]
-                _slugs = _voci.get_descendants(include_self=True).values_list('slug', flat=True)
-                slugs_somma_funzioni.extend(_slugs)
-
-                # delete all values added by the patch in ValoreBilancio
-                # only delete specified years, cities and the voices to patch
-                self.logger.info("** start deleting values for {0}".format(node))
-                filters = dict(voce__slug__in=_slugs)
-                if self.cities_finloc:
-                    filters.update(territorio__cod_finloc__in=self.cities_finloc)
-                if self.years:
-                    filters.update(anno__in=self.years)
-
-                # deletes previous values for considered branches
-                ValoreBilancio.objects.filter(**filters).delete()
-
+        # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
+        # deletes old values before import
+        self.prepare_for_import()
 
 
         set_autocommit(autocommit=False)
