@@ -199,6 +199,7 @@ class Command(BaseCommand):
         if single_file:
         #     write a single file with all indicators and values for cities
             csv_filename = os.path.join(indicators_path, "indicators.csv")
+
             # open csv file
             csv_file = open(csv_filename, 'w')
             csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
@@ -210,6 +211,9 @@ class Command(BaseCommand):
                 row[2] = row[2].zfill(6)
                 csv_writer.writerow(row)
 
+            csv_file.close()
+            self.logger.info("Written file {}".format(csv_filename))
+
         if compress:
             csv_path = os.path.join('data', 'csv')
             zip_path = os.path.join('data', 'zip')
@@ -219,7 +223,7 @@ class Command(BaseCommand):
             zipfilename = os.path.join(zip_path, "indicators.zip")
 
             zipdir("indicators", zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
-            self.logger.info("  Compressed!")
+            self.logger.info("Compressed file {}".format(zipfilename))
 
             # remove all tree under city_path
             # with security control
