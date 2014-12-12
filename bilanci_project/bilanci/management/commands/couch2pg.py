@@ -88,7 +88,7 @@ class Command(BaseCommand):
     #if the import is partial root_treenode is the root node of the sub-tree to be imported
     root_treenode = None
     root_descendants = None
-    import_set = None
+    import_set = OrderedDict()
     years = None
     cities_finloc = None
     skip_existing = None
@@ -266,7 +266,8 @@ class Command(BaseCommand):
                 try:
                     self.cities_finloc = all_cities[all_cities.index(start_from):]
                 except ValueError:
-                    raise Exception("Start-from city not found in cities complete list")
+                    raise Exception("Start-from city not found in cities complete list, use name--cod_finloc. "
+                                    "Example: ZUNGRI--4181030500")
                 else:
                     self.logger.info("Processing cities starting from: {0}".format(start_from))
             else:
@@ -277,8 +278,11 @@ class Command(BaseCommand):
 
         # if skip-existing flag is true: removes already present cities from the cities set
         if self.skip_existing:
-            existing_cities_finloc = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc).\
-                distinct('territorio__cod_finloc').order_by('territorio__cod_finloc')
+            existing_cities_finloc = ValoreBilancio.objects.\
+                filter(territorio__cod_finloc__in=self.cities_finloc).\
+                distinct('territorio__cod_finloc').\
+                order_by('territorio__cod_finloc').\
+                values_list('territorio__cod_finloc', flat=True)
 
             if len(existing_cities_finloc) > 0:
 
@@ -330,10 +334,10 @@ class Command(BaseCommand):
         #    somma-funzioni branch with the set of slugs needed to create it
 
         # creates a dict with year as a key and value: a list of considered_bilancio_type(s)
-        years_dict = dict((year, self.considered_tipo_bilancio) for year in self.years)
+        years_dict = OrderedDict((year, self.considered_tipo_bilancio) for year in self.years)
 
         # creates a dict in which for each city considered the value is the previous dict
-        import_set = dict((cod_finloc, years_dict) for cod_finloc in self.cities_finloc)
+        import_set = OrderedDict((cod_finloc, years_dict) for cod_finloc in self.cities_finloc)
 
         # construct values_to_delete
         values_to_delete = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years)
@@ -396,11 +400,6 @@ class Command(BaseCommand):
         tree_node_slug = options['tree_node_slug']
         couch_path_string = options['couch_path_string']
 
-        # check if debug is active: the task may fail
-        if settings.DEBUG is True and options['cities'].lower() == 'all':
-            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
-            exit()
-
         if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
             self.logger.error("Couch path and tree node must be both specified. Quitting")
             exit()
@@ -420,6 +419,15 @@ class Command(BaseCommand):
         start_from = options['start_from']
 
         self.set_cities(cities_codes, start_from)
+
+        if len(self.cities_finloc) == 0:
+            self.logger.info("No cities to process. Quit")
+            return
+
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and len(self.cities_finloc) > 4000:
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
 
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(self.cities_finloc))
@@ -517,11 +525,13 @@ class Command(BaseCommand):
                     # otherwise only one of them
 
                     for tipo_bilancio in certificati_to_import:
-                        self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         certificato_tree = tree_models.make_tree_from_dict(
                             city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
                             population=population
                         )
+                        if len(certificato_tree.children) == 0:
+                            continue
+                        self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
                     # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
@@ -542,12 +552,18 @@ class Command(BaseCommand):
                                 filter( voce__slug__in=needed_slugs).\
                                 values_list('voce__slug', 'valore', 'valore_procapite')
 
+                            if len(vb) == 0:
+                                self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
+                                continue
+
                             vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
                             for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                             del vb_dict
 
-
                 # actually save data into posgres
                 commit()
+
+
+        # todo: calculate indicators for imported territori
