@@ -20,7 +20,6 @@ __author__ = 'guglielmo'
 
 
 class Command(BaseCommand):
-
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
                     dest='dryrun',
@@ -63,8 +62,8 @@ class Command(BaseCommand):
     help = 'Export indicatori values from the database into a set of CSV files (one per indicator)'
 
     logger = logging.getLogger('management')
+    years = None
     comuni_dicts = {}
-
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -99,13 +98,11 @@ class Command(BaseCommand):
         if cities_codes == 'capoluoghi':
             cities_codes = ','.join(settings.CAPOLUOGHI_PROVINCIA)
 
-
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
 
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
-
 
         ###
         # years
@@ -116,7 +113,7 @@ class Command(BaseCommand):
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
 
@@ -146,7 +143,8 @@ class Command(BaseCommand):
                     continue
 
                 valori = groupby(
-                    indicator.valoreindicatore_set.values('territorio__cod_finloc', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno'),
+                    indicator.valoreindicatore_set.values('territorio__cod_finloc', 'anno', 'valore').order_by(
+                        'territorio__cod_finloc', 'anno'),
                     lambda x: (x['territorio__cod_finloc'])
                 )
 
@@ -159,7 +157,7 @@ class Command(BaseCommand):
                 csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
                 # build and emit header
-                row = [ 'City', 'Cluster', 'Region' ]
+                row = ['City', 'Cluster', 'Region']
                 row.extend(map(str, years))
                 csv_writer.writerow(row)
 
@@ -187,19 +185,16 @@ class Command(BaseCommand):
 
             else:
 
-                indicator_set = ValoreIndicatore.objects.filter(territorio__cod_finloc__in=cities, indicatore = indicator).\
-                    values_list('indicatore__slug','territorio__cod_finloc', 'territorio__istat_id', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno')
-
-                # indicator_set = indicator.valoreindicatore_set.\
-                #     values_list('indicatore__slug','territorio__cod_finloc', 'territorio__istat_id', 'anno', 'valore').order_by('territorio__cod_finloc', 'anno')
+                indicator_set = ValoreIndicatore.objects.filter(territorio__cod_finloc__in=cities,
+                                                                indicatore=indicator). \
+                    values_list('indicatore__slug', 'territorio__cod_finloc', 'territorio__istat_id', 'anno',
+                                'valore').order_by('territorio__cod_finloc', 'anno')
 
                 valori_list = []
                 for t in indicator_set:
                     valori_list.append([str(element) for element in t])
 
                 valori_complete.extend(valori_list)
-
-
 
         if single_file:
         #     write a single file with all indicators and values for cities
@@ -208,13 +203,12 @@ class Command(BaseCommand):
             csv_file = open(csv_filename, 'w')
             csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
             # build and emit header
-            row = [ 'indicatore', 'territorio','codice_istat' ,'anno', 'valore' ]
+            row = ['indicatore', 'territorio', 'codice_istat', 'anno', 'valore']
             csv_writer.writerow(row)
 
             for row in valori_complete:
                 row[2] = row[2].zfill(6)
                 csv_writer.writerow(row)
-
 
         if compress:
             csv_path = os.path.join('data', 'csv')
