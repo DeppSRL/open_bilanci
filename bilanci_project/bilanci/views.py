@@ -311,6 +311,7 @@ class HomeView(TemplateView):
                     pass
             cache.set('blog-posts', op_blog_posts, timeout=120)
         context['op_blog_posts'] = op_blog_posts
+        context['import_xml'] = list(ImportXmlBilancio.objects.all().order_by('data_fornitura'))
         return context
 
 
