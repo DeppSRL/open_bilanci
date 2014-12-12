@@ -416,6 +416,10 @@ class Command(BaseCommand):
                 call_command('indicators', verbosity=2, years=str(self.anno), cities=numeric_finloc, indicators='all',
                              interactive=False)
 
+        ##
+        # Updates open data
+        ##
+
         # copy xml file to open data folder
         xml_path = os.path.join(settings.OPENDATA_XML_ROOT, self.territorio.cod_finloc, certificato['anno'])
         destination_file = xml_path+'/'+self.tipo_certificato + ".xml"

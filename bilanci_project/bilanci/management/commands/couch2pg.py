@@ -3,7 +3,7 @@ import logging
 from optparse import make_option
 from pprint import pprint
 from django.conf import settings
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
@@ -570,5 +570,13 @@ class Command(BaseCommand):
                 # actually save data into posgres
                 commit()
 
+        set_autocommit(autocommit=True)
+        ##
+        # Compute Indicators
+        ##
+        if not self.partial_import:
+            self.logger.info(u"Compute indicators for selected Comuni")
 
-        # todo: calculate indicators for imported territori
+            if not self.dryrun:
+                call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                             interactive=False)

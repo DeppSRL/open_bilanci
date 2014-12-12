@@ -67,7 +67,12 @@ class FLMapper(object):
         if codes.lower() == 'all':
             return sorted(self.comuni_dicts['codes'].values())
 
+        # splits the codes string in cities codes
+        # transform the complete finloc form COMUNE-NAME--CODFINLOC in CODFINLOC
+        finloc_separator = "--"
         codes = [c.strip().upper() for c in codes.split(",")]
+        codes = [c[c.index(finloc_separator)+len(finloc_separator):] if c.index(finloc_separator) != -1 else c for c in codes]
+
 
         ret = []
         for code in codes:
