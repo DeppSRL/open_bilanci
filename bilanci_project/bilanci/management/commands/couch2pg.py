@@ -70,7 +70,7 @@ class Command(BaseCommand):
     )
 
     help = 'Import values from the simplified couchdb database into a Postgresql server'
-
+    dryrun = False
     logger = logging.getLogger('management')
     partial_import = False
     couch_path = None
@@ -370,7 +370,8 @@ class Command(BaseCommand):
         else:
             self.logger.info("Deleting values for selected cities, years")
 
-        values_to_delete.delete()
+        if not self.dryrun:
+            values_to_delete.delete()
 
         # creates somma_funzioni_slug_baseset
         for slug in self.considered_somma_funzioni:
@@ -392,7 +393,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        dryrun = options['dryrun']
+        self.dryrun = options['dryrun']
         force_google = options['force_google']
         create_tree = options['create_tree']
         self.skip_existing = options['skip_existing']
@@ -446,7 +447,8 @@ class Command(BaseCommand):
 
         # create the tree if it does not exist or if forced to do so
         if create_tree or Voce.objects.count() == 0:
-            self.create_voci_tree(force_google=force_google)
+            if not self.dryrun:
+                self.create_voci_tree(force_google=force_google)
 
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
@@ -518,7 +520,8 @@ class Command(BaseCommand):
                         )
 
                         # writes new sub-tree
-                        tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
+                        if not self.dryrun:
+                            tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
                 else:
                     # import tipo_bilancio considered
                     # normally is preventivo and consuntivo
@@ -532,35 +535,37 @@ class Command(BaseCommand):
                         if len(certificato_tree.children) == 0:
                             continue
                         self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
-                        tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
+                        if not self.dryrun:
+                            tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
-                    # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
-                    if len(self.considered_somma_funzioni) > 0:
-                        self.logger.debug("Somma funzioni patch")
+                # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
+                if len(self.considered_somma_funzioni) > 0:
+                    self.logger.debug("Somma funzioni patch")
 
-                        vb_filters = {
-                            'territorio': territorio,
-                            'anno': year,
-                        }
-                        for somma_funzioni_branch in self.considered_somma_funzioni:
+                    vb_filters = {
+                        'territorio': territorio,
+                        'anno': year,
+                    }
+                    for somma_funzioni_branch in self.considered_somma_funzioni:
 
-                            # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
-                            # somma_funzioni_slug_baseset
-                            needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
-                            vb = ValoreBilancio.objects.\
-                                filter(**vb_filters).\
-                                filter( voce__slug__in=needed_slugs).\
-                                values_list('voce__slug', 'valore', 'valore_procapite')
+                        # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
+                        # somma_funzioni_slug_baseset
+                        needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
+                        vb = ValoreBilancio.objects.\
+                            filter(**vb_filters).\
+                            filter( voce__slug__in=needed_slugs).\
+                            values_list('voce__slug', 'valore', 'valore_procapite')
 
-                            if len(vb) == 0:
-                                self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
-                                continue
+                        if len(vb) == 0:
+                            self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
+                            continue
 
-                            vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+                        vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
+                        if not self.dryrun:
                             for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                            del vb_dict
+                        del vb_dict
 
                 # actually save data into posgres
                 commit()
