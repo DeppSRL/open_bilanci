@@ -21,6 +21,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written in the couchdb'),
+        make_option('--complete',
+                    dest='complete',
+                    action='store_true',
+                    default=False,
+                    help='After data import calculate indicators and updates opendata zip file'),
         make_option('--years',
                     dest='years',
                     default='',
@@ -394,11 +399,12 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         self.dryrun = options['dryrun']
+        complete = options['complete']
         force_google = options['force_google']
         create_tree = options['create_tree']
         self.skip_existing = options['skip_existing']
 
-        tree_node_slug = options['tree_node_slug']
+        tree_node_slug = unicode(options['tree_node_slug'])
         couch_path_string = options['couch_path_string']
 
         if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
@@ -571,12 +577,23 @@ class Command(BaseCommand):
                 commit()
 
         set_autocommit(autocommit=True)
-        ##
-        # Compute Indicators
-        ##
-        if not self.partial_import:
-            self.logger.info(u"Compute indicators for selected Comuni")
+
+        if complete:
+            ##
+            # Compute Indicators
+            ##
+            if not self.partial_import:
+                self.logger.info(u"Compute indicators for selected Comuni")
+
+                if not self.dryrun:
+                    call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                                 interactive=False)
+
+            ##
+            # Update opendata zip files
+            ##
 
             if not self.dryrun:
-                call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                self.logger.info(u"Update opendata zip files for selected Comuni")
+                call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
                              interactive=False)
