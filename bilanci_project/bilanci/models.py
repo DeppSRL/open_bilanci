@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.conf import settings
 from django.db.models import Q
 from model_utils import Choices
 from mptt.fields import TreeForeignKey
@@ -230,7 +231,7 @@ class ImportXmlBilancio(models.Model):
 
 
     @staticmethod
-    def is_present(territorio, anno, tipologia):
+    def import_exists(territorio, anno, tipologia):
         #checks if bilancio has been imported from XML file
 
         try:
@@ -240,6 +241,19 @@ class ImportXmlBilancio(models.Model):
 
         return True
 
+    @staticmethod
+    def has_xml_import(territorio):
+        #         check if territorio has at least one bilancio imported as xml
+        imports = ImportXmlBilancio.objects.filter(
+            territorio=territorio,
+            anno__gte=settings.APP_START_YEAR,
+            anno__lte=settings.APP_END_YEAR,
+            ).count()
+
+        if imports > 0:
+            return True
+
+        return False
 
 ##
 # CodiceVoce: maps Xml bilancio codes to simplified bilancio Voce

@@ -1945,9 +1945,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                     self.comp_gdp_multiplier = self.comp_gdb_deflator
 
             # check if bilancio main / comparison have been imported from xml file
-            self.main_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.main_bilancio_year,
+            self.main_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.main_bilancio_year,
                                                                   self.main_bilancio_type)
-            self.comp_bilancio_xml = ImportXmlBilancio.is_present(self.territorio, self.comp_bilancio_year,
+            self.comp_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.comp_bilancio_year,
                                                                   self.comp_bilancio_type)
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
@@ -2277,7 +2277,6 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
 
         return super(BilancioIndicatoriView, self).get(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
 
         context = super(BilancioIndicatoriView, self).get_context_data(**kwargs)
@@ -2322,6 +2321,8 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
         context['selected_indicators'] = selected_indicators_slugs
         context['selected_indicators_qstring'] = '?slug=' + '&slug='.join(selected_indicators_slugs)
         context['share_url'] = self.share_url
+
+        context['import_xml'] = ImportXmlBilancio.has_xml_import(self.territorio)
         return context
 
 
@@ -2719,7 +2720,6 @@ class ConfrontiView(ShareUrlMixin, HierarchicalMenuMixin, TemplateView):
     territorio_1 = None
     territorio_2 = None
 
-
     def get(self, request, *args, **kwargs):
         territorio_1_slug = kwargs['territorio_1_slug']
         territorio_2_slug = kwargs['territorio_2_slug']
@@ -2734,13 +2734,15 @@ class ConfrontiView(ShareUrlMixin, HierarchicalMenuMixin, TemplateView):
 
         return super(ConfrontiView, self).get(request, *args, **kwargs)
 
-
     def get_context_data(self, **kwargs):
         # construct common context data for Confronti View
         context = super(ConfrontiView, self).get_context_data(**kwargs)
 
         context['territorio_1'] = self.territorio_1
         context['territorio_2'] = self.territorio_2
+
+        context['territorio_1_import_xml'] = ImportXmlBilancio.has_xml_import(self.territorio_1)
+        context['territorio_2_import_xml'] = ImportXmlBilancio.has_xml_import(self.territorio_2)
 
         context['contesto_1'] = self.territorio_1.latest_contesto
         context['contesto_2'] = self.territorio_2.latest_contesto

@@ -53,6 +53,25 @@
                         </div>
                     </div>
 
+                    {% if territorio_1_import_xml or territorio_2_import_xml %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if territorio_1_import_xml %}Nota bene: il Comune di {{ territorio_1 }} ha importato almeno un bilancio in xml {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {% if territorio_2_import_xml %}Nota bene: il Comune di {{ territorio_2 }} ha importato almeno un bilancio in xml {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <hr style="border-top: 1px solid #b9c5c4;margin-top: 9px;">
+                            </div>
+                        </div>
+                    {% endif %}
+
+
 
                     {#  linechart               #}
                     <div class="row">
