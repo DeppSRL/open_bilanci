@@ -104,60 +104,28 @@ class Command(BaseCommand):
 
     def handle_export(self, territori_type, output_file, dryrun):
 
-        province = Territorio.objects. \
-            filter(territorio=Territorio.TERRITORIO.P).values_list('denominazione', flat=True)
-        # prende tutte le citta' che hanno il nome = alla provincia di appartenenza
-        capoluoghi_provincia = Territorio.objects. \
-            filter(territorio=Territorio.TERRITORIO.C, denominazione__in=province).order_by('-cluster', 'denominazione')
+        # prende tutte le citta' capoluogo di provincia
+        capoluoghi_provincia = Territorio.objects.\
+                                    filter(slug__in=settings.CAPOLUOGHI_PROVINCIA).\
+                                    order_by('-cluster', 'denominazione')
+        altri_territori = list(
+            Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).
+            exclude(id__in=capoluoghi_provincia).
+            order_by('-cluster', 'denominazione'))
 
-        # aggiunge i capoluoghi a capo di una provincia che non ha il loro stesso nome
-        altri_nomi_capoluoghi = [
-            'Barletta',
-            'Andria',
-            'Trani',
-            'Carbonia',
-            'Iglesias',
-            'Forlì',
-            'Massa',
-            'Villacidro',
-            'Sanluri',
-            'Monza',
-            'Tortolì',
-            'Lanusei',
-            'Olbia',
-            'Tempio Pausania',
-            'Pesaro',
-            'Urbino',
-            'Aosta',
-            'Verbania'
-        ]
-
-        # crea un unico set di capoluoghi_complete aggiungendo i nuovi capoluoghi di provincia
-
-        altri_capoluoghi = Territorio.objects.filter(
-            territorio=Territorio.TERRITORIO.C, denominazione__in=altri_nomi_capoluoghi). \
-            order_by('-cluster', 'denominazione')
-
-        capoluoghi_complete = sorted(
-            chain(capoluoghi_provincia, altri_capoluoghi, ),
-            key=lambda instance: instance.denominazione)
-
-        altri_territori = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C). \
-            exclude(denominazione__in=province).exclude(denominazione__in=altri_nomi_capoluoghi).order_by('-cluster',
-                                                                                                          'denominazione')
 
         # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori
         # prioritize the territori list getting first the capoluoghi di provincia and then all the rest
 
         if territori_type == 'capoluoghi':
-            self.export_incarichi(capoluoghi_complete, output_file, dryrun)
+            self.export_incarichi(capoluoghi_provincia, output_file, dryrun)
 
         if territori_type == 'others':
             self.export_incarichi(altri_territori, output_file, dryrun)
 
         if territori_type == 'all':
             all_territori = sorted(
-                chain(capoluoghi_complete, altri_territori, ),
+                chain(capoluoghi_provincia, altri_territori, ),
                 key=lambda instance: instance.denominazione)
 
             self.export_incarichi(all_territori, output_file, dryrun)

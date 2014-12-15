@@ -16,26 +16,6 @@ __author__ = 'stefano'
 
 class Command(BaseCommand):
 
-    def convert_to_date(self, date_string):
-        return datetime.strptime(date_string, self.date_fmt)
-
-    def format_incarico(self, incarico_dict):
-
-        date_start = datetime.strftime(incarico_dict['date_start'], self.date_fmt)
-        date_end = None
-        if incarico_dict['date_end']:
-            date_end = datetime.strftime(incarico_dict['date_end'], self.date_fmt)
-
-        opid = re.search(r'^.*/([0-9]+)$', incarico_dict['op_link']).groups()[0]
-
-        return "{0}.{1} - {2} ({3} - {4})". \
-            format(
-                unidecode(incarico_dict['first_name'][0].title()),
-                unidecode(incarico_dict['last_name'].title()),
-                opid,
-                date_start,
-                date_end
-            )
 
     #     sets the start / end of graphs
     timeline_start = settings.APP_START_DATE
@@ -94,6 +74,26 @@ class Command(BaseCommand):
 
     help = 'Import political charges for Territori into Postgres db'
 
+    def convert_to_date(self, date_string):
+        return datetime.strptime(date_string, self.date_fmt)
+
+    def format_incarico(self, incarico_dict):
+
+        date_start = datetime.strftime(incarico_dict['date_start'], self.date_fmt)
+        date_end = None
+        if incarico_dict['date_end']:
+            date_end = datetime.strftime(incarico_dict['date_end'], self.date_fmt)
+
+        opid = re.search(r'^.*/([0-9]+)$', incarico_dict['op_link']).groups()[0]
+
+        return "{0}.{1} - {2} ({3} - {4})". \
+            format(
+                unidecode(incarico_dict['first_name'][0].title()),
+                unidecode(incarico_dict['last_name'].title()),
+                opid,
+                date_start,
+                date_end
+            )
     def get_territori_from_finloc(self, cities_finloc):
         return Territorio.objects.filter(cod_finloc__in=cities_finloc, territorio="C").order_by('-cluster')
 
@@ -105,43 +105,13 @@ class Command(BaseCommand):
                 format(self.accepted_types[0], self.accepted_types[1], self.accepted_types[2]))
             return
 
-        nomi_capoluoghi = list(
-            Territorio.objects.filter(territorio=Territorio.TERRITORIO.P).
-            values_list('denominazione', flat=True)
-        )
-
-        altri_nomi_capoluoghi = [
-            'Barletta',
-            'Andria',
-            'Trani',
-            'Carbonia',
-            'Iglesias',
-            'Forlì',
-            'Massa',
-            'Villacidro',
-            'Sanluri',
-            'Monza',
-            'Tortolì',
-            'Lanusei',
-            'Olbia',
-            'Tempio Pausania',
-            'Pesaro',
-            'Urbino',
-            'Aosta',
-            'Verbania'
-        ]
-
-        # aggiunge i capoluoghi a capo di una provincia che non ha il loro stesso nome
-        nomi_capoluoghi.extend(altri_nomi_capoluoghi)
-
-        # prende tutte le citta' che hanno il nome = alla provincia di appartenenza
-        capoluoghi_provincia = list(Territorio.objects.
-                                    filter(territorio=Territorio.TERRITORIO.C, denominazione__in=nomi_capoluoghi).
-                                    order_by('-cluster', 'denominazione'))
-
+        # prende tutte le citta' capoluogo di provincia
+        capoluoghi_provincia = Territorio.objects.\
+                                    filter(slug__in=settings.CAPOLUOGHI_PROVINCIA).\
+                                    order_by('-cluster', 'denominazione')
         altri_territori = list(
             Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).
-            exclude(denominazione__in=nomi_capoluoghi).exclude(denominazione__in=altri_nomi_capoluoghi).
+            exclude(id__in=capoluoghi_provincia).
             order_by('-cluster', 'denominazione'))
 
         # depending on the territori_type value runs the import only for capoluoghi di provincia or for all Territori

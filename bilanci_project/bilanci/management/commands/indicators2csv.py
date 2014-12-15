@@ -94,12 +94,14 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
+        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         # gets capoluoghi privincia finloc list from settings
         if cities_codes == 'capoluoghi':
-            cities_codes = ','.join(settings.CAPOLUOGHI_PROVINCIA)
-
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
-        cities = mapper.get_cities(cities_codes)
+            cities = Territorio.objects.\
+                filter(slug__in=settings.CAPOLUOGHI_PROVINCIA).\
+                order_by('cod_finloc').values_list('cod_finloc', flat=True)
+        else:
+            cities = mapper.get_cities(cities_codes)
 
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
