@@ -346,7 +346,7 @@ class Command(BaseCommand):
         # construct values_to_delete
         values_to_delete = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years)
         if self.partial_import:
-            values_to_delete.filter(voce__slug__in=self.root_descendants)
+            values_to_delete = values_to_delete.filter(voce__in=self.root_descendants)
 
         # get data about ImportXml: if there is data that has been imported from XML for a city/ year
         # then the couch import must NOT overwrite that data
