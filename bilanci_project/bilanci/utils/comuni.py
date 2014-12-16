@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 from django.conf import settings
 from ..utils import UnicodeDictReader
 
@@ -47,12 +48,12 @@ class FLMapper(object):
 
         return {'codes': comuni_by_codes, 'slugs': comuni_by_slugs,}
 
-
     _digits = re.compile('\d')
+
     def contains_digits(self, d):
         return bool(self._digits.search(d))
 
-    def get_cities(self, codes):
+    def get_cities(self, codes, logger=None):
         """
         Returns the list of complete names of the cities, used in the html files
         starting from codes or slugs.
@@ -68,54 +69,84 @@ class FLMapper(object):
             return sorted(self.comuni_dicts['codes'].values())
 
         # splits the codes string in cities codes
-        # transform the complete finloc form COMUNE-NAME--CODFINLOC in CODFINLOC
-        finloc_separator = "--"
-        codes = [c.strip().upper() for c in codes.split(",")]
-        codes = [c[c.index(finloc_separator)+len(finloc_separator):] if c.index(finloc_separator) != -1 else c for c in codes]
+        code_list = codes.split(",")
 
+        finloc_separator = "--"
+
+        ##
+        # Manipulate_codes
+        ##
+        # strips code string, puts in uppercase
+        # if needed
+        # transform the complete finloc form COMUNE-NAME--CODFINLOC in CODFINLOC
+        def manipulate_codes(code_string):
+
+            code_string = code_string.strip().upper()
+            if finloc_separator in code_string:
+                code_string = code_string[code_string.index(finloc_separator)+len(finloc_separator):]
+            return code_string
+
+        code_list = [manipulate_codes(c) for c in code_list]
 
         ret = []
-        for code in codes:
-            try:
-                if self.contains_digits(code):
-                    # it's a code
+        for code in code_list:
+            if self.contains_digits(code):
+                # it's a code
+                try:
                     ret.append(self.comuni_dicts['codes'][code])
-                else:
-                    # it's a slug
+                except KeyError:
+                    if logger:
+                        logger.warning(u"Got key error while processing:{}".format(code))
+                    continue
+            else:
+                # it's a slug
 
-                    # if the slug contains a "(" then it's a slug with province code
-                    if code.find("(") != -1 and code.find(")") != -1:
-                        comune_name = code[:code.find("(")]
-                        sigla_prov = code[code.find("(")+1:code.find(")")]
+                # if the slug contains a "(" then it's a slug with province code
+                if code.find("(") != -1 and code.find(")") != -1:
+                    comune_name = code[:code.find("(")]
+                    sigla_prov = code[code.find("(")+1:code.find(")")]
+                    try:
                         ret.append(self.comuni_dicts['slugs'][comune_name][sigla_prov])
-                    else:
-                        # looks for a comune with a name = code in the dictionary.
-                        # if the name is not unique raises an exception
+                    except KeyError:
+                        if logger:
+                            logger.warning(u"Got key error while processing:{},{}".format(comune_name, sigla_prov))
+                        continue
+                else:
+                    # looks for a comune with a name = code in the dictionary.
+                    # if the name is not unique raises an exception
 
-                        # sigla_prov_list is a list of all the provincia code in which Comune with that name
-                        # are present
-                        # example:
-                        # Comune with name "Castro" is present twice in province: "LE" and "BG"
-                        # => sigla_prov_list = ["LE","BG"]
-
+                    # sigla_prov_list is a list of all the provincia code in which Comune with that name
+                    # are present
+                    # example:
+                    # Comune with name "Castro" is present twice in province: "LE" and "BG"
+                    # => sigla_prov_list = ["LE","BG"]
+                    try:
                         sigla_prov_list = list(self.comuni_dicts['slugs'][code].keys())
-                        if len(sigla_prov_list) == 1:
-                            # se non ha omonimi
+                    except KeyError:
+                        if logger:
+                            logger.warning(u"Got key error while processing:{}".format(code))
+                        continue
+
+                    if len(sigla_prov_list) == 1:
+                        # se non ha omonimi
+                        try:
                             ret.append(self.comuni_dicts['slugs'][code][sigla_prov_list[0]])
-                        else:
-                            # se il comune ha omonimi e la provincia
-                            # non e' stata specificata lancia un'eccezione
+                        except KeyError:
+                            if logger:
+                                logger.warning(u"Got key error while processing:{}".format(code))
+                            continue
+                    else:
+                        # se il comune ha omonimi e la provincia
+                        # non e' stata specificata lancia un'eccezione
 
-                            raise CityNameNotUnique("Comune with name {0} is present in {1} Province:{2}".\
-                                format(code, len(sigla_prov_list), sigla_prov_list ))
+                        raise CityNameNotUnique(
+                            "Comune with name {0} is present in {1} Province:{2}".format(code, len(sigla_prov_list), sigla_prov_list )
+                        )
 
-            except KeyError:
-                continue
 
         return ret
-
 
     def get_city(self, code):
         if isinstance(code, list):
             code = code[0]
-        return  self.get_cities(code)[0]
+        return self.get_cities(code)[0]

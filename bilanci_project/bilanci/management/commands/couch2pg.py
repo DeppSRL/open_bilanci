@@ -267,7 +267,7 @@ class Command(BaseCommand):
         if not cities_codes:
             if start_from:
                 cities_codes = 'all'
-                all_cities = mapper.get_cities(cities_codes)
+                all_cities = mapper.get_cities(cities_codes, logger=self.logger)
                 try:
                     self.cities_finloc = all_cities[all_cities.index(start_from):]
                 except ValueError:
@@ -279,7 +279,7 @@ class Command(BaseCommand):
                 raise Exception("Missing cities parameter or start-from parameter")
 
         else:
-            self.cities_finloc = mapper.get_cities(cities_codes)
+            self.cities_finloc = mapper.get_cities(cities_codes, logger=self.logger)
 
         # if skip-existing flag is true: removes already present cities from the cities set
         if self.skip_existing:
@@ -301,7 +301,6 @@ class Command(BaseCommand):
         self.partial_import = True
 
         #depending on tree node slug, couch path string sets considered tipo bilancio
-        tree_node_slug = unicode(tree_node_slug)
         self.couch_path = [unicode(x) for x in couch_path_string.split(",")]
 
         # check that tree_node_slug exists in the Voce tree
@@ -404,7 +403,7 @@ class Command(BaseCommand):
         create_tree = options['create_tree']
         self.skip_existing = options['skip_existing']
 
-        tree_node_slug = unicode(options['tree_node_slug'])
+        tree_node_slug = options['tree_node_slug']
         couch_path_string = options['couch_path_string']
 
         if tree_node_slug and couch_path_string is None or couch_path_string and tree_node_slug is None:
@@ -449,6 +448,8 @@ class Command(BaseCommand):
         # * checks which branch of somma-funzioni has to be calculated
 
         if tree_node_slug and couch_path_string:
+            tree_node_slug = unicode(tree_node_slug)
+            couch_path_string = unicode(couch_path_string)
             self.checks_partial_import(tree_node_slug, couch_path_string )
 
         # create the tree if it does not exist or if forced to do so
@@ -519,7 +520,6 @@ class Command(BaseCommand):
 
                     # if data path is found in the couch document, write data into postgres db
                     if path_not_found is False:
-
                         city_year_node_tree_patch = tree_models.make_tree_from_dict(
                             city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
                             population=population
