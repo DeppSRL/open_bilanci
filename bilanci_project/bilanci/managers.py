@@ -6,7 +6,6 @@ from django.db import models
 
 class ValoriManager(models.Manager):
 
-
     def get_classifica_ids(self, item_id, anno):
         """
         Returns the list of Territorio ids ordered by descending valore_procapite or valore
@@ -32,8 +31,8 @@ class ValoriManager(models.Manager):
         ids = cache.get(key)
         if ids is None:
             ids = list(
-                self.filter(**filters).order_by(self.orderby_label).\
-                  values('territorio__id', 'valore')
+                self.filter(**filters).order_by(self.orderby_label).
+                values('territorio__id', 'valore')
             )
             cache.set(key, ids)
 

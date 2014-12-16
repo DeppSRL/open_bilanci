@@ -2424,10 +2424,13 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
     anno = None
     anno_int = None
     reset_pages = False
+    curr_ids = None
     selected_regioni = []
     selected_cluster = []
     positions = {}
     prev_positions = {}
+    curr_year = None
+    prev_year = None
 
     def get(self, request, *args, **kwargs):
 
@@ -2480,7 +2483,6 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         else:
             curr_id_values_all = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.curr_year)
             prev_id_values_all = ValoreBilancio.objects.get_classifica_ids(self.parameter.id, self.prev_year)
-
 
         # gets only the territorio__id in the right order
         curr_id_all = [k['territorio__id'] for k in curr_id_values_all]
@@ -2577,6 +2579,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
                     'prov': obj.territorio.prov,
                     'regione': obj.territorio.regione,
                     'pk': obj.territorio.pk,
+                    'import_xml': len(obj.territorio.importxmlbilancio_set.filter(tipologia="consuntivo", anno=self.curr_year)) > 0
                 },
                 'valore': valore,
                 'variazione': 0,

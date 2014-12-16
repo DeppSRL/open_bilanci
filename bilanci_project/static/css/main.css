@@ -3872,6 +3872,10 @@ share box
   border-top: 0;
   text-align: left;
 }
+#main-content #results #territorio_name a,
+#main-content #results #territorio_name a:hover {
+  display: inline!important;
+}
 #main-content.panel #classifiche-menu.panel-body {
   padding-bottom: 0;
 }

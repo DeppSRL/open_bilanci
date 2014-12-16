@@ -163,7 +163,7 @@
                                                         <div class="panel-heading clearfix">
                                                             {# nome territorio   #}
                                                             <div class="row">
-                                                                <div class="col-md-12">
+                                                                <div class="col-md-12" id="territorio_name">
                                                                     <h3 style="margin-top: 0;margin-bottom: 2px;font-size: 21px;line-height:18px;">
                                                                         <a
                                                                             {% if selected_par_type == 'indicatori' %}
@@ -177,11 +177,17 @@
                                                                             {% endif %}
                                                                                 style="margin-bottom: 0;margin-top: 0;">
                                                                             {{ valore_obj.territorio.denominazione }}
+
                                                                         </a>
+                                                                        {% if valore_obj.territorio.import_xml %}
+                                                                            {# if the bilancio was imported with xml: show tooltip #}
+                                                                            {% popover_info '' %}
+                                                                        {% endif %}
                                                                     </h3>
+
                                                                     <h4 class="dirty-fix">
-                                                                            {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
-                                                                        </h4>
+                                                                        {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
+                                                                    </h4>
                                                                 </div>
                                                             </div>
 
