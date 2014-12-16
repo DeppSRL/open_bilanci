@@ -35,7 +35,7 @@
             {% endif %}
 
         </div>
-        <div class="col-md-11">
+        <div class="col-md-9">
             {% if pagina_comune.tipologia_logo == '0' %}
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
@@ -43,7 +43,7 @@
         </div>
 
     {% else %}
-        <div class="col-md-12">
+        <div class="col-md-10">
             {% if pagina_comune.backlink  %}
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">
@@ -58,7 +58,15 @@
             {% endif %}
         </div>
 
+
     {% endif %}
+
+{# secondary img #}
+    <div class="col-md-2">
+        {% if pagina_comune.secondary_img %}
+            <img class="logo" src="{{ pagina_comune.secondary_img.url }}" />
+        {% endif %}
+    </div>
 </div>
 
 <h1 class="panel-title affix-only" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>

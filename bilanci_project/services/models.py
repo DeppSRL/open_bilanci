@@ -20,9 +20,9 @@ class PaginaComune(models.Model):
     header_text = HTMLField(_("Header text"), help_text=_("Testo che appare nella testata"), blank=True)
     footer_text = HTMLField(_("Footer text"), help_text=_("Testo che appare nel fondo pagina"), blank=True)
     logo = models.ImageField(null=True, blank=True, upload_to='comune_logo/')
+    secondary_img = models.ImageField(null=True, blank=True, upload_to='secondary_img/')
     tipologia_logo = models.CharField(choices=TIPOLOGIA, max_length=2, null=False, blank=False, default=u'0')
     active = models.BooleanField(default=False)
-
 
     class Meta:
         verbose_name_plural = u'Pagina Comune'
