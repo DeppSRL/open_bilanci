@@ -64,7 +64,11 @@
 {# secondary img #}
     <div class="col-md-2">
         {% if pagina_comune.secondary_img %}
-            <img class="logo" src="{{ pagina_comune.secondary_img.url }}" />
+            {% if pagina_comune.secondary_link %}
+                <a href="{{ pagina_comune.secondary_link }}" title=""><img class="logo" src="{{ pagina_comune.secondary_img.url }}" /></a>
+            {% else %}
+                <img class="logo" src="{{ pagina_comune.secondary_img.url }}" />
+            {% endif %}
         {% endif %}
     </div>
 </div>
