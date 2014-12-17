@@ -221,12 +221,16 @@ class Territorio(models.Model):
 
     def latest_year_indicatore(self, slug):
         available_years = list(
-            self.valoreindicatore_set.filter(indicatore__slug=slug).values_list('anno', flat=True).order_by('anno'))
+            self.valoreindicatore_set.filter(
+                indicatore__slug=slug,
+                anno__gte=settings.CLASSIFICHE_START_YEAR,
+                anno__lte=settings.CLASSIFICHE_END_YEAR).
+            values_list('anno', flat=True).order_by('-anno'))
 
         if not available_years:
             return None
 
-        return available_years[-1]
+        return available_years[0]
 
     def latest_contesto(self, anno=None):
         contesto = None

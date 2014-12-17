@@ -146,6 +146,7 @@ class NavigationMenuMixin(object):
 
 
 class MiniClassificheMixin(object):
+
     def get_positions(self, element_list, territori_ids):
 
         # calculates positions for values considering that if two (or more) territorio
@@ -170,7 +171,6 @@ class MiniClassificheMixin(object):
                     positions[territorio_id] = positions[previous_id] + 1
 
         return positions
-
 
     def get_indicatore_positions(self, territorio, anno):
         # construct data for mini classifiche
@@ -2292,7 +2292,7 @@ class BilancioIndicatoriView(ShareUrlMixin, MiniClassificheMixin, BilancioView, 
 
         context['selected_section'] = self.selected_section
 
-        last_indicatore_yr = self.territorio.latest_year_indicatore(slug='autonomia-finanziaria')
+        last_indicatore_yr = self.territorio.latest_year_indicatore(slug=settings.DEFAULT_INDICATOR_SLUG)
         if last_indicatore_yr:
             context['incarichi_attivi'] = Incarico.get_incarichi_attivi(territorio=self.territorio,
                                                                         anno=last_indicatore_yr)
