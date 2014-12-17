@@ -21,7 +21,7 @@
 <div class="row no-affix" id="services-comune-name">
 
     {% if pagina_comune.logo %}
-        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-12{% endif %}">
+        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-9{% endif %}">
             {% if pagina_comune.backlink %}
 
                 <a href="{{ pagina_comune.backlink }}" title="Torna al sito istituzionale">
@@ -35,15 +35,15 @@
             {% endif %}
 
         </div>
-        <div class="col-md-9">
-            {% if pagina_comune.tipologia_logo == '0' %}
+        {% if pagina_comune.tipologia_logo == '0' %}
+            <div class="col-md-9">
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
 
     {% else %}
-        <div class="col-md-10">
+        <div class="col-md-9">
             {% if pagina_comune.backlink  %}
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">
@@ -62,13 +62,11 @@
     {% endif %}
 
 {# secondary img #}
-    <div class="col-md-2">
+    <div class="col-md-3">
         {% if pagina_comune.secondary_img %}
-            {% if pagina_comune.secondary_link %}
-                <a href="{{ pagina_comune.secondary_link }}" title=""><img class="logo" src="{{ pagina_comune.secondary_img.url }}" /></a>
-            {% else %}
-                <img class="logo" src="{{ pagina_comune.secondary_img.url }}" />
-            {% endif %}
+            {% if pagina_comune.secondary_link %} <a href="{{ pagina_comune.secondary_link }}" title="">{% endif %}
+            <img id="secondary_img" src="{{ pagina_comune.secondary_img.url }}" />
+            {% if pagina_comune.secondary_link %}  </a> {% endif %}
         {% endif %}
     </div>
 </div>

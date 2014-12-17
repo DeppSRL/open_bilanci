@@ -3655,6 +3655,10 @@ navbar
   text-decoration: none;
   color: #56686e;
 }
+#bilancio-header #services-comune-name #secondary_img {
+  max-width: 260px;
+  padding-top: 5px;
+}
 #bilancio-header .affix-only {
   display: none;
 }
