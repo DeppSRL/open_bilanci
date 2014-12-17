@@ -1662,6 +1662,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
     main_bilancio_is_recent = False
+    latest_bilancio_tuple = None
     territorio = None
     values_type = None
     cas_com_type = None
@@ -1691,7 +1692,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             }
         }
     }
-
 
     def calc_variations_set(self, main_dict, comp_dict, ):
         # creates a variations list of dict based on voce denominazione
@@ -1871,7 +1871,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 self.main_bilancio_type not in self.accepted_bilancio_types or
                 (isinstance(self.main_bilancio_year, str) is False and
                     isinstance(self.main_bilancio_year, unicode) is False)
-                    ):
+            ):
 
             # get latest bilancio, redirect
             latest_tuple = self.territorio.get_latest_bilancio()
@@ -1916,6 +1916,18 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             ValoreBilancio.objects.get(voce__slug=rootnode_slug, territorio=self.territorio, anno=self.main_bilancio_year)
         except ObjectDoesNotExist:
             self.main_bilancio_available = False
+            self.latest_bilancio_tuple = self.territorio.get_latest_bilancio()
+
+            # get latest bilancio and store it for the context
+            # if latest tuple doesn't exists this means the bilancio was set but there is no bilancio in the db
+            # for the Comune: so redirect to bilancio not found
+
+            if self.latest_bilancio_tuple is None:
+                if self.servizi_comuni:
+                #     redirect to "bilancio not found"
+                    return HttpResponseRedirect(reverse('bilancio-not-found', urlconf=services.urls))
+                else:
+                    return HttpResponseRedirect(reverse('bilancio-not-found'))
 
         # if the request in the query string is incomplete the redirection will be used to have a complete url
         querystring = self.request.META['QUERY_STRING']
@@ -1928,27 +1940,26 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
             return HttpResponseRedirect(self.get_bilancio_url())
 
-        if self.main_bilancio_available:
 
-            # identifies the bilancio for comparison
-            self.set_comparison_bilancio()
+        # identifies the bilancio for comparison
+        self.set_comparison_bilancio()
 
-            # sets current gdp deflator / multiplier
-            self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
+        # sets current gdp deflator / multiplier
+        self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
 
+        if self.comp_bilancio_available:
+            self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
+
+        if self.values_type == 'real':
+            self.main_gdp_multiplier = self.main_gdp_deflator
             if self.comp_bilancio_available:
-                self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
+                self.comp_gdp_multiplier = self.comp_gdb_deflator
 
-            if self.values_type == 'real':
-                self.main_gdp_multiplier = self.main_gdp_deflator
-                if self.comp_bilancio_available:
-                    self.comp_gdp_multiplier = self.comp_gdb_deflator
-
-            # check if bilancio main / comparison have been imported from xml file
-            self.main_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.main_bilancio_year,
-                                                                  self.main_bilancio_type)
-            self.comp_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.comp_bilancio_year,
-                                                                  self.comp_bilancio_type)
+        # check if bilancio main / comparison have been imported from xml file
+        self.main_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.main_bilancio_year,
+                                                              self.main_bilancio_type)
+        self.comp_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.comp_bilancio_year,
+                                                              self.comp_bilancio_type)
 
         return super(BilancioOverView, self).get(request, *args, **kwargs)
 
@@ -2018,15 +2029,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
                 context['chiguadagnaperde_spese_link'] = reverse('bilanci-dettaglio', kwargs=self.spese_kwargs)
         else:
 
-            # get latest bilancio and store it for the context
-            # if latest tuple doesn't exists this means the bilancio was set but there is no bilancio in the db
-            # for the Comune: redirect
-            latest_tuple = self.territorio.get_latest_bilancio()
-            if latest_tuple is None:
-                #     redirect to "bilancio not found"
-                return HttpResponseRedirect(reverse('bilancio-not-found'))
-
-            self.main_bilancio_year, self.main_bilancio_type = latest_tuple
+            self.main_bilancio_year, self.main_bilancio_type = self.latest_bilancio_tuple
             context['latest_bilancio_url'] = self.get_bilancio_url()
 
         context['main_bilancio_available'] = self.main_bilancio_available
