@@ -26,11 +26,14 @@ Indicatori
             {% bilancio_indicatori_parameter_list indicator_list territorio_slug selected_indicators%}
         </div>
     </div>
+
+    {% comment %}
     <div class="col-md-6">
         {% if import_xml %}
             Nota bene: il Comune di {{ territorio|title }} ha dei bilanci importati con xml
         {% endif %}
     </div>
+    {% endcomment %}
 
 {% endblock %}
 

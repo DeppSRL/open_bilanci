@@ -179,10 +179,14 @@
                                                                             {{ valore_obj.territorio.denominazione }}
 
                                                                         </a>
+
+                                                                        {% comment %}
                                                                         {% if valore_obj.territorio.import_xml %}
                                                                             {# if the bilancio was imported with xml: show tooltip #}
                                                                             {% popover_info '' %}
                                                                         {% endif %}
+                                                                        {% endcomment %}
+                                                                    
                                                                     </h3>
 
                                                                     <h4 class="dirty-fix">
