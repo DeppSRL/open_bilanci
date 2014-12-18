@@ -50,7 +50,7 @@ class Command(BaseCommand):
         make_option('--cities',
                     dest='cities',
                     default='',
-                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+                    help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino'),
         make_option('--dry-run',
                     dest='dryrun',
                     action='store_true',
