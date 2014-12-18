@@ -2825,9 +2825,7 @@ class ConfrontiIndicatoriView(ConfrontiView, MiniClassificheMixin):
         context['selected_regioni_str'] = ",".join([str(k) for k in list(
             Territorio.objects.filter(territorio=Territorio.TERRITORIO.R).values_list('pk', flat=True))])
 
-
         # construct data for miniclassifiche
-
         last_indicatore_yr_1 = self.territorio_1.latest_year_indicatore(slug='autonomia-finanziaria')
         last_indicatore_yr_2 = self.territorio_2.latest_year_indicatore(slug='autonomia-finanziaria')
 
