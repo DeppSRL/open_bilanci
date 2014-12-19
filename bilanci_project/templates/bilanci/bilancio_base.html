@@ -199,8 +199,9 @@
             var navbar_top = $('.navbar.navbar-subnav').offset().top;
             var footer_height = 388;
 
+            {# riga seguente: fix giangiulio per menu affix mobile   #}
+            bilancio_header.css('width', '100%');
             // fix container height
-            bilancio_header.css('width', bilancio_header.width());
             bilancio_header.parent().css('min-height', bilancio_header.height());
             // set affix dynamic offset
 
