@@ -34,7 +34,7 @@
                     </h1>
 
                     <h2>
-                        I bilanci di tutti i Comuni italiani negli ultimi dieci anni<br>
+                        I bilanci di tutti i Comuni italiani <br class="hidden-md hidden-lg">negli ultimi dieci anni<br>
                         i Sindaci a cui chiedere conto
                     </h2>
 
@@ -49,14 +49,14 @@
             <div class="container">
                 <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
                     <div class="row">
-                        <div class="col-md-8 col-md-offset-2">
+                        <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
                             <div class="form-group">
                                 {{ territori_search_form_home }}
                             </div>
                         </div>
                     </div>
                     <div class="row text-center">
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'confronti-home' %}">
                                     <span class="icon sprite-confronti-big"></span>
@@ -65,7 +65,7 @@
                             </h3>
                             <p>confronta due Comuni: cifre, indicatori, gestione dei Sindaci. Condividi quello che trovi</p>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'classifiche-redirect' %}">
                                     <span class="icon sprite-classifiche-big"></span>
@@ -74,7 +74,7 @@
                             </h3>
                             <p>chi spende di pi&ugrave; per la cultura? chi ha le tasse più alte? crea e diffondi la tua classifica</p>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'mappe' %}" title="Mappe">
                                     <span class="icon sprite-mappa-big"></span>
@@ -90,7 +90,7 @@
 
         <section id="slider">
 
-            <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div id="carousel" class="carousel slide hidden-xs hidden-sm" data-ride="carousel">
 
                 <!-- Wrapper for slides -->
                 <div class="carousel-inner">
