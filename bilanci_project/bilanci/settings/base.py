@@ -347,8 +347,8 @@ COUCHDB_SERVERS = {
         'password': env('COUCHDB_LOCALHOST_PASSWORD'),
     },
     'staging': {
-        'host': 'staging.depp.it',
-        'port': '5984',
+        'host': env('COUCHDB_STAGING_HOST'),
+        'port': env('COUCHDB_STAGING_PORT'),
         'user': env('COUCHDB_STAGING_USER'),
         'password': env('COUCHDB_STAGING_PASSWORD'),
     },
