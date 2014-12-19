@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!-- Main header -->
 <header id="header">
     <div class="row">
@@ -13,7 +14,7 @@
                             </a>
                         </div>
                         <div class="col-md-4 col-sm-4 col-xs-3  hidden-md hidden-lg hidden-xs">
-                            <a class="navbar-brand" href="/"><img src="img/openbilancio.jpg" class="img-responsive"></a>
+                            <a class="navbar-brand" href="/"><img src="{% static "img/openbilancio.jpg" %}" class="img-responsive"></a>
                         </div>
                         <div class="col-md-8 col-sm-8 col-xs-12">
                             <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">

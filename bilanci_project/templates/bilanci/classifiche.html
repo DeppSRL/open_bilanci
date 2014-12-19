@@ -43,12 +43,10 @@
                 {# yr selector mobile               #}
                 <div class="row visible-md visible-sm visible-xs hidden-lg">
                     <div class="col-sm-6 col-xs-6">
-                    {# todo: inserire tendina anni          #}
-                    	tendina anni
-                    </div>
-                    <div class="col-sm-6 col-xs-6">
-                    {# todo: inserire tendina tipo bilancio          #}
-                    	tendina tipo bilancio
+                        {# todo: inserire tendina anni          #}
+                        <select>
+                          <option value="2012">2012</option>
+                        </select>
                     </div>
                 </div>
 
@@ -59,7 +57,7 @@
                             {#    heading#}
                             <div class="panel-heading noeight2 clearfix">
                                 <div class="row classifiche">
-                                    <div class="col-md-3">
+                                    <div class="col-md-3 col-sm-12 col-xs-12">
                                         <h3 class="panel-title pull-left">
                                             CLASSIFICA {{ selected_year }}
                                         </h3>
@@ -92,7 +90,7 @@
 
                                 {#  bilancio type, values  types #}
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 col-sm-5 col-xs-5">
                                         <span class="selection">
                                             {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
                                         </span>
@@ -215,7 +213,7 @@
                                                         </div>
                                                     </td>
                                                     {# valore parametro #}
-                                                    <td class="col-md-1 col-sm-2 rate">
+                                                    <td class="col-md-1 col-sm-2 col-xs-1 rate">
                                                         <p class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
                                                                 {{ valore_obj.valore|italianize }}%
