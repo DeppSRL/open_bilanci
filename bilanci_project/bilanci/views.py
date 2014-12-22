@@ -1940,7 +1940,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
             return HttpResponseRedirect(self.get_bilancio_url())
 
-
         # identifies the bilancio for comparison
         self.set_comparison_bilancio()
 

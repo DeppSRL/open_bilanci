@@ -45,7 +45,9 @@
                     <div class="col-sm-6 col-xs-6">
                         {# todo: inserire tendina anni          #}
                         <select>
-                          <option value="2012">2012</option>
+                            {% for year in classifiche_allowed_years %}
+                                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
