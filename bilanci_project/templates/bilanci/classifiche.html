@@ -26,31 +26,12 @@
 
 
     <div class="panel-body">
-        <hr class="no-border">
+        <hr class="no-border visible-lg ">
 
         <div class="row">
             <div id="content" class="col-sm-12">
-                {# yr selector desktop            #}
-                <div class="row hidden-md hidden-xs hidden-sm">
-                    <div class="col-md-12">
-                        <div class="row timeline">
-                            <div class="col-sm-12">
-                                <div class="year-selector"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {# yr selector mobile               #}
-                <div class="row visible-md visible-sm visible-xs hidden-lg">
-                    <div class="col-sm-6 col-xs-6">
-                        {# todo: inserire tendina anni          #}
-                        <select class="year-selector-mobile">
-                            {% for year in classifiche_allowed_years %}
-                                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
+                {# year selector component            #}
+                {% include 'bilanci/_yr_selector.html' %}
 
                 <div id="results" class="row">
                     <div class="col-md-9">
