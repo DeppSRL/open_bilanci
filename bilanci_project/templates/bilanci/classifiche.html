@@ -44,7 +44,7 @@
                 <div class="row visible-md visible-sm visible-xs hidden-lg">
                     <div class="col-sm-6 col-xs-6">
                         {# todo: inserire tendina anni          #}
-                        <select>
+                        <select class="year-selector-mobile">
                             {% for year in classifiche_allowed_years %}
                                 <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
                             {% endfor %}
