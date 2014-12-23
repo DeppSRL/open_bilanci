@@ -195,22 +195,23 @@
 
     <script>
         $(document).ready(function(){
-            var bilancio_header = $('#bilancio-header');
-            var navbar_top = $('.navbar.navbar-subnav').offset().top;
-            var footer_height = 388;
-
+{#            TURNED OFF AFFIX MENU FOR VISUALIZATION BUG #}
+{#            var bilancio_header = $('#bilancio-header');#}
+{#            var navbar_top = $('.navbar.navbar-subnav').offset().top;#}
+{#            var footer_height = 388;#}
+{##}
             {# riga seguente: fix giangiulio per menu affix mobile   #}
-            bilancio_header.css('width', '100%');
-            // fix container height
-            bilancio_header.parent().css('min-height', bilancio_header.height());
-            // set affix dynamic offset
-
-            bilancio_header.affix({
-                offset: {
-                  top: navbar_top,
-                  bottom: footer_height
-                }
-            });
+{#            bilancio_header.css('width', '100%');#}
+{#            // fix container height#}
+{#            bilancio_header.parent().css('min-height', bilancio_header.height());#}
+{#            // set affix dynamic offset#}
+{##}
+{#            bilancio_header.affix({#}
+{#                offset: {#}
+{#                  top: navbar_top,#}
+{#                  bottom: footer_height#}
+{#                }#}
+{#            });#}
 
             $( window ).resize(function() {
               bilancio_header.css('width', bilancio_header.parent().width());
