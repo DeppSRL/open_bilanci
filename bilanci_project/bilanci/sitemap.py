@@ -12,14 +12,12 @@ class BilancioBaseSitemap(Sitemap):
 
     """Reverse static views for XML sitemap."""
 
-
-
     def generate_items(self):
 
         # Return list of url names for views to include in sitemap
         # ?year=2013&type=preventivo&values_type=real&cas_com_type=cassa
-        territori = Territorio.objects.filter(territorio="C").values_list('slug',flat=True)
-        years = range(settings.APP_START_DATE.year,settings.APP_END_DATE.year + 1)
+        territori = Territorio.objects.filter(territorio="C").values_list('slug', flat=True)
+        years = range(settings.APP_START_YEAR, settings.APP_END_YEAR + 1)
         bilancio_types = ['preventivo', 'consuntivo']
         values_types = ['real','nominal']
         cas_com_types = ['cassa','competenza']
@@ -58,7 +56,6 @@ class BilancioBaseSitemap(Sitemap):
 
         return items
 
-
     def items(self):
 
         return self.generate_items()
@@ -81,9 +78,9 @@ class BilancioComposizioneSitemap(BilancioBaseSitemap):
         query_string = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(item['year'],item['type'], item['values_type'], item['cas_com_type'])
         return reverse(self.destination_view, kwargs={'slug':item['slug'], 'section': item['section']}, )+ query_string
 
+
 class BilancioDettaglioSitemap(BilancioComposizioneSitemap):
     view_type = 'bilanci-dettaglio'
-
 
 
 class ClassificheSitemap(Sitemap):
@@ -93,8 +90,6 @@ class ClassificheSitemap(Sitemap):
 
     """Reverse static views for XML sitemap."""
 
-
-
     def generate_items(self):
 
         slug_blacklist = ['consuntivo-spese-cassa-spese-correnti-interventi',
@@ -102,7 +97,7 @@ class ClassificheSitemap(Sitemap):
                           'consuntivo-spese-cassa-spese-somma-funzioni',
                           'consuntivo-entrate-cassa']
 
-        years = range(settings.APP_START_DATE.year,settings.APP_END_DATE.year)
+        years = range(settings.APP_START_YEAR, settings.APP_END_YEAR)
         hmm = HierarchicalMenuMixin()
         parameter_dict = hmm.get_parameter_struct()
 
@@ -132,14 +127,12 @@ class ClassificheSitemap(Sitemap):
         return self.generate_items()
 
 
-
 class ConfrontiSitemap(Sitemap):
     changefreq = "monthly"
     priority = 0.5
     destination_view = 'confronti-entrate'
 
     """Reverse static views for XML sitemap."""
-
 
     def generate_items(self):
 
@@ -169,8 +162,6 @@ class ConfrontiSitemap(Sitemap):
     def items(self):
 
         return self.generate_items()
-
-
 
 
 

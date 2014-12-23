@@ -27,6 +27,14 @@ Indicatori
         </div>
     </div>
 
+    {% comment %}
+    <div class="col-md-6">
+        {% if import_xml %}
+            Nota bene: il Comune di {{ territorio|title }} ha dei bilanci importati con xml
+        {% endif %}
+    </div>
+    {% endcomment %}
+
 {% endblock %}
 
 {% block bilanci_content %}

@@ -1,0 +1,21 @@
+<p >
+    {% if main_bilancio_is_recent %}
+
+        Ci dispiace,<br/> i Bilanci successivi al Preventivo del 2013 sono presenti solo per i Comuni<br/>
+        che hanno scelto di pubblicare con <a href="http://www.openbilanci.it">Openbilanci</a> i loro conti
+        senza attendere la procedura<br/> del Ministero dell’Interno (vedi l’elenco dei Comuni aderenti).
+
+    {% else %}
+
+        Ci dispiace,<br/> il Bilancio non è presente nella nostra banca dati, le possibili ragioni sono:
+        <ul>
+            <li>il Comune non ha trasmesso il Bilancio al Ministero dell’Interno <a href="http://finanzalocale.interno.it/">Dir. Finanza Locale</a></li>
+            <li>il Ministero non espone il Bilancio nel sito per problemi tecnici o altro</li>
+        </ul>
+    {% endif %}
+
+
+</p>
+<p>
+    Scegli un altro Bilancio usando il selettore o vai al <a href="{{ latest_bilancio_url }}">Bilancio pi&ugrave; recente per il Comune di {{ territorio|title }}</a>
+</p>

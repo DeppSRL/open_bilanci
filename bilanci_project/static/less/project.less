@@ -117,7 +117,8 @@ display: inline;
 }
 
 #sidebar {
-  width: 380px!important;
+//  GIANGIULIO FIX
+//  width: 380px!important;
   border: 0;
   margin-top: 5px;
   padding-top: 0;
@@ -352,7 +353,8 @@ a[rel=info-popover] {
 #balance {
   .panel-default .table, .panel-default, .panel-default .table th, .panel-default .table td { border-color: @disabledColor; }
   .panel-default .table td.text {
-    width: 100%!important;
+//    GIANGIULIO FIX
+//    width: 100%!important;
   }
 }
 
@@ -380,6 +382,11 @@ navbar
   #services-comune-name a:hover{
     text-decoration: none;
     color: rgb(86, 104, 110);
+  }
+
+  #services-comune-name #secondary_img{
+    max-width: 260px;
+    padding-top: 5px;
   }
 
   .affix-only{display: none;}
@@ -522,7 +529,8 @@ affix navbar
 
   h1.panel-title { float:left; font-size: inherit; font-weight: bold;}
   h1.panel-title, &> p {
-    margin: 4px 10px 0 0;
+    // GIANGIULIO FIX
+    //    margin: 4px 10px 0 0;
     line-height: 1.4;
   }
   .navbar-subnav {
@@ -604,6 +612,10 @@ share box
 
 // classifiche fix
 
+#main-content #results #territorio_name a,
+#main-content #results #territorio_name a:hover{
+  display: inline!important;
+}
 #main-content.panel #classifiche-menu.panel-body{
   padding-bottom: 0;
 }

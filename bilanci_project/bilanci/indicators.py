@@ -115,7 +115,7 @@ class BaseIndicator(object):
                     pass
                 except KeyError:
                     if logger:
-                        logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
+                        logger.warning("City: {0}, Year: {1}. Cannot compute indicator".format(
                             city, year
                         ))
 

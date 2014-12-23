@@ -26,15 +26,12 @@
 
 
     <div class="panel-body">
-        <hr class="no-border">
+        <hr class="no-border visible-lg ">
 
         <div class="row">
             <div id="content" class="col-sm-12">
-                <div class="row timeline">
-                    <div class="col-sm-12">
-                        <div class="year-selector"></div>
-                    </div>
-                </div>
+                {# year selector component            #}
+                {% include 'bilanci/_yr_selector.html' %}
 
                 <div id="results" class="row">
                     <div class="col-md-9">
@@ -43,7 +40,7 @@
                             {#    heading#}
                             <div class="panel-heading noeight2 clearfix">
                                 <div class="row classifiche">
-                                    <div class="col-md-3">
+                                    <div class="col-md-3 col-sm-12 col-xs-12">
                                         <h3 class="panel-title pull-left">
                                             CLASSIFICA {{ selected_year }}
                                         </h3>
@@ -76,7 +73,7 @@
 
                                 {#  bilancio type, values  types #}
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 col-sm-5 col-xs-5">
                                         <span class="selection">
                                             {% section_title bold_text="BILANCI" main_bilancio_type='consuntivi' %}
                                         </span>
@@ -163,7 +160,7 @@
                                                         <div class="panel-heading clearfix">
                                                             {# nome territorio   #}
                                                             <div class="row">
-                                                                <div class="col-md-12">
+                                                                <div class="col-md-12" id="territorio_name">
                                                                     <h3 style="margin-top: 0;margin-bottom: 2px;font-size: 21px;line-height:18px;">
                                                                         <a
                                                                             {% if selected_par_type == 'indicatori' %}
@@ -177,11 +174,21 @@
                                                                             {% endif %}
                                                                                 style="margin-bottom: 0;margin-top: 0;">
                                                                             {{ valore_obj.territorio.denominazione }}
+
                                                                         </a>
+
+                                                                        {% comment %}
+                                                                        {% if valore_obj.territorio.import_xml %}
+                                                                            {# if the bilancio was imported with xml: show tooltip #}
+                                                                            {% popover_info '' %}
+                                                                        {% endif %}
+                                                                        {% endcomment %}
+                                                                    
                                                                     </h3>
+
                                                                     <h4 class="dirty-fix">
-                                                                            {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
-                                                                        </h4>
+                                                                        {{ valore_obj.territorio.prov }}, {{ valore_obj.territorio.regione }}
+                                                                    </h4>
                                                                 </div>
                                                             </div>
 
@@ -189,7 +196,7 @@
                                                         </div>
                                                     </td>
                                                     {# valore parametro #}
-                                                    <td class="col-md-1 col-sm-2 rate">
+                                                    <td class="col-md-1 col-sm-2 col-xs-1 rate">
                                                         <p class="h2">
                                                             {% if selected_par_type == 'indicatori' %}
                                                                 {{ valore_obj.valore|italianize }}%

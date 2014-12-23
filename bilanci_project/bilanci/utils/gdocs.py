@@ -320,8 +320,9 @@ def get_simplified_leaves_from_google(connection=None, n_header_lines=0):
 def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilancio_type_year = None ):
 
     """
-    get the bilancio xml codes from gDoc
+    IMPORT BILANCIO XML
 
+    get the bilancio xml codes from Google doc
     return a dict
     """
 
@@ -348,7 +349,7 @@ def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilanc
     # get the voices subtrees from gDoc spreadsheet
     # skip the first n_headers lines
     try:
-        logger.info("reading preventivo entrate ...")
+        logger.info("Reading {} from drive".format(bilancio_type_year))
         voci = list_sheet.worksheet("Voci").get_all_values()[n_header_lines:]
         colonne = list_sheet.worksheet("Colonne").get_all_values()[n_header_lines:]
 
@@ -362,26 +363,3 @@ def get_bilancio_codes_from_google(connection = None, n_header_lines = 0, bilanc
         'voci': voci,
         'colonne': colonne,
     }
-
-def get_bilancio_codes_map(bilancio_type, bilancio_year, connection=None, force_google=False, n_header_lines=0, ):
-    """
-    Try a local CSV version of the documents, or retrieve them from google
-
-    Always retrieve from google, if instructed to do so.
-
-    Skip header lines when reading from google (csv do not contain header lines).
-
-    Return a dict of the sheets
-    """
-
-    ret = None
-    bilancio_type_year = "bilancio_{0}_{1}".format(bilancio_type, bilancio_year)
-    if force_google == False:
-        ret = read_from_csv(bilancio_type_year)
-
-    if not ret:
-        ret = get_bilancio_codes_from_google(n_header_lines=n_header_lines, bilancio_type_year=bilancio_type_year)
-        write_to_csv(bilancio_type_year, ret)
-
-
-    return ret

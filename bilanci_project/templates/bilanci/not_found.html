@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="panel-heading">
+        <div id="bilancio-header">
+            {% if bilancio %}
+                <p>Spiacenti, nella nostra banca dati non sono presenti bilanci per il Comune che hai selezionato.</p>
+                <h3 style="font-weight: bold;"><a href="{% url 'home' %}"> Torna alla Home</a></h3>
+            {% elif territorio %}
+                <p>Spiacenti, nella nostra banca dati non &egrave; presente il Comune che hai selezionato.</p>
+                <h3 style="font-weight: bold;"><a href="{% url 'home' %}"> Torna alla Home</a></h3>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

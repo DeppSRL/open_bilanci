@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.sites.models import get_current_site
 from .forms import TerritoriSearchForm
 
+
 def main_settings(request):
     """
     Default context processor for openaction.
@@ -12,8 +13,9 @@ def main_settings(request):
         'instance_type': settings.INSTANCE_TYPE,
         'territori_search_form': TerritoriSearchForm(),
         # sets start / end for timeline graph
-        'timeline_start_year': settings.TIMELINE_START_DATE.year,
-        'timeline_end_year': settings.TIMELINE_END_DATE.year,
+        'timeline_start_year': settings.APP_START_YEAR,
+        'timeline_end_year': settings.APP_END_YEAR,
+        'classifiche_allowed_years': [str(x) for x in range(settings.CLASSIFICHE_START_YEAR, settings.CLASSIFICHE_END_YEAR+1)],
         'settings': {
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,

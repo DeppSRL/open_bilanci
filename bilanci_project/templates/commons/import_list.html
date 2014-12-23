@@ -1,0 +1,18 @@
+<div class="row">
+    <div class="col-md-12">I seguenti Comuni hanno fornito bilanci xml</div>
+</div>
+
+{% for import in import_xml %}
+    <div class="row">
+
+        <div class="col-md-3">
+            {{ import.territorio }}
+        </div>
+        <div class="col-md-3">
+            {{ import.anno }} -- {{ import.tipologia|title }}
+        </div>
+        <div class="col-md-3">
+            {{ import.data_fornitura|default_if_none:""}} -- {{ created_at|default_if_none:"" }}
+        </div>
+    </div>
+{% endfor %}

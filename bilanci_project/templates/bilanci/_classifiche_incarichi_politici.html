@@ -9,20 +9,30 @@
                     {% if  valore_obj.incarichi_attivi.0.pic_url %}
                         <img class="media-object" src="{{ valore_obj.incarichi_attivi.0.pic_url}}" alt="avatar">
                     {% else %}
-                        <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt="avatar">
+
+                        {% if valore_obj.incarichi_attivi.0.tipologia != '2' %}
+                            <img class="media-object" src="{% static 'img/incarico_dummy.png' %}" alt="avatar">
+                        {% else %}
+                            <img class="media-object" src="{% static 'img/commissario.png' %}" alt="avatar">
+                        {% endif %}
                     {% endif %}
                 </figure>
                 <div >
                     <p class="h4" style="font-weight: bold;">
-                        <a target="_blank" href="{{ valore_obj.incarichi_attivi.0.op_link }}">
-                            {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}
-                        </a>
+                        {% if valore_obj.incarichi_attivi.0.tipologia != '2' %}
+                            <a target="_blank" href="{{ valore_obj.incarichi_attivi.0.op_link }}">
+                                {{ valore_obj.incarichi_attivi.0.nome.0|upper }}. {{ valore_obj.incarichi_attivi.0.cognome|title }}
+                            </a>
+                        {% else %}
+                            Commissario
+                        {% endif %}
                     </p>
-
-                    {% if valore_obj.incarichi_attivi.0.party_name %}
-                        <p >{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
-                    {% elif incarichi_attivi.0.party_acronym %}
-                        <p >{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
+                    {% if valore_obj.incarichi_attivi.0.tipologia != '2' %}
+                        {% if valore_obj.incarichi_attivi.0.party_name  %}
+                            <p >{{ valore_obj.incarichi_attivi.0.party_name|title}}</p>
+                        {% elif incarichi_attivi.0.party_acronym %}
+                            <p >{{ valore_obj.incarichi_attivi.0.party_acronym|title}}</p>
+                        {% endif %}
                     {% endif %}
 
                 </div>
@@ -44,16 +54,20 @@
                     <ul>
                     {% for incarico in valore_obj.incarichi_attivi  %}
                         <li>
-                            <a target="_blank" href="{{ incarico.op_link }}">
-                                {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
-                            </a>
-                            <p>
-                                {% if incarico.party_name %}
-                                    ({{ incarico.party_name|title}})
-                                {% elif incarico.party_acronym %}
-                                    ({{ incarico.party_acronym|title}})
-                                {% endif %}
-                            </p>
+                            {% if incarico.tipologia != '2' %}
+                                <a target="_blank" href="{{ incarico.op_link }}">
+                                    {{ incarico.nome.0|upper }}. {{ incarico.cognome|title }}
+                                </a>
+                                <p>
+                                    {% if incarico.party_name %}
+                                        ({{ incarico.party_name|title}})
+                                    {% elif incarico.party_acronym %}
+                                        ({{ incarico.party_acronym|title}})
+                                    {% endif %}
+                                </p>
+                            {% else %}
+                                <strong>Commissario</strong>
+                            {% endif %}
                         </li>
                     {% endfor %}
                     </ul>

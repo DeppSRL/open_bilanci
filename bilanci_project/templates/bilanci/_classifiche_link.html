@@ -1,9 +1,8 @@
 {# show the link to classifiche for voices which are allowed to be in Classifiche #}
 
-{% if tipo_bilancio == 'consuntivo' %}
+{% if link_to_classifiche_available %}
     <div class="col-sm-1">
-        {% if node.slug in classifiche_allowed_params %}
-
+        {% if node.slug in classifiche_allowed_params  %}
             {#hidden form needed to redirect to Classifiche search and land on the correct page for the Comune #}
             <form class="form-inline autosubmit" action="{% url 'classifiche-search' %}" method="get" name="form{{ node.pk }}" >
                 <a class="icon sprite-classifiche-big" href="#" onclick="document.form{{ node.pk }}.submit()" title="Vai alla pagina Classifiche per quest'elemento"></a>
@@ -16,5 +15,6 @@
                 <input id="territorio_id" name="territorio_id" type="hidden" value="{{ territorio.id|safe }}" />
             </form>
         {% endif %}
+
     </div>
 {% endif %}

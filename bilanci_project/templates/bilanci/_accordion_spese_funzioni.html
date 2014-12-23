@@ -46,7 +46,7 @@
                                 </div>
                                 {% include 'bilanci/_classifiche_link.html' with selected_par_type='spese-funzioni' %}
 
-                                <div class="col-sm-2 actions {% if tipo_bilancio == 'preventivo' %}col-md-offset-1{% endif %} ">
+                                <div class="col-sm-2 actions {% if tipo_bilancio == 'preventivo' or link_to_classifiche_available == False %}col-md-offset-1{% endif %} ">
                                     {% voice_values node.slug budget_values %}
                                 </div>
 

@@ -11,7 +11,7 @@ from bilanci.views import BilancioRedirectView, \
     IncarichiIndicatoriJSONView, HomeView, ConfrontiHomeView, ConfrontiEntrateView, ConfrontiSpeseFunzioniView,\
     ConfrontiSpeseInterventiView, ConfrontiIndicatoriView, ConfrontiRedirectView, ConfrontiDataJSONView,\
     ClassificheRedirectView, ClassificheListView, CompositionWidgetView, BilancioNotFoundView,\
-    ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView, StaticPageView
+    ClassificheSearchView, MappeTemplateView, PageNotFoundTemplateView, StaticPageView, TerritorioNotFoundView
 
 admin.autodiscover()
 
@@ -23,6 +23,7 @@ urlpatterns = patterns('',
 
     url(r'^mappe$', MappeTemplateView.as_view(), name='mappe'),
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
+    url(r'^territorio-not-found$', TerritorioNotFoundView.as_view(), name='territorio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/composizione$', BilancioComposizioneView.as_view(), name='bilanci-composizione'),
@@ -90,7 +91,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ROOT)
+) + static(settings.OPENDATA_URL, document_root=settings.OPENDATA_ZIP_ROOT)
 
 
 # Sitemap: disabled in staging

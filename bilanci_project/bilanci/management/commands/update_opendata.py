@@ -11,16 +11,14 @@ from bilanci.models import Voce, ValoreBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
-from bilanci.utils.zipper import zipdir
+from bilanci.utils.zipper import zipdir_prefix
 from territori.models import Territorio, ObjectDoesNotExist
 
 
 class Command(BaseCommand):
-
     """
      Export values from the simplified couchdb database into a set of CSV files or ZIP files
     """
-
 
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
@@ -45,10 +43,10 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
-        make_option('--csv-base-dir',
-                    dest='csv_base_dir',
-                    default='data/csv/',
-                    help='Path to the directory where the CSV files will be written.'),
+        make_option('--output-path',
+                    dest='output_path',
+                    default=settings.OPENDATA_ROOT,
+                    help='Path to the base directory where the file(s) will be created: default to opendata folder'),
         make_option('--compress',
                     dest='compress',
                     action='store_true',
@@ -65,7 +63,8 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
-
+    voci_dict = None
+    years = None
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -79,13 +78,12 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
-        csv_base_dir = options['csv_base_dir']
+        output_path = options['output_path']
         compress = options['compress']
         skip_existing = options['skip_existing']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
-
 
         ###
         # cities
@@ -96,9 +94,13 @@ class Command(BaseCommand):
 
         mapper = FLMapper(settings.LISTA_COMUNI_PATH)
         cities = mapper.get_cities(cities_codes)
+
+        if not cities:
+            self.logger.error("Cities cannot be null")
+            return
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
-
 
         ###
         # years
@@ -109,7 +111,7 @@ class Command(BaseCommand):
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
 
@@ -119,9 +121,8 @@ class Command(BaseCommand):
         self.logger.info("Processing years: {0}".format(years))
         self.years = years
 
-
         ###
-        # couchdb
+        # connect to couchdb
         ###
 
         couchdb_server_alias = options['couchdb_server']
@@ -135,7 +136,10 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
-        csv_base_path = os.path.abspath(csv_base_dir)
+        output_abs_path = os.path.abspath(output_path)
+        csv_path = os.path.join(output_abs_path, 'csv')
+        xml_path = os.path.join(output_abs_path, 'xml')
+        zip_path = os.path.join(output_abs_path, 'zip')
 
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
@@ -143,12 +147,12 @@ class Command(BaseCommand):
         for city in cities:
 
             # check city path (skip if existing and skip-existing active)
-            city_path = os.path.join(csv_base_path, city)
+            city_path = os.path.join(csv_path, city)
             if not os.path.exists(city_path):
                 os.makedirs(city_path)
             else:
-                # check if files for this city exist and skip if
-                # the skip-existing option was required
+                # if the file for the city already exists and
+                # skip-existing was specified then skips
                 if skip_existing:
                     self.logger.info(u"Skipping city of {}, as already processed".format(city))
                     continue
@@ -157,9 +161,8 @@ class Command(BaseCommand):
             city_budget = couchdb.get(city)
 
             if city_budget is None:
-               self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
-               continue
-
+                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
+                continue
 
             # get territorio corrsponding to city (to compute percapita values)
             try:
@@ -168,7 +171,6 @@ class Command(BaseCommand):
                 territorio = None
                 self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
                 continue
-
 
             self.logger.info(u"Processing city of {0}".format(city))
 
@@ -184,7 +186,6 @@ class Command(BaseCommand):
                 if not os.path.exists(year_path):
                     os.mkdir(year_path)
 
-
                 # fetch valid population, starting from this year
                 # if no population found, set it to None, as not to break things
                 try:
@@ -192,7 +193,6 @@ class Command(BaseCommand):
                 except TypeError:
                     population = None
                 self.logger.debug("::Population: {0}".format(population))
-
 
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
@@ -207,14 +207,13 @@ class Command(BaseCommand):
                     population=population
                 )
 
-
-                # open csv file
+                # write csv file
                 csv_filename = os.path.join(year_path, "preventivo.csv")
                 csv_file = open(csv_filename, 'w')
                 csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
                 # build and emit header
-                row = [ 'Path', 'Valore', 'Valore procapite' ]
+                row = ['Path', 'Valore', 'Valore procapite']
                 csv_writer.writerow(row)
 
                 # emit preventivo content
@@ -222,14 +221,13 @@ class Command(BaseCommand):
                 city_year_preventivo_tree.emit_as_list(_list, ancestors_separator="/")
                 csv_writer.writerows(_list)
 
-
                 # open csv file
                 csv_filename = os.path.join(year_path, "consuntivo.csv")
                 csv_file = open(csv_filename, 'w')
                 csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
                 # build and emit header
-                row = [ 'Path', 'Valore', 'Valore procapite' ]
+                row = ['Path', 'Valore', 'Valore procapite']
                 csv_writer.writerow(row)
 
                 # emit preventivo content
@@ -237,28 +235,25 @@ class Command(BaseCommand):
                 city_year_consuntivo_tree.emit_as_list(_list, ancestors_separator="/")
                 csv_writer.writerows(_list)
 
-
+            # if the zip file is requested, creates the zip folder,
+            # creates zip file
             if compress:
-                csv_path = os.path.join('data', 'csv')
-                zip_path = os.path.join('data', 'zip')
+
                 if not os.path.exists(zip_path):
                     os.mkdir(zip_path)
 
                 zipfilename = os.path.join(zip_path, "{}.zip".format(city))
 
-                zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
-                self.logger.info("  Compressed!")
+                # zips the csv and the xml folders and creates a zip file containing both
+                # zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
+                opendata_zipfile = zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED)
+                zipdir_prefix(opendata_zipfile, csv_path, city, "csv")
+                zipdir_prefix(opendata_zipfile, xml_path, city, "xml")
 
-                # remove all tree under city_path
-                # with security control
-                if 'data' in city_path and 'csv' in city_path:
-                    shutil.rmtree(city_path)
 
+                self.logger.info("Created zip file: {}".format(zipfilename))
 
     def write_csv(self, path, name, tree):
-        """
-
-        """
 
         # open csv file
         csv_filename = os.path.join(path, "{0}.csv".format(name))
@@ -266,7 +261,7 @@ class Command(BaseCommand):
         csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
         # build and emit header
-        row = [ 'Path', 'Valore', 'Valore procapite' ]
+        row = ['Path', 'Valore', 'Valore procapite']
         csv_writer.writerow(row)
 
         # emit preventivo content

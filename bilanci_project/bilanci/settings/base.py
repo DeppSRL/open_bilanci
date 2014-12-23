@@ -32,7 +32,7 @@ SITE_VERSION = 'beta'
 
 
 ########## DEBUG CONFIGURATION
-DEBUG = env.bool('DEBUG',False)
+DEBUG = env.bool('DEBUG', False)
 TEMPLATE_DEBUG = env.bool('TEMPLATE_DEBUG', False)
 ########## END DEBUG CONFIGURATION
 
@@ -99,8 +99,10 @@ STATICFILES_FINDERS = (
 )
 ########## END STATIC FILE CONFIGURATION
 
-
-OPENDATA_ROOT = os.path.join(root('open_data'), 'zip')
+OPENDATA_ROOT = root('open_data')
+OPENDATA_ZIP_ROOT = os.path.join(root(OPENDATA_ROOT), 'zip')
+OPENDATA_CSV_ROOT = os.path.join(root(OPENDATA_ROOT), 'csv')
+OPENDATA_XML_ROOT = os.path.join(root(OPENDATA_ROOT), 'xml')
 OPENDATA_URL = '/opendata/'
 
 
@@ -192,7 +194,7 @@ DJANGO_APPS = (
     # Admin panel and documentation:
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+
     # Django add-ons
     'django_extensions',
 
@@ -238,7 +240,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
         'reduced': {
             'format': "%(levelname)s %(message)s"
@@ -255,14 +257,14 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
-        'test_console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
+        'test_console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'reduced'
         },
         'import_logfile': {
@@ -310,10 +312,6 @@ LOGGING = {
 WSGI_APPLICATION = 'wsgi.application'
 ########## END WSGI CONFIGURATION
 
-# scrapers settings
-START_YEAR = 2002
-END_YEAR = 2012
-
 OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
@@ -323,19 +321,17 @@ URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certifica
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-
-
 # Google Account credentials
 GOOGLE_USER = env('GOOGLE_USER')
 GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
 
 # Google Docs keys
-GDOC_KEYS= {
+GDOC_KEYS = {
     'titoli_map': env('GDOC_TITOLI_MAP_KEY'),
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
-    'simple_map':env('GDOC_VOCI_SIMPLE_MAP_KEY'),
-    'simple_tree':env('GDOC_VOCI_SIMPLE_TREE_KEY'),
-    'bilancio_consuntivo_2013':env('GDOC_BILANCIO_CONSUNTIVO_2013')
+    'simple_map': env('GDOC_VOCI_SIMPLE_MAP_KEY'),
+    'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
+    'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -348,7 +344,7 @@ COUCHDB_SERVERS = {
         'host': '127.0.0.1',
         'port': '5984',
         'user': env('COUCHDB_LOCALHOST_USER'),
-        'password':env('COUCHDB_LOCALHOST_PASSWORD'),
+        'password': env('COUCHDB_LOCALHOST_PASSWORD'),
     },
     'staging': {
         'host': env('COUCHDB_STAGING_HOST'),
@@ -362,7 +358,7 @@ COUCHDB_DEFAULT_SERVER = 'staging'
 CACHES = {
     "default": {
         "BACKEND": "redis_cache.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:1",  # db 1
+        "LOCATION": "127.0.0.1:6379:1", # db 1
         "TIMEOUT": 0,
         "OPTIONS": {
             "CLIENT_CLASS": "redis_cache.client.DefaultClient",
@@ -373,6 +369,10 @@ CACHES = {
 CACHE_PAGE_DURATION_SECS = 3600
 
 SOUTH_TESTS_MIGRATE = False
+
+##
+# Application variables
+##
 
 GDP_DEFLATORS = {
     2000: 0.777728432,
@@ -391,6 +391,44 @@ GDP_DEFLATORS = {
     2013: 1.014412693,
 }
 
+CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
+                        u'aosta-comune-ao', u'arezzo-comune-ar', u'ascoli-piceno-comune-ap',
+                        u'asti-comune-at', u'avellino-comune-av', u'bari-comune-ba', u'barletta-comune-bt',
+                        u'belluno-comune-bl', u'benevento-comune-bn', u'bergamo-comune-bg', u'biella-comune-bi',
+                        u'bologna-comune-bo',
+                        u'bolzano-bozen-comune-bz', u'brescia-comune-bs', u'brindisi-comune-br', u'cagliari-comune-ca',
+                        u'caltanissetta-comune-cl', u'campobasso-comune-cb', u'carbonia-comune-ci',
+                        u'caserta-comune-ce',
+                        u'catania-comune-ct', u'catanzaro-comune-cz', u'chieti-comune-ch', u'como-comune-co',
+                        u'cosenza-comune-cs', u'cremona-comune-cr', u'crotone-comune-kr', u'cuneo-comune-cn',
+                        u'enna-comune-en',
+                        u'fermo-comune-fm', u'ferrara-comune-fe', u'firenze-comune-fi', u'foggia-comune-fg',
+                        u'forli-comune-fc', u'frosinone-comune-fr', u'genova-comune-ge', u'gorizia-comune-go',
+                        u'grosseto-comune-gr',
+                        u'iglesias-comune-ci', u'imperia-comune-im', u'isernia-comune-is', u'lanusei-comune-og',
+                        u'laquila-comune-aq', u'la-spezia-comune-sp', u'latina-comune-lt', u'lecce-comune-le',
+                        u'lecco-comune-lc',
+                        u'livorno-comune-li', u'lodi-comune-lo', u'lucca-comune-lu', u'macerata-comune-mc',
+                        u'mantova-comune-mn', u'massa-comune-ms', u'matera-comune-mt', u'messina-comune-me',
+                        u'milano-comune-mi',
+                        u'modena-comune-mo', u'monza-comune-mb', u'napoli-comune-na', u'novara-comune-no',
+                        u'nuoro-comune-nu', u'olbia-comune-ot', u'oristano-comune-or', u'padova-comune-pd',
+                        u'palermo-comune-pa', u'parma-comune-pr',
+                        u'pavia-comune-pv', u'perugia-comune-pg', u'pesaro-comune-pu', u'pescara-comune-pe',
+                        u'piacenza-comune-pc', u'pisa-comune-pi', u'pistoia-comune-pt', u'pordenone-comune-pn',
+                        u'potenza-comune-pz',
+                        u'prato-comune-po', u'ragusa-comune-rg', u'ravenna-comune-ra', u'reggio-di-calabria-comune-rc',
+                        u'reggio-nellemilia-comune-re', u'rieti-comune-ri', u'rimini-comune-rn', u'roma-comune-rm',
+                        u'rovigo-comune-ro', u'salerno-comune-sa', u'sanluri-comune-vs', u'sassari-comune-ss',
+                        u'savona-comune-sv', u'siena-comune-si', u'siracusa-comune-sr', u'sondrio-comune-so',
+                        u'taranto-comune-ta',
+                        u'tempio-pausania-comune-ot', u'teramo-comune-te', u'terni-comune-tr', u'torino-comune-to',
+                        u'tortoli-comune-og', u'trani-comune-bt', u'trapani-comune-tp', u'trento-comune-tn',
+                        u'treviso-comune-tv',
+                        u'trieste-comune-ts', u'udine-comune-ud', u'urbino-comune-pu', u'varese-comune-va',
+                        u'venezia-comune-ve', u'verbania-comune-vb', u'vercelli-comune-vc', u'verona-comune-vr',
+                        u'vibo-valentia-comune-vv', u'vicenza-comune-vi', u'villacidro-comune-vs', u'viterbo-comune-vt']
+
 ##
 # OP API VARIABLES:
 ##
@@ -399,44 +437,36 @@ OP_API_HOST = "http://api3.openpolis.it"
 OP_BLOG_CATEGORY = 'neibilanci'
 
 ##
-# APPLICATION VARIABLES:
-# set the start / end of the time span considered for incarichi related to Territori
+# COOKIES
+# expiration time for a data in a session (seconds)
 ##
 
+SESSION_COOKIE_AGE = 7200
+SESSION_SAVE_EVERY_REQUEST = True
+
+##
+# TIMELINE VARIABLES:
+# set the start / end of the time span considered
+##
 
 APP_DATE_FMT = '%Y-%m-%d'
-APP_START_DATE_STR = "2003-01-01"
-APP_END_DATE_STR = "2013-12-31"
-APP_START_DATE = datetime.strptime(APP_START_DATE_STR, APP_DATE_FMT)
-APP_END_DATE = datetime.strptime(APP_END_DATE_STR, APP_DATE_FMT)
 
-CAPOLUOGHI_PROVINCIA = [u'5190010010', u'1010020030', u'3110030020', u'4160090050', u'1020040030', u'3090050020', u'ASCOLI-PICENO--3110060070', u'1010070050', u'4150080080', u'4160090060', u'4160090070', u'2050100060', u'4150110080', u'1030120240', u'1010960040', u'2080130060', u'2040140050', u'1030150260', u'4160160010', u'5200170090',
-                        u'5190180040', u'4140190060', u'5200170120', u'4150200220', u'5190210150', u'4180220220', u'4130230220', u'1030240720', u'4180250460', u'1030260350', u'4180970100', u'1010270780', u'5190280090', u'3110060190', u'2080290080', u'3090300170', u'4160310230', u'2080320110', u'3120330380', u'1070340250',
-                        u'2060350070', u'3090360100', u'5200170330', u'1070370290', u'4140940230', u'5200530350', u'L-AQUILA--4130380490', u'LA-SPEZIA--1070390150', u'3120400110', u'4160410340', u'1030980420', u'3090420090', u'1030990310', u'3090430170', u'3110440230', u'1030450300', u'3090460100', u'4170470140', u'5190480470', u'1030491450',
-                        u'2080500230', u'1030491480', u'4150510490', u'1010521000', u'5200530490', u'5200730470', u'5200950380', u'2050540600', u'5190550510', u'2080560270', u'1030571070', u'3100580390', u'3110590440', u'4130600280', u'2080610320', u'3090620250', u'3090630140', u'2060930330', u'4170640620', u'3091000050',
-                        u'5190650090', u'2080660140', u'REGGIO-DI-CALABRIA--4180670630', u'REGGIO-NELL-EMILIA--2080680330', u'3120690570', u'2081010140', u'3120700900', u'2050710410', u'4150721160', u'5200170570', u'5200730620', u'1070740560', u'3090750320', u'5190760170', u'1030770610', u'4160780270', u'TEMPIO-PAUSANIA--5200730680', u'4130790400', u'3100800320', u'1010812620',
-                        u'5200530920', u'4160090440', u'5190820210', u'2040831940', u'2050840850', u'2060920060', u'2060851290', u'3110590670', u'1030861160', u'2050870420', u'1011020720', u'1010881560', u'2050890900', u'VIBO-VALENTIA--4181030470', u'2050901160', u'5200170920', u'3120910580'
-                        ]
+APP_START_YEAR = 2003
+APP_END_YEAR = 2013
+APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
+APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
+
+LAST_VALID_CONSUNTIVO_YEAR = 2012
+CLASSIFICHE_START_YEAR = APP_START_DATE.year
+CLASSIFICHE_END_YEAR = LAST_VALID_CONSUNTIVO_YEAR
+
+TERRITORI_CONTEXT_REFERENCE_YEAR = CLASSIFICHE_END_YEAR
 
 ##
 # BILANCIO GRAPHS VARIABLES:
 # set the start / end of the Sindaci timeline and line graphs in the Bilancio Pages
 ##
 
-TERRITORI_CONTEXT_REFERENCE_YEAR = 2012
-
-TIMELINE_START_DATE = APP_START_DATE
-TIMELINE_END_DATE = APP_END_DATE
-
-CLASSIFICHE_START_YEAR = APP_START_DATE.year
-CLASSIFICHE_END_YEAR = 2012
-
-SELECTOR_DEFAULT_YEAR = 2013
-SELECTOR_DEFAULT_BILANCIO_TYPE = 'preventivo'
-
-# expiration time for a data in a session (seconds)
-SESSION_COOKIE_AGE = 7200
-SESSION_SAVE_EVERY_REQUEST = True
 
 # define lines color of the SINDACO marker on the timeline
 INCARICO_MARKER_INACTIVE = '#b9c6c4'
@@ -501,4 +531,4 @@ ENABLED_STATIC_PAGES = [
     'licenze',
     'informativa',
     'credits',
-    ]
+]

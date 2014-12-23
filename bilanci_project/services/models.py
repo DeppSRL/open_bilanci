@@ -14,15 +14,16 @@ class PaginaComune(models.Model):
         (u'1', u'TRADEMARK', u'Logo con nome Comune'),
     )
 
-    host = models.TextField(blank=False, null=False, default='')
+    host = models.TextField(blank=False, null=False, default='', help_text="IMPORTANT: use the format 'www.HOSTNAME.it' without http://")
     backlink = models.URLField(blank=False, null=False, default='')
     territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
     header_text = HTMLField(_("Header text"), help_text=_("Testo che appare nella testata"), blank=True)
     footer_text = HTMLField(_("Footer text"), help_text=_("Testo che appare nel fondo pagina"), blank=True)
     logo = models.ImageField(null=True, blank=True, upload_to='comune_logo/')
     tipologia_logo = models.CharField(choices=TIPOLOGIA, max_length=2, null=False, blank=False, default=u'0')
+    secondary_img = models.ImageField(null=True, blank=True, upload_to='secondary_img/')
+    secondary_link = models.URLField(blank=True, null=True, default=None)
     active = models.BooleanField(default=False)
-
 
     class Meta:
         verbose_name_plural = u'Pagina Comune'

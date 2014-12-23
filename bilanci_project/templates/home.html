@@ -28,11 +28,13 @@
                 <div class="col-md-8 col-md-offset-2">
 
                     <h1>
-                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small>{% if settings.SITE_VERSION %}<small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</span>
+                        <span class="brand">open<strong>bilanci</strong><small>rendiamoci conto</small>
+                            {% if settings.SITE_VERSION %}
+                                <small class="version">{{ settings.SITE_VERSION }}</small>{% endif %}</span>
                     </h1>
 
                     <h2>
-                        I bilanci di tutti i Comuni italiani negli ultimi dieci anni<br>
+                        I bilanci di tutti i Comuni italiani <br class="hidden-md hidden-lg">negli ultimi dieci anni<br>
                         i Sindaci a cui chiedere conto
                     </h2>
 
@@ -47,14 +49,14 @@
             <div class="container">
                 <form role="search" class="pull-left autosubmit" action="{% url 'bilanci-search' %}" method="get">
                     <div class="row">
-                        <div class="col-md-8 col-md-offset-2">
+                        <div class="col-md-10 col-md-offset-1 col-sm-12 col-xs-12">
                             <div class="form-group">
                                 {{ territori_search_form_home }}
                             </div>
                         </div>
                     </div>
                     <div class="row text-center">
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'confronti-home' %}">
                                     <span class="icon sprite-confronti-big"></span>
@@ -63,7 +65,7 @@
                             </h3>
                             <p>confronta due Comuni: cifre, indicatori, gestione dei Sindaci. Condividi quello che trovi</p>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'classifiche-redirect' %}">
                                     <span class="icon sprite-classifiche-big"></span>
@@ -72,7 +74,7 @@
                             </h3>
                             <p>chi spende di pi&ugrave; per la cultura? chi ha le tasse più alte? crea e diffondi la tua classifica</p>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
                             <h3>
                                 <a href="{% url 'mappe' %}" title="Mappe">
                                     <span class="icon sprite-mappa-big"></span>
@@ -88,21 +90,7 @@
 
         <section id="slider">
 
-{#            <div class="modal fade video-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">#}
-{#                <div class="modal-dialog">#}
-{#                    <div class="modal-content">#}
-{#                        <iframe src="//player.vimeo.com/video/94017018" width="100%" height="340" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-
-            <div id="carousel" class="carousel slide" data-ride="carousel">
-                <!-- Indicators -->
-                <!--ol class="carousel-indicators">
-                    <li data-target="#carousel" data-slide-to="0" class="active"></li>
-                    <li data-target="#carousel" data-slide-to="1"></li>
-                    <li data-target="#carousel" data-slide-to="2"></li>
-                </ol-->
+            <div id="carousel" class="carousel slide hidden-xs hidden-sm" data-ride="carousel">
 
                 <!-- Wrapper for slides -->
                 <div class="carousel-inner">
@@ -128,19 +116,16 @@
                     <i class="fa fa-angle-right"></i>
                 </a>
 
-                <!-- Open video -->
-{#                <div class="container video-holder">#}
-{#                    <div class="row">#}
-{#                        <div class="col-md-12">#}
-{#                            <button class="btn btn-primary pull-right" data-toggle="modal" data-target=".video-modal">#}
-{#                                <i class="fa fa-play-circle"></i>#}
-{#                                <span class="hidden-sm hidden-md hidden-lg">play</span>#}
-{#                            </button>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
             </div>
         </section>
+
+        {% comment %}
+        <section id="imported_xml" style="background-color: white;">
+            <div class="container">
+                {% include 'commons/import_list.html' %}
+            </div>
+        </section>
+        {% endcomment %}
 
         <section id="from-the-blog">
             <div class="container">
@@ -162,50 +147,7 @@
                             <p class="small tags">{% for tag in blog_post.tags %}{% if tag.term.0|lower == tag.term.0 %}<a href="http://blog.openpolis.it/argomenti/{{ tag.term|lower|slugify }}/">{{ tag.term }}</a>{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}</p>
                         </footer>
                     </li>
-                    {% empty %}
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <div class="text">
-                            <p>
-                                Considerata l’apertura del Governo Renzi sui temi della
-                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                                Openpolis intendono rilanciare il tema Opensiope.</strong>
-                            </p>
-                        </div>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <div class="text">
-                            <p>
-                                Considerata l’apertura del Governo Renzi sui temi della
-                                trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                                Openpolis intendono rilanciare il tema Opensiope.</strong>
-                            </p>
-                        </div>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
-                    <li class="col-sm-4">
-                        <hr>
-                        <h3><a href="#" title="">Decreto Droghe: primo voto per il post Fini-Giovanardi</a></h3>
-                        <p class="small"><time datetime="2014-01-12"><span class="icon sprite-calendar"></span> 12 gennaio 2014</time></p>
-                        <p class="text">
-                            Considerata l’apertura del Governo Renzi sui temi della
-                            trasparenza, dell’accountability e dell’opendata, <strong>Effeddì e
-                            Openpolis intendono rilanciare il tema Opensiope.</strong>
-                        </p>
-                        <footer>
-                            <p class="small tags"><span class="icon sprite-tag"></span> <a href="#">bilanci</a>, <a href="#">corruzione</a>, <a href="#">trasparenza</a></p>
-                        </footer>
-                    </li>
+                    
                     {% endfor %}
 
                 </ul>

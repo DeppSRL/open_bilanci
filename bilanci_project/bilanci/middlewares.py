@@ -38,19 +38,18 @@ class PrivateBetaMiddleware(object):
             return HomeTemporaryView.as_view()(request)
 
 
-
 class ComuniServicesMiddleware(object):
 
     """
-        ComuniServicesMiddleware serves to enable the Servizi ai Comuni.
-        The request is filtered by the http_host: if the host belongs to a Comune
-        that has activated the services then the special template is shown for
-        Dettaglio, Composizione e Indicatori views.
+    ComuniServicesMiddleware serves to enable the Servizi ai Comuni.
+    The request is filtered by the http_host: if the host belongs to a Comune
+    that has activated the services then the special template is shown for
+    Dettaglio, Composizione e Indicatori views.
 
-        If the request comes from the production / staging host then no action is taken.
+    If the request comes from the production / staging host then no action is taken.
 
-        In all other cases a 404 page is shown
-        """
+    In all other cases a 404 page is shown
+    """
 
     def process_request(self, request):
 
@@ -63,8 +62,8 @@ class ComuniServicesMiddleware(object):
 
             try:
                 pagina_comune = PaginaComune.objects.get(
-                    host = http_host,
-                    active = True
+                    host=http_host,
+                    active=True
                 )
             except ObjectDoesNotExist:
                 return PageNotFoundTemplateView.as_view()(request)
@@ -73,9 +72,10 @@ class ComuniServicesMiddleware(object):
 
                 # depending on the request.path resolves the url with bilanci.urls or services.urls
                 # paths coming from the widget, the json views and the static files are resolved with bilanci.urls
-                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/', 'comune_logo' ]
+                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/', 'comune_logo', 'secondary_img' ]
 
                 def isin(x): return x in request.path
+
                 try:
                     map(isin, items).index(True)
                 except ValueError:
@@ -90,7 +90,5 @@ class ComuniServicesMiddleware(object):
 
                 else:
                     return
-
-
 
         return

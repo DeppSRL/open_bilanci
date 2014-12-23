@@ -8,8 +8,8 @@
 * */
 
 var year_selector = null;
+var year_selector_mobile = null;
 var reference_url = null;
-
 
 function clicked_year(selected_year){
     // gets the 4 digits in the reference url representing the year value and substitutes
@@ -32,6 +32,13 @@ function clicked_year(selected_year){
     window.location.href = navigate_to_url;
 
 }
+
+function clicked_year_mobile(){
+    //calls clicked yr when the mobile select box is clicked
+    //giving the selected yr as a parameter
+    clicked_year(year_selector_mobile.val());
+}
+
 
 function clicked_button(){
     // if we are seeing preventivo navigates to consuntivo and viceversa
@@ -62,6 +69,7 @@ function init_selector(selector_init_obj){
     var selected_button_label = null;
 
     year_selector = visup.selector(".year-selector");
+    year_selector_mobile = $(".year-selector-mobile");
 
 
     // defines default values for the function parameters
@@ -118,6 +126,7 @@ function init_selector(selector_init_obj){
 
     //when year is selected, navigate to the new page
     year_selector.on("clickYear",clicked_year);
+    year_selector_mobile.on("change",clicked_year_mobile);
 
 
     //if we are using buttons, binds the un-selected button with the callback function on the click event.

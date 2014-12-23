@@ -3,8 +3,8 @@
 @import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
 /**
  * Main style
- * @author mleone <manuel.leone@gmail.com>
- * @version 1.6.0
+ * @author agiangiulio <a.giangiulio@mister-wolf.it>
+ * @version 1.8.5
  **/
 body {
   background-color: #5e6a77;
@@ -570,7 +570,7 @@ p.details {
   padding-bottom: 0;
   padding-top: 37px;
 }
-#main-content > .panel-heading > .panel-title {
+#main-content > .panel-heading .panel-title {
   font-size: 46px;
   padding: 0;
   line-height: 100%;
@@ -2716,7 +2716,8 @@ a.active .sprite-mappa-big {
 }
 #home #header h2 {
   color: #fff;
-  font-weight: 300;
+  /*font-weight: @light;*/
+
   font-size: 22px;
   line-height: 24px;
 }
@@ -2799,6 +2800,7 @@ a.active .sprite-mappa-big {
 }
 #home #main-content form {
   margin: 20px 0 0;
+  width: 100%;
 }
 #home #main-content form .row > div {
   margin-bottom: 20px;
@@ -3002,6 +3004,7 @@ a.active .sprite-mappa-big {
 #home #main-content #open-data {
   background: #b84b36 url(../img/texture_open_data.png) 50% 0 fixed;
   color: #fff;
+  margin-bottom: 15px;
 }
 #home #main-content #open-data h1,
 #home #main-content #open-data h2 {
@@ -3017,30 +3020,6 @@ a.active .sprite-mappa-big {
     -moz-background-size: 1600px 250px;
     -webkit-background-size: 1600px 250px;
     background-size: 1600px 250px;
-  }
-}
-@media (max-width: 992px) {
-  .navbar-main .navbar-header form {
-    width: 95px;
-  }
-}
-@media (max-width: 768px) {
-  .navbar-subnav .nav > li {
-    border-right: 0;
-  }
-}
-@media (max-width: 400px) {
-  .navbar-main .navbar-header form {
-    width: 100%;
-  }
-  #settings {
-    position: relative;
-    top: auto !important;
-    left: auto !important;
-  }
-  #settings .panel > .panel-heading {
-    margin-left: 0 !important;
-    padding-left: 15px !important;
   }
 }
 /* #### */
@@ -3339,6 +3318,732 @@ button .pull-left {
   text-decoration: underline;
   color: #fff;
 }
+/*// Media queries
+@media (max-width: 992px) {
+    .navbar-main .navbar-header form {
+        width: 95px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-subnav .nav > li {
+        border-right: 0;
+    }
+}
+
+@media (max-width: 400px) {
+    .navbar-main .navbar-header form {
+        width: 100%;
+    }
+
+    #settings {
+        position: relative;
+        top: auto !important;
+        left: auto !important;
+
+        .panel > .panel-heading {
+             margin-left: 0 !important;
+             padding-left: 15px !important;
+        }
+    }
+
+}*/
+.sep {
+  display: block;
+  width: 100%;
+  clear: both;
+  height: 20px;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #fff;
+}
+#comune #main-content .nav-tabs.nav-justified > li > a {
+  text-align: center;
+  font-size: 18px;
+  border-bottom: 0px;
+}
+#comune #main-content .nav-tabs.nav-justified > li > a:hover {
+  border-bottom: 0px;
+}
+#comune #main-content .nav-tabs.nav-justified > li.col-xs-3.col-sm-3.text-center {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+#comune .nav-tabs.nav-justified {
+  background: #5F6B78;
+  margin-top: 5px;
+  overflow: hidden;
+}
+#comune .nav-tabs.nav-justified > li > a {
+  color: #fff;
+  font-weight: 400 !important;
+  margin-bottom: 1px;
+  padding: 4px 0;
+}
+#comune .nav-tabs.nav-justified a:hover,
+#comune .nav-tabs.nav-justified li.active a {
+  background-color: #2B3037;
+  border-color: transparent;
+  border-radius: 0px;
+  color: #fff;
+}
+#home #main-content form {
+  width: 100%;
+}
+/* NONONONONONONO */
+#bilancio-header p .year {
+  display: none;
+}
+/* -sm  menu chiuso */
+@media (max-width: 767px) {
+  .navbar-toggle {
+    float: left;
+  }
+  .navbar-default .navbar-toggle,
+  .navbar-default .navbar-toggle:hover,
+  .navbar-default .navbar-toggle:focus {
+    background: transparent;
+    border: 0px none;
+  }
+  .navbar-default .navbar-toggle .icon-bar {
+    background-color: #fff;
+    height: 3px;
+  }
+  .navbar-main .navbar-header {
+    width: auto;
+    margin-top: 0px;
+  }
+  .navbar-main .navbar-header form {
+    width: 100%;
+    margin: 0px;
+  }
+  #home #main-content form {
+    width: 100%;
+  }
+  .navbar-brand {
+    margin-bottom: 10px;
+    margin-left: 130%;
+    margin-right: 130%;
+  }
+  .panel,
+  .panel-heading {
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+  }
+  div#s2id_id_territori.select2-container.select2-container-active.select2-dropdown-open,
+  div#s2id_id_territori.select2-container.select2-container-active,
+  div#s2id_id_territori.select2-container {
+    width: 100% !important;
+  }
+  .navbar-collapse {
+    border-top: 0px none;
+    margin-top: 10px;
+  }
+  .btn.btn-fill {
+    background-color: #5e6a77;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+  }
+  #services h2 {
+    text-align: center;
+  }
+  #comparison .form-group {
+    width: 100%;
+  }
+  #comparison .form-group .form-control {
+    padding-right: 0px;
+  }
+  #main-content .gTitle > div {
+    margin-left: 0px;
+    margin: 10px 0 0;
+  }
+  .share_button .pull-right {
+    float: left !important;
+    padding-left: 0px;
+  }
+  .share {
+    padding: 5px 0 0 0px;
+  }
+  #home #header h2 {
+    font-size: 16px;
+  }
+  .cas_com_box.pull-right {
+    /*float:left !important;*/
+  
+  }
+  #main-content .values_type {
+    font-size: 10px;
+    padding-top: 0px;
+  }
+  .affix-top .pull-right {
+    float: none !important;
+    text-align: left;
+    margin-bottom: 10px;
+    padding-left: 0px;
+  }
+  .cas_com_box #settings {
+    /*left:0px !important;*/
+  
+    top: 110% !important;
+  }
+  #comune .phrase {
+    border-left: 0px none;
+    text-align: center;
+  }
+  #comune .logo-comune {
+    margin-bottom: 25px;
+  }
+  #comune .nav-tabs.nav-justified > li {
+    float: left;
+  }
+  #comune .navbar-header .pull-right {
+    text-align: center;
+    float: none !important;
+  }
+  .nav-tabs.nav-justified > li {
+    float: left;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    padding: 0px 0px;
+    text-align: center;
+  }
+  #sidebar {
+    width: 100% !important;
+  }
+  .btn-group .btn {
+    text-align: center;
+  }
+  #results .panel-heading {
+    height: auto;
+  }
+  #results .table > tbody > tr > td {
+    padding: 3px 0px;
+    text-align: center;
+  }
+  #results .table > tbody > tr > td.pos {
+    text-align: center;
+  }
+  #results .table > tbody > tr > td.text {
+    text-align: left;
+    padding: 3px 15px;
+  }
+  .rate .h2 {
+    font-size: 20px;
+  }
+  #bilancio-header.affix {
+    padding-bottom: 0px;
+    width: 100% !important;
+    left: 0px;
+    border-bottom: 0px none;
+  }
+  #bilancio-header.affix #affix-breadcrumbs.affix-only {
+    display: none;
+  }
+  #bilancio-header.affix .navbar-subnav {
+    float: left;
+    width: 45% !important;
+  }
+  #bilancio-header.affix > p.details {
+    display: block;
+    float: left;
+  }
+  #bilancio-header.affix h1.panel-title,
+  #bilancio-header.affix > p {
+    padding-top: 5px;
+  }
+  #bilancio-header.affix h1.panel-title {
+    padding-left: 15px;
+  }
+  #bilancio-header.affix .scarica {
+    display: none;
+  }
+  #bilancio-header.affix .download-box {
+    padding-top: 5px;
+    padding-right: 15px;
+  }
+  .nav-tabs.nav-justified {
+    background: #5F6B78;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+  .nav-tabs.nav-justified li {
+    width: 25%;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    color: #fff;
+    font-weight: 300 !important;
+    margin-bottom: 1px;
+    padding: 4px 0;
+    font-size: 16px;
+  }
+  .nav-tabs.nav-justified a:hover,
+  .nav-tabs.nav-justified li.active a {
+    background-color: #2B3037;
+    border-color: transparent;
+    border-radius: 0px;
+    color: #fff;
+  }
+  .panel-tree .actions {
+    text-align: left !important;
+  }
+  .panel-tree .actions.actons-lev1 {
+    margin-left: 20px;
+  }
+  .panel-tree .panel-collapse .panel-collapse .actions {
+    padding-left: 42px;
+  }
+  .btn-group .btn-ob .fa,
+  .panel-tree .trend-chart-toggle .sprite-grafico {
+    margin-left: 0px;
+  }
+  .fun-int {
+    margin-left: 0px !important;
+    display: block;
+  }
+  #bilancio-header {
+    width: 100% !important;
+  }
+  #open-data {
+    margin-bottom: 20px;
+  }
+  .label-blu {
+    font-size: 11px;
+  }
+  #main-content .selection {
+    font-size: 12px;
+  }
+  #balance .panel-default .table > tbody > tr > td,
+  #results .table > tbody > tr > td {
+    padding: 5px;
+  }
+  #balance .panel-default .table td.pos .h3 {
+    font-size: 16px;
+  }
+  #results td.rate .h2,
+  #results td.text .h2 {
+    font-size: 16px;
+    line-height: 36px;
+  }
+  #balance .panel-default .table td.text {
+    width: auto !important;
+  }
+  #bilancio-header.affix .download-box {
+    display: none;
+  }
+  #bilancio-header.affix > p.details {
+    border-right: 0px none !important;
+  }
+  #footer .social-accounts a {
+    font-size: 13px;
+  }
+  #side-controls-wrapper #settings,
+  #sidebar {
+    width: 100% !important;
+  }
+  .affix-mob {
+    clear: both;
+    overflow: hidden;
+  }
+  #footer {
+    padding: 0px 0px;
+  }
+}
+/* -xs molto molto piccolo */
+@media screen and (max-width: 400px) {
+  .navbar-toggle {
+    float: left;
+  }
+  .navbar-default .navbar-toggle,
+  .navbar-default .navbar-toggle:hover,
+  .navbar-default .navbar-toggle:focus {
+    background: transparent;
+    border: 0px none;
+  }
+  .navbar-default .navbar-toggle .icon-bar {
+    background-color: #fff;
+    height: 3px;
+  }
+  .navbar-main .navbar-header {
+    width: auto;
+    margin-top: 0px;
+  }
+  .navbar-main .navbar-header form {
+    width: 100%;
+    margin: 0px;
+  }
+  #home #main-content form {
+    width: 100%;
+  }
+  .panel,
+  .panel-heading {
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+  }
+  .navbar-brand {
+    margin-bottom: 10px;
+    margin-left: 130%;
+    margin-right: 130%;
+  }
+  div#s2id_id_territori.select2-container.select2-container-active.select2-dropdown-open,
+  div#s2id_id_territori.select2-container.select2-container-active,
+  div#s2id_id_territori.select2-container {
+    width: 92% !important;
+  }
+  .navbar-collapse {
+    border-top: 0px none;
+    margin-top: 10px;
+  }
+  .btn.btn-fill {
+    background-color: #5e6a77;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+  }
+  #services h2 {
+    text-align: center;
+  }
+  #comparison .form-group {
+    width: 100%;
+  }
+  #comparison .form-group .form-control {
+    padding-right: 0px;
+  }
+  #main-content .gTitle > div {
+    margin-left: 0px;
+    margin: 10px 0 0;
+  }
+  .share_button .pull-right {
+    float: left !important;
+    padding-left: 0px;
+  }
+  .share {
+    padding: 5px 0 0 0px;
+  }
+  #home #header h2 {
+    font-size: 16px;
+  }
+  .cas_com_box.pull-right {
+    /*float:left !important;*/
+  
+  }
+  #main-content .values_type {
+    font-size: 10px;
+    padding-top: 0px;
+  }
+  .affix-top .pull-right {
+    float: none !important;
+    text-align: left;
+    margin-bottom: 10px;
+    padding-left: 0px;
+  }
+  .cas_com_box #settings {
+    /*left:0px !important;*/
+  
+    top: 110% !important;
+  }
+  #comune .phrase {
+    border-left: 0px none;
+    text-align: center;
+  }
+  #comune .logo-comune {
+    margin-bottom: 25px;
+  }
+  #comune .nav-tabs.nav-justified > li {
+    float: left;
+  }
+  #comune .navbar-header .pull-right {
+    text-align: center;
+    float: none !important;
+  }
+  .nav-tabs.nav-justified > li {
+    float: left;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    padding: 0px 0px;
+    text-align: center;
+  }
+  #sidebar {
+    width: 100% !important;
+  }
+  .btn-group .btn {
+    text-align: center;
+  }
+  #results .panel-heading {
+    height: auto;
+  }
+  #results .table > tbody > tr > td {
+    padding: 3px 3px;
+    text-align: center;
+  }
+  #results .table > tbody > tr > td.pos {
+    text-align: center;
+  }
+  #results .table > tbody > tr > td.text {
+    text-align: left;
+    padding: 3px 15px;
+  }
+  .rate .h2 {
+    font-size: 18px;
+  }
+  #bilancio-header.affix {
+    padding-bottom: 0px;
+    width: 100% !important;
+    left: 0px;
+    border-bottom: 0px none;
+  }
+  #bilancio-header.affix #affix-breadcrumbs.affix-only {
+    display: none;
+  }
+  #bilancio-header.affix .navbar-subnav {
+    float: left;
+    width: 45% !important;
+  }
+  #bilancio-header.affix > p.details {
+    display: block;
+    float: left;
+  }
+  #bilancio-header.affix h1.panel-title,
+  #bilancio-header.affix > p {
+    padding-top: 5px;
+  }
+  #bilancio-header.affix h1.panel-title {
+    padding-left: 15px;
+  }
+  #bilancio-header.affix .download-box {
+    padding-top: 5px;
+    padding-right: 15px;
+  }
+  #bilancio-header.affix .scarica {
+    display: none;
+  }
+  .nav-tabs.nav-justified {
+    background: #5F6B78;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+  .nav-tabs.nav-justified li {
+    width: 25%;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    color: #fff;
+    font-weight: 300 !important;
+    margin-bottom: 1px;
+    padding: 4px 0;
+    font-size: 16px;
+  }
+  .nav-tabs.nav-justified a:hover,
+  .nav-tabs.nav-justified li.active a {
+    background-color: #2B3037;
+    border-color: transparent;
+    border-radius: 0px;
+    color: #fff;
+  }
+  .panel-tree .actions {
+    text-align: left !important;
+  }
+  .panel-tree .actions.actons-lev1 {
+    margin-left: 20px;
+  }
+  .panel-tree .panel-collapse .panel-collapse .actions {
+    padding-left: 42px;
+  }
+  .btn-group .btn-ob .fa,
+  .panel-tree .trend-chart-toggle .sprite-grafico {
+    margin-left: 0px;
+  }
+  .fun-int {
+    margin-left: 0px !important;
+    display: block;
+  }
+  #bilancio-header {
+    width: 100% !important;
+  }
+  #open-data {
+    margin-bottom: 20px;
+  }
+  .label-blu {
+    font-size: 11px;
+  }
+  #main-content .selection {
+    font-size: 12px;
+  }
+  #balance .panel-default .table > tbody > tr > td,
+  #results .table > tbody > tr > td {
+    padding: 5px;
+  }
+  #balance .panel-default .table td.pos .h3 {
+    font-size: 16px;
+  }
+  #results td.rate .h2,
+  #results td.text .h2 {
+    font-size: 16px;
+    line-height: 36px;
+  }
+  #balance .panel-default .table td.text {
+    width: auto !important;
+  }
+  #bilancio-header.affix .download-box {
+    display: none;
+  }
+  #bilancio-header.affix > p.details {
+    border-right: 0px none !important;
+  }
+  #footer .social-accounts a {
+    font-size: 13px;
+  }
+  #side-controls-wrapper #settings,
+  #sidebar {
+    width: 100% !important;
+  }
+  .affix-mob {
+    clear: both;
+    overflow: hidden;
+  }
+  #footer {
+    padding: 0px 0px;
+  }
+}
+/* altro (anche ipad landscape) */
+@media (min-width: 767px) and (max-width: 992px) {
+  .btn.btn-fill {
+    background-color: #5e6a77;
+    color: #fff;
+    width: 100%;
+    text-align: center;
+  }
+  #main-content .gTitle > div {
+    margin-left: 0px;
+  }
+  #bilancio-header.affix .download-box {
+    display: none;
+  }
+  .bread {
+    display: none;
+  }
+  #bilancio-header.affix {
+    left: 0px;
+    width: 100% !important;
+  }
+  #bilancio-header.affix h1.panel-title {
+    margin: 4px 10px 0 15px;
+  }
+  .nav-tabs.nav-justified {
+    background: #5F6B78;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+  .nav-tabs.nav-justified li {
+    text-align: center;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    color: #fff;
+    font-weight: 300 !important;
+    margin-bottom: 1px;
+    padding: 4px 0;
+    font-size: 16px;
+    text-align: center;
+  }
+  .nav-tabs.nav-justified a:hover,
+  .nav-tabs.nav-justified li.active a {
+    background-color: #2B3037;
+    border-color: transparent;
+    border-radius: 0px;
+    color: #fff;
+  }
+  #bilancio-header.affix #affix-breadcrumbs.affix-only {
+    display: none;
+  }
+  .navbar-main .navbar-header {
+    width: 100%;
+  }
+  .navbar-main .navbar-header form {
+    width: 100%;
+  }
+  .navbar-right {
+    float: left !important;
+  }
+  .composition-widget-container {
+    display: none;
+  }
+  .navbar-header .pull-right {
+    text-align: center;
+    width: 100%;
+  }
+  .navbar-main .navbar-brand {
+    padding: 0px;
+    margin: 0px;
+    padding-top: 10px;
+  }
+  .navbar-main .navbar-header form {
+    width: 95% !important;
+  }
+  .navbar-collapse {
+    padding-left: 0px;
+  }
+}
+/* intermedio */
+@media (min-width: 992px) and (max-width: 1200px) {
+  #bilancio-header.affix .download-box {
+    display: none;
+  }
+  .bread {
+    display: none;
+  }
+  .nav-tabs.nav-justified {
+    background: #5F6B78;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+  .nav-tabs.nav-justified li {
+    text-align: center;
+  }
+  .nav-tabs.nav-justified li a {
+    text-align: center;
+  }
+  #main-content .nav-tabs.nav-justified > li > a {
+    color: #fff;
+    font-weight: 300 !important;
+    margin-bottom: 1px;
+    padding: 4px 0;
+    font-size: 16px;
+    text-align: center;
+  }
+  .nav-tabs.nav-justified a:hover,
+  .nav-tabs.nav-justified li.active a {
+    background-color: #2B3037;
+    border-color: transparent;
+    border-radius: 0px;
+    color: #fff;
+  }
+  #bilancio-header.affix {
+    left: 0px;
+    width: 100% !important;
+  }
+  #bilancio-header.affix h1.panel-title {
+    margin: 4px 10px 0 15px;
+  }
+  #bilancio-header.affix #affix-breadcrumbs.affix-only {
+    display: none;
+  }
+  .navbar-main .navbar-header {
+    width: 580px;
+  }
+  .navbar-main .navbar-header form {
+    width: 100%;
+  }
+  .navbar-header .pull-right {
+    text-align: center;
+    width: 100%;
+  }
+}
+@media (min-width: 1200px) {
+  
+}
+.select2-container {
+  width: 100% !important;
+}
 @font-face {
   font-family: 'Lato';
   font-style: normal;
@@ -3431,7 +4136,6 @@ form ul li label {
   padding: 3px 12px;
 }
 #sidebar {
-  width: 380px!important;
   border: 0;
   margin-top: 5px;
   padding-top: 0;
@@ -3634,9 +4338,6 @@ a[rel=info-popover]:visited {
 #balance .panel-default .table td {
   border-color: #b9c6c4;
 }
-#balance .panel-default .table td.text {
-  width: 100%!important;
-}
 /*
 navbar
 */
@@ -3654,6 +4355,10 @@ navbar
 #bilancio-header #services-comune-name a:hover {
   text-decoration: none;
   color: #56686e;
+}
+#bilancio-header #services-comune-name #secondary_img {
+  max-width: 260px;
+  padding-top: 5px;
 }
 #bilancio-header .affix-only {
   display: none;
@@ -3788,7 +4493,6 @@ affix navbar
 }
 #bilancio-header.affix h1.panel-title,
 #bilancio-header.affix > p {
-  margin: 4px 10px 0 0;
   line-height: 1.4;
 }
 #bilancio-header.affix .navbar-subnav {
@@ -3871,6 +4575,10 @@ share box
   background-color: #f8f8f8;
   border-top: 0;
   text-align: left;
+}
+#main-content #results #territorio_name a,
+#main-content #results #territorio_name a:hover {
+  display: inline!important;
 }
 #main-content.panel #classifiche-menu.panel-body {
   padding-bottom: 0;
