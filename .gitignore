@@ -52,6 +52,7 @@ dati/
 assets/
 open_data/
 bilanci_project/data/csv
+bilanci_project/data/xml
 bilanci_project/data/zip
 bilanci_project/data/indicators/
 bilanci_project/data/indicators_capoluoghi/
