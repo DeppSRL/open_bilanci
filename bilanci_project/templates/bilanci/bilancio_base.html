@@ -124,16 +124,8 @@
                         <hr class="gray-border-top">
                     </div>
                 </div>
-                {# year selector widget #}
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="row timeline">
-                            <div class="col-sm-12">
-                                <div class="year-selector"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {# year selector component            #}
+                {% include 'bilanci/_yr_selector.html' with yr_selector_complete=True %}
             {% endblock %}
 
             <div class="row">
