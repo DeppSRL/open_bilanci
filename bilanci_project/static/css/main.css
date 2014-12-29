@@ -3982,6 +3982,9 @@ button .pull-left {
   .navbar-collapse {
     padding-left: 0px;
   }
+  #bilancio-header.affix > p.details {
+    margin-top: 4px;
+  }
 }
 /* intermedio */
 @media (min-width: 992px) and (max-width: 1200px) {
@@ -4036,6 +4039,9 @@ button .pull-left {
   .navbar-header .pull-right {
     text-align: center;
     width: 100%;
+  }
+  #bilancio-header.affix > p.details {
+    margin-top: 4px;
   }
 }
 @media (min-width: 1200px) {
@@ -4465,7 +4471,8 @@ affix navbar
   display: none;
 }
 #bilancio-header.affix #affix-breadcrumbs {
-  margin-top: 4px;
+  margin-top: 0;
+  margin-left: 8px;
 }
 #bilancio-header.affix img {
   display: none;
