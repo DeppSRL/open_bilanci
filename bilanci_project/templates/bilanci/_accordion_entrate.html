@@ -16,7 +16,7 @@
                 <div class="panel">
                     <div id="heading-{{ node.slug|slugify }}" class="panel-heading">
                         <div class="row">
-                            <div class="col-md-6 col-sm-12 col-xs-12 entry">
+                            <div class="entry col-md-6 col-sm-12 col-xs-12 ">
                                 {% if not node.is_leaf_node %}
                                     <a class="collapse-toggle" href="#{{ node.slug }}" data-toggle="collapse" data-parent="#tree-{{ node.parent.slug }}">
                                         <i class="fa fa-fw fa-plus-circle"></i>
@@ -36,7 +36,7 @@
                             {% include 'bilanci/_classifiche_link.html' with selected_par_type=selected_section %}
 
 {#                            <div class="col-sm-3 {% if tipo_bilancio == 'preventivo' or link_to_classifiche_available == False %}col-md-offset-1{% endif %} actions">#}
-                            <div class="col-md-3 col-sm-6 col-xs-6 actions {% if tipo_bilancio == 'preventivo' or link_to_classifiche_available == False %}col-sm-offset-1{% endif %}">
+                            <div class="actions col-md-3 col-sm-6 col-xs-6  {% if tipo_bilancio == 'preventivo' or link_to_classifiche_available == False %}col-sm-offset-1{% endif %}">
                                 {% voice_values node.slug budget_values %}
                             </div>
 
