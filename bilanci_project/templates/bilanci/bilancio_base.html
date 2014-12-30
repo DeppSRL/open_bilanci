@@ -110,10 +110,10 @@
         {% block page_controls %}
             {# page subtitle: bilancio / entrate /spese/ indicatori  #}
             <div class="row page-subtitle">
-                <div class="col-md-8">
+                <div class="col-md-8 col-sm-6 col-xs-6">
                     <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
                 </div>
-                <div class="col-md-4 share-box">
+                <div class="col-md-4 col-sm-6 col-xs-6 share-box">
                     {% include "bilanci/_share_button.html" %}
                 </div>
             </div>
