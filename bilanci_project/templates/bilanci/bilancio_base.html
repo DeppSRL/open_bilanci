@@ -110,10 +110,10 @@
         {% block page_controls %}
             {# page subtitle: bilancio / entrate /spese/ indicatori  #}
             <div class="row page-subtitle">
-                <div class="col-md-8">
+                <div class="col-md-8 col-sm-6 col-xs-6">
                     <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
                 </div>
-                <div class="col-md-4 share-box">
+                <div class="col-md-4 col-sm-6 col-xs-6 share-box">
                     {% include "bilanci/_share_button.html" %}
                 </div>
             </div>
@@ -124,19 +124,11 @@
                         <hr class="gray-border-top">
                     </div>
                 </div>
-                {# year selector widget #}
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="row timeline">
-                            <div class="col-sm-12">
-                                <div class="year-selector"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {# year selector component            #}
+                {% include 'bilanci/_yr_selector.html' with yr_selector_complete=True %}
             {% endblock %}
 
-            <div class="row">
+            <div class="row hidden-xs hidden-sm">
                 <div class="col-md-12">
                     <hr class="gray-border-top">
                 </div>
@@ -151,7 +143,7 @@
                 {% endblock %}
 
                 {# values types + control button "CAMBIA"  #}
-                <div class="col-md-5">
+                <div class="col-md-5 hidden-xs hidden-sm hidden-md">
                     {% block bilancio_controls %}
 
                     {% endblock %}
@@ -199,8 +191,8 @@
             var navbar_top = $('.navbar.navbar-subnav').offset().top;
             var footer_height = 388;
 
-            {# riga seguente: fix giangiulio per menu affix mobile   #}
-            bilancio_header.css('width', '100%');
+{#            riga seguente: fix giangiulio per menu affix mobile   #}
+            bilancio_header.css('width', bilancio_header.width());
             // fix container height
             bilancio_header.parent().css('min-height', bilancio_header.height());
             // set affix dynamic offset

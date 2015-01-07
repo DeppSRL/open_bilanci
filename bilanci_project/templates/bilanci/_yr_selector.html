@@ -11,7 +11,7 @@
 {# yr selector mobile               #}
 <div class="row visible-md visible-sm visible-xs hidden-lg" style="padding-top: 10px; padding-bottom: 15px;">
     <div class="col-sm-4 col-xs-4">
-        SELEZIONA L'ANNO
+        SELEZIONA L'ANNO{% if yr_selector_complete %} ED IL BILANCIO{% endif %}
     </div>
     <div class="col-sm-6 col-xs-6">
         <select class="year-selector-mobile">
@@ -19,6 +19,15 @@
                 <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
             {% endfor %}
         </select>
-        {# todo: inserire tendina tipo bilancio          #}
+
+    {# tendina tipo bilancio          #}
+    {% if yr_selector_complete %}
+        <div class="col-sm-6 col-xs-6">
+            <select class="bilancio-type-selector-mobile">
+                <option value="preventivo" {% if selected_bilancio_type == "preventivo" %}selected{% endif %}>Preventivo</option>
+                <option value="consuntivo" {% if selected_bilancio_type == "consuntivo" %}selected{% endif %}>Consuntivo</option>
+            </select>
+        </div>
+    {% endif %}
     </div>
 </div>

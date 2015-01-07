@@ -19,7 +19,7 @@
                 <div id="comparison" class="panel panel-default">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-sm-5">
+                            <div class="col-md-5 col-sm-5">
                                 <div class="form-group">
 
                                     <label for="">CONFRONTA</label>
@@ -27,7 +27,7 @@
                                     {% block helpbox_1 %}{% endblock %}
                                  </div>
                             </div>
-                            <div class="col-sm-5">
+                            <div class="col-md-5 col-sm-5">
                                 <div class="form-group">
 
                                     <label for="">CON</label>
@@ -35,13 +35,16 @@
                                     {% block helpbox_2 %}{% endblock %}
                                 </div>
                             </div>
-                            <div class="col-sm-2">
-                                <div class="form-group">
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                <div class="form-group hidden-xs">
 
                                     <a class="btn btn-link" id="confronti_submit_btn" style="margin-top: 20px;">
                                         <span class="icon sprite-submit"></span>
                                     </a>
                                 </div>
+                                <a class="btn btn-fill hidden-md hidden-lg hidden-sm" id="confronti_submit_btn" style="margin-top: 20px;">
+                                    APPLICA CONFRONTO
+                                </a>
                             </div>
                         </div>
                         {#       error message box #}
