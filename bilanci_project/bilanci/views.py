@@ -1981,7 +1981,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
-        context['selected_year'] = self.main_bilancio_year
+        context['selected_year'] = str(self.main_bilancio_year)
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type

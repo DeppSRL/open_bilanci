@@ -15,9 +15,15 @@
     </div>
     <div class="col-sm-6 col-xs-6">
         <select class="year-selector-mobile">
+        {% if yr_selector_complete %}
+            {% for year in bilanci_allowed_years %}
+                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+            {% endfor %}
+        {% else %}
             {% for year in classifiche_allowed_years %}
                 <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
             {% endfor %}
+        {% endif %}
         </select>
 
     {# tendina tipo bilancio          #}
