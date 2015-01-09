@@ -25,7 +25,8 @@ To activate services for a Comune follow the steps
 -  add the same host address in the list HOSTS_COMUNI
 -  open nginix configuration file (normally in deploy_config/nginx-production.conf)
 -  add the host comune in the row that says "server_name"
--  restart uwsgi
+-  restart nginx: service nginx restart
+-  restart uwsgi: supervisor-ctl stop uwsgi -> supervisor-ctl start uwsgi
 
 After the domain name is correctly set with the DNS pointing to the application server then browsing
 
