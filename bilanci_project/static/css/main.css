@@ -4500,7 +4500,11 @@ affix navbar
 }
 #bilancio-header.affix h1.panel-title,
 #bilancio-header.affix > p {
+  /*Giangiulio fix *
+    /*margin: 4px 10px 0 0;*/
+
   line-height: 1.4;
+  margin-top: 5px;
 }
 #bilancio-header.affix .navbar-subnav {
   border: 0;
@@ -4524,6 +4528,9 @@ affix navbar
 #bilancio-header.affix > p.details {
   display: inline-block;
   border-right: 1px solid #99a5b1;
+  /*Giangiulio fix*/
+
+  margin-left: 10px;
 }
 #bilancio-header.affix > p.details span {
   margin-right: 4px;

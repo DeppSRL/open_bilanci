@@ -13,7 +13,7 @@
             {% for voce in voce_set %}
                 {% if voce != None %}
                     <tr>
-                        <td class="col-sm-7 text ">
+                        <td class="col-sm-7 col-xs-7 text ">
                             <h5>
                                 {% spaceless %}
                                     <a title="" data-toggle="tooltip" data-original-title="vai alla pagina di dettaglio della voce"
@@ -24,7 +24,7 @@
                                 {% endspaceless %}
                             </h5>
                         </td>
-                        <td class="col-sm-1 trend">
+                        <td class="col-sm-1 col-xs-1 trend">
 
                             {% if voce.variation > 0 %}
                                 <span class="icon sprite-trend-up-3"></span>
@@ -33,7 +33,7 @@
                             {% endif %}
 
                         </td>
-                        <td class="col-sm-4 pos">
+                        <td class="col-sm-4 col-xs-4 pos">
                             {% if voce.variation > 0 %}
                                 <span class="h3">+{{ voce.variation }}%</span>
                             {% else %}
@@ -51,11 +51,9 @@
                         <td class="col-sm-1 trend">
                             <span class="icon sprite-trend" style="visibility: hidden;"></span>
                         </td>
-
                     </tr>
 
                 {% endif %}
-
             {% endfor %}
         {% endif %}
 
