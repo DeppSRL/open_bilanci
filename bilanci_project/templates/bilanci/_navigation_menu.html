@@ -1,32 +1,6 @@
-<!-- mobile navigation menu -->
-
-<div class="row visible-md visible-sm visible-xs hidden-lg affix-mob">
-    <div class="col-sm-12">
-
-        <ul class="nav nav-tabs nav-justified">
-            <li class="text-center"><a href="#">overview</a></li>
-            <li class="text-center"><a href="#">entrate</a></li>
-            <li class="text-center"><a href="#">spese</a></li>
-            <li class="text-center"><a href="#">indicatori</a></li>
-        </ul>
-
-        <nav class="navbar navbar-subnav" role="navigation">
-
-        </nav>
-
-        <div class="bread hidden-md hidden-xs hidden-sm">
-            <p>Sei in:</p>
-            <ol class="breadcrumb">
-                <li><a href="#">Bilancio</a></li>
-            </ol>
-        </div>
-    </div>
-</div>
-
-
 <!-- desktop navigation menu -->
 
-<nav class="navbar navbar-subnav  hidden-xs hidden-sm hidden-md" role="navigation">
+<nav class="navbar navbar-subnav hidden-xs hidden-sm hidden-md" role="navigation">
     <ul class="nav nav-tabs" role="tablist">
         <li>
             <a id="dLabel" role="button" data-toggle="dropdown" class="dropdown-toggle" data-target="#" href="#">
@@ -78,3 +52,30 @@
         </li>
     </ul>
 </nav>
+
+<!-- mobile navbar -->
+<div class="row visible-md visible-sm visible-xs hidden-lg affix-mob">
+    <div class="col-sm-12">
+        <ul class="nav nav-tabs nav-justified">
+            <li class="text-center {% ifequal selected_section 'overview' %}active{% endifequal %}">
+                <a href="{{ menu_voices.bilancio }}">
+                    overview
+                </a>
+            </li>
+            <li class="text-center {% ifequal selected_section 'entrate' %}active{% endifequal %}">
+                <a href="{{ menu_voices.entrate.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
+                    entrate
+                </a>
+            </li>
+            <li class="text-center {% ifequal selected_section 'spese' %}active{% endifequal %}">
+                <a href="{{ menu_voices.spese.dettaglio }}{% if query_string %}?{{query_string}}{% endif %}">
+                    spese
+                </a>
+            </li>
+            <li class="text-center {% ifequal selected_section 'indicatori' %}active{% endifequal %}">
+                <a href="{{ menu_voices.indicatori}}">indicatori</a>
+            </li>
+        </ul>
+    </div>
+    <br>
+</div>
