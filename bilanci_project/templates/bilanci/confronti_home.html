@@ -38,11 +38,11 @@
                             <div class="col-md-2 col-sm-2 col-xs-12">
                                 <div class="form-group hidden-xs">
 
-                                    <a class="btn btn-link" id="confronti_submit_btn" style="margin-top: 20px;">
+                                    <a class="btn btn-link confronti_submit_btn" style="margin-top: 20px;">
                                         <span class="icon sprite-submit"></span>
                                     </a>
                                 </div>
-                                <a class="btn btn-fill hidden-md hidden-lg hidden-sm" id="confronti_submit_btn" style="margin-top: 20px;">
+                                <a class="btn btn-fill hidden-md hidden-lg hidden-sm confronti_submit_btn" style="margin-top: 20px;">
                                     APPLICA CONFRONTO
                                 </a>
                             </div>
@@ -91,7 +91,7 @@
             $("#id_territorio_1").on("click", function(){ changeConfrontiUrl();});
             $("#id_territorio_2").on("click", function(){ changeConfrontiUrl();});
 
-            $("#confronti_submit_btn").on('click', function(e) {
+            $(".confronti_submit_btn").on('click', function(e) {
                 submitButtonConfronti(e);
             });
         });
