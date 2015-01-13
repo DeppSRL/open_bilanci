@@ -112,6 +112,8 @@ function submitButtonConfronti(e){
 }
 
 function select2_fix(){
+    /* prevents select2 malfunctioning on mobile */
+
     $(document).on("click",  function(e) {
       if( $(e.target).parents("#id_territorio_1").length == 0)
         $("#id_territorio_1").select2("close");
