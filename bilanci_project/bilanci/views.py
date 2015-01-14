@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import zmq
@@ -23,6 +24,9 @@ import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from territori.models import Territorio, Incarico
+
+
+logger = logging.getLogger('bilanci_project')
 
 
 class ServiziComuniMixin(object):
@@ -67,13 +71,17 @@ class ShareUrlMixin(object):
 
                 payload = {'longUrl': long_url + '&key=' + settings.GOOGLE_SHORTENER_API_KEY}
                 headers = {'content-type': 'application/json'}
-                short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
-                if short_url_req.status_code == requests.codes.ok:
-                    short_url = short_url_req.json().get('id')
-                    short_url_obj = ShortUrl()
-                    short_url_obj.short_url = short_url
-                    short_url_obj.long_url = long_url
-                    short_url_obj.save()
+                try:
+                    short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+                except (ConnectionError, Timeout, SSLError, ProxyError):
+                    logger.warning("Error connecting with Google url shortener service")
+                else:
+                    if short_url_req.status_code == requests.codes.ok:
+                        short_url = short_url_req.json().get('id')
+                        short_url_obj = ShortUrl()
+                        short_url_obj.short_url = short_url
+                        short_url_obj.long_url = long_url
+                        short_url_obj.save()
 
             if short_url_obj:
                 self.share_url = short_url_obj.short_url
@@ -2668,7 +2676,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
                     short_url_obj.long_url = long_url
                     short_url_obj.save()
             except (ConnectionError, Timeout, SSLError, ProxyError):
-                pass
+                logger.warning("Error connecting with Google url shortener service")
 
         if short_url_obj:
             context['share_url'] = short_url_obj.short_url

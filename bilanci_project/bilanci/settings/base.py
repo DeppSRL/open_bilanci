@@ -287,6 +287,12 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'bilanci_project': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+
         'management': {
             'handlers': ['console', 'import_logfile'],
             'level': 'DEBUG',
