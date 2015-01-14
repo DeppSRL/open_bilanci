@@ -3066,7 +3066,6 @@ a.active .sprite-mappa-big {
 .navbar-subnav .dropdown-menu .dropdown-submenu > a:after {
   display: block;
   content: " ";
-  float: right;
   width: 0;
   height: 0;
   border-color: transparent;
@@ -3075,7 +3074,7 @@ a.active .sprite-mappa-big {
   border-left-color: #2b3037;
   margin-top: 12px;
   margin-right: -16px;
-  padding-left: 16px;
+  float: right;
 }
 .navbar-subnav .dropdown-menu .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
@@ -4414,19 +4413,6 @@ navbar
 #bilancio-header .dropdown-submenu:hover > .dropdown-menu {
   display: block;
 }
-#bilancio-header .dropdown-submenu > a:after {
-  display: block;
-  content: " ";
-  float: right;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-  border-width: 5px 0 5px 5px;
-  border-left-color: #000;
-  margin-right: -10px;
-  margin-top: 10px;
-}
 #bilancio-header .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
 }
@@ -4504,7 +4490,7 @@ affix navbar
     /*margin: 4px 10px 0 0;*/
 
   line-height: 1.4;
-  margin-top: 5px;
+  margin-top: 0;
 }
 #bilancio-header.affix .navbar-subnav {
   border: 0;
@@ -4817,4 +4803,7 @@ div.miniclass-incarichi {
   top: 0;
   z-index: 9998;
   opacity: 0;
+}
+.navbar-subnav .dropdown-menu .dropdown-submenu > a:after {
+  margin-right: 0;
 }
