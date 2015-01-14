@@ -7,19 +7,19 @@
 
                 {% for parameter in parameter_list %}
                     <div class="row">
-                        <div class="col-sm-1">
+                        <div class="col-sm-1 col-xs-1">
                             <input type="checkbox" value="{{ parameter.slug }}" name="slug" id="{{ parameter.slug }}"
                             {% if parameter.slug in selected_parameters %}
                                 checked="checked"
                             {% endif %}
                             >
                         </div>
-                        <div class="col-sm-9">
+                        <div class="col-sm-9 col-xs-9">
                             <label for="{{ parameter.slug }}">
                                 {{ parameter.denominazione }}
                             </label>
                         </div>
-                        <div class="col-sm-1">
+                        <div class="col-sm-1 col-xs-1">
                             {% popover_info parameter.slug %}
                         </div>
                     </div>
