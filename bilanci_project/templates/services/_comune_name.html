@@ -11,7 +11,7 @@
     {% if pagina_comune.logo %}
 
         {#  Comune with logo   #}
-        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-9{% endif %}">
+        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-8{% endif %}">
 
             <!-- Comune backlink -->
             {% if pagina_comune.backlink %}
@@ -35,7 +35,7 @@
     {% else %}
 
         {#  Comune without logo       #}
-        <div class="col-lg-9 col-md-12 ">
+        <div class="col-lg-9 col-md-8 ">
             <strong>Comune di</strong><br/>
             <h1 class="panel-title" style="text-transform: uppercase;">
                 {% if pagina_comune.backlink  %}
@@ -52,7 +52,7 @@
 
     {% endif %}
     {#secondary img #}
-    <div class="col-lg-3 col-md-12">
+    <div class="col-lg-3 col-md-4">
         {% if pagina_comune.secondary_img %}
             {% if pagina_comune.secondary_link %} <a href="{{ pagina_comune.secondary_link }}" title="">{% endif %}
             <img id="secondary_img" src="{{ pagina_comune.secondary_img.url }}" />
