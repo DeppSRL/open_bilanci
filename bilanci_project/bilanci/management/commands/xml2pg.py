@@ -78,15 +78,7 @@ class Command(BaseCommand):
             self.popolazione_residente = self.import_context()
 
         else:
-            try:
-                contesto_db = Contesto.objects.get(anno=self.anno, territorio=self.territorio)
-            except ObjectDoesNotExist:
-                self.logger.error(
-                    u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
-                        self.territorio.denominazione, self.anno
-                    ))
-            else:
-                self.popolazione_residente = contesto_db.bil_popolazione_residente
+            self.popolazione_residente = self.territorio.nearest_valid_population(year=self.anno)[1]
 
     def log_errors(self,):
         # output composition errors, if any

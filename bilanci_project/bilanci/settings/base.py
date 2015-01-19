@@ -337,7 +337,8 @@ GDOC_KEYS = {
     'voci_map': env('GDOC_VOCI_MAP_KEY'),
     'simple_map': env('GDOC_VOCI_SIMPLE_MAP_KEY'),
     'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
-    'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013')
+    'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013'),
+    'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -395,6 +396,8 @@ GDP_DEFLATORS = {
     2011: 0.984445032,
     2012: 1,
     2013: 1.014412693,
+    # TODO: update with real deflator value
+    2014: 1.014412693,
 }
 
 CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
