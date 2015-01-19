@@ -396,6 +396,8 @@ GDP_DEFLATORS = {
     2011: 0.984445032,
     2012: 1,
     2013: 1.014412693,
+    # TODO: update with real deflator value
+    2014: 1.014412693,
 }
 
 CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
