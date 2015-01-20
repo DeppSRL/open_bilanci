@@ -78,7 +78,13 @@ class Command(BaseCommand):
             self.popolazione_residente = self.import_context()
 
         else:
-            self.popolazione_residente = self.territorio.nearest_valid_population(year=self.anno)[1]
+            valid_pop_tuple = self.territorio.nearest_valid_population(year=self.anno)
+
+            if valid_pop_tuple is None:
+                self.logger.error("Nearest valid population not found for {}, try launching 'context' mng task".format(self.territorio))
+                exit()
+
+            self.popolazione_residente =  valid_pop_tuple[1]
 
     def log_errors(self,):
         # output composition errors, if any
