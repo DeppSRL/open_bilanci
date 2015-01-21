@@ -442,8 +442,10 @@ CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'anco
 # OP API VARIABLES:
 ##
 
-OP_API_HOST = "http://api3.openpolis.it"
 OP_BLOG_CATEGORY = 'neibilanci'
+OP_API_DOMAIN = env('OP_API_DOMAIN')
+OP_API_USERNAME = env('OP_API_USERNAME')
+OP_API_PASSWORD = env('OP_API_PASSWORD')
 
 ##
 # COOKIES
