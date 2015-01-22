@@ -1793,6 +1793,23 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         return reverse(destination_view, kwargs=redirect_kwargs, urlconf=urlconf) + querystring
 
+    def check_sec_get_params(self):
+
+        ##
+        # checks that secondary GET param has an acceptable value. If so Return True, else False
+        ##
+
+        if self.main_bilancio_type not in self.accepted_bilancio_types or self.main_bilancio_type is None:
+            return False
+        if self.cas_com_type != 'cassa' and self.cas_com_type != 'competenza':
+            return False
+        if self.values_type != 'real' and self.values_type != 'nominal':
+            return False
+        if self.fun_int_view != 'funzioni' and self.fun_int_view != 'interventi':
+            return False
+
+        return True
+
     def get(self, request, *args, **kwargs):
 
         ##
@@ -1814,10 +1831,14 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         self.main_bilancio_year = self.request.GET.get('year', None)
         self.main_bilancio_type = self.request.GET.get('type', None)
 
-        if (self.main_bilancio_year is None or self.main_bilancio_type is None or
+        if (
+                self.main_bilancio_year is None or
+                self.main_bilancio_type is None or
                 self.main_bilancio_type not in self.accepted_bilancio_types or
-                (isinstance(self.main_bilancio_year, str) is False and
-                    isinstance(self.main_bilancio_year, unicode) is False)
+                (
+                    isinstance(self.main_bilancio_year, str) is False and
+                    isinstance(self.main_bilancio_year, unicode) is False
+                )
             ):
 
             # get latest bilancio, redirect
@@ -1830,6 +1851,13 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             redirect_to_latest_bilancio = True
 
         self.main_bilancio_year = int(self.main_bilancio_year)
+
+        # if bilancio yr is outside app timeline, redirects to bil.not.found
+        if self.main_bilancio_year > settings.APP_END_YEAR or\
+                self.main_bilancio_year < settings.APP_START_YEAR:
+             #     redirect to "bilancio not found"
+            return HttpResponseRedirect(reverse('bilancio-not-found'))
+
 
         if self.main_bilancio_year >= settings.APP_END_YEAR - 1:
             self.main_bilancio_is_recent = True
@@ -1844,6 +1872,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         else:
             self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
 
+        if self.check_sec_get_params() is False:
+            return HttpResponseRedirect(reverse('bilancio-not-found'))
         ##
         # based on the type of bilancio and the selected section
         # the rootnode slug to check for existance is determined
