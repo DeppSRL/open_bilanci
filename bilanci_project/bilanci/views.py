@@ -983,6 +983,11 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         self.territorio = get_object_or_404(Territorio, slug=territorio_slug)
 
+        if self.main_bilancio_year > settings.APP_END_YEAR or\
+                self.main_bilancio_year < settings.APP_START_YEAR:
+             #     redirect to "bilancio not found"
+            return HttpResponseRedirect(reverse('bilancio-not-found'))
+
         # identifies the bilancio for comparison
 
         if self.main_bilancio_type == 'preventivo':
