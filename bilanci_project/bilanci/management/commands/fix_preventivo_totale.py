@@ -49,17 +49,17 @@ class Command(BaseCommand):
         slugset_roots = ['preventivo-entrate', 'preventivo-spese']
         slugset_children = []
 
-        pe_children = Voce.objects.get(slug='preventivo-entrate').get_children().values_list('slug', flat=True)
-        ps_children = Voce.objects.get(slug='preventivo-spese').get_children().values_list('slug', flat=True)
+        pe_children = Voce.objects.get(slug='preventivo-entrate').get_natural_children().values_list('slug', flat=True)
+        ps_children = Voce.objects.get(slug='preventivo-spese').get_natural_children().values_list('slug', flat=True)
         slugset_children.extend(pe_children)
         slugset_children.extend(ps_children)
 
         data_set = ValoreBilancio.objects.filter(voce__slug__in=slugset_children).\
             select_related().\
-            values('anno', 'voce__slug', 'territorio__slug', 'valore').\
+            values('anno', 'voce__slug', 'territorio__slug', 'valore','valore_procapite').\
             order_by('anno', 'voce__slug', 'territorio__slug')
 
-        considered_territori = Territorio.objects.filter(territorio="C", ).order_by('-cluster', 'slug')
+        considered_territori = Territorio.objects.filter(territorio="C" ).order_by('-cluster', 'slug')
         considered_years = ValoreBilancio.objects.distinct('anno').order_by('anno').values_list('anno', flat=True)
         keygen = lambda x: (x['anno'], x['voce__slug'], x['territorio__slug'])
         self.regroup = dict((k, list(v)[0]) for k, v in groupby(data_set, key=keygen))
@@ -77,21 +77,22 @@ class Command(BaseCommand):
             self.logger.info("Fixing {}".format(territorio.slug))
             for anno in considered_years:
                 self.logger.debug("Fixing anno {}".format(anno))
-                pop_year, nearest_population = territorio.nearest_valid_population(year=anno)
 
-                self.writes_totale(totale_slug='preventivo-entrate', children_slugs=pe_children, anno=anno, territorio=territorio, population=nearest_population)
-                self.writes_totale(totale_slug='preventivo-spese', children_slugs=ps_children, anno=anno, territorio=territorio, population=nearest_population)
+                self.writes_totale(totale_slug='preventivo-entrate', children_slugs=pe_children, anno=anno, territorio=territorio,)
+                self.writes_totale(totale_slug='preventivo-spese', children_slugs=ps_children, anno=anno, territorio=territorio,)
 
-    def writes_totale(self, totale_slug, children_slugs, anno, territorio, population):
+    def writes_totale(self, totale_slug, children_slugs, anno, territorio):
 
         # writes new totale as sum of 1st level children
-        children_sum = 0
+        children_valore = 0
+        children_valore_procapite = 0
 
         for child_slug in children_slugs:
             try:
-                children_sum += self.regroup[(anno, child_slug, territorio.slug)]['valore']
+                children_valore += self.regroup[(anno, child_slug, territorio.slug)]['valore']
+                children_valore_procapite += self.regroup[(anno, child_slug, territorio.slug)]['valore_procapite']
             except KeyError:
-                self.logger.warning("Territorio:{}, anno:{} Voce:{} has no value, cannot compute:{}".format(territorio.slug, anno, child_slug, totale_slug))
+                # self.logger.warning("Territorio:{}, anno:{} Voce:{} has no value, cannot compute:{}".format(territorio.slug, anno, child_slug, totale_slug))
                 return
 
         if self.dryrun is False:
@@ -100,7 +101,10 @@ class Command(BaseCommand):
             vb.territorio = territorio
             vb.anno = anno
             vb.voce = Voce.objects.get(slug=totale_slug)
-            vb.valore = children_sum
-            vb.valore_procapite = children_sum / float(population)
+            vb.valore = children_valore
+            vb.valore_procapite = children_valore_procapite
+
+            self.logger.debug("Territorio:{}, anno:{}, voce:{}, valore:{}, vpp:{}".format(territorio.slug, anno, totale_slug, children_valore, children_valore_procapite))
+
             if self.dryrun is False:
                 vb.save()
