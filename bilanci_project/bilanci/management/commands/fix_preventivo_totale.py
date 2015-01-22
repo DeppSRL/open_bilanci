@@ -49,6 +49,12 @@ class Command(BaseCommand):
         slugset_roots = ['preventivo-entrate', 'preventivo-spese']
         slugset_children = []
 
+        # check if debug is active: the task may fail
+        if settings.DEBUG is True and settings.INSTANCE_TYPE != 'development':
+            self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
+            exit()
+
+
         pe_children = Voce.objects.get(slug='preventivo-entrate').get_natural_children().values_list('slug', flat=True)
         ps_children = Voce.objects.get(slug='preventivo-spese').get_natural_children().values_list('slug', flat=True)
         slugset_children.extend(pe_children)
