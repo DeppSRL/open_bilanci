@@ -50,6 +50,8 @@ and not like
 **Note: if the document has the new tyep of url the following steps will NOT work at all**
 
 
+Share the Gdoc with openpolis.script@gmail.com with "edit" permits and the users working on the doc.
+
 The spreadsheet has to have 3 sheets called *Voci*, *Colonne*, *slug*.
 
 The *Voci* sheet will have the following columns:
