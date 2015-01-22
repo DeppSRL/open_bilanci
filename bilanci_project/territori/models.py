@@ -269,11 +269,11 @@ class Territorio(models.Model):
             if year in valid_pops:
                 return (year, valid_pops[year])
             else:
-                for i in range(1, 4):
+                for i in range(1, 10):
                     if (year - i) in valid_pops:
-                        return (year - 1, valid_pops[year - i])
+                        return (year - i, valid_pops[year - i])
                     elif (year + i) in valid_pops:
-                        return (year + 1, valid_pops[year + i])
+                        return (year + i, valid_pops[year + i])
 
                 return None
         else:
