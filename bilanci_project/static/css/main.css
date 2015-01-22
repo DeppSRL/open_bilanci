@@ -3066,7 +3066,6 @@ a.active .sprite-mappa-big {
 .navbar-subnav .dropdown-menu .dropdown-submenu > a:after {
   display: block;
   content: " ";
-  float: right;
   width: 0;
   height: 0;
   border-color: transparent;
@@ -3075,7 +3074,7 @@ a.active .sprite-mappa-big {
   border-left-color: #2b3037;
   margin-top: 12px;
   margin-right: -16px;
-  padding-left: 16px;
+  float: right;
 }
 .navbar-subnav .dropdown-menu .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
@@ -3982,6 +3981,9 @@ button .pull-left {
   .navbar-collapse {
     padding-left: 0px;
   }
+  #bilancio-header.affix > p.details {
+    margin-top: 4px;
+  }
 }
 /* intermedio */
 @media (min-width: 992px) and (max-width: 1200px) {
@@ -4036,6 +4038,9 @@ button .pull-left {
   .navbar-header .pull-right {
     text-align: center;
     width: 100%;
+  }
+  #bilancio-header.affix > p.details {
+    margin-top: 4px;
   }
 }
 @media (min-width: 1200px) {
@@ -4408,19 +4413,6 @@ navbar
 #bilancio-header .dropdown-submenu:hover > .dropdown-menu {
   display: block;
 }
-#bilancio-header .dropdown-submenu > a:after {
-  display: block;
-  content: " ";
-  float: right;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-  border-width: 5px 0 5px 5px;
-  border-left-color: #000;
-  margin-right: -10px;
-  margin-top: 10px;
-}
 #bilancio-header .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
 }
@@ -4465,7 +4457,8 @@ affix navbar
   display: none;
 }
 #bilancio-header.affix #affix-breadcrumbs {
-  margin-top: 4px;
+  margin-top: 0;
+  margin-left: 8px;
 }
 #bilancio-header.affix img {
   display: none;
@@ -4493,7 +4486,11 @@ affix navbar
 }
 #bilancio-header.affix h1.panel-title,
 #bilancio-header.affix > p {
+  /*Giangiulio fix *
+    /*margin: 4px 10px 0 0;*/
+
   line-height: 1.4;
+  margin-top: 0;
 }
 #bilancio-header.affix .navbar-subnav {
   border: 0;
@@ -4517,6 +4514,9 @@ affix navbar
 #bilancio-header.affix > p.details {
   display: inline-block;
   border-right: 1px solid #99a5b1;
+  /*Giangiulio fix*/
+
+  margin-left: 10px;
 }
 #bilancio-header.affix > p.details span {
   margin-right: 4px;
@@ -4796,4 +4796,14 @@ div.miniclass-incarichi {
 }
 #footer .partners li a.openpolis {
   background: none;
+}
+.select2-drop-mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 9998;
+  opacity: 0;
+}
+.navbar-subnav .dropdown-menu .dropdown-submenu > a:after {
+  margin-right: 0;
 }

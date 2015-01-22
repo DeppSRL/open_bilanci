@@ -7,15 +7,15 @@ Median values are computed either for Voci and Indicatori,
 as specified in the --type command-line parameter.
 """
 # coding=utf-8
-from collections import OrderedDict
-from itertools import groupby
 
 import logging
 import math
-from django.db.transaction import set_autocommit, commit
 import numpy
+from collections import OrderedDict
+from itertools import groupby
 from optparse import make_option
 
+from django.db.transaction import set_autocommit, commit
 from django.core.management import BaseCommand
 from django.conf import settings
 
