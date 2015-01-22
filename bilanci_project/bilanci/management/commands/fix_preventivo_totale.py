@@ -69,6 +69,7 @@ class Command(BaseCommand):
             self.logger.info("Deleting old values for preventivo-entrate,preventivo-spese")
             ValoreBilancio.objects.filter(voce__slug__in=slugset_roots).delete()
 
+        set_autocommit(autocommit=False)
         for territorio in considered_territori:
             # in develop: just fix the Territori that have at least 1 valore in db, skip empty ones
             if settings.INSTANCE_TYPE == 'development':
@@ -80,6 +81,8 @@ class Command(BaseCommand):
 
                 self.writes_totale(totale_slug='preventivo-entrate', children_slugs=pe_children, anno=anno, territorio=territorio,)
                 self.writes_totale(totale_slug='preventivo-spese', children_slugs=ps_children, anno=anno, territorio=territorio,)
+
+            commit()
 
     def writes_totale(self, totale_slug, children_slugs, anno, territorio):
 
