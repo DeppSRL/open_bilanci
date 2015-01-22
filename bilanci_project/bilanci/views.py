@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import zmq
@@ -23,6 +24,9 @@ import services
 from shorturls.models import ShortUrl
 from django.http.response import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from territori.models import Territorio, Incarico
+
+
+logger = logging.getLogger('bilanci_project')
 
 
 class ServiziComuniMixin(object):
@@ -67,13 +71,17 @@ class ShareUrlMixin(object):
 
                 payload = {'longUrl': long_url + '&key=' + settings.GOOGLE_SHORTENER_API_KEY}
                 headers = {'content-type': 'application/json'}
-                short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
-                if short_url_req.status_code == requests.codes.ok:
-                    short_url = short_url_req.json().get('id')
-                    short_url_obj = ShortUrl()
-                    short_url_obj.short_url = short_url
-                    short_url_obj.long_url = long_url
-                    short_url_obj.save()
+                try:
+                    short_url_req = requests.post(settings.GOOGLE_SHORTENER_URL, data=json.dumps(payload), headers=headers)
+                except (ConnectionError, Timeout, SSLError, ProxyError):
+                    logger.warning("Error connecting with Google url shortener service")
+                else:
+                    if short_url_req.status_code == requests.codes.ok:
+                        short_url = short_url_req.json().get('id')
+                        short_url_obj = ShortUrl()
+                        short_url_obj.short_url = short_url
+                        short_url_obj.long_url = long_url
+                        short_url_obj.save()
 
             if short_url_obj:
                 self.share_url = short_url_obj.short_url
@@ -589,41 +597,6 @@ class IncarichiGetterMixin(object):
             anno__gte=self.timeline_start_date.year,
             anno__lte=self.timeline_end_date.year
         ).values('anno', 'valore', 'valore_procapite').order_by('anno')
-
-        # if the considered voice is totale generale entrate / spese in bilancio preventivo
-        # the avanzo / disavanzo di amministrazione has to be added up
-        voce_avanzo_disavanzo = None
-        if voce_bilancio.slug == 'preventivo-entrate':
-            try:
-                voce_avanzo_disavanzo = Voce.objects.get(slug='preventivo-entrate-avanzo-di-amministrazione')
-            except ObjectDoesNotExist:
-                pass
-
-        if voce_bilancio.slug == 'preventivo-spese':
-            try:
-                voce_avanzo_disavanzo = Voce.objects.get(slug='preventivo-spese-disavanzo-di-amministrazione')
-            except ObjectDoesNotExist:
-                pass
-
-        if voce_avanzo_disavanzo:
-            values_avanzo_disavanzo = ValoreBilancio.objects.filter(
-                territorio=territorio,
-                voce=voce_avanzo_disavanzo,
-                anno__gte=self.timeline_start_date.year,
-                anno__lte=self.timeline_end_date.year
-            ).values('anno', 'valore', 'valore_procapite').order_by('anno')
-
-            #sums avanzo / disavanzo values to totale values
-            for voce_value in voce_values:
-                # gets the corresponding avanzo / disavanzo for the same yr
-                try:
-                    corresponding_avanzo_disavanzo = \
-                        next(x for x in values_avanzo_disavanzo if x['anno'] == voce_value['anno'])
-                except StopIteration:
-                    pass
-                else:
-                    voce_value['valore'] += corresponding_avanzo_disavanzo['valore']
-                    voce_value['valore_procapite'] += corresponding_avanzo_disavanzo['valore_procapite']
 
         return self.transform_for_widget(voce_values, line_id, line_color, values_type=values_type,
                                          per_capita=per_capita)
@@ -1273,19 +1246,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         w6["main_bilancio_type_plural"] = self.main_bilancio_type[:-1] + "i"
 
-        if self.main_bilancio_type == 'preventivo':
-            # in preventivo adds avanzo / disavanzo di bilancio to the total entrate/spese
-            avanzo_bilancio = [x for x in ifilter(lambda emt: emt['anno'] == self.main_bilancio_year,
-                                                  self.main_regroup_e['Avanzo di amministrazione'])][0]
-            disavanzo_bilancio = [x for x in ifilter(lambda smt: smt['anno'] == self.main_bilancio_year,
-                                                     self.main_regroup_s['Disavanzo di amministrazione'])][0]
-
-            e_main_totale['valore'] += avanzo_bilancio['valore']
-            e_main_totale['valore_procapite'] += avanzo_bilancio['valore_procapite']
-
-            s_main_totale['valore'] += disavanzo_bilancio['valore']
-            s_main_totale['valore_procapite'] += disavanzo_bilancio['valore_procapite']
-
         if self.comparison_available:
 
             if len(self.comp_regroup_e):
@@ -1293,19 +1253,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             if len(self.comp_regroup_s):
                 s_comp_totale = self.comp_regroup_s[self.totale_label]
-
-            if self.comp_bilancio_type == 'preventivo' and s_comp_totale and e_comp_totale:
-
-                # if comparison bilancio is a preventivo adds the Avanzo / disavanzo to Total for the comparison
-
-                avanzo_bilancio = self.comp_regroup_e.get('Avanzo di amministrazione', None)
-                disavanzo_bilancio = self.comp_regroup_s.get('Disavanzo di amministrazione', None)
-
-                if avanzo_bilancio:
-                    e_comp_totale['valore'] += avanzo_bilancio.get('valore', 0)
-                if disavanzo_bilancio:
-                    s_comp_totale['valore'] += disavanzo_bilancio.get('valore', 0)
-
 
         # standard entrate totale widget
         entrate_tot = {
@@ -1981,7 +1928,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         context['territorio_opid'] = self.territorio.op_id
         context['query_string'] = query_string
-        context['selected_year'] = self.main_bilancio_year
+        context['selected_year'] = str(self.main_bilancio_year)
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
         context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
@@ -2142,17 +2089,6 @@ class BilancioDettaglioView(BilancioOverView):
                     percapita_values
                 )
             )
-
-            # avanzo / disavanzo fix: adds avanzo / disavanzo values to totale generale entrate / spese
-            if self.main_bilancio_type == 'preventivo':
-                if self.selected_section == 'spese':
-                    absolute_values['preventivo-spese'] += absolute_values['preventivo-spese-disavanzo-di-amministrazione']
-                    percapita_values['preventivo-spese'] += percapita_values[
-                        'preventivo-spese-disavanzo-di-amministrazione']
-                else:
-                    absolute_values['preventivo-entrate'] += absolute_values['preventivo-entrate-avanzo-di-amministrazione']
-                    percapita_values['preventivo-entrate'] += percapita_values[
-                        'preventivo-entrate-avanzo-di-amministrazione']
 
             context['budget_values'] = {
                 'absolute': dict(absolute_values),
@@ -2668,7 +2604,7 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
                     short_url_obj.long_url = long_url
                     short_url_obj.save()
             except (ConnectionError, Timeout, SSLError, ProxyError):
-                pass
+                logger.warning("Error connecting with Google url shortener service")
 
         if short_url_obj:
             context['share_url'] = short_url_obj.short_url

@@ -9,6 +9,7 @@
 
 var year_selector = null;
 var year_selector_mobile = null;
+var bilancio_type_selector_mobile = null;
 var reference_url = null;
 
 function clicked_year(selected_year){
@@ -37,6 +38,11 @@ function clicked_year_mobile(){
     //calls clicked yr when the mobile select box is clicked
     //giving the selected yr as a parameter
     clicked_year(year_selector_mobile.val());
+}
+
+function clicked_button_mobile(){
+    // same as clicked_yr_mobile but for the preventivo/consuntivo button
+    clicked_button();
 }
 
 
@@ -70,6 +76,7 @@ function init_selector(selector_init_obj){
 
     year_selector = visup.selector(".year-selector");
     year_selector_mobile = $(".year-selector-mobile");
+    bilancio_type_selector_mobile = $(".bilancio-type-selector-mobile");
 
 
     // defines default values for the function parameters
@@ -124,9 +131,13 @@ function init_selector(selector_init_obj){
     year_selector.resize();
 
 
-    //when year is selected, navigate to the new page
+    /*
+    when year is selected or the preventivo/cons button is clicked,
+    navigate to the new page
+    */
     year_selector.on("clickYear",clicked_year);
     year_selector_mobile.on("change",clicked_year_mobile);
+    bilancio_type_selector_mobile.on("change",clicked_button_mobile);
 
 
     //if we are using buttons, binds the un-selected button with the callback function on the click event.
@@ -148,7 +159,6 @@ $(document).ready(function(){
     if($('#push-menu').length && year_selector){
         $("#push-menu").on("click", function(){ year_selector.resize();});
     }
-
 });
 
 if(year_selector){

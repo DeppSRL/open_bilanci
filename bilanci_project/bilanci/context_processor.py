@@ -16,6 +16,7 @@ def main_settings(request):
         'timeline_start_year': settings.APP_START_YEAR,
         'timeline_end_year': settings.APP_END_YEAR,
         'classifiche_allowed_years': [str(x) for x in range(settings.CLASSIFICHE_START_YEAR, settings.CLASSIFICHE_END_YEAR+1)],
+        'bilanci_allowed_years': [str(x) for x in range(settings.APP_START_YEAR, settings.APP_END_YEAR+1)],
         'settings': {
             'DEBUG': settings.DEBUG,
             'TEMPLATE_DEBUG': settings.TEMPLATE_DEBUG,

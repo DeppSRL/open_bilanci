@@ -78,15 +78,13 @@ class Command(BaseCommand):
             self.popolazione_residente = self.import_context()
 
         else:
-            try:
-                contesto_db = Contesto.objects.get(anno=self.anno, territorio=self.territorio)
-            except ObjectDoesNotExist:
-                self.logger.error(
-                    u"Context not present for territorio {0} year {1}, cannot compute per capita values!".format(
-                        self.territorio.denominazione, self.anno
-                    ))
-            else:
-                self.popolazione_residente = contesto_db.bil_popolazione_residente
+            valid_pop_tuple = self.territorio.nearest_valid_population(year=self.anno)
+
+            if valid_pop_tuple is None:
+                self.logger.error("Nearest valid population not found for {}, try launching 'context' mng task".format(self.territorio))
+                exit()
+
+            self.popolazione_residente =  valid_pop_tuple[1]
 
     def log_errors(self,):
         # output composition errors, if any

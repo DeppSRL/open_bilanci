@@ -16,7 +16,6 @@ __author__ = 'stefano'
 
 class Command(BaseCommand):
 
-
     #     sets the start / end of graphs
     timeline_start = settings.APP_START_DATE
     timeline_end = settings.APP_END_DATE
@@ -58,12 +57,12 @@ class Command(BaseCommand):
                     help='Set the dry-run command mode: nothing is written on db'),
         make_option('--auth',
                     dest='auth',
-                    default='',
+                    default="{},{}".format(settings.OP_API_USERNAME, settings.OP_API_PASSWORD,),
                     help='Auth, as user,pass. Separated by a comma, no space.'),
         make_option('--api-domain',
                     dest='apidomain',
-                    default='api3.openpolis.it',
-                    help='The domain of the API. Defaults to api3.openpolis.it'),
+                    default=settings.OP_API_DOMAIN,
+                    help='The domain of the API. Defaults to {}'.format(settings.OP_API_DOMAIN)),
         make_option('--delete',
                     dest='delete',
                     action='store_true',

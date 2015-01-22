@@ -32,7 +32,7 @@ function setSubmitButtonUrl(){
 
     var url = '/confronti/'+territorio_1_slug+"/"+territorio_2_slug;
 
-    $("#confronti_submit_btn").attr("href", url);
+    $(".confronti_submit_btn").attr("href", url);
 }
 
 function showWarningBox(msg){
@@ -103,7 +103,7 @@ function submitButtonConfronti(e){
 
     if(url_is_correct)
     {
-        window.location = $("#confronti_submit_btn").attr('href');
+        window.location = $(".confronti_submit_btn").attr('href');
     }
     else{
         showWarningBox('ATTENZIONE, DEVI SELEZIONARE DUE COMUNI PER PROCEDERE NEL CONFRONTO');
@@ -111,6 +111,16 @@ function submitButtonConfronti(e){
     }
 }
 
+function select2_fix(){
+    /* prevents select2 malfunctioning on mobile */
+
+    $(document).on("click",  function(e) {
+      if( $(e.target).parents("#id_territorio_1").length == 0)
+        $("#id_territorio_1").select2("close");
+    if( $(e.target).parents("#id_territorio_2").length == 0)
+        $("#id_territorio_2").select2("close");
+    });
+}
 
 /*
 * initialize the confronti page
@@ -129,8 +139,10 @@ function init_confronti_page(){
 
     changeConfrontiUrl();
 
-    $("#confronti_submit_btn").on('click', function(e) {
+    $(".confronti_submit_btn").on('click', function(e) {
         submitButtonConfronti(e);
     });
+
+    select2_fix();
 
 }

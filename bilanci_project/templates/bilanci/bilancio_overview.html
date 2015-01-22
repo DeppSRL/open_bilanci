@@ -16,7 +16,7 @@
 
 {% block bilancio_description %}
 
-    <div class="col-md-7 gTitle">
+    <div class="col-md-7 col-sm-12 col-xs-12 gTitle">
         {% if main_bilancio_available %}
         {#    description #}
             {% section_title bold_text="COMPOSIZIONE" main_bilancio_type=tipo_bilancio main_bilancio_year=selected_year comparison_bilancio_type=comparison_bilancio_type comparison_bilancio_year=comparison_bilancio_year %}
@@ -131,7 +131,7 @@
 
     {% if main_bilancio_available %}
 
-        <div class="row" >
+        <div class="row hidden-md hidden-sm hidden-xs" >
             <div class="col-md-12">
                Qual è la politica di chi amministra il Comune? Quali sono le sue priorità?<br/>
                 Fai click sulla bolla per vedere la composizione delle Entrate e delle Spese e come si distribuiscono
@@ -141,49 +141,12 @@
         </div>
 
 
-        <div class="tab-content composition-widget-container">
+        <div class="tab-content composition-widget-container hidden-xs hidden-sm hidden-md">
             <iframe class="composition-widget" frameborder='0'
                     src="{% url 'composition-widget' widget_type='overview' territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}"></iframe>
         </div>
 
-        <div class="row">
-            <div class="col-md-12">
-                <hr class="gray-border-top">
-            </div>
-        </div>
-        <div id="balance" class="row">
-            <div class="col-md-12">
-                <span class="selection">CHI GUADAGNA E CHI PERDE DI PIÙ NEL BILANCIO {{ tipo_bilancio|upper }} {{ selected_year }}</span> A CONFRONTO CON IL {{ comparison_bilancio_type|upper }} {{ comparison_bilancio_year }}
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <hr class="gray-border-bot">
-            </div>
-        </div>
-        <div id='balance' class="row">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-sm-6"><h4>ENTRATE</h4></div>
-                    <div class="col-sm-6"><h4>SPESE</h4></div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde link=chiguadagnaperde_entrate_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="panel panel-default">
-                            {% chi_guadagna_perde voce_set=spese_chiguadagnaperde link=chiguadagnaperde_spese_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div> <!-- /#balance -->
+        {% include 'bilanci/_chi_guadagna_perde_container.html' %}
 
     {% else %}
         {% include 'bilanci/_bilancio_not_available.html' %}

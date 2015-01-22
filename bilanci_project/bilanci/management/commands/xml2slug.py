@@ -13,12 +13,12 @@ class Command(BaseCommand):
 
         make_option('--year',
                     dest='year',
-                    default='2013',
+                    default='2014',
                     help='Year to fetch'),
 
         make_option('--type',
                     dest='self.bilancio_type',
-                    default='c',
+                    default='p',
                     help='Select bilancio type: [(p)reventivo | (c)onsuntivo]'),
 
         make_option('--force-google',
@@ -88,7 +88,6 @@ class Command(BaseCommand):
 
         return
 
-
     def get_voci_titolo(self, cod_quadro, quadro_denominazione, slug_startswith=None):
         # get voci from Quadro / denominazione
         # using
@@ -106,7 +105,6 @@ class Command(BaseCommand):
             lambda_func = lambda_cod_denominazione_slug
 
         return filter(lambda_func, self.voci)
-
 
     def convert_voci_slugs(self, cod_quadro, quadro_denominazione, old_subslug, new_subslug):
 
@@ -126,7 +124,6 @@ class Command(BaseCommand):
 
         return
 
-
     def get_colonne_titolo(self, cod_quadro, quadro_denominazione):
         # get colonne from Quadro / denominazione
         # using
@@ -137,7 +134,6 @@ class Command(BaseCommand):
         # x[4] == slug
         lambda_colonne = lambda x: x[1] == cod_quadro and quadro_denominazione.lower() in x[0].lower()
         return filter(lambda_colonne, self.colonne)
-
 
     def convert_colonne_slugs(self, cod_quadro, quadro_denominazione, old_subslug, new_subslug):
         # same as convert_voci_slugs for columns
@@ -228,7 +224,6 @@ class Command(BaseCommand):
                                    old_subslug='impegni-spese-per-investimenti',
                                    new_subslug='pagamenti-in-conto-residui-spese-per-investimenti')
 
-
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -240,7 +235,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        is_mapping_incomplete = False
+        mapping_from_drive = False
         self.dryrun = options['dryrun']
         force_google = options['force_google']
         self.bilancio_year = options['year']
@@ -271,9 +266,14 @@ class Command(BaseCommand):
             codes_map = gdocs.read_from_csv(bilancio_type_year)
 
         if codes_map == {}:
-            codes_map = gdocs.get_bilancio_codes_from_google(n_header_lines=1, bilancio_type_year=bilancio_type_year)
-            is_mapping_incomplete = True
-
+            try:
+                codes_map = gdocs.get_bilancio_codes_from_google(n_header_lines=1,
+                                                                 bilancio_type_year=bilancio_type_year)
+            except KeyError:
+                self.logger.error(
+                    "Cannot find {} key in settings. Check the .env file and refer to docs/data_xml for the procedure")
+                return
+            mapping_from_drive = True
 
         # metadata voci
         # quadro_denominazione, titolo_denominazione , cat_cod, voce_denominazione, quadro_cod, voce_cod, voce_slug
@@ -287,8 +287,9 @@ class Command(BaseCommand):
         q_keygen = lambda x: (x[0], x[1] )
         colonne_regroup = dict((k, list(v)) for k, v in groupby(self.colonne, key=q_keygen))
 
-        if is_mapping_incomplete:
-            # if the mapping has been retrieved from google then it needs completion
+        if self.bilancio_type == 'consuntivo' and mapping_from_drive:
+            # if the bilancio considered is CONSUNTIVO and the mapping has been retrieved from google drive
+            # then it needs completion
             # function fill-in-voci creates the mapping for
             # Q4 (conto competenza / conto residui) and
             # Q5 (impegni /conto competenza / conto residui)
@@ -381,10 +382,16 @@ class Command(BaseCommand):
                         self.save_codice_voce(voce_slug, voce_cod, quadro_cod, colonna_totale_cod, denominazione_voce,
                                               '')
 
-                # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE
+                # for quadro QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE - Consuntivo
                 # ony one column is needed: the last one (current year value) so no slug must be provided in the gdoc
-                elif quadro_cod == '09' and quadro_denominazione_voce == 'QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE':
+                elif quadro_cod == '09' and quadro_denominazione_voce == 'QUADRO 9 BIS - RISULTATO DI AMMINISTRAZIONE' and self.bilancio_type == 'consuntivo':
+
                     self.save_codice_voce(voce_slug, voce_cod, quadro_cod, '3', denominazione_voce, '')
+
+                # Q01 preventivo: imports avanzo/disavanzo di amministrazione considering only
+                # the second (and last) column: the current year value
+                elif quadro_cod == '01' and quadro_denominazione_voce == 'QUADRO 1 - SITUAZIONE RIASSUNTIVA - ENTRATE E SPESE' and self.bilancio_type == 'preventivo':
+                    self.save_codice_voce(voce_slug, voce_cod, quadro_cod, '2', denominazione_voce, '')
 
                 else:
 

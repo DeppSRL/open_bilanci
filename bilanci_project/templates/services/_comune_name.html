@@ -1,68 +1,58 @@
 {# adds comune logo or comune name with back link if present #}
 
-<div class="row no-affix">
-    <div class="col-md-3 col-md-offset-9">
-        <div class="pull-right download-box">
-            {% if csv_package_file %}
-                <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
-                   class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<div class="pull-right download-box affix-only">
+<!-- DESKTOP -->
+<div class="pull-right download-box affix-only hidden-xs hidden-sm">
     {% if csv_package_file %}
         <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
            class="pull-right csv">scarica i dati csv <span class="icon sprite-csv"></span></a>
     {% endif %}
 </div>
-
-<div class="row no-affix" id="services-comune-name">
-
+<div class="row no-affix hidden-xs hidden-sm" id="services-comune-name">
     {% if pagina_comune.logo %}
-        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-9{% endif %}">
+
+        {#  Comune with logo   #}
+        <div class="{% if pagina_comune.tipologia_logo == '0' %}col-md-1{% else %}col-md-8{% endif %}">
+
+            <!-- Comune backlink -->
             {% if pagina_comune.backlink %}
-
                 <a href="{{ pagina_comune.backlink }}" title="Torna al sito istituzionale">
-                    <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
-                        src="{{ pagina_comune.logo.url }}" />
-                </a>
-            {% else %}
-
-                <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
-                     src="{{ pagina_comune.logo.url }}" />
             {% endif %}
 
+            <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                  src="{{ pagina_comune.logo.url }}"  />
+
+            {% if pagina_comune.backlink %}
+                </a>
+            {% endif %}
         </div>
         {% if pagina_comune.tipologia_logo == '0' %}
-            <div class="col-md-9">
+            <div class="col-md-7">
                 <strong>Comune di</strong><br/>
                 <h1 class="panel-title" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>
             </div>
         {% endif %}
 
     {% else %}
-        <div class="col-md-9">
-            {% if pagina_comune.backlink  %}
-                <strong>Comune di</strong><br/>
-                <h1 class="panel-title" style="text-transform: uppercase;">
-                    <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
-                        {{territorio.denominazione}}
-                    </a>
-                </h1>
-                
-            {% else %}
 
-                <h1 class="panel-title" style="text-transform: uppercase;">{{territorio.denominazione}}</h1>
-            {% endif %}
+        {#  Comune without logo       #}
+        <div class="col-lg-9 col-md-8 ">
+            <strong>Comune di</strong><br/>
+            <h1 class="panel-title" style="text-transform: uppercase;">
+                {% if pagina_comune.backlink  %}
+                    <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
+                {% endif %}
+
+                {{territorio.denominazione}}
+
+                {% if pagina_comune.backlink  %}
+                    </a>
+                {% endif %}
+            </h1>
         </div>
 
-
     {% endif %}
-
-{# secondary img #}
-    <div class="col-md-3">
+    {#secondary img #}
+    <div class="col-lg-3 col-md-4">
         {% if pagina_comune.secondary_img %}
             {% if pagina_comune.secondary_link %} <a href="{{ pagina_comune.secondary_link }}" title="">{% endif %}
             <img id="secondary_img" src="{{ pagina_comune.secondary_img.url }}" />
@@ -70,5 +60,76 @@
         {% endif %}
     </div>
 </div>
+
+<!-- /DESKTOP -->
+
+<!-- SMARTPHONE -->
+<div class="row no-affix hidden-md hidden-lg" id="services-comune-name">
+    {% if pagina_comune.logo %}
+        {#  Comune with logo       #}
+        <div class="col-sm-12 col-xs-12 text-center hidden-md hidden-lg">
+            <a href="{{ pagina_comune.backlink }}" title="Torna al sito istituzionale">
+                <img class="{% if pagina_comune.tipologia_logo == '0' %}logo{% else %}trademark{% endif %}"
+                    src="{{ pagina_comune.logo.url }}"
+                    />
+            </a>
+        </div>
+        {% if pagina_comune.tipologia_logo == '0' %}
+            <div class="col-sm-12 col-xs-12 text-center hidden-md hidden-lg">
+                <strong>Comune di</strong><br>
+                <h1 class="panel-title" style="text-transform: uppercase;">
+                    {% if pagina_comune.backlink  %}
+                        <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
+                    {% endif %}
+
+                    {{territorio.denominazione}}
+
+                    {% if pagina_comune.backlink  %}
+                        </a>
+                    {% endif %}
+                </h1>
+                <hr>
+            </div>
+        {% endif %}
+
+    {% else %}
+        {#  Comune without logo       #}
+        <div class="col-sm-12 col-xs-12 text-center hidden-md hidden-lg">
+            <strong>Comune di</strong><br>
+            <h1 class="panel-title" style="text-transform: uppercase;">
+                {% if pagina_comune.backlink  %}
+                    <a href="{{ pagina_comune.backlink  }}" title="Torna al sito istituzionale" >
+                {% endif %}
+
+                {{territorio.denominazione}}
+
+                {% if pagina_comune.backlink  %}
+                    </a>
+                {% endif %}
+            </h1>
+            <hr>
+        </div>
+    {% endif %}
+    {#secondary img #}
+    <div class="col-md-3">
+        {% if pagina_comune.secondary_img %}
+            {% if pagina_comune.secondary_link %} <a href="{{ pagina_comune.secondary_link }}" title="">{% endif %}
+            <img id="secondary_img" src="{{ pagina_comune.secondary_img.url }}" />
+            {% if pagina_comune.secondary_link %}  </a> {% endif %}
+        {% endif %}
+    </div>
+
+
+    <div class="col-sm-12 col-xs-12 text-center hidden-md hidden-lg">
+        {% if csv_package_file %}
+            <a href="{{ open_data_url }}{{ csv_package_file.file_name }}" title="{{ csv_package_file.file_size|filesizeformat }}"
+               class="csv">scarica i dati csv <span class="icon sprite-csv"></span>
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+<!-- /SMARTPHONE -->
+
 
 <h1 class="panel-title affix-only" style="text-transform: uppercase;">{{ territorio.denominazione }}</h1>

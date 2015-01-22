@@ -431,7 +431,7 @@ class Command(BaseCommand):
             return
 
         # check if debug is active: the task may fail
-        if settings.DEBUG is True and len(self.cities_finloc) > 4000:
+        if settings.DEBUG is True and settings.INSTANCE_TYPE != 'development' and len(self.cities_finloc) > 4000:
             self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
             exit()
 
