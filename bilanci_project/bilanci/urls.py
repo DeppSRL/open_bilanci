@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView
 from .sitemap import sitemaps
 
 # Uncomment the next two lines to enable the admin:
@@ -26,8 +26,10 @@ urlpatterns = patterns('',
     url(r'^territorio-not-found$', TerritorioNotFoundView.as_view(), name='territorio-not-found'),
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/?$', RedirectView.as_view(pattern_name='bilanci-dettaglio')),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/composizione$', BilancioComposizioneView.as_view(), name='bilanci-composizione'),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/dettaglio$', BilancioDettaglioView.as_view(), name='bilanci-dettaglio'),
+
 
     url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
@@ -49,7 +51,7 @@ urlpatterns = patterns('',
     # confronti
     url(r'^confronti/$', ConfrontiHomeView.as_view(), name='confronti-home'),
 
-    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)$',
+    url(r'^confronti/(?P<territorio_1_slug>[-\w]+)/(?P<territorio_2_slug>[-\w]+)/?$',
         ConfrontiRedirectView.as_view(), name='confronti-redirect'
         ),
 
