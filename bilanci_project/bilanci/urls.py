@@ -24,14 +24,14 @@ urlpatterns = patterns('',
     url(r'^mappe$', MappeTemplateView.as_view(), name='mappe'),
     url(r'^bilancio-not-found$', BilancioNotFoundView.as_view(), name='bilancio-not-found'),
     url(r'^territorio-not-found$', TerritorioNotFoundView.as_view(), name='territorio-not-found'),
+
+    # bilanci pages
     url(r'^bilanci/search', BilancioRedirectView.as_view(), name='bilanci-search'),
     url(r'^bilanci/(?P<slug>[-\w]+)$', BilancioOverView.as_view(), name='bilanci-overview'),
+    url(r'^bilanci/(?P<slug>[-\w]+)/indicatori/?$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/?$', RedirectView.as_view(pattern_name='bilanci-dettaglio')),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/composizione$', BilancioComposizioneView.as_view(), name='bilanci-composizione'),
     url(r'^bilanci/(?P<slug>[-\w]+)/(?P<section>[-\w]+)/dettaglio$', BilancioDettaglioView.as_view(), name='bilanci-dettaglio'),
-
-
-    url(r'^bilanci/(?P<slug>[-\w]+)/indicatori$', BilancioIndicatoriView.as_view(), name='bilanci-indicatori'),
 
     # Json view for linegraph voci di bilancio
     url(r'^incarichi_voce/(?P<territorio_opid>[-\w]+)/(?P<voce_slug>[-\w]+)', IncarichiVoceJSONView.as_view(), name = "incarichi-voce-json"),
