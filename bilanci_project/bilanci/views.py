@@ -1613,7 +1613,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     main_bilancio_xml = comp_bilancio_xml = False
     main_gdp_deflator = comp_gdb_deflator = None
     main_gdp_multiplier = comp_gdp_multiplier = 1.0
-    main_bilancio_is_recent = False
     latest_bilancio_tuple = None
     territorio = None
     values_type = None
@@ -1863,10 +1862,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
              #     redirect to "bilancio not found"
             return HttpResponseRedirect(reverse('bilancio-not-found'))
 
-
-        if self.main_bilancio_year >= settings.APP_END_YEAR - 1:
-            self.main_bilancio_is_recent = True
-
         # check low-priority parameters, forcing default values as fallback
         self.selected_section = kwargs.get('section', 'overview')
         self.values_type = self.request.GET.get('values_type', 'real')
@@ -2014,7 +2009,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             context['latest_bilancio_url'] = self.get_bilancio_url()
 
         context['main_bilancio_available'] = self.main_bilancio_available
-        context['main_bilancio_is_recent'] = self.main_bilancio_is_recent
         context['comparison_bilancio_type'] = self.comp_bilancio_type
         context['comparison_bilancio_year'] = self.comp_bilancio_year
         context['share_url'] = self.share_url

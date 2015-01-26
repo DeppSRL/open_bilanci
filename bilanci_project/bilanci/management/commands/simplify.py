@@ -121,9 +121,6 @@ class Command(BaseCommand):
         #   Couchdb connections
         ###
 
-        ###
-        # couchdb
-        ###
 
         couchdb_server_alias = options['couchdb_server']
 
@@ -160,7 +157,6 @@ class Command(BaseCommand):
             if dest_doc_id in dest_db and skip_existing:
                 self.logger.info(u"Skipping city of {}, as already existing".format(city))
                 continue
-
 
             complete_tree = {}
 
@@ -223,7 +219,6 @@ class Command(BaseCommand):
                             mapping=(voci_map['consuntivo'], source_doc)
                         )
                         consuntivo_tree.update(consuntivo_riassuntivo_tree)
-
 
                     else:
                         self.logger.warning(u"Could not find consuntivo in source doc [{}]".format(
