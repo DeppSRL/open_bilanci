@@ -640,7 +640,7 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
 
                             # warn if remainder is greater than 50% of the total
                             if remainder/float(subtotals['TOTALE']) > 0.5:
-                                self.logger.warning(
+                                self.logger.debug(
                                     "/".join(altro_bc) +
                                     ": altro {0:.0f}% of {1}".format(
                                         (100.*remainder/float(subtotals['TOTALE'])), subtotals['TOTALE']
