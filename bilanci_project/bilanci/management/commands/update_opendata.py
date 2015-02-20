@@ -176,7 +176,7 @@ class Command(BaseCommand):
 
             for year in years:
                 if str(year) not in city_budget:
-                    self.logger.warning(u"- Year {} not found. Skipping.".format(year))
+                    self.logger.warning(u"- Year {} not found in Couchdb. Skipping.".format(year))
                     continue
 
                 self.logger.info(u"- Processing year: {}".format(year))
