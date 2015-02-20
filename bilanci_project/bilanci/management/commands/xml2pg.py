@@ -131,8 +131,7 @@ class Command(BaseCommand):
         # get all elements for anno, tipo_certificato and regroup by voce__slug
         ##
 
-        codici = CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato).order_by(
-            'voce__slug')
+        codici = CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato)
         codici_keygen = lambda x: x.voce.slug
         self.codici_regroup = dict((k, list(v)) for k, v in groupby(codici, key=codici_keygen))
 
@@ -384,6 +383,10 @@ class Command(BaseCommand):
             split_finloc = numeric_finloc.split("--")
             numeric_finloc = split_finloc[1]
 
+        # checks if Codice Voce (xml2slug mapping) is present in the DB for the current bilancio type
+        if CodiceVoce.get_bilancio_codes(anno=self.anno, tipo_certificato=self.tipo_certificato).count() == 0:
+            self.logger.error("Xml mapping is not present for current bilancio type. Run xml2slug command first")
+            exit()
         # import bilancio data into Postgres db, calculate per capita values
         self.import_bilancio(bilancio)
         # log errors in a file, if any
@@ -429,7 +432,7 @@ class Command(BaseCommand):
             shutil.copyfile(src=input_file_path, dst=destination_file)
         self.logger.info("Copied Xml file to {}".format(destination_file))
 
-        self.logger.info("Update open data zip file for {}".format(self.territorio.denominazione))
+        self.logger.info("** Update open data zip file for {} **".format(self.territorio.denominazione))
 
         # updates open data zip file for considered Comune
         if not self.dryrun:
