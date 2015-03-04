@@ -21,6 +21,9 @@ build
 .idea/
 .env
 
+#deploy
+deploy_config
+
 /log/*
 #static files
 /static/
@@ -57,7 +60,5 @@ bilanci_project/data/zip
 bilanci_project/data/xml
 bilanci_project/data/indicators/
 bilanci_project/data/indicators_capoluoghi/
-#bilanci_project/static/data
 bilanci_project/templates/visup_test.html
-
 html_templates/

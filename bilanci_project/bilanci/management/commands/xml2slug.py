@@ -309,8 +309,14 @@ class Command(BaseCommand):
             quadro_denominazione_voce = voce[0]
             voce_slug = voce[6]
 
+            # if voce slug is empty skip row
             if voce_slug is None or voce_slug == '' or voce_slug == u'':
-                # if voce slug is empty skip row
+                continue
+
+            # if preventivo-entrate or preventivo-spese have been explicitly mapped, skip them
+            # because these two voices NEED to be calculated as SUM of child voce, otherwise
+            # they don't include the values of avanzo/disavanzo
+            if voce_slug == 'preventivo-entrate' or voce_slug == 'preventivo-spese':
                 continue
 
             colonne_quadro = []
