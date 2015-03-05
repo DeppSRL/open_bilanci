@@ -72,7 +72,7 @@ class ComuniServicesMiddleware(object):
 
                 # depending on the request.path resolves the url with bilanci.urls or services.urls
                 # paths coming from the widget, the json views and the static files are resolved with bilanci.urls
-                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/', 'comune_logo', 'secondary_img' ]
+                items = ['composition_widget', 'incarichi_indicatori', 'incarichi_voce', '/static/', 'comune_logo', 'secondary_img', '/opendata/' ]
 
                 def isin(x): return x in request.path
 
