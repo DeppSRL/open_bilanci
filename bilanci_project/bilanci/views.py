@@ -1606,6 +1606,7 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     template_name = 'bilanci/bilancio_overview.html'
     selected_section = "overview"
     accepted_bilancio_types = ['preventivo', 'consuntivo']
+    accepted_bilancio_sections = ['entrate', 'spese', 'overview']
     main_bilancio_available = True
     comp_bilancio_available = True
     main_bilancio_year = comp_bilancio_year = None
@@ -1804,6 +1805,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         ##
 
         if self.main_bilancio_type not in self.accepted_bilancio_types or self.main_bilancio_type is None:
+            return False
+        if self.selected_section not in self.accepted_bilancio_sections:
             return False
         if self.cas_com_type != 'cassa' and self.cas_com_type != 'competenza':
             return False
