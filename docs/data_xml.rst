@@ -47,7 +47,7 @@ and not like
 
     https://docs.google.com/spreadsheets/d/GOOGLE_DOCUMENT_KEY/edit?usp=drive_web
 
-**Note: if the document has the new tyep of url the following steps will NOT work at all**
+**Note: if the script fails to read the Gdoc, UPDATE the package gspread and it will work fine**
 
 
 Share the Gdoc with openpolis.script@gmail.com with "edit" permits and the users working on the doc.
