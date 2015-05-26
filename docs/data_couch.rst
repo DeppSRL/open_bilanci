@@ -55,6 +55,9 @@ about couchdb instances, Api keys and such.
 The scraper ``bilancio_comune`` gets the bilancio pages and writes directly to Couchdb database called ``bilanci`` which 
 is the raw database.
 
+After the scraping activity is complete each scraper logs out the complete list of missing bilanci and missing Comune
+for the selected year(s).
+
 
 Missing bilanci
 ---------------
