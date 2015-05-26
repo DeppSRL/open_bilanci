@@ -1,10 +1,8 @@
 Data import: html -> Couch -> Pg
 ====================================
 
-Data are fetched from the source as HTML files (no images, styles, or js scripts).
-This is done in order to prevent damage whenever tehy should disappear from the source.
-
-HTML files are then parsed into couchdb documents. All tables are transformed into json structures.
+Data are fetched from the source site and recorded as documents in a CouchDB Database. 
+All tables are transformed into json structures.
 
 Budget titles and labels are normalized, by finding the MCD, defining a mapping and replicating the
 raw couchdb. This is a 2 steps process.
@@ -26,18 +24,23 @@ extracted at: http://finanzalocale.interno.it/apps/floc.php/ajax/searchComune/
 
 Fetch
 -----
-HTML documents are parsed with the ``scrapy`` parser:
+HTML documents are parsed with the ``scrapy`` parser called "finanzalocale" in the "scrapy" project.
+The script ec2.py contains the code that deploys a number of AWS EC2 instances, deploy the scraper on them and launch
+them with the correct parameters.
+
+After cloning the repo, simply edit scrapy.cfg file and set the correct parameters, then run
 
 .. code-block:: bash
 
-    cd /home/open_bilanci/scraper_project
-    scrapy crawl bilanci_pages
+    python ec2.py
 
 Possible parameters for the scraper are the following
 
 .. code-block:: bash
 
-   scrapy crawl bilanci_pages -a cities=CITY_NAME -a years=YEAR -a type=BILANCIO_TYPE
+   cities=CITY_NAME 
+   years=YEAR 
+   type=BILANCIO_TYPE
 
 
 Bilancio type parameter can have the following values:
@@ -46,41 +49,11 @@ Bilancio type parameter can have the following values:
 - p | P for Preventivo
 
 
-The ``scraper/settings.py`` file contains instruction on the source URIs,
-what to scrape (years and cities) and where to put the results:
+The ``finanzalocale/settings.py`` and ``finanzalocale/local_settings.py`` files contains configuration informations
+about couchdb instances, Api keys and such.
 
-.. code-block:: bash
-
-    OUTPUT_FOLDER = 'scraper/output/'
-    LISTA_COMUNI = 'listacomuni.csv'
-    BILANCI_PAGES_FOLDER = '/home/open_bilanci/dati/finanzalocale'
-
-    # preventivi url
-    URL_PREVENTIVI_PRINCIPALE = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/3/md/0/tipo_modello/U"
-    # consuntivi url
-    URL_CONSUNTIVI_PRINCIPALE ="http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/anno/%s/cod/4/md/0/tipo_modello/U"
-
-    START_YEAR_SPIDER = 2002
-    END_YEAR_SPIDER = 2003
-
-The settings can be overridden and selected cities and years can be fetched:
-
-.. code-block:: bash
-
-    cd /home/open_bilanci/scraper_project
-    scrapy crawl bilanci_pages -a cities=1020040140 -a years=2004
-    scrapy crawl bilanci_pages -a cities=roma,milano,napoli -a years=2004,2005
-    scrapy crawl bilanci_pages -a cities=roma -a years=2004-2009
-
-
-
-Mirror
-------
-Fetched HTML files are published at http://finanzalocale.mirror.openpolis.it/, through an Nginx server
-on the ``staging.depp.it`` machine. The config file is ``/etc/nginx/sites-enabled/finanzalocale``.
-The documents path is specified in ``BILANCI_PAGES_FOLDER``.
-
-The estimated size of the HTML files is ~100GB (9Gb per year).
+The scraper ``bilancio_comune`` gets the bilancio pages and writes directly to Couchdb database called ``bilanci`` which 
+is the raw database.
 
 
 Missing bilanci
@@ -105,21 +78,6 @@ After missin_bilanci script has finished simply execute the script with
 .. code-block:: bash
 
     ./FILENAME
-
-Parse into couchdb
-------------------
-Data are parsed from HTML into the couchdb local server with the html2couch management task:
-
-.. code-block:: bash
-
-    cd /home/open_bilanci/bilanci_project
-    python manage.py html2couch --cities=all --years=2003-2011 -v3 --base-url=http://finanzalocale.mirror.openpolis.it
-    python manage.py html2couch --cities=Roma --years=2003,2004 -v2
-
-The default value for the ``base_url`` parameter is http://finanzalocale.mirror.openpolis.it.
-The couchdb server is always localhost.
-
-Overall couchDB size for the parsed documents is around 3GB.
 
 
 Normalization
