@@ -11,7 +11,7 @@ from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
-from bilanci.utils.converters import FLScraper, FLCSVEmitter
+from bilanci.utils.converters import FLCSVEmitter
 from bilanci.utils.zipper import zipdir_prefix
 from territori.models import Territorio, ObjectDoesNotExist
 
