@@ -24,8 +24,11 @@ build
 #deploy
 deploy_config
 
+#settings
+bilanci_project/bilanci/settings/local.py
+
+#static files & log
 /log/*
-#static files
 /static/
 assets/
 
@@ -39,15 +42,20 @@ robots.txt
 dump_indicatori
 dump_territori
 ob_dump.sql.gz
+
 #scraper files
 scraper_project/scraper/output/
-bilanci_project/bilanci/settings/local.py
+scraper_project/scraper/settings.py
+
+#couch scripts
 couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
-scraper_project/scraper/settings.py
+couchdb_scripts/oauth2/openbilanci-drive-access-f9d652b90027.json
+
 #docs
 /docs/_build/
+
 #data
 bilanci_project/dati/
 dati/
