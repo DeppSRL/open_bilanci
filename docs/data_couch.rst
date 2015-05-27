@@ -58,6 +58,14 @@ is the raw database.
 After the scraping activity is complete each scraper logs out the complete list of missing bilanci and missing Comune
 for the selected year(s).
 
+CouchDB compaction
+------------------
+
+After the scraping cycle is completed is strongly suggested to launch db compaction to reduce DB size and
+computational time. 
+To do that simply login into futon and select ``Compact & Cleanup`` from the menu.
+A pop-window will be shown: choose ``Compact Database``.
+This should reduce DB size from 20 GB to ~3 GB .
 
 Missing bilanci
 ---------------
