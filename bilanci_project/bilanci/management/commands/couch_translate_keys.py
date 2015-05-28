@@ -103,7 +103,7 @@ class Command(BaseCommand):
             raise Exception("Missing city parameter")
 
         self.logger.info("Opening Lista Comuni")
-        mapper = FLMapper(settings.S3_LISTA_COMUNI_URL)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
