@@ -11,6 +11,7 @@ from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
 
+
 class Command(BaseCommand):
     """
     Reads data from a source couchdb instance and produces (upgrades) couchdb destination documents,
@@ -102,11 +103,10 @@ class Command(BaseCommand):
             raise Exception("Missing city parameter")
 
         self.logger.info("Opening Lista Comuni")
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper(settings.S3_LISTA_COMUNI_URL)
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
-
 
         years = options['years']
         if not years:
@@ -114,9 +114,9 @@ class Command(BaseCommand):
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
+            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -137,10 +137,8 @@ class Command(BaseCommand):
             couchdb_source_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_VOCI_NAME
 
-
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
-
 
         self.logger.info("Connecting to source db: {0}".format(couchdb_source_name))
         try:
@@ -169,19 +167,19 @@ class Command(BaseCommand):
         # connect to google account and fetch tree mapping and simple tree structure
         normalized_map = gdocs.get_normalized_map(translation_type, n_header_lines=2, force_google=force_google)
 
-        normalized_titoli_sheet = {'preventivo' : [row[2] for row in normalized_map['preventivo']],
-                                   'consuntivo' : [row[2] for row in normalized_map['consuntivo']],
-                                   }
-        normalized_voci_sheet = {  'preventivo' : [(row[2], row[3]) for row in normalized_map['preventivo']],
-                                   'consuntivo' : [(row[2], row[3]) for row in normalized_map['consuntivo']],
-                                   }
+        normalized_titoli_sheet = {'preventivo': [row[2] for row in normalized_map['preventivo']],
+                                   'consuntivo': [row[2] for row in normalized_map['consuntivo']],
+        }
+        normalized_voci_sheet = {'preventivo': [(row[2], row[3]) for row in normalized_map['preventivo']],
+                                 'consuntivo': [(row[2], row[3]) for row in normalized_map['consuntivo']],
+        }
 
         # copying design documents
         if design_documents:
             self.logger.info(u"Copying design documents")
             source_design_docs = couchdb_source.view("_all_docs",
-                startkey="_design/", endkey="_design0",
-                include_docs=True
+                                                     startkey="_design/", endkey="_design0",
+                                                     include_docs=True
             )
             for row in source_design_docs.rows:
                 source_design_doc = row.doc
@@ -236,7 +234,8 @@ class Command(BaseCommand):
                                     # copy meta
                                     if 'meta' in titolo_object.keys():
                                         destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = {}
-                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = titolo_object['meta']
+                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = \
+                                            titolo_object['meta']
 
                                     # copy data (normalize voci if needed)
                                     if 'data' in titolo_object.keys():
@@ -249,30 +248,29 @@ class Command(BaseCommand):
                                                 # trailing dash is removed, if present
                                                 voce_name = unicode(voce_name.lower())
                                                 if voce_name.find("- ") == 0:
-                                                    voce_name = voce_name.replace("- ","")
+                                                    voce_name = voce_name.replace("- ", "")
 
                                                 # for each voce, apply translation_map, if valid
                                                 try:
-                                                    idx = normalized_voci_sheet[bilancio_type].index((titolo_name,voce_name))
+                                                    idx = normalized_voci_sheet[bilancio_type].index(
+                                                        (titolo_name, voce_name))
                                                     voce_name = normalized_map[bilancio_type][idx][4]
                                                 except ValueError:
                                                     pass
 
                                                 # create voice dictionary with normalized name
-                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = {}
-                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = voce_obj
+                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][
+                                                    voce_name] = {}
+                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][
+                                                    voce_name] = voce_obj
 
                                         else:
                                             # copy all voci in data, with no normalization
-                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'] = titolo_object['data']
-
+                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'] = \
+                                                titolo_object['data']
 
                     # overwrite detination document
                     if doc_id in couchdb_dest:
                         couchdb_dest.delete(couchdb_dest[doc_id])
                     couchdb_dest[doc_id] = destination_document
                     self.logger.info(u"Document {} updated".format(doc_id))
-
-
-
-

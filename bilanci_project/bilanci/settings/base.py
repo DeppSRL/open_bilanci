@@ -322,6 +322,8 @@ OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
 
+S3_LISTA_COMUNI_URL = env('S3_LISTA_COMUNI_URL')
+
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
@@ -467,7 +469,7 @@ APP_END_YEAR = 2014
 APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
 APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
-LAST_VALID_CONSUNTIVO_YEAR = 2012
+LAST_VALID_CONSUNTIVO_YEAR = 2013
 CLASSIFICHE_START_YEAR = APP_START_DATE.year
 CLASSIFICHE_END_YEAR = LAST_VALID_CONSUNTIVO_YEAR
 

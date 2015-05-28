@@ -24,3 +24,4 @@ django-tinymce==1.5.2
 feedparser==5.1.3
 Pillow==2.5.3
 django-robots==1.0
+oauth2client==1.4.11

@@ -262,7 +262,7 @@ class Command(BaseCommand):
 
     def set_cities(self, cities_codes, start_from):
         # set considered cities
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
 
         if not cities_codes:
             if start_from:

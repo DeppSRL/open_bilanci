@@ -11,7 +11,7 @@ from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
-from bilanci.utils.converters import FLScraper, FLCSVEmitter
+from bilanci.utils.converters import FLCSVEmitter
 from bilanci.utils.zipper import zipdir_prefix
 from territori.models import Territorio, ObjectDoesNotExist
 
@@ -105,7 +105,7 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
 
         if not cities:

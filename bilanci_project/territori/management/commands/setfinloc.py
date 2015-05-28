@@ -77,7 +77,7 @@ class Command(BaseCommand):
         # all cities in the DB
         comuni = Territorio.objects.filter(territorio=Territorio.TERRITORIO.C)
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
 
         c = 0
         for comune in comuni:

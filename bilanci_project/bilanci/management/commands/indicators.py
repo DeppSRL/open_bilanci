@@ -77,7 +77,7 @@ class Command(BaseCommand):
             self.logger.error("Missing cities parameter")
             exit()
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
         if len(cities) == 0 :
             self.logger.error("No cities found with id:{0}".format(cities_codes))
