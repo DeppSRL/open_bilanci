@@ -327,7 +327,7 @@ class BilanciSimpleBaseTestCaseMixin(object):
 #
 # Invocation:
 #     python manage.py test bilanci --settings=bilanci.settings.testnodb [-v2]
-mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+mapper = FLMapper()
 for year in (2004, 2008, 2010, 2012):
     for city_name in ('Roma', 'Milano'):
         name = "{}{}TestCase".format(city_name, year)

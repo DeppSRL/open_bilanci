@@ -435,7 +435,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         dryrun = options['dryrun']
         delete = options['delete']
         territori_type = options['territori_type']

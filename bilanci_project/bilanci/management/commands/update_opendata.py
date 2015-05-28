@@ -105,7 +105,7 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
 
         if not cities:

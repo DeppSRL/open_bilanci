@@ -367,7 +367,7 @@ class Command(BaseCommand):
         self.rootnode_slug = self.tipo_certificato
         # identifies the Comune from the finloc code
         codiceente = certificato['codiceEnte']
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         codfinloc = mapper.get_cities(codiceente)[0]
 
         try:

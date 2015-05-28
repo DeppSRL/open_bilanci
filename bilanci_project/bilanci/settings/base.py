@@ -322,6 +322,8 @@ OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
 
+S3_LISTA_COMUNI_URL = env('S3_LISTA_COMUNI_URL')
+
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url

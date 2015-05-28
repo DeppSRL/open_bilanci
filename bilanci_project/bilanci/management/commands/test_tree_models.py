@@ -44,7 +44,7 @@ class Command(BaseCommand):
         if not city_code:
             raise Exception("Missing city parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         city = mapper.get_city(city_code)
 
         year = options['year']
