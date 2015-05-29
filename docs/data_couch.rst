@@ -151,7 +151,7 @@ titoli and for voci):
 
   .. code-block:: bash
 
-    python manage.py couch_translate_keys --type=[titoli|voci] --cities=all --years=2003-2013
+    python manage.py couch_translate_keys --type=[titoli|voci] --cities=all --years=2003-2013 --force-google
 
 
 The Google Document mapping spreadsheet must have a fixed structure for the algorithm to work.
