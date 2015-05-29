@@ -329,9 +329,8 @@ URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certifica
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-# Google Account credentials
-GOOGLE_USER = env('GOOGLE_USER')
-GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
+# Google Account Oauth key
+OAUTH2_KEY_PATH=env('OAUTH2_KEY_PATH')
 
 # Google Docs keys
 GDOC_KEYS = {

@@ -51,7 +51,7 @@ scraper_project/scraper/settings.py
 couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
-couchdb_scripts/oauth2/openbilanci-drive-access-f9d652b90027.json
+oauth2/openbilanci-drive-access-f9d652b90027.json
 
 #docs
 /docs/_build/
