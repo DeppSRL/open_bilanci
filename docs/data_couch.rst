@@ -186,9 +186,15 @@ the data contained in the normalized database, moreover the application db requi
 a simplified structure in which some keys get summed up to a single key in the application db.
 
 This last process converts the *normalized* ``bilanci_voci`` db,
-the one with both voci and titoli normalized, to a *simplified* ``bilanci_simpl`` db.
+the one with both voci and titoli normalized, to a *simplified* ``bilanci_simple`` db.
 
++ If the voci views were not copied to ``bilanci_voci`` db, push them to the db using
 
+.. code-block:: bash
+  
+  python getkeys.py --server staging -f voci_preventivo -db voci
+  python getkeys.py --server staging -f voci_consuntivo -db voci
+    
 + To merge the actual normalized Voce slug with the simplified tree slug and update the simplification Gdoc spreadsheet simply run
   
   .. code-block:: bash
