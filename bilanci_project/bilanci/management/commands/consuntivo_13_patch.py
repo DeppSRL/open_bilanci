@@ -40,38 +40,75 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
-    def patch_totale_pareggio(self, consuntivo):
+    def patch_totale_pareggio(self, consuntivo, comune_slug):
 
         # overwrites the 'totale' row (which is a sub-total, actually) with "totale a pareggio" values and
         # removes the voce relative to "totale a pareggio" from the the object
 
-        def overwrite_row(data_dict, key_to_overwrite, key_to_delete):
-            data_dict[key_to_overwrite] = data_dict[key_to_delete]
+        def overwrite_row(data_dict, key_to_overwrite, key_to_delete, comune_slug):
+            try:
+                data_dict[key_to_overwrite] = data_dict[key_to_delete]
+            except KeyError:
+                self.logger.error("Cannot find {} for {}".format(key_to_delete, comune_slug))
             data_dict.pop(key_to_delete, None)
 
         #             Q2
-        data_dict = consuntivo['02']['quadro-2-entrate-titolo-i-entrate-tributarie']['data']
-        overwrite_row(data_dict, key_to_overwrite='totale entrate tributarie',
-                      key_to_delete='totale entrate tributarie a pareggio')
+        try:
+            data_dict = consuntivo['02']['quadro-2-entrate-titolo-i-entrate-tributarie']['data']
+        except KeyError:
+            self.logger.error("Cannot find consuntivo['02']['quadro-2-entrate-titolo-i-entrate-tributarie']['data'] for {}".format(comune_slug))
+        else:
+            overwrite_row(data_dict, key_to_overwrite='totale entrate tributarie',
+                          key_to_delete='totale entrate tributarie a pareggio', comune_slug=comune_slug)
 
         #             Q4 Impegni
-        data_dict = consuntivo['04']['quadro-4-a-impegni']['data']
-        overwrite_row(data_dict, key_to_overwrite='totale',
-                      key_to_delete='totale a pareggio (entrate tributarie + quota imu)')
+        try:
+            data_dict = consuntivo['04']['quadro-4-a-impegni']['data']
+        except KeyError:
+            self.logger.error("Cannot find consuntivo['04']['quadro-4-a-impegni']['data'] for {}".format(comune_slug))
+        else:
+            overwrite_row(data_dict, key_to_overwrite='totale',
+                          key_to_delete='totale a pareggio (entrate tributarie + quota imu)',comune_slug=comune_slug)
 
         #             Q4 Pagamenti Conto competenza
-        data_dict = consuntivo['04']['quadro-4-b-pagamenti-in-conto-competenza']['data']
-        overwrite_row(data_dict, key_to_overwrite='totale',
-                      key_to_delete='totale a pareggio (entrate tributarie + quota imu)')
+        try:
+            data_dict = consuntivo['04']['quadro-4-b-pagamenti-in-conto-competenza']['data']
+        except KeyError:
+            self.logger.error("Cannot find consuntivo['04']['quadro-4-b-pagamenti-in-conto-competenza']['data'] for {}".format(comune_slug))
+        else:
+            overwrite_row(data_dict, key_to_overwrite='totale',
+                          key_to_delete='totale a pareggio (entrate tributarie + quota imu)', comune_slug=comune_slug)
         return
 
-    def patch_residui_passivi(self, consuntivo):
+    def patch_residui_passivi(self, consuntivo, comune_slug):
         # gets the value of residui passivi from Q12 because in Q9 the table is malformed and the row was overwritten or removed
-
-        residui_passivi = consuntivo['12']['quadro-12-gestione-dei-residui-passivi']['data']['Totale'][4:]
-        consuntivo['09']['quadro-9-quadro-riassuntivo-della-gestione-finanziaria']['data'][
-            'residui passivi'] = residui_passivi
+        try:
+            residui_passivi = consuntivo['12']['quadro-12-gestione-dei-residui-passivi']['data']['Totale'][4:]
+        except KeyError:
+            self.logger.error("Cannot find consuntivo['12']['quadro-12-gestione-dei-residui-passivi']['data']['Totale'] for {}".format(comune_slug))
+        else:
+            try:
+                consuntivo['09']['quadro-9-quadro-riassuntivo-della-gestione-finanziaria']['data'][
+                    'residui passivi'] = residui_passivi
+            except KeyError:
+                self.logger.error("Cannot find consuntivo['09']['quadro-9-quadro-riassuntivo-della-gestione-finanziaria']['data']['residui passivi'] for {}".format(comune_slug))
         return
+
+    def patch_residui_attivi(self, consuntivo, comune_slug):
+        # gets the value of residui attivi from Q11 because in Q9 the table is malformed and the row was overwritten or removed
+        try:
+            residui_attivi = consuntivo['11']['quadro-11-gestione-dei-residui-attivi']['data']['Totale'][5:]
+        except KeyError:
+            self.logger.error("Cannot find consuntivo['11']['quadro-11-gestione-dei-residui-attivi']['data']['Totale'] for {}".format(comune_slug))
+        else:
+            try:
+                consuntivo['09']['quadro-9-quadro-riassuntivo-della-gestione-finanziaria']['data'][
+                'residui attivi'] = residui_attivi
+            except KeyError:
+                self.logger.error("Cannot find consuntivo['09']['quadro-9-quadro-riassuntivo-della-gestione-finanziaria']['data']['residui attivi'] for {}".format(comune_slug))
+
+        return
+
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -95,17 +132,24 @@ class Command(BaseCommand):
 
         for comune_slug in all_cities:
             doc_key = "2013_{}".format(comune_slug)
-            bilanci_2013 = self.couchdb.get(doc_key)
-            consuntivo = bilanci_2013.get('consuntivo', None)
+            bilancio_2013 = self.couchdb.get(doc_key)
+            if bilancio_2013 is None:
+                self.logger.error("Cannot find bilancio 2013 for {}".format(comune_slug))
+                continue
+            consuntivo = bilancio_2013.get('consuntivo', None)
             if consuntivo is None:
                 self.logger.error("Cannot find consuntivo 2013 for {}".format(comune_slug))
                 continue
 
-            self.patch_totale_pareggio(consuntivo)
-            self.patch_residui_passivi(consuntivo)
+            self.patch_totale_pareggio(consuntivo,comune_slug)
+            self.patch_residui_passivi(consuntivo,comune_slug)
+            self.patch_residui_attivi(consuntivo,comune_slug)
             # writes back in couchdb
-            self.couchdb.delete(doc_key)
-            self.couchdb[doc_key] = bilanci_2013
+            bilancio_2013['_id'] = doc_key
+            bilancio_2013.pop('_rev')
+            self.couchdb.delete(self.couchdb[doc_key])
+
+            self.couchdb[doc_key] = bilancio_2013
             self.logger.info(u"Document {} updated".format(doc_key))
 
         return
