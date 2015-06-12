@@ -175,6 +175,36 @@ Voci's columns:
 + normalized Voce name
 
 
+Patching Consuntivo 2013
+------------------------
+
+After normalizing titoli and voci, before going on with simplification a patch is needed for Consuntivo 2013, which is contained in a management task.
+
+Execute with
+
+  .. code-block:: bash
+
+    python manage.py consuntivo_13_patch --couchdb-server=staging
+    
+
+The script does the following:
+
++ for Q2 Entrate tributarie: gets the row "Totale a pareggio" and copies the values to the row "Totale", then removes the row "Totale a pareggio" which was inconvenient for the default simplification
++ for Q4 Impegni and Q4 Pag. Conto competenza: does the same thing as for Q2
++ for Q9 Quadro riasssuntivo gestione finanziaria: gets the row "Residui attivi" from the last three columns of Q11 "Totale" row because the Q9 table is malformed
++ for Q9 Quadro riasssuntivo gestione finanziaria: gets the row "Residui passivi" from the last three columns of Q12 "Totale" row because the Q9 table is malformed
+
+Then saves the modified object back to couchdb.
+
+
+
+
+
+
+
+
+
+
 Simplification
 --------------
 
