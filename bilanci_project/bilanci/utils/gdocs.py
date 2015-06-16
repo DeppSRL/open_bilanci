@@ -12,9 +12,9 @@ import os
 
 logger = logging.getLogger('management')
 
-def get_connection():
 
-    # log into Google account using Oauth2 key
+def get_connection():
+    from oauth2client.client import SignedJwtAssertionCredentials
 
     json_key = json.load(open(settings.OAUTH2_KEY_PATH))
     scope = ['https://spreadsheets.google.com/feeds']
@@ -22,7 +22,6 @@ def get_connection():
     credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], scope)
     gc = gspread.authorize(credentials)
     return gc
-
 
 
 def read_from_csv(path_name, csv_base_dir='data/gdocs_csv_cache/', n_header_lines=0):
