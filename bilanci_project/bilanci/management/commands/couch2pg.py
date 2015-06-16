@@ -573,8 +573,8 @@ class Command(BaseCommand):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
-                # actually save data into posgres
-                commit()
+            # actually save data into posgres
+            commit()
 
         set_autocommit(autocommit=True)
 

@@ -320,11 +320,24 @@ class BudgetTreeDict(OrderedDict):
 
         voce = voce_match[3]
         if voce not in normalized_titolo['data']:
-            raise VoceNotFound(u"Voce [{0}] not found for [{1}], quadro [{2}], titolo [{3}].".format(
-                voce, tipo, quadro, titolo
-            ))
-        normalized_voce = normalized_titolo['data'][voce]
-        normalized_voce_columns = normalized_titolo['meta']['columns']
+            # if voce is not found in the normalized data dict then tries to get the data using a
+            # dict with lowercase keys and using a lower case voce name.
+            # this way is the voce is "TEST" and the key in normalized_titolo['data'] is "test"
+            # the match will be found
+
+            import string
+            normalized_titolo_lowercase = dict(zip(map(string.lower,normalized_titolo['data'].keys()),normalized_titolo['data'].values()))
+            voce_lowercase = voce.lower()
+            if voce_lowercase not in normalized_titolo_lowercase:
+                raise VoceNotFound(u"Voce [{0}] not found for [{1}], quadro [{2}], titolo [{3}].".format(
+                    voce, tipo, quadro, titolo
+                ))
+            else:
+                normalized_voce = normalized_titolo_lowercase[voce_lowercase]
+                normalized_voce_columns = normalized_titolo['meta']['columns']
+        else:
+            normalized_voce = normalized_titolo['data'][voce]
+            normalized_voce_columns = normalized_titolo['meta']['columns']
 
 
         # value extraction (or computation)
