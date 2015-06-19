@@ -72,6 +72,29 @@ class Command(BaseCommand):
     couchdb_source = None
     couchdb_dest = None
 
+    def send_notification_email(self):
+        # Import smtplib for the actual sending function
+        import smtplib
+
+        # Import the email modules we'll need
+        from email.mime.text import MIMEText
+        msg_string = "Couch translate key has finished"
+        # Create a text/plain message
+        msg = MIMEText(msg_string)
+
+        # me == the sender's email address
+        # you == the recipient's email address
+        from_addr = "root@openbilanci.it"
+        to_addr = "stefano.vergani.it@gmail.com"
+        msg['Subject'] = "Couch translate key has finished"
+        msg['From'] = from_addr
+        msg['To'] = to_addr
+
+        # Send the message via our own SMTP server, but don't include the
+        # envelope header.
+        s = smtplib.SMTP('localhost')
+        s.sendmail(from_addr, [to_addr], msg.as_string())
+        s.quit()
 
     def write_bulk(self):
         # writes bulk of bilanci to destination db and then empties the list of docs.
@@ -319,3 +342,4 @@ class Command(BaseCommand):
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
+        self.send_notification_email()
