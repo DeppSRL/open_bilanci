@@ -72,13 +72,18 @@ class Command(BaseCommand):
     couchdb_source = None
     couchdb_dest = None
 
-    def send_notification_email(self):
+    def send_notification_email(self, success):
         # Import smtplib for the actual sending function
         import smtplib
 
         # Import the email modules we'll need
         from email.mime.text import MIMEText
-        msg_string = "Couch translate key has finished"
+        
+        if success:
+            msg_string = "Couch translate key has finished"
+        else:
+            msg_string = "Couch translate key has encountered errors"
+
         # Create a text/plain message
         msg = MIMEText(msg_string)
 
@@ -86,7 +91,7 @@ class Command(BaseCommand):
         # you == the recipient's email address
         from_addr = "root@openbilanci.it"
         to_addr = "stefano.vergani.it@gmail.com"
-        msg['Subject'] = "Couch translate key has finished"
+        msg['Subject'] = msg_string
         msg['From'] = from_addr
         msg['To'] = to_addr
 
@@ -106,6 +111,7 @@ class Command(BaseCommand):
             (success, docid, rev_or_exc) = r
             if success is False:
                 self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
+                self.send_notification_email(success=False)
                 exit()
         self.docs_bulk = []
         self.logger.info("Done")
@@ -342,4 +348,4 @@ class Command(BaseCommand):
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
-        self.send_notification_email()
+        self.send_notification_email(success=True)
