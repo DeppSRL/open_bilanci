@@ -313,8 +313,8 @@ class BudgetTreeDict(OrderedDict):
 
         titolo = voce_match[2]
         if titolo not in normalized_quadro:
-            raise TitoloNotFound(u"Titolo [{0}] not found for [{1}], quadro [{2}].".format(
-                titolo, tipo, quadro
+            raise TitoloNotFound(u"'{}','{}'- titolo:'{}' not found".format(
+                tipo, quadro,titolo
             ))
         normalized_titolo = normalized_quadro[titolo]
 
@@ -329,8 +329,8 @@ class BudgetTreeDict(OrderedDict):
             normalized_titolo_lowercase = dict(zip(map(string.lower,normalized_titolo['data'].keys()),normalized_titolo['data'].values()))
             voce_lowercase = voce.lower()
             if voce_lowercase not in normalized_titolo_lowercase:
-                raise VoceNotFound(u"Voce [{0}] not found for [{1}], quadro [{2}], titolo [{3}].".format(
-                    voce, tipo, quadro, titolo
+                raise VoceNotFound(u"'{}','{}','{}'- voce:'{}' not found ".format(
+                    tipo, quadro, titolo, voce
                 ))
             else:
                 normalized_voce = normalized_titolo_lowercase[voce_lowercase]
@@ -543,7 +543,7 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
         When mapping is not passed, an empty tree (default value = 0) is built.
         """
 
-        self.logger.debug("{0}".format(leaves))
+        self.logger.debug("Build tree for leaves:{0}".format(leaves))
 
 
         residui_mapping = {

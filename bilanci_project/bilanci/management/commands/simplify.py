@@ -127,6 +127,7 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
+        self.logger.info("Connect to server: {0}".format(couchdb_server_alias))
         # hook to source DB
         source_db_name = options['source_db_name']
         source_db = couch.connect(
@@ -231,7 +232,7 @@ class Command(BaseCommand):
                 year_tree = {
                     'preventivo': preventivo_tree,
                     'consuntivo': consuntivo_tree,
-                }
+                    }
 
                 complete_tree[str(year)] = year_tree
 
