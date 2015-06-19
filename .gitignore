@@ -52,7 +52,7 @@ couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 oauth2/openbilanci-drive-access-f9d652b90027.json
-
+oauth2/drive-access.json
 #docs
 /docs/_build/
 
