@@ -6,7 +6,7 @@ from couchdb.http import ResourceNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.utils import couch
-from bilanci.utils import gdocs
+from bilanci.utils import gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -72,35 +72,6 @@ class Command(BaseCommand):
     couchdb_source = None
     couchdb_dest = None
 
-    def send_notification_email(self, success):
-        # Import smtplib for the actual sending function
-        import smtplib
-
-        # Import the email modules we'll need
-        from email.mime.text import MIMEText
-        
-        if success:
-            msg_string = "Couch translate key has finished"
-        else:
-            msg_string = "Couch translate key has encountered errors"
-
-        # Create a text/plain message
-        msg = MIMEText(msg_string)
-
-        # me == the sender's email address
-        # you == the recipient's email address
-        from_addr = "root@openbilanci.it"
-        to_addr = "stefano.vergani.it@gmail.com"
-        msg['Subject'] = msg_string
-        msg['From'] = from_addr
-        msg['To'] = to_addr
-
-        # Send the message via our own SMTP server, but don't include the
-        # envelope header.
-        s = smtplib.SMTP('localhost')
-        s.sendmail(from_addr, [to_addr], msg.as_string())
-        s.quit()
-
     def write_bulk(self):
         # writes bulk of bilanci to destination db and then empties the list of docs.
         self.logger.info("Writing bulk of {} docs to db".format(len(self.docs_bulk)))
@@ -111,8 +82,10 @@ class Command(BaseCommand):
             (success, docid, rev_or_exc) = r
             if success is False:
                 self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
-                self.send_notification_email(success=False)
+                msg_string = "Couch translate key has encountered errors"
+                email_utils.send_notification_email(msg_string=msg_string)
                 exit()
+
         self.docs_bulk = []
         self.logger.info("Done")
         return
@@ -348,4 +321,4 @@ class Command(BaseCommand):
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
-        self.send_notification_email(success=True)
+        email_utils.send_notification_email(msg_string="Couch translate key has finished")
