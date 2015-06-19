@@ -75,7 +75,13 @@ class Command(BaseCommand):
     def write_bulk(self):
         # writes bulk of bilanci to destination db and then empties the list of docs.
         self.logger.info("Writing bulk of {} docs to db".format(len(self.docs_bulk)))
-        self.couchdb_dest.update(self.docs_bulk)
+        return_values = self.couchdb_dest.update(self.docs_bulk)
+
+        for r in return_values:
+            (success, docid, rev_or_exc) = r
+            if success is False:
+                self.logger.critical("Document write failure! id:{} Reason:{}".format(docid, rev_or_exc))
+                exit()
         self.docs_bulk = []
         self.logger.info("Done")
         return
