@@ -67,7 +67,18 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    docs_bulk = []
+    bulk_size = 50
+    couchdb_source = None
+    couchdb_dest = None
 
+    def write_bulk(self):
+        # writes bulk of bilanci to destination db and then empties the list of docs.
+        self.logger.info("Writing bulk of {} docs to db".format(len(self.docs_bulk)))
+        self.couchdb_dest.update(self.docs_bulk)
+        self.docs_bulk = []
+        self.logger.info("Done")
+        return
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -140,9 +151,10 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
-        self.logger.info("Connecting to source db: {0}".format(couchdb_source_name))
+        self.logger.info("Connecting to server: {}".format(couchdb_server_alias,))
+        self.logger.info("Connecting source db: {}".format(couchdb_source_name))
         try:
-            couchdb_source = couch.connect(
+            self.couchdb_source = couch.connect(
                 couchdb_source_name,
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
@@ -153,13 +165,18 @@ class Command(BaseCommand):
         self.logger.info("Connecting to destination db: {0}".format(couchdb_dest_name))
 
         try:
-            couchdb_dest = couch.connect(
+            self.couchdb_dest = couch.connect(
                 couchdb_dest_name,
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
         except ResourceNotFound:
             self.logger.error("Could not find destination db. Quitting")
             return
+
+
+        self.logger.info("Compact destination db...")
+        self.couchdb_dest.compact()
+        self.logger.info("Done")
 
         ###
         #   Mapping files from gdoc
@@ -177,7 +194,7 @@ class Command(BaseCommand):
         # copying design documents
         if design_documents:
             self.logger.info(u"Copying design documents")
-            source_design_docs = couchdb_source.view("_all_docs",
+            source_design_docs = self.couchdb_source.view("_all_docs",
                                                      startkey="_design/", endkey="_design0",
                                                      include_docs=True
             )
@@ -188,7 +205,7 @@ class Command(BaseCommand):
                 destination_document['language'] = source_design_doc['language']
                 destination_document['views'] = source_design_doc['views']
 
-                couchdb_dest.save(destination_document)
+                self.couchdb_dest.save(destination_document)
 
         if cities and years:
 
@@ -196,13 +213,13 @@ class Command(BaseCommand):
                 for year in years:
 
                     doc_id = u"{0}_{1}".format(year, city)
-
-                    if doc_id in couchdb_dest and skip_existing:
+                    self.logger.info(u"Updating {}".format(doc_id))
+                    if doc_id in self.couchdb_dest and skip_existing:
                         self.logger.info("Skipping city of {}, as already existing".format(city))
                         continue
 
                     # identify source document or skip
-                    source_document = couchdb_source.get(doc_id)
+                    source_document = self.couchdb_source.get(doc_id)
                     if source_document is None:
                         self.logger.warning("{0} doc_id not found in source db. skipping.".format(doc_id))
                         continue
@@ -269,8 +286,16 @@ class Command(BaseCommand):
                                             destination_document[bilancio_type][quadro_name][titolo_name]['data'] = \
                                                 titolo_object['data']
 
-                    # overwrite detination document
-                    if doc_id in couchdb_dest:
-                        couchdb_dest.delete(couchdb_dest[doc_id])
-                    couchdb_dest[doc_id] = destination_document
-                    self.logger.info(u"Document {} updated".format(doc_id))
+                    # add the document to the list that will be written to couchdb in bulks
+                    self.docs_bulk.append(destination_document)
+                    
+                    if len(self.docs_bulk) == self.bulk_size:
+                        self.write_bulk()
+
+        # if the last set was < bulk_size write the last documents
+        if len(self.docs_bulk) > 0:
+            self.write_bulk()
+
+        self.logger.info("Compact destination db...")
+        self.couchdb_dest.compact()
+        self.logger.info("Done")
