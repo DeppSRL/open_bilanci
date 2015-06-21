@@ -80,6 +80,7 @@ class Command(BaseCommand):
 
         for r in return_values:
             (success, docid, rev_or_exc) = r
+            self.logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
             if success is False:
                 self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
                 msg_string = "Couch translate key has encountered errors"
@@ -183,7 +184,6 @@ class Command(BaseCommand):
             self.logger.error("Could not find destination db. Quitting")
             return
 
-
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
@@ -235,7 +235,7 @@ class Command(BaseCommand):
                         continue
 
                     # create destination document, to REPLACE old one
-                    destination_document = {'_id': doc_id}
+                    destination_document = {'_id': doc_id,}
 
                     # if a doc with that id already exists on the destination document, gets the _rev value
                     # and insert it in the dest. document.
@@ -246,6 +246,7 @@ class Command(BaseCommand):
                         revision = old_destination_doc.get('_rev',None)
                         if revision:
                             destination_document['_rev']=revision
+                            self.logger.debug("Adds rev value to doc")
 
                     for bilancio_type in ['preventivo', 'consuntivo']:
                         if bilancio_type in source_document.keys():
