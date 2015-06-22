@@ -13,6 +13,21 @@ from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
 from .somma_funzioni import SommaFunzioniMixin
 
+import cProfile
+
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            profile.print_stats()
+    return profiled_func
+
+
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -386,6 +401,7 @@ class Command(BaseCommand):
 
             self.somma_funzioni_slug_baseset[slug] = descendants
 
+    @do_cprofile
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
