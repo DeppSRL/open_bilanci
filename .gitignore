@@ -52,6 +52,8 @@ couchdb_scripts/output
 couchdb_scripts/settings_local.py
 couchdb_scripts/translate_log
 oauth2/openbilanci-drive-access-f9d652b90027.json
+bilanci_project/bilanci/management/commands/couch_translate_bulk.py
+bilanci_project/data/fake_bilancio_example
 
 #docs
 /docs/_build/
