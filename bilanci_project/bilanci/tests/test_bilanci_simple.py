@@ -16,7 +16,7 @@ class BilanciSimpleBaseTestCaseMixin(object):
     code = ''
 
     def setUp(self):
-        couch_uri = 'http://staging:5984'
+        couch_uri = 'http://ovh23.depp.it:5984'
         self.couch_server = couchdb.Server(couch_uri)
 
         self.norm_couch = self.couch_server['bilanci_voci']
@@ -328,8 +328,8 @@ class BilanciSimpleBaseTestCaseMixin(object):
 # Invocation:
 #     python manage.py test bilanci --settings=bilanci.settings.testnodb [-v2]
 mapper = FLMapper()
-for year in (2004, 2008, 2010, 2012):
-    for city_name in ('Roma', 'Milano'):
+for year in (2004, 2008, 2010, 2012, 2013, 2014):
+    for city_name in ('Roma', 'Milano','Torino', 'Napoli'):
         name = "{}{}TestCase".format(city_name, year)
         city = mapper.get_city(city_name)
         code = "{}_{}".format(year, city)

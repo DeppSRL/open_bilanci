@@ -13,21 +13,6 @@ from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
 from .somma_funzioni import SommaFunzioniMixin
 
-import cProfile
-
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        profile = cProfile.Profile()
-        try:
-            profile.enable()
-            result = func(*args, **kwargs)
-            profile.disable()
-            return result
-        finally:
-            profile.print_stats(sort='cumtime')
-    return profiled_func
-
-
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -401,7 +386,6 @@ class Command(BaseCommand):
 
             self.somma_funzioni_slug_baseset[slug] = descendants
 
-    @do_cprofile
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -480,7 +464,6 @@ class Command(BaseCommand):
         # deletes old values before import
         self.prepare_for_import()
 
-        set_autocommit(autocommit=False)
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
@@ -556,7 +539,7 @@ class Command(BaseCommand):
                         )
                         if len(certificato_tree.children) == 0:
                             continue
-                        self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
+                        self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         if not self.dryrun:
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
@@ -590,9 +573,9 @@ class Command(BaseCommand):
                         del vb_dict
 
             # actually save data into posgres
-            commit()
+            tree_models.db_flush()
 
-        set_autocommit(autocommit=True)
+        self.logger.info("Done importing into postgres")
 
         if complete:
             ##
