@@ -143,7 +143,7 @@ class Command(BaseCommand):
         self.couch_connect(options['couchdb_server'])
         mapper = FLMapper()
         all_cities = mapper.get_cities('all', logger=self.logger)
-
+        counter = 0
         for comune_slug in all_cities:
             doc_key = "2013_{}".format(comune_slug)
             bilancio_2013 = self.couchdb.get(doc_key)
@@ -162,8 +162,11 @@ class Command(BaseCommand):
             bilancio_2013['_id'] = doc_key
             bilancio_2013.pop('_rev')
             self.couchdb.delete(self.couchdb[doc_key])
-
             self.couchdb[doc_key] = bilancio_2013
-            self.logger.info(u"Document {} updated".format(doc_key))
-
+            counter +=1
+            if counter == 100:
+                self.logger.info(u"Document {} updated".format(doc_key))
+                counter =0
+                
+        self.logger.info(u"Done")
         return
