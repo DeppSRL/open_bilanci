@@ -40,17 +40,19 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
+    def overwrite_row(self, data_dict, key_to_overwrite, key_to_delete, comune_slug, quadro):
+        # overwrites a key in a dict with another, then deletes the key to be deleted
+        try:
+            data_dict[key_to_overwrite] = data_dict[key_to_delete]
+        except KeyError:
+            self.logger.error("{}: {} Cannot find '{}'".format(comune_slug, quadro, key_to_delete))
+        data_dict.pop(key_to_delete, None)
+
+
     def patch_totale_pareggio(self, consuntivo, comune_slug):
 
         # overwrites the 'totale' row (which is a sub-total, actually) with "totale a pareggio" values and
         # removes the voce relative to "totale a pareggio" from the the object
-
-        def overwrite_row(data_dict, key_to_overwrite, key_to_delete, comune_slug):
-            try:
-                data_dict[key_to_overwrite] = data_dict[key_to_delete]
-            except KeyError:
-                self.logger.error("Cannot find {} for {}".format(key_to_delete, comune_slug))
-            data_dict.pop(key_to_delete, None)
 
         #             Q2
         try:
@@ -58,8 +60,12 @@ class Command(BaseCommand):
         except KeyError:
             self.logger.error("Cannot find consuntivo['02']['quadro-2-entrate-titolo-i-entrate-tributarie']['data'] for {}".format(comune_slug))
         else:
-            overwrite_row(data_dict, key_to_overwrite='totale entrate tributarie',
-                          key_to_delete='totale entrate tributarie a pareggio', comune_slug=comune_slug)
+            self.overwrite_row(
+                data_dict,
+                key_to_overwrite='totale entrate tributarie',
+                key_to_delete='totale entrate tributarie a pareggio',
+                comune_slug=comune_slug,
+                quadro="cons['02']['quadro-2-entrate-titolo-i-entrate-tributarie']")
 
         #             Q4 Impegni
         try:
@@ -67,8 +73,12 @@ class Command(BaseCommand):
         except KeyError:
             self.logger.error("Cannot find consuntivo['04']['quadro-4-a-impegni']['data'] for {}".format(comune_slug))
         else:
-            overwrite_row(data_dict, key_to_overwrite='totale',
-                          key_to_delete='totale a pareggio (entrate tributarie + quota imu)',comune_slug=comune_slug)
+            self.overwrite_row(
+                data_dict,
+                key_to_overwrite='totale',
+                key_to_delete='totale a pareggio (entrate tributarie + quota imu)',
+                comune_slug=comune_slug,
+                quadro="cons['04']['quadro-4-a-impegni']")
 
         #             Q4 Pagamenti Conto competenza
         try:
@@ -76,8 +86,12 @@ class Command(BaseCommand):
         except KeyError:
             self.logger.error("Cannot find consuntivo['04']['quadro-4-b-pagamenti-in-conto-competenza']['data'] for {}".format(comune_slug))
         else:
-            overwrite_row(data_dict, key_to_overwrite='totale',
-                          key_to_delete='totale a pareggio (entrate tributarie + quota imu)', comune_slug=comune_slug)
+            self.overwrite_row(
+                data_dict,
+                key_to_overwrite='totale',
+                key_to_delete='totale a pareggio (entrate tributarie + quota imu)',
+                comune_slug=comune_slug,
+                quadro="cons['04']['quadro-4-b-pagamenti-in-conto-competenza']")
         return
 
     def patch_residui_passivi(self, consuntivo, comune_slug):

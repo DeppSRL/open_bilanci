@@ -97,7 +97,7 @@ class EntrateBudgetMixin(object):
     MUST be subclassed along with a subclass of BudgetTreeDict
     """
 
-    def _compute_sum(self, simplified_bc, mapping, col_idx=None):
+    def _compute_sum(self, simplified_bc, mapping, col_idx=None, bilancio_type=None):
         """
         Compute the sum of all voices in the normalized budget doc (source)
         that corresponds to the simplified voice (destination)
@@ -108,6 +108,7 @@ class EntrateBudgetMixin(object):
           :voci_map:       - the mapping between source and destination voices
           :normalized_doc: - the couchdb source document,
         :col_idx:        - if integer, representing the column index to fetch (optional)
+        :bilancio_type:        - guess what
 
         the method always returns a scalar value
         """
@@ -119,8 +120,8 @@ class EntrateBudgetMixin(object):
         # get all voices in normalized tree, matching the voce in simplified tree
         voci_matches = self._get_matching_voci(simplified_bc, voci_map)
         if not voci_matches:
-            self._emit_warning(u"No matching voci found for: {0}.".format(
-                simplified_bc
+            self._emit_warning(u"No matching voci found for: {},{}.".format(
+                bilancio_type,simplified_bc
             ))
 
 
@@ -146,7 +147,7 @@ class SpeseBudgetMixin(object):
 
     MUST be subclassed along with a subclass of BudgetTreeDict
     """
-    def _compute_sum(self, simplified_bc, mapping, section_name=None, col_idx=None):
+    def _compute_sum(self, simplified_bc, mapping, section_name=None, col_idx=None, bilancio_type=None):
         """
         Compute the sum of all voices in the normalized budget doc (source)
         that corresponds to the simplified voice (destination)
@@ -159,6 +160,7 @@ class SpeseBudgetMixin(object):
           :normalized_doc: - the couchdb source document,
         :section_name:  - string, the extended name of the section (Impegni, Spese in conto competenza, ...)
         :col_idx:        - integer, representing the column index to fetch (optional)
+        :bilancio_type:        -
 
         the method always returns a scalar value
         """
@@ -174,8 +176,8 @@ class SpeseBudgetMixin(object):
 
         voci_matches = self._get_matching_voci(bc, voci_map)
         if not voci_matches:
-            self._emit_warning(u"No matching voci found for: {0}.".format(
-                bc
+            self._emit_warning(u"No matching voci found for: {},{}.".format(
+                bilancio_type,bc
             ))
 
         # compute the sum of the matching voices
@@ -430,7 +432,7 @@ class PreventivoEntrateBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
         for source_bc in leaves:
             value = None
             if mapping:
-                value = self._compute_sum(source_bc, mapping)
+                value = self._compute_sum(source_bc, mapping,bilancio_type='preventivo')
 
             # add this leaf to the tree, with the computed value
             self.add_leaf(source_bc, value)
@@ -462,7 +464,7 @@ class ConsuntivoEntrateBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
             for source_bc in leaves:
                 value = None
                 if mapping:
-                    value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
+                    value = self._compute_sum(source_bc, mapping, col_idx=section_idx, bilancio_type='consuntivo')
 
                 # massage source_bc, before adding the leaf,
                 # since the structure of the tree needs to consider
@@ -510,7 +512,7 @@ class PreventivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
         for source_bc in leaves:
             value = None
             if mapping:
-                value = self._compute_sum(source_bc, mapping)
+                value = self._compute_sum(source_bc, mapping, bilancio_type='preventivo')
 
             # add this leaf to the tree, with the computed value
             self.add_leaf(source_bc, value)
@@ -587,7 +589,7 @@ class ConsuntivoRiassuntivoBudgetTreeDict(BudgetTreeDict, EntrateBudgetMixin):
 
             value = None
             if mapping:
-                value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
+                value = self._compute_sum(source_bc, mapping, col_idx=section_idx, bilancio_type='consuntivo')
 
             # massage source_bc, before adding the leaf,
             # since the structure of the tree needs to consider
@@ -625,10 +627,10 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
                     # value computation depends on the branch of the simplified tree
                     if len([i for i in source_bc if i]) > 3:
                         # q1 or q2
-                        value = self._compute_sum(source_bc, mapping, section_name=section_name)
+                        value = self._compute_sum(source_bc, mapping, section_name=section_name, bilancio_type='consuntivo')
                     else:
                         # q3 (or titles 3 and 4 and general title)
-                        value = self._compute_sum(source_bc, mapping, col_idx=section_idx)
+                        value = self._compute_sum(source_bc, mapping, col_idx=section_idx, bilancio_type='consuntivo')
 
                 # massage source_bc, before adding the leaf,
                 # since the structure of the tree needs to consider

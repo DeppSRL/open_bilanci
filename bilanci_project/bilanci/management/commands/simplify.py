@@ -3,8 +3,7 @@ from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.tree_dict_models import *
-from bilanci.utils import couch
-from bilanci.utils import gdocs
+from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -250,4 +249,4 @@ class Command(BaseCommand):
                 dest_db[dest_doc_id] = complete_tree
 
 
-
+        email_utils.send_notification_email(msg_string="Simplify has finished")

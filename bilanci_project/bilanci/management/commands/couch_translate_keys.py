@@ -6,7 +6,7 @@ from couchdb.http import ResourceNotFound
 from django.core.management import BaseCommand
 from django.conf import settings
 from bilanci.utils import couch
-from bilanci.utils import gdocs
+from bilanci.utils import gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
@@ -68,14 +68,25 @@ class Command(BaseCommand):
     logger = logging.getLogger('management')
     comuni_dicts = {}
     docs_bulk = []
-    bulk_size = 50
+    bulk_size = 80
     couchdb_source = None
     couchdb_dest = None
 
     def write_bulk(self):
         # writes bulk of bilanci to destination db and then empties the list of docs.
         self.logger.info("Writing bulk of {} docs to db".format(len(self.docs_bulk)))
-        self.couchdb_dest.update(self.docs_bulk)
+
+        return_values = self.couchdb_dest.update(self.docs_bulk)
+
+        for r in return_values:
+            (success, docid, rev_or_exc) = r
+            self.logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
+            if success is False:
+                self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
+                msg_string = "Couch translate key has encountered errors"
+                email_utils.send_notification_email(msg_string=msg_string)
+                exit()
+
         self.docs_bulk = []
         self.logger.info("Done")
         return
@@ -173,7 +184,6 @@ class Command(BaseCommand):
             self.logger.error("Could not find destination db. Quitting")
             return
 
-
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
@@ -204,8 +214,8 @@ class Command(BaseCommand):
                 destination_document = {'_id': source_design_doc.id}
                 destination_document['language'] = source_design_doc['language']
                 destination_document['views'] = source_design_doc['views']
-
-                self.couchdb_dest.save(destination_document)
+                if not dryrun:
+                    self.couchdb_dest.save(destination_document)
 
         if cities and years:
 
@@ -225,7 +235,18 @@ class Command(BaseCommand):
                         continue
 
                     # create destination document, to REPLACE old one
-                    destination_document = {'_id': doc_id}
+                    destination_document = {'_id': doc_id,}
+
+                    # if a doc with that id already exists on the destination document, gets the _rev value
+                    # and insert it in the dest. document.
+                    # this avoids document conflict on writing
+                    # otherwise you should delete the old doc before writing the new one
+                    old_destination_doc = self.couchdb_dest.get(doc_id, None)
+                    if old_destination_doc:
+                        revision = old_destination_doc.get('_rev',None)
+                        if revision:
+                            destination_document['_rev']=revision
+                            self.logger.debug("Adds rev value to doc")
 
                     for bilancio_type in ['preventivo', 'consuntivo']:
                         if bilancio_type in source_document.keys():
@@ -290,12 +311,15 @@ class Command(BaseCommand):
                     self.docs_bulk.append(destination_document)
                     
                     if len(self.docs_bulk) == self.bulk_size:
-                        self.write_bulk()
+                        if not dryrun:
+                            self.write_bulk()
 
         # if the last set was < bulk_size write the last documents
         if len(self.docs_bulk) > 0:
-            self.write_bulk()
+            if not dryrun:
+                self.write_bulk()
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
+        email_utils.send_notification_email(msg_string="Couch translate key has finished")
