@@ -220,10 +220,11 @@ class Command(BaseCommand):
         if cities and years:
 
             for city in cities:
+                self.logger.info(u"Updating {}".format(city))
+
                 for year in years:
 
                     doc_id = u"{0}_{1}".format(year, city)
-                    self.logger.info(u"Updating {}".format(doc_id))
                     if doc_id in self.couchdb_dest and skip_existing:
                         self.logger.info("Skipping city of {}, as already existing".format(city))
                         continue
