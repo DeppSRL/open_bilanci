@@ -24,7 +24,7 @@ def do_cprofile(func):
             profile.disable()
             return result
         finally:
-            profile.print_stats()
+            profile.print_stats(sort='cumtime')
     return profiled_func
 
 
