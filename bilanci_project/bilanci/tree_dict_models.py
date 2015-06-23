@@ -120,7 +120,7 @@ class EntrateBudgetMixin(object):
         # get all voices in normalized tree, matching the voce in simplified tree
         voci_matches = self._get_matching_voci(simplified_bc, voci_map)
         if not voci_matches:
-            self._emit_warning(u"No matching voci found for: {},{}.".format(
+            self._emit_debug(u"No matching voci found for: {},{}.".format(
                 bilancio_type,simplified_bc
             ))
 
@@ -176,7 +176,7 @@ class SpeseBudgetMixin(object):
 
         voci_matches = self._get_matching_voci(bc, voci_map)
         if not voci_matches:
-            self._emit_warning(u"No matching voci found for: {},{}.".format(
+            self._emit_debug(u"No matching voci found for: {},{}.".format(
                 bilancio_type,bc
             ))
 
