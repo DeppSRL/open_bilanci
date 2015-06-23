@@ -1,6 +1,7 @@
 import couchdb
 from django.conf import settings
 from django.core.cache import cache
+from bilanci.utils import email_utils
 
 
 def get(key):
@@ -55,3 +56,17 @@ def connect(couchdb_dbname=settings.COUCHDB_SIMPLIFIED_NAME, couchdb_server_sett
     return couch_db
 
 
+def write_bulk(couchdb_dest, docs_bulk, logger):
+        # writes bulk of bilanci to destination db and then empties the list of docs.
+        logger.info("Writing bulk of {} docs to db".format(len(docs_bulk)))
+
+        return_values = couchdb_dest.update(docs_bulk)
+
+        for r in return_values:
+            (success, docid, rev_or_exc) = r
+            logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
+            if success is False:
+                logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
+                return False
+
+        return True

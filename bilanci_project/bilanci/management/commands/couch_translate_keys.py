@@ -72,25 +72,6 @@ class Command(BaseCommand):
     couchdb_source = None
     couchdb_dest = None
 
-    def write_bulk(self):
-        # writes bulk of bilanci to destination db and then empties the list of docs.
-        self.logger.info("Writing bulk of {} docs to db".format(len(self.docs_bulk)))
-
-        return_values = self.couchdb_dest.update(self.docs_bulk)
-
-        for r in return_values:
-            (success, docid, rev_or_exc) = r
-            self.logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
-            if success is False:
-                self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
-                msg_string = "Couch translate key has encountered errors"
-                email_utils.send_notification_email(msg_string=msg_string)
-                exit()
-
-        self.docs_bulk = []
-        self.logger.info("Done")
-        return
-
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -138,7 +119,8 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
+            years = [int(y.strip()) for y in years.split(",") if
+                     settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -162,7 +144,7 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
-        self.logger.info("Connecting to server: {}".format(couchdb_server_alias,))
+        self.logger.info("Connecting to server: {}".format(couchdb_server_alias, ))
         self.logger.info("Connecting source db: {}".format(couchdb_source_name))
         try:
             self.couchdb_source = couch.connect(
@@ -205,8 +187,8 @@ class Command(BaseCommand):
         if design_documents:
             self.logger.info(u"Copying design documents")
             source_design_docs = self.couchdb_source.view("_all_docs",
-                                                     startkey="_design/", endkey="_design0",
-                                                     include_docs=True
+                                                          startkey="_design/", endkey="_design0",
+                                                          include_docs=True
             )
             for row in source_design_docs.rows:
                 source_design_doc = row.doc
@@ -236,7 +218,7 @@ class Command(BaseCommand):
                         continue
 
                     # create destination document, to REPLACE old one
-                    destination_document = {'_id': doc_id,}
+                    destination_document = {'_id': doc_id, }
 
                     # if a doc with that id already exists on the destination document, gets the _rev value
                     # and insert it in the dest. document.
@@ -244,9 +226,9 @@ class Command(BaseCommand):
                     # otherwise you should delete the old doc before writing the new one
                     old_destination_doc = self.couchdb_dest.get(doc_id, None)
                     if old_destination_doc:
-                        revision = old_destination_doc.get('_rev',None)
+                        revision = old_destination_doc.get('_rev', None)
                         if revision:
-                            destination_document['_rev']=revision
+                            destination_document['_rev'] = revision
                             self.logger.debug("Adds rev value to doc")
 
                     for bilancio_type in ['preventivo', 'consuntivo']:
@@ -310,15 +292,21 @@ class Command(BaseCommand):
 
                     # add the document to the list that will be written to couchdb in bulks
                     self.docs_bulk.append(destination_document)
-                    
+
                     if len(self.docs_bulk) == self.bulk_size:
                         if not dryrun:
-                            self.write_bulk()
+                            ret_value = couch.write_bulk(self.couchdb_dest, self.docs_bulk, self.logger)
+                            if ret_value is False:
+                                email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
+                            self.docs_bulk = []
 
         # if the last set was < bulk_size write the last documents
         if len(self.docs_bulk) > 0:
             if not dryrun:
-                self.write_bulk()
+                ret_value = couch.write_bulk(self.couchdb_dest, self.docs_bulk, self.logger)
+                if ret_value is False:
+                    email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
+                self.docs_bulk = []
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
