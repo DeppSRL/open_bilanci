@@ -110,8 +110,6 @@ class Command(BaseCommand):
         if couchdb_server_name not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server name.")
 
-
-
         ###
         #   Couchdb connections
         ###
@@ -147,25 +145,40 @@ class Command(BaseCommand):
         voci_map = gdocs.get_simple_map(n_header_lines=2, force_google=force_google)
         simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
-        for city in cities:
+        for city_id in cities:
 
-            dest_doc_id = city
-            if dest_doc_id in couchdb_dest and skip_existing:
-                self.logger.info(u"Skipping city of {}, as already existing".format(city))
-                continue
+            dest_doc_id = city_id
+            if skip_existing:
+                if dest_doc_id in couchdb_dest:
+                    self.logger.info(u"Skipping city of {}, as already existing".format(city_id))
+                    continue
 
-            destination_document = {}
-            self.logger.info(u"Processing city of {0}".format(city,))
+            destination_document = {'_id': city_id,}
+
+            # if a doc with that id already exists on the destination document, gets the _rev value
+            # and insert it in the dest. document.
+            # this avoids document conflict on writing
+            # otherwise you should delete the old doc before writing the new one
+            old_destination_doc = couchdb_dest.get(city_id, None)
+            if old_destination_doc:
+                revision = old_destination_doc.get('_rev', None)
+                if revision:
+                    destination_document['_rev'] = revision
+                    self.logger.debug("Adds rev value to doc")
+
+
+            self.logger.info(u"Processing city of {0}".format(city_id,))
             for year in years:
                 # need this for logging
-                self.city = city
+                self.city = city_id
                 self.year = year
 
                 # get the source doc
-                doc_id = "{0}_{1}".format(year, city)
+                doc_id = "{0}_{1}".format(year, city_id)
                 if doc_id not in source_db:
                     self.logger.warning(u"Could not find {} in bilanci_voci couchdb instance. Skipping.".format(doc_id))
                     continue
+
                 source_doc = source_db.get(doc_id)
 
                 # build the sub-trees, using the mapping and the source doc
@@ -226,15 +239,6 @@ class Command(BaseCommand):
                     }
 
                 destination_document[str(year)] = year_tree
-
-            # update the tree, deleting it if required
-            # create the tree, when non-existing
-            if dest_doc_id in couchdb_dest:
-                dest_doc = couchdb_dest[dest_doc_id]
-                dest_doc.update(destination_document)
-                couchdb_dest.save(dest_doc)
-            else:
-                couchdb_dest[dest_doc_id] = destination_document
 
             # add the document to the list that will be written to couchdb in bulks
             self.docs_bulk.append(destination_document)
