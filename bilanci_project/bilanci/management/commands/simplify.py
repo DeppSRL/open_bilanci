@@ -32,11 +32,6 @@ class Command(BaseCommand):
                     dest='source_db_name',
                     default='bilanci_voci',
                     help='The name of the source couchdb instance (defaults to bilanci_voci'),
-        make_option('--delete',
-                    dest='delete',
-                    action='store_true',
-                    default=False,
-                    help='Delete a city document before adding it (use only for full years coverage)'),
         make_option('--skip-existing',
                     dest='skip_existing',
                     action='store_true',
@@ -62,7 +57,8 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
-
+    docs_bulk = []
+    bulk_size = 10
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -137,7 +133,7 @@ class Command(BaseCommand):
 
         # hook to dest DB (creating it if non-existing)
         dest_db_name = options['dest_db_name']
-        dest_db = couch.connect(
+        couchdb_dest = couch.connect(
             dest_db_name,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
@@ -154,20 +150,16 @@ class Command(BaseCommand):
         for city in cities:
 
             dest_doc_id = city
-            if dest_doc_id in dest_db and skip_existing:
+            if dest_doc_id in couchdb_dest and skip_existing:
                 self.logger.info(u"Skipping city of {}, as already existing".format(city))
                 continue
 
-            complete_tree = {}
-
+            destination_document = {}
+            self.logger.info(u"Processing city of {0}".format(city,))
             for year in years:
                 # need this for logging
                 self.city = city
                 self.year = year
-
-                self.logger.info(u"Processing city of {0}, year {1}".format(
-                    city, year
-                ))
 
                 # get the source doc
                 doc_id = "{0}_{1}".format(year, city)
@@ -233,20 +225,34 @@ class Command(BaseCommand):
                     'consuntivo': consuntivo_tree,
                     }
 
-                complete_tree[str(year)] = year_tree
+                destination_document[str(year)] = year_tree
 
             # update the tree, deleting it if required
             # create the tree, when non-existing
-            if dest_doc_id in dest_db:
-                dest_doc = dest_db[dest_doc_id]
-                if options['delete']:
-                    dest_db.delete(dest_doc)
-                    dest_db[dest_doc_id] = complete_tree
-                else:
-                    dest_doc.update(complete_tree)
-                    dest_db.save(dest_doc)
+            if dest_doc_id in couchdb_dest:
+                dest_doc = couchdb_dest[dest_doc_id]
+                dest_doc.update(destination_document)
+                couchdb_dest.save(dest_doc)
             else:
-                dest_db[dest_doc_id] = complete_tree
+                couchdb_dest[dest_doc_id] = destination_document
+
+            # add the document to the list that will be written to couchdb in bulks
+            self.docs_bulk.append(destination_document)
+
+            if len(self.docs_bulk) == self.bulk_size:
+                if not dryrun:
+                    ret_value = couch.write_bulk(couchdb_dest, self.docs_bulk, self.logger)
+                    if ret_value is False:
+                        email_utils.send_notification_email(msg_string='Simplify has encountered problems')
+                    self.docs_bulk = []
+
+        # if the buffer is still non-empty, flushes the docs to the db
+        if len(self.docs_bulk) > 0:
+            if not dryrun:
+                ret_value = couch.write_bulk(couchdb_dest, self.docs_bulk, self.logger)
+                if ret_value is False:
+                    email_utils.send_notification_email(msg_string='Simplify has encountered problems')
+                self.docs_bulk = []
 
 
         email_utils.send_notification_email(msg_string="Simplify has finished")
