@@ -20,7 +20,7 @@ function (doc) {
                                         if(funzione_clean.indexOf('- ') == 0){
                                             funzione_clean = funzione_clean.replace('- ','');
                                         }
-                                        emit([funzione_clean,quadro_n],1);
+                                        emit([funzione_clean,quadro_n]);
                                     }
                                 }
                             }

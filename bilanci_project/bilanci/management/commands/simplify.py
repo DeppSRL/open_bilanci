@@ -58,7 +58,7 @@ class Command(BaseCommand):
     logger = logging.getLogger('management')
     comuni_dicts = {}
     docs_bulk = []
-    bulk_size = 10
+    bulk_size = 20
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']

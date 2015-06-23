@@ -21,7 +21,7 @@ var tipo_bilancio = considered_keys[0];
                              funzione = funzione.replace("- ","");
                              }
                              if(funzione!=''){
-                                emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()],1);
+                                emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase()]);
                              }
                          }
 
