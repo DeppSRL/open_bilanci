@@ -333,7 +333,7 @@ class Command(BaseCommand):
         self.logger.info("done")
 
         if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging':
-            self.logger.info(u"run patch 2013 for consuntivo")
+            self.logger.info(u"============Run patch 2013 for consuntivo======================")
             call_command('consuntivo_13_patch', verbosity=2, interactive=False)
             self.logger.info(u"done")
 
