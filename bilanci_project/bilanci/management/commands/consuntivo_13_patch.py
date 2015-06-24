@@ -168,5 +168,5 @@ class Command(BaseCommand):
                 self.logger.info(u"100 Documents more updated, currently at doc:{}".format(doc_key))
                 counter =0
                 
-        self.logger.info(u"Done")
+        self.logger.info(u"Done patch consuntivo 13")
         return

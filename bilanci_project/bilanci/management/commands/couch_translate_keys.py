@@ -330,12 +330,11 @@ class Command(BaseCommand):
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
-        self.logger.info("done")
+        self.logger.info("Done compacting")
 
         if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging':
             self.logger.info(u"============Run patch 2013 for consuntivo======================")
             call_command('consuntivo_13_patch', verbosity=2, interactive=False)
-            self.logger.info(u"done")
 
         email_utils.send_notification_email(msg_string="Couch translate key has finished")
         self.logger.info("finish couch translate keys")
