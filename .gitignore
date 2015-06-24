@@ -65,8 +65,7 @@ dati/
 assets/
 open_data/
 bilanci_project/data/csv
-bilanci_project/data/gdocs_csv_cache/simple_mapi/
-bilanci_project/data/gdocs_csv_cache/voci_map/
+bilanci_project/data/gdocs_csv_cache/
 bilanci_project/data/xml
 bilanci_project/data/zip
 bilanci_project/data/xml
