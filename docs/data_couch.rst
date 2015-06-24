@@ -1,5 +1,5 @@
 Data import: html -> Couch -> Pg
-====================================
+================================
 
 Data are fetched from the source as HTML files (no images, styles, or js scripts).
 This is done in order to prevent damage whenever tehy should disappear from the source.

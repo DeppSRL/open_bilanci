@@ -528,6 +528,8 @@ CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzi
 CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-per-investimenti-interventi'
 CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-correnti-interventi'
 
+HOSTS_COMUNI=[]
+
 CLASSIFICHE_PAGINATE_BY = 15
 EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')
 
