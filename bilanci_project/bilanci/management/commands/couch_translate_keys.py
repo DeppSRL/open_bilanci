@@ -62,6 +62,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
+        make_option('--no-patch',
+                    dest='no_patch',
+                    action='store_true',
+                    default=False,
+                    help='When translating Voci excludes Patch 2013 Consuntivo mng task (development only)'),
     )
 
     help = 'Translate the keys of couchdb documents, normalizing them.'
@@ -72,7 +77,6 @@ class Command(BaseCommand):
     bulk_size = 80
     couchdb_source = None
     couchdb_dest = None
-    couchdb_dest_tortilla = None
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -86,6 +90,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+        no_patch = options['no_patch']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -136,6 +141,8 @@ class Command(BaseCommand):
         couchdb_server_alias = options['couchdb_server']
 
         # set couch source and destination names
+        couchdb_source_name=''
+        couchdb_dest_name=''
         if translation_type == 't':
             couchdb_source_name = settings.COUCHDB_RAW_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
@@ -173,7 +180,7 @@ class Command(BaseCommand):
             return
 
         server_connection_string = "http://{}:{}".format(couchdb_dest_settings['host'], couchdb_dest_settings['port'])
-        self.couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
+        couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
@@ -306,7 +313,7 @@ class Command(BaseCommand):
                     if len(self.docs_bulk) == self.bulk_size:
                         if not dryrun:
                             ret_value = couch.write_bulk(
-                                couchdb_dest=self.couchdb_dest_tortilla,
+                                couchdb_dest=couchdb_dest_tortilla,
                                 couchdb_name=couchdb_dest_name,
                                 docs_bulk=self.docs_bulk,
                                 logger=self.logger)
@@ -319,7 +326,7 @@ class Command(BaseCommand):
         if len(self.docs_bulk) > 0:
             if not dryrun:
                 ret_value = couch.write_bulk(
-                                couchdb_dest=self.couchdb_dest_tortilla,
+                                couchdb_dest=couchdb_dest_tortilla,
                                 couchdb_name=couchdb_dest_name,
                                 docs_bulk=self.docs_bulk,
                                 logger=self.logger)
@@ -332,7 +339,7 @@ class Command(BaseCommand):
         self.couchdb_dest.compact()
         self.logger.info("Done compacting")
 
-        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging':
+        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging' and no_patch is False:
             self.logger.info(u"============Run patch 2013 for consuntivo======================")
             call_command('consuntivo_13_patch', verbosity=2, interactive=False)
 

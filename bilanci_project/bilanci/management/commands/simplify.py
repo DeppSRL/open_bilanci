@@ -2,6 +2,7 @@ import logging
 from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
+import tortilla
 from bilanci.tree_dict_models import *
 from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
@@ -37,10 +38,6 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing documents. Use to speed up long import of many cities, when errors occur'),
-        make_option('--dest-db-name',
-                    dest='dest_db_name',
-                    default='bilanci_simple',
-                    help='The name of the destination couchdb instance (defaults to bilanci_simple)'),
         make_option('--force-google',
                     dest='force_google',
                     action='store_true',
@@ -130,12 +127,17 @@ class Command(BaseCommand):
         self.logger.info("Hooked to source DB: {0}".format(source_db_name))
 
         # hook to dest DB (creating it if non-existing)
-        dest_db_name = options['dest_db_name']
+        couchdb_dest_name = settings.COUCHDB_SIMPLIFIED_NAME
+        couchdb_dest_settings = settings.COUCHDB_SERVERS[couchdb_server_alias]
         couchdb_dest = couch.connect(
-            dest_db_name,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+            couchdb_dest_name,
+            couchdb_server_settings=couchdb_dest_settings
         )
-        self.logger.info("Hooked to destination DB: {0}".format(dest_db_name))
+        # hook to dest DB with tortilla for bulk write
+        server_connection_string = "http://{}:{}".format(couchdb_dest_settings['host'], couchdb_dest_settings['port'])
+        couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
+
+        self.logger.info("Hooked to destination DB: {0}".format(couchdb_dest_name))
 
 
         ###
@@ -245,7 +247,11 @@ class Command(BaseCommand):
 
             if len(self.docs_bulk) == self.bulk_size:
                 if not dryrun:
-                    ret_value = couch.write_bulk(couchdb_dest, self.docs_bulk, self.logger)
+                    ret_value = couch.write_bulk(
+                                couchdb_dest=couchdb_dest_tortilla,
+                                couchdb_name=couchdb_dest_name,
+                                docs_bulk=self.docs_bulk,
+                                logger=self.logger)
                     if ret_value is False:
                         email_utils.send_notification_email(msg_string='Simplify has encountered problems')
                     self.docs_bulk = []
@@ -253,7 +259,11 @@ class Command(BaseCommand):
         # if the buffer is still non-empty, flushes the docs to the db
         if len(self.docs_bulk) > 0:
             if not dryrun:
-                ret_value = couch.write_bulk(couchdb_dest, self.docs_bulk, self.logger)
+                ret_value = couch.write_bulk(
+                                couchdb_dest=couchdb_dest_tortilla,
+                                couchdb_name=couchdb_dest_name,
+                                docs_bulk=self.docs_bulk,
+                                logger=self.logger)
                 if ret_value is False:
                     email_utils.send_notification_email(msg_string='Simplify has encountered problems')
                 self.docs_bulk = []
