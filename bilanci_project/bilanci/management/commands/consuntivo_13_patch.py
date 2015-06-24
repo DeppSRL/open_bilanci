@@ -165,7 +165,7 @@ class Command(BaseCommand):
             self.couchdb[doc_key] = bilancio_2013
             counter +=1
             if counter == 100:
-                self.logger.info(u"Document {} updated".format(doc_key))
+                self.logger.info(u"100 Documents more updated, currently at doc:{}".format(doc_key))
                 counter =0
                 
         self.logger.info(u"Done")
