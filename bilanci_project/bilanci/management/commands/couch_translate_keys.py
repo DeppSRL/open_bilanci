@@ -236,10 +236,8 @@ class Command(BaseCommand):
 
                     old_destination_doc = self.couchdb_dest.get(doc_id, None)
                     if old_destination_doc:
-                        self.logger.info("get old doc")
                         revision = old_destination_doc.get('_rev', None)
                         if revision:
-                            self.logger.info("get old doc rev and sets it")
                             destination_document['_rev'] = revision
                             self.logger.debug("Adds rev value to doc")
 
