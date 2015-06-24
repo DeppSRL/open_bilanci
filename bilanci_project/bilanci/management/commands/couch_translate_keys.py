@@ -195,7 +195,7 @@ class Command(BaseCommand):
             self.logger.error("Could not find destination db. Quitting")
             return
 
-        server_connection_string = "{}:{}@http://{}:{}".format(
+        server_connection_string = "http://{}:{}@{}:{}".format(
             couchdb_dest_settings['user'],
             couchdb_dest_settings['password'],
             couchdb_dest_settings['host'],
