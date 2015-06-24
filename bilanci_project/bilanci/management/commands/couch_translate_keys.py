@@ -1,9 +1,10 @@
 # coding: utf-8
 
 import logging
+import tortilla
 from optparse import make_option
 from couchdb.http import ResourceNotFound
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from django.conf import settings
 from bilanci.utils import couch
 from bilanci.utils import gdocs, email_utils
@@ -71,6 +72,7 @@ class Command(BaseCommand):
     bulk_size = 80
     couchdb_source = None
     couchdb_dest = None
+    couchdb_dest_tortilla = None
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -137,9 +139,12 @@ class Command(BaseCommand):
         if translation_type == 't':
             couchdb_source_name = settings.COUCHDB_RAW_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
-        else:
+        elif translation_type == 'v':
             couchdb_source_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_VOCI_NAME
+        else:
+            self.logger.critical(u"Translation type not accepted:{}".format(translation_type))
+            exit()
 
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
@@ -156,15 +161,19 @@ class Command(BaseCommand):
             return
 
         self.logger.info("Connecting to destination db: {0}".format(couchdb_dest_name))
+        couchdb_dest_settings = settings.COUCHDB_SERVERS[couchdb_server_alias]
 
         try:
             self.couchdb_dest = couch.connect(
                 couchdb_dest_name,
-                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+                couchdb_server_settings=couchdb_dest_settings
             )
         except ResourceNotFound:
             self.logger.error("Could not find destination db. Quitting")
             return
+
+        server_connection_string = "http://{}:{}".format(couchdb_dest_settings['host'], couchdb_dest_settings['port'])
+        self.couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
@@ -178,10 +187,10 @@ class Command(BaseCommand):
 
         normalized_titoli_sheet = {'preventivo': [row[2] for row in normalized_map['preventivo']],
                                    'consuntivo': [row[2] for row in normalized_map['consuntivo']],
-        }
+                                   }
         normalized_voci_sheet = {'preventivo': [(row[2], row[3]) for row in normalized_map['preventivo']],
                                  'consuntivo': [(row[2], row[3]) for row in normalized_map['consuntivo']],
-        }
+                                 }
 
         # copying design documents
         if design_documents:
@@ -224,10 +233,13 @@ class Command(BaseCommand):
                     # and insert it in the dest. document.
                     # this avoids document conflict on writing
                     # otherwise you should delete the old doc before writing the new one
+
                     old_destination_doc = self.couchdb_dest.get(doc_id, None)
                     if old_destination_doc:
+                        self.logger.info("get old doc")
                         revision = old_destination_doc.get('_rev', None)
                         if revision:
+                            self.logger.info("get old doc rev and sets it")
                             destination_document['_rev'] = revision
                             self.logger.debug("Adds rev value to doc")
 
@@ -295,7 +307,12 @@ class Command(BaseCommand):
 
                     if len(self.docs_bulk) == self.bulk_size:
                         if not dryrun:
-                            ret_value = couch.write_bulk(self.couchdb_dest, self.docs_bulk, self.logger)
+                            ret_value = couch.write_bulk(
+                                couchdb_dest=self.couchdb_dest_tortilla,
+                                couchdb_name=couchdb_dest_name,
+                                docs_bulk=self.docs_bulk,
+                                logger=self.logger)
+
                             if ret_value is False:
                                 email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
                             self.docs_bulk = []
@@ -303,12 +320,24 @@ class Command(BaseCommand):
         # if the last set was < bulk_size write the last documents
         if len(self.docs_bulk) > 0:
             if not dryrun:
-                ret_value = couch.write_bulk(self.couchdb_dest, self.docs_bulk, self.logger)
+                ret_value = couch.write_bulk(
+                                couchdb_dest=self.couchdb_dest_tortilla,
+                                couchdb_name=couchdb_dest_name,
+                                docs_bulk=self.docs_bulk,
+                                logger=self.logger)
+
                 if ret_value is False:
                     email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
                 self.docs_bulk = []
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
-        self.logger.info("Done")
+        self.logger.info("done")
+
+        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging':
+            self.logger.info(u"run patch 2013 for consuntivo")
+            call_command('consuntivo_13_patch', verbosity=2, interactive=False)
+            self.logger.info(u"done")
+
         email_utils.send_notification_email(msg_string="Couch translate key has finished")
+        self.logger.info("finish couch translate keys")
