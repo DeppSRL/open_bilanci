@@ -176,17 +176,11 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
             vb.valore_procapite = valori['valore_procapite']
             vb.save()
     else:
-        # ValoreBilancio.objects.create(
-        #     territorio=territorio,
-        #     anno=anno,
-        #     voce=voce,
-        #     valore=valori['valore'],
-        #     valore_procapite=valori['valore_procapite']
-        # )
         list_to_create.append(ValoreBilancio(territorio=territorio, anno=anno, voce=voce, valore=valori['valore'], valore_procapite=valori['valore_procapite']))
 
 def db_flush():
     ValoreBilancio.objects.bulk_create(list_to_create)
+    list_to_create=[]
 
 def write_record_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
     """
