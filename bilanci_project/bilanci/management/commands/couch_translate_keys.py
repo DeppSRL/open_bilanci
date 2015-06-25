@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import logging
-import tortilla
+import time
 from optparse import make_option
 from couchdb.http import ResourceNotFound
 from django.core.management import BaseCommand, call_command
@@ -101,6 +101,10 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
+        # see later comment
+        timestamp = time.time()
+
         dryrun = options['dryrun']
         no_patch = options['no_patch']
 
@@ -195,14 +199,6 @@ class Command(BaseCommand):
             self.logger.error("Could not find destination db. Quitting")
             return
 
-        server_connection_string = "http://{}:{}@{}:{}".format(
-            couchdb_dest_settings['user'],
-            couchdb_dest_settings['password'],
-            couchdb_dest_settings['host'],
-            couchdb_dest_settings['port']
-        )
-        couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
-
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
@@ -250,11 +246,13 @@ class Command(BaseCommand):
                 # identify source document or skip
                 source_document = self.couchdb_source.get(doc_id)
                 if source_document is None:
-                    self.logger.warning("{0} doc_id not found in source db. skipping.".format(doc_id))
+                    self.logger.warning('"{0}" doc_id not found in source db. skipping.'.format(doc_id))
                     continue
 
                 # create destination document, to REPLACE old one
-                destination_document = {'_id': doc_id, }
+                # NB: the useless timestamps serves the only function to work around a bug in COUCHDB that
+                # if the written doc is exactly the same as the new doc then it will not be written
+                destination_document = {'_id': doc_id, 'useless_timestamp': timestamp}
 
                 # if a doc with that id already exists on the destination document, gets the _rev value
                 # and insert it in the dest. document.
@@ -330,30 +328,27 @@ class Command(BaseCommand):
                 # add the document to the list that will be written to couchdb in bulks
                 self.docs_bulk.append(destination_document)
 
-                if len(self.docs_bulk) == self.bulk_size:
-                    if not dryrun:
-                        ret_value = couch.write_bulk(
-                            couchdb_dest=couchdb_dest_tortilla,
-                            couchdb_name=couchdb_dest_name,
-                            docs_bulk=self.docs_bulk,
-                            logger=self.logger)
+                if len(self.docs_bulk) == self.bulk_size and not dryrun:
+                    ret_value = couch.write_bulk(
+                        couchdb_dest=self.couchdb_dest,
+                        docs_bulk=self.docs_bulk,
+                        logger=self.logger)
 
-                        if ret_value is False:
-                            email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
-                        self.docs_bulk = []
+                    if ret_value is False:
+                        email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
+                    self.docs_bulk = []
 
         # if the last set was < bulk_size write the last documents
-        if len(self.docs_bulk) > 0:
-            if not dryrun:
-                ret_value = couch.write_bulk(
-                    couchdb_dest=couchdb_dest_tortilla,
-                    couchdb_name=couchdb_dest_name,
-                    docs_bulk=self.docs_bulk,
-                    logger=self.logger)
+        if len(self.docs_bulk) > 0 and not dryrun:
+            ret_value = couch.write_bulk(
+                couchdb_dest=self.couchdb_dest,
+                docs_bulk=self.docs_bulk,
+                logger=self.logger)
 
-                if ret_value is False:
-                    email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
-                self.docs_bulk = []
+            if ret_value is False:
+                email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
+                exit()
+            self.docs_bulk = []
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
