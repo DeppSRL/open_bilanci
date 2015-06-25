@@ -543,6 +543,9 @@ class Command(BaseCommand):
                         if not self.dryrun:
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
+                # actually save data into posgres
+                tree_models.db_flush()
+                
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
                 if len(self.considered_somma_funzioni) > 0:
                     self.logger.debug("Somma funzioni patch")
@@ -572,8 +575,7 @@ class Command(BaseCommand):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
-            # actually save data into posgres
-            tree_models.db_flush()
+
 
         self.logger.info("Done importing into postgres")
 
