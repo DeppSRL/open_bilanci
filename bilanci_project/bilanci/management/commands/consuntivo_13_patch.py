@@ -3,6 +3,7 @@ from optparse import make_option
 from pprint import pprint
 from django.conf import settings
 from django.core.management import BaseCommand
+import time
 from bilanci.utils import couch, gdocs
 from bilanci.utils.comuni import FLMapper
 
@@ -24,8 +25,10 @@ class Command(BaseCommand):
     help = 'Patches bilanci_voci for Consuntivo 2013 documents applying ' \
            '"Residui passivi" patch and "Totale a pareggio" patch'
     dryrun = False
+    docs_bulk=[]
+    bulk_size = 10
     logger = logging.getLogger('management')
-    couchdb = None
+    couchdb_dest = None
 
     def couch_connect(self, couchdb_server):
         # connect to couch database
@@ -35,7 +38,7 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
-        self.couchdb = couch.connect(
+        self.couchdb_dest = couch.connect(
             couchdb_dbname,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
@@ -136,7 +139,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         self.dryrun = options['dryrun']
-
+        # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
+        # see later comment
+        timestamp = time.time()
         ###
         # connect to couchdb
         ###
@@ -146,7 +151,16 @@ class Command(BaseCommand):
         counter = 0
         for comune_slug in all_cities:
             doc_key = "2013_{}".format(comune_slug)
-            bilancio_2013 = self.couchdb.get(doc_key)
+            bilancio_2013 = self.couchdb_dest.get(doc_key)
+
+            old_destination_doc = self.couchdb_dest.get(doc_key, None)
+            if old_destination_doc:
+                revision = old_destination_doc.get('_rev', None)
+                if revision:
+                    bilancio_2013['_rev'] = revision
+                    self.logger.debug("Adds rev value to doc:{}".format(doc_key))
+
+
             if bilancio_2013 is None:
                 self.logger.error("Cannot find bilancio 2013 for {}".format(comune_slug))
                 continue
@@ -160,13 +174,34 @@ class Command(BaseCommand):
             self.patch_residui_attivi(consuntivo,comune_slug)
             # writes back in couchdb
             bilancio_2013['_id'] = doc_key
-            bilancio_2013.pop('_rev')
-            self.couchdb.delete(self.couchdb[doc_key])
-            self.couchdb[doc_key] = bilancio_2013
-            counter +=1
-            if counter == 100:
-                self.logger.info(u"100 Documents more updated, currently at doc:{}".format(doc_key))
-                counter =0
-                
+            bilancio_2013['useless_timestamp'] = timestamp
+
+            # add the document to the list that will be written to couchdb in bulks
+            self.docs_bulk.append(bilancio_2013)
+
+            if len(self.docs_bulk) == self.bulk_size and not self.dryrun:
+                ret_value = couch.write_bulk(
+                    couchdb_dest=self.couchdb_dest,
+                    docs_bulk=self.docs_bulk,
+                    logger=self.logger)
+
+                if ret_value is False:
+                    self.logger.critical(u"Critical error while bulk writing docs!")
+                    exit()
+
+                self.docs_bulk = []
+
+        if len(self.docs_bulk) > 0 and not self.dryrun:
+            ret_value = couch.write_bulk(
+                couchdb_dest=self.couchdb_dest,
+                docs_bulk=self.docs_bulk,
+                logger=self.logger)
+
+            if ret_value is False:
+                self.logger.critical(u"Critical error while bulk writing docs!")
+                exit()
+
+            self.docs_bulk = []
+
         self.logger.info(u"Done patch consuntivo 13")
         return

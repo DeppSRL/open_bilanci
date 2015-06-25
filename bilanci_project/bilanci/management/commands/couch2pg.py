@@ -575,8 +575,6 @@ class Command(BaseCommand):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
-
-
         self.logger.info("Done importing into postgres")
 
         if complete:
@@ -598,6 +596,5 @@ class Command(BaseCommand):
                 self.logger.info(u"Update opendata zip files for selected Comuni")
                 call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
                              interactive=False)
-
 
         email_utils.send_notification_email(msg_string="Couch2pg has finished.")

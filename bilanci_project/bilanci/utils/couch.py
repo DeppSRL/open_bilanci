@@ -37,10 +37,12 @@ def get_connection_address(couchdb_server_settings=None):
     )
     return server_connection_address
 
+
 def get_server(couchdb_server_settings=None):
     server_connection_address = get_connection_address(couchdb_server_settings=couchdb_server_settings)
     couch_server = couchdb.Server(server_connection_address)
     return couch_server
+
 
 def connect(couchdb_dbname=settings.COUCHDB_SIMPLIFIED_NAME, couchdb_server_settings=None):
     """
@@ -58,21 +60,16 @@ def connect(couchdb_dbname=settings.COUCHDB_SIMPLIFIED_NAME, couchdb_server_sett
 
 
 def write_bulk(couchdb_dest, docs_bulk, logger):
-        # writes bulk of bilanci to destination db and returns True if everything went fine else False
+        # writes bulk of bilanci to destination db and then empties the list of docs.
         logger.info("Writing bulk of {} docs to db".format(len(docs_bulk)))
 
-         # overwrite destination document
-        for destination_document in docs_bulk:
-            doc_id = destination_document['_id']
-            try:
-                logger.debug(u'Document "{}": try to delete'.format(doc_id))
-                couchdb_dest.delete(couchdb_dest[doc_id])
-            except ResourceNotFound:
-                logger.debug(u'Document "{}" was not found for deletion'.format(doc_id))
-            else:
-                logger.debug(u'Document "{}" was deleted'.format(doc_id))
+        return_values = couchdb_dest.update(docs_bulk)
 
-            couchdb_dest.save(destination_document)
-            logger.debug(u'Document "{}" inserted'.format(doc_id))
+        for r in return_values:
+            (success, docid, rev_or_exc) = r
+            logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
+            if success is False:
+                logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
+                return False
 
-        return True
+        return True 
