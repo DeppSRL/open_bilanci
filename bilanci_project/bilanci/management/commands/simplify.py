@@ -133,12 +133,8 @@ class Command(BaseCommand):
             couchdb_dest_name,
             couchdb_server_settings=couchdb_dest_settings
         )
-        # hook to dest DB with tortilla for bulk write
-        server_connection_string = "http://{}:{}".format(couchdb_dest_settings['host'], couchdb_dest_settings['port'])
-        couchdb_dest_tortilla = tortilla.wrap(server_connection_string)
 
         self.logger.info("Hooked to destination DB: {0}".format(couchdb_dest_name))
-
 
         ###
         #   Mapping file and simplified leaves subtrees
@@ -245,28 +241,25 @@ class Command(BaseCommand):
             # add the document to the list that will be written to couchdb in bulks
             self.docs_bulk.append(destination_document)
 
-            if len(self.docs_bulk) == self.bulk_size:
-                if not dryrun:
-                    ret_value = couch.write_bulk(
-                                couchdb_dest=couchdb_dest_tortilla,
-                                couchdb_name=couchdb_dest_name,
-                                docs_bulk=self.docs_bulk,
-                                logger=self.logger)
-                    if ret_value is False:
-                        email_utils.send_notification_email(msg_string='Simplify has encountered problems')
-                    self.docs_bulk = []
-
-        # if the buffer is still non-empty, flushes the docs to the db
-        if len(self.docs_bulk) > 0:
-            if not dryrun:
+            if len(self.docs_bulk) == self.bulk_size and not dryrun:
                 ret_value = couch.write_bulk(
-                                couchdb_dest=couchdb_dest_tortilla,
-                                couchdb_name=couchdb_dest_name,
-                                docs_bulk=self.docs_bulk,
-                                logger=self.logger)
+                            couchdb_dest=couchdb_dest,
+                            docs_bulk=self.docs_bulk,
+                            logger=self.logger)
                 if ret_value is False:
                     email_utils.send_notification_email(msg_string='Simplify has encountered problems')
                 self.docs_bulk = []
+
+        # if the buffer is still non-empty, flushes the docs to the db
+        if len(self.docs_bulk) > 0 and not dryrun:
+
+            ret_value = couch.write_bulk(
+                            couchdb_dest=couchdb_dest,
+                            docs_bulk=self.docs_bulk,
+                            logger=self.logger)
+            if ret_value is False:
+                email_utils.send_notification_email(msg_string='Simplify has encountered problems')
+            self.docs_bulk = []
 
 
         email_utils.send_notification_email(msg_string="Simplify has finished")
