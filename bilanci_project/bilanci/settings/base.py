@@ -45,7 +45,17 @@ ADMINS = (
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
+
 ########## END MANAGER CONFIGURATION
+
+
+########## PROJECT_OWNERS CONFIGURATION
+# PROJECT_OWNERS WILL GET AN EMAIL WHEN IMPORT MNG TASK ARE COMPLETED
+
+PROJECT_OWNERS = (
+    # ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
+    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+)
 
 
 ########## DATABASE CONFIGURATION

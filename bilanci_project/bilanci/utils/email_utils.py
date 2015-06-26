@@ -1,3 +1,5 @@
+from django.conf import settings
+
 def send_notification_email(msg_string):
     # Import smtplib for the actual sending function
     import smtplib
@@ -5,19 +7,20 @@ def send_notification_email(msg_string):
     # Import the email modules we'll need
     from email.mime.text import MIMEText
 
+    if settings.INSTANCE_TYPE is 'development':
+        return
+
     # Create a text/plain message
     msg = MIMEText(msg_string)
 
-    # me == the sender's email address
-    # you == the recipient's email address
     from_addr = "root@openbilanci.it"
-    to_addr = "stefano.vergani.it@gmail.com"
+    managers_email = [po[1] for po in settings.PROJECT_OWNERS]
     msg['Subject'] = msg_string
     msg['From'] = from_addr
-    msg['To'] = to_addr
+    msg['To'] = ",".join(managers_email)
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP('localhost')
-    s.sendmail(from_addr, [to_addr], msg.as_string())
+    s.sendmail(from_addr, managers_email, msg.as_string())
     s.quit()
