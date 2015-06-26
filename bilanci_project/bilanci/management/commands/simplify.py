@@ -2,7 +2,6 @@ import logging
 from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
-import tortilla
 from bilanci.tree_dict_models import *
 from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
