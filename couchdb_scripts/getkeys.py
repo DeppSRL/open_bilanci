@@ -37,8 +37,6 @@ def main(argv):
                default='voci',
                help='Db to use: raw | titoli | voci | simple')
 
-
-
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
 
