@@ -374,7 +374,7 @@ class Command(BaseCommand):
         else:
             self.logger.info("Deleting values for selected cities, years")
 
-        if not self.dryrun and values_to_delete.count()>0:
+        if not self.dryrun and ValoreBilancio.objects.all().count()>0:
             values_to_delete.delete()
         self.logger.info("Done deleting")
 
