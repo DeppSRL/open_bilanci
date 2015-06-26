@@ -78,18 +78,6 @@ class Command(BaseCommand):
     couchdb_source = None
     couchdb_dest = None
 
-    def read_from_couch(self, cities, years):
-
-        # keys_list = []
-        # for city in cities:
-        #     for year in years:
-        #         keys_list.append(u"{0}_{1}".format(year, city))
-        #
-        # couch.read_bulk()
-        return
-
-
-
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
