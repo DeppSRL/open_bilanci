@@ -2,6 +2,7 @@ import logging
 from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
+import time
 from bilanci.tree_dict_models import *
 from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
@@ -68,6 +69,9 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+        # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
+        # see later comment
+        timestamp = time.time()
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -150,7 +154,10 @@ class Command(BaseCommand):
                     self.logger.info(u"Skipping city of {}, as already existing".format(city_id))
                     continue
 
-            destination_document = {'_id': city_id,}
+            # create destination document, to REPLACE old one
+            # NB: the useless timestamps serves the only function to work around a bug in COUCHDB that
+            # if the written doc is exactly the same as the new doc then it will not be written
+            destination_document = {'_id': city_id,  'useless_timestamp': timestamp}
 
             # if a doc with that id already exists on the destination document, gets the _rev value
             # and insert it in the dest. document.
