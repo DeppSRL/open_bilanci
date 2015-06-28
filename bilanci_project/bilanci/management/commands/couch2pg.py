@@ -122,7 +122,6 @@ class Command(BaseCommand):
         valore = vb[0]['valore'] + vb[1]['valore']
         valore_procapite = vb[0]['valore_procapite'] + vb[1]['valore_procapite']
 
-        self.logger.debug("** start adding values")
         ValoreBilancio.objects.create(
             territorio=vb_filters['territorio'],
             anno=vb_filters['anno'],
@@ -130,7 +129,6 @@ class Command(BaseCommand):
             valore=valore,
             valore_procapite=valore_procapite
         )
-        self.logger.debug("** end adding values")
 
     def create_voci_tree(self, force_google):
         """
@@ -545,6 +543,7 @@ class Command(BaseCommand):
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
                 # actually save data into posgres
+                self.logger.debug("Write valori bilancio to postgres")
                 tree_models.db_flush()
                 
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
