@@ -177,7 +177,14 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
             vb.save()
     else:
         global list_to_create
-        list_to_create.append(ValoreBilancio(territorio=territorio, anno=anno, voce=voce, valore=valori['valore'], valore_procapite=valori['valore_procapite']))
+        list_to_create.append(
+            ValoreBilancio(
+                territorio=territorio,
+                anno=anno,
+                voce=voce,
+                valore=valori['valore'],
+                valore_procapite=valori['valore_procapite'])
+        )
 
 def db_flush():
     global list_to_create
