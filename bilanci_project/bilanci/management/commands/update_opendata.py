@@ -164,6 +164,7 @@ class Command(BaseCommand):
                     self.logger.info(u"Skipping city of {}, as already processed".format(city))
                     continue
 
+            self.logger.info(u"Processing city: {}".format(city))
             for year in years:
 
                 # get year budgets for the city
@@ -174,7 +175,7 @@ class Command(BaseCommand):
                     self.logger.warning(u"Budget for:{} not found in couchdb. Skipping.".format(key))
                     continue
 
-                self.logger.info(u"Processing: {}".format(key))
+                self.logger.debug(u"Processing: {}".format(key))
 
                 # check year path
                 year_path = os.path.join(city_path, str(year))
@@ -193,7 +194,7 @@ class Command(BaseCommand):
                     self.logger.info(u"Budget:{} for:{} will be provided only in xml".format('preventivo', key))
 
                 # save preventivo
-                self.logger.info("    Preventivo")
+                self.logger.debug("    Preventivo")
                 prev_path = os.path.join(year_path, 'preventivo')
                 if not os.path.exists(prev_path):
                     os.mkdir(prev_path)
@@ -214,7 +215,7 @@ class Command(BaseCommand):
 
                 # save consuntivo
 
-                self.logger.info("    Consuntivo")
+                self.logger.debug("    Consuntivo")
                 cons_path = os.path.join(year_path, 'Consuntivo')
                 if not os.path.exists(cons_path):
                     os.mkdir(cons_path)
