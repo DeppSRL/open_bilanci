@@ -46,8 +46,27 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
+    years=None
 
+    def set_years(self, years):
+        # set considered years considering cases with - and ,
+        # Example
+        # 2003-2006
+        # or 2003,2004,2010
 
+        if not years:
+            raise Exception("Missing years parameter")
+
+        if "-" in years:
+            (start_year, end_year) = years.split("-")
+            years_list = range(int(start_year), int(end_year) + 1)
+        else:
+            years_list = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
+
+        if not years_list:
+            raise Exception("No suitable year found in {0}".format(years))
+
+        self.years = years_list
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -87,17 +106,9 @@ class Command(BaseCommand):
             self.logger.info("Processing cities: {0}".format(cities))
 
         # massaging years option
-        years = options['years']
-        if not years:
-            raise Exception("Missing years parameter")
-        if "-" in years:
-            (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
-        else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
-        if not years:
-            raise Exception("No suitable year found in {0}".format(years))
-        self.logger.info("Processing years: {0}".format(years))
+        self.set_years(options['years'])
+
+        self.logger.info("Processing years: {0}".format(self.years))
 
         # massaging indicators option
         indicators_slugs = options['indicators']
@@ -140,9 +151,9 @@ class Command(BaseCommand):
             ))
             if dryrun:
                 # no db storage
-                _ = indicator.compute(cities, years, logger=self.logger)
+                _ = indicator.compute(cities, self.years, logger=self.logger)
             else:
                 # db storage
-                indicator.compute_and_commit(cities, years, logger=self.logger, skip_existing=skip_existing)
+                indicator.compute_and_commit(cities, self.years, logger=self.logger, skip_existing=skip_existing)
 
             commit()
