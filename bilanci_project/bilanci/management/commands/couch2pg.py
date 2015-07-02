@@ -462,7 +462,7 @@ class Command(BaseCommand):
         # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
         # deletes old values before import
         self.prepare_for_import()
-
+        counter = 0
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
@@ -477,8 +477,13 @@ class Command(BaseCommand):
                 self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
                 continue
 
-            self.logger.info(u"Processing city of {0}".format(city_finloc))
+            if counter == 100:
+                self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
+                counter = 0
+            else:
+                counter += 1
 
+            set_autocommit(False)
             for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
@@ -542,10 +547,6 @@ class Command(BaseCommand):
                         if not self.dryrun:
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
-                # actually save data into posgres
-                self.logger.debug("Write valori bilancio to postgres")
-                tree_models.db_flush()
-                
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
                 if len(self.considered_somma_funzioni) > 0:
                     self.logger.debug("Somma funzioni patch")
@@ -575,8 +576,12 @@ class Command(BaseCommand):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
-        self.logger.info("Done importing into postgres")
+            # actually save data into posgres
+            self.logger.debug("Write valori bilancio to postgres")
+            commit()
 
+        self.logger.info("Done importing into postgres")
+        set_autocommit(True)
         if complete and not self.dryrun and not self.partial_import:
 
             ##
@@ -612,5 +617,6 @@ class Command(BaseCommand):
             self.logger.info(u"Update opendata zip files for selected Comuni")
             call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
                          interactive=False)
-
-        email_utils.send_notification_email(msg_string="Couch2pg has finished.")
+            email_utils.send_notification_email(msg_string="Couch2pg, opendata, indicators and medians has finished.")
+        else:
+            email_utils.send_notification_email(msg_string="Couch2pg has finished.")
