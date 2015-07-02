@@ -577,24 +577,40 @@ class Command(BaseCommand):
 
         self.logger.info("Done importing into postgres")
 
-        if complete:
+        if complete and not self.dryrun and not self.partial_import:
+
+            ##
+            # Update voci medians
+            ##
+
+            self.logger.info(u"Update indicators medians")
+            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='voci',
+                         interactive=False)
+
             ##
             # Compute Indicators
             ##
             if not self.partial_import:
                 self.logger.info(u"Compute indicators for selected Comuni")
 
-                if not self.dryrun:
-                    call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
-                                 interactive=False)
+                call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                             interactive=False)
+
+            ##
+            # Update indicators medians
+            ##
+
+            self.logger.info(u"Update indicators medians")
+            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='indicatori',
+                         interactive=False)
+
 
             ##
             # Update opendata zip files
             ##
 
-            if not self.dryrun:
-                self.logger.info(u"Update opendata zip files for selected Comuni")
-                call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
-                             interactive=False)
+            self.logger.info(u"Update opendata zip files for selected Comuni")
+            call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
+                         interactive=False)
 
         email_utils.send_notification_email(msg_string="Couch2pg has finished.")
