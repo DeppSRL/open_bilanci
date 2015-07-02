@@ -150,7 +150,7 @@ def make_tree_from_db(voce_node, valori_bilancio):
             treeitem_children.append(make_tree_from_db(voce_node_child, valori_bilancio))
         return make_composite(*treeitem_children, **voce_node_params)
 
-list_to_create = []
+
 def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
     """
     Write a record in the VoceBilancio model
@@ -176,20 +176,15 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
             vb.valore_procapite = valori['valore_procapite']
             vb.save()
     else:
-        global list_to_create
-        list_to_create.append(
-            ValoreBilancio(
-                territorio=territorio,
-                anno=anno,
-                voce=voce,
-                valore=valori['valore'],
-                valore_procapite=valori['valore_procapite'])
-        )
 
-def db_flush():
-    global list_to_create
-    ValoreBilancio.objects.bulk_create(list_to_create)
-    list_to_create=[]
+        ValoreBilancio(
+            territorio=territorio,
+            anno=anno,
+            voce=voce,
+            valore=valori['valore'],
+            valore_procapite=valori['valore_procapite']).save()
+
+
 
 def write_record_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
     """
