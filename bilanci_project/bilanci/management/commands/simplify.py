@@ -111,7 +111,6 @@ class Command(BaseCommand):
         #   Couchdb connections
         ###
 
-
         couchdb_server_alias = options['couchdb_server']
 
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
@@ -247,6 +246,8 @@ class Command(BaseCommand):
                 ret = self.cbw.write(destination_document)
                 if ret is False:
                     email_utils.send_notification_email(msg_string='Simplify has encountered problems')
+                    self.logger.critical("Write critical problem. Quit")
+                    exit()
 
         if not dryrun:
             # if the buffer in CBW is non-empty, flushes the docs to the db

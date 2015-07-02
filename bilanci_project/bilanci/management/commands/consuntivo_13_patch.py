@@ -4,7 +4,7 @@ from pprint import pprint
 from django.conf import settings
 from django.core.management import BaseCommand
 import time
-from bilanci.utils import couch, gdocs
+from bilanci.utils import couch, email_utils
 from bilanci.utils.comuni import FLMapper
 
 
@@ -25,8 +25,7 @@ class Command(BaseCommand):
     help = 'Patches bilanci_voci for Consuntivo 2013 documents applying ' \
            '"Residui passivi" patch and "Totale a pareggio" patch'
     dryrun = False
-    docs_bulk=[]
-    bulk_size = 10
+    cbw = None
     logger = logging.getLogger('management')
     couchdb_dest = None
 
@@ -38,10 +37,10 @@ class Command(BaseCommand):
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
-        self.couchdb_dest = couch.connect(
+        return couch.connect(
             couchdb_dbname,
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+            )
 
     def overwrite_row(self, data_dict, key_to_overwrite, key_to_delete, comune_slug, quadro):
         # overwrites a key in a dict with another, then deletes the key to be deleted
@@ -145,7 +144,11 @@ class Command(BaseCommand):
         ###
         # connect to couchdb
         ###
-        self.couch_connect(options['couchdb_server'])
+        self.couchdb_dest = self.couch_connect(options['couchdb_server'])
+
+        # create couch bulk writer
+        self.cbw = couch.CouchBulkWriter(logger=self.logger, couchdb_dest=self.couchdb_dest)
+
         mapper = FLMapper()
         all_cities = mapper.get_cities('all', logger=self.logger)
         counter = 0
@@ -159,7 +162,6 @@ class Command(BaseCommand):
                 if revision:
                     bilancio_2013['_rev'] = revision
                     self.logger.debug("Adds rev value to doc:{}".format(doc_key))
-
 
             if bilancio_2013 is None:
                 self.logger.error("Cannot find bilancio 2013 for {}".format(comune_slug))
@@ -176,32 +178,20 @@ class Command(BaseCommand):
             bilancio_2013['_id'] = doc_key
             bilancio_2013['useless_timestamp'] = timestamp
 
-            # add the document to the list that will be written to couchdb in bulks
-            self.docs_bulk.append(bilancio_2013)
-
-            if len(self.docs_bulk) == self.bulk_size and not self.dryrun:
-                ret_value = couch.write_bulk(
-                    couchdb_dest=self.couchdb_dest,
-                    docs_bulk=self.docs_bulk,
-                    logger=self.logger)
-
-                if ret_value is False:
-                    self.logger.critical(u"Critical error while bulk writing docs!")
+            if not self.dryrun:
+                # write doc to couchdb dest
+                ret = self.cbw.write(bilancio_2013)
+                if ret is False:
+                    self.logger.critical("Write critical problem. Quit")
                     exit()
 
-                self.docs_bulk = []
 
-        if len(self.docs_bulk) > 0 and not self.dryrun:
-            ret_value = couch.write_bulk(
-                couchdb_dest=self.couchdb_dest,
-                docs_bulk=self.docs_bulk,
-                logger=self.logger)
+        if not self.dryrun:
+            # if the buffer in CBW is non-empty, flushes the docs to the db
+            ret = self.cbw.close()
 
-            if ret_value is False:
-                self.logger.critical(u"Critical error while bulk writing docs!")
-                exit()
-
-            self.docs_bulk = []
+            if ret is False:
+                self.logger.critical("Write critical problem. Quit")
 
         self.logger.info(u"Done patch consuntivo 13")
         return
