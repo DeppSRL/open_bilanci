@@ -93,6 +93,7 @@ class Command(BaseCommand):
                 date_start,
                 date_end
             )
+
     def get_territori_from_finloc(self, cities_finloc):
         return Territorio.objects.filter(cod_finloc__in=cities_finloc, territorio="C").order_by('-cluster')
 
@@ -323,55 +324,55 @@ class Command(BaseCommand):
             if date_check:
 
                 for incarico_dict in incarichi_set:
-                    if not dryrun:
 
-                        tipologia = ''
-                        if incarico_dict['charge_type'] == "Sindaco":
-                            tipologia = Incarico.TIPOLOGIA.sindaco
-                        elif incarico_dict['charge_type'] == "Commissario":
-                            tipologia = Incarico.TIPOLOGIA.commissario
-                        elif incarico_dict['charge_type'] == "Vicesindaco f.f.":
-                            tipologia = Incarico.TIPOLOGIA.vicesindaco_ff
+                    tipologia = ''
+                    if incarico_dict['charge_type'] == "Sindaco":
+                        tipologia = Incarico.TIPOLOGIA.sindaco
+                    elif incarico_dict['charge_type'] == "Commissario":
+                        tipologia = Incarico.TIPOLOGIA.commissario
+                    elif incarico_dict['charge_type'] == "Vicesindaco f.f.":
+                        tipologia = Incarico.TIPOLOGIA.vicesindaco_ff
 
-                        if tipologia == '':
-                            self.logger.error(u"Incarico charge_type not accepted: {0} for {1}". \
-                                format(incarico_dict['charge_type'], self.format_incarico(incarico_dict)))
+                    if tipologia == '':
+                        self.logger.error(u"Incarico charge_type not accepted: {0} for {1}". \
+                            format(incarico_dict['charge_type'], self.format_incarico(incarico_dict)))
 
-                        #looks for existing incarico, if exists: pass, else creates
-                        party_acronym = None
-                        party_name = None
+                    #looks for existing incarico, if exists: pass, else creates
+                    party_acronym = None
+                    party_name = None
 
-                        if tipologia != Incarico.TIPOLOGIA.commissario:
+                    if tipologia != Incarico.TIPOLOGIA.commissario:
 
-                            if 'party_acronym' in incarico_dict:
-                                party_acronym = incarico_dict['party_acronym'].upper()
+                        if 'party_acronym' in incarico_dict:
+                            party_acronym = incarico_dict['party_acronym'].upper()
 
-                            if 'party_name' in incarico_dict:
-                                party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party_name']).upper()
+                        if 'party_name' in incarico_dict:
+                            party_name = re.sub(r'\([^)]*\)', '', incarico_dict['party_name']).upper()
 
-                        try:
-                            incarico = Incarico.objects.get(
-                                nome__iexact=incarico_dict['first_name'],
-                                cognome__iexact=incarico_dict['last_name'],
-                                data_inizio=incarico_dict['date_start'],
-                                data_fine=incarico_dict['date_end'],
-                                territorio=territorio,
-                                tipologia=tipologia,
-                                party_acronym=party_acronym,
-                                party_name=party_name,
-                            )
-                        except ObjectDoesNotExist:
-                            # self.logger.debug(u"Creating Incarico: {0}".format(self.format_incarico(incarico_dict)))
-                            self.create_incarico(incarico_dict, territorio, tipologia)
+                    try:
+                        incarico = Incarico.objects.get(
+                            nome__iexact=incarico_dict['first_name'],
+                            cognome__iexact=incarico_dict['last_name'],
+                            data_inizio=incarico_dict['date_start'],
+                            territorio=territorio,
+                            tipologia=tipologia,
+                        )
+                    except ObjectDoesNotExist:
+                        # create new incarico obj
+                        self.create_incarico(None, incarico_dict, territorio, tipologia)
+                    else:
+                        # update existing incarico
+                        self.create_incarico(incarico, incarico_dict, territorio, tipologia)
 
             else:
                 self.overlapping_dict[territorio.denominazione.upper()] = incarichi_set
 
         return
 
-    def create_incarico(self, incarico_dict, territorio, tipologia):
+    def create_incarico(self,incarico, incarico_dict, territorio, tipologia):
 
-        incarico = Incarico()
+        if incarico is None:
+            incarico = Incarico()
         incarico.nome = incarico_dict['first_name']
         incarico.cognome = incarico_dict['last_name']
         incarico.territorio = territorio
@@ -434,7 +435,7 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         dryrun = options['dryrun']
         delete = options['delete']
         territori_type = options['territori_type']

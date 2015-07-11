@@ -17,7 +17,7 @@ function (doc) {
 
                                     for(var k=0; k < doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'].length; k++){
                                         var intervento_b = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'][k];
-                                        emit([quadro_n+nome_titolo, intervento_b.toLowerCase()],1)
+                                        emit([quadro_n+nome_titolo, intervento_b.toLowerCase()])
                                     }
                                 }
                             }

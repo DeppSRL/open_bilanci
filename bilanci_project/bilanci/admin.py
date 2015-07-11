@@ -21,6 +21,7 @@ class IndicatoreAdmin(admin.ModelAdmin):
 
 class CodiceVoceAdmin(admin.ModelAdmin):
     ordering = ('anno', 'voce__slug')
+    search_fields = ('voce__slug', 'voce__denominazione')
     list_filter = ('anno',)
 
 

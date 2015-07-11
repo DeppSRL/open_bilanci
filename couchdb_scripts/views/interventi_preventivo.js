@@ -17,7 +17,7 @@ function (doc) {
                                 if(anno <= 2007){
                                     if('sottotitolo' in doc[tipo_bilancio][quadro_n][nome_titolo]['meta']){
                                         var intervento_a = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['sottotitolo'];
-                                        emit([intervento_a.toLowerCase(), quadro_n],1)
+                                        emit([intervento_a.toLowerCase(), quadro_n])
                                     }
                                 }
                                 else{
@@ -25,7 +25,7 @@ function (doc) {
                                         // salto il primo valore che e' sempre "Funzioni e servizi /Interventi Correnti"
                                         for(var k=1; k < doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'].length; k++){
                                             var intervento_b = doc[tipo_bilancio][quadro_n][nome_titolo]['meta']['columns'][k];
-                                            emit([intervento_b.toLowerCase(), quadro_n],1)
+                                            emit([intervento_b.toLowerCase(), quadro_n])
                                         }
                                     }
                                 }
