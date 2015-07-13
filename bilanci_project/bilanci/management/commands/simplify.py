@@ -9,8 +9,8 @@ from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
 
-class Command(BaseCommand):
 
+class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--dry-run',
                     dest='dryrun',
@@ -54,8 +54,7 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
-    docs_bulk = []
-    bulk_size = 20
+    cbw = None
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -76,7 +75,6 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
-
         force_google = options['force_google']
         skip_existing = options['skip_existing']
 
@@ -89,14 +87,13 @@ class Command(BaseCommand):
         if cities_codes.lower() != 'all':
             self.logger.info(u"Processing cities: {0}".format(cities))
 
-
         years = options['years']
         if not years:
             raise Exception("Missing years parameter")
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
 
@@ -113,7 +110,6 @@ class Command(BaseCommand):
         ###
         #   Couchdb connections
         ###
-
 
         couchdb_server_alias = options['couchdb_server']
 
@@ -137,6 +133,8 @@ class Command(BaseCommand):
             couchdb_server_settings=couchdb_dest_settings
         )
 
+        # create couch bulk writer
+        self.cbw = couch.CouchBulkWriter(logger=self.logger, couchdb_dest=couchdb_dest)
         self.logger.info("Hooked to destination DB: {0}".format(couchdb_dest_name))
 
         ###
@@ -157,7 +155,7 @@ class Command(BaseCommand):
             # create destination document, to REPLACE old one
             # NB: the useless timestamps serves the only function to work around a bug in COUCHDB that
             # if the written doc is exactly the same as the new doc then it will not be written
-            destination_document = {'_id': city_id,  'useless_timestamp': timestamp}
+            destination_document = {'_id': city_id, 'useless_timestamp': timestamp}
 
             # if a doc with that id already exists on the destination document, gets the _rev value
             # and insert it in the dest. document.
@@ -170,8 +168,7 @@ class Command(BaseCommand):
                     destination_document['_rev'] = revision
                     self.logger.debug("Adds rev value to doc")
 
-
-            self.logger.info(u"Processing city of {0}".format(city_id,))
+            self.logger.info(u"Processing city of {0}".format(city_id, ))
             for year in years:
                 # need this for logging
                 self.city = city_id
@@ -214,7 +211,6 @@ class Command(BaseCommand):
                         )
                         consuntivo_tree.update(consuntivo_entrate_tree)
 
-
                         consuntivo_spese_tree = ConsuntivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
                             leaves=simplified_subtrees_leaves['consuntivo-spese'],
                             mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
@@ -223,7 +219,8 @@ class Command(BaseCommand):
 
                         # creates branch RIASSUNTIVO
 
-                        consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(logger=self.logger).build_tree(
+                        consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(
+                            logger=self.logger).build_tree(
                             leaves=simplified_subtrees_leaves['consuntivo-riassuntivo'],
                             mapping=(voci_map['consuntivo'], source_doc)
                         )
@@ -240,32 +237,23 @@ class Command(BaseCommand):
                 year_tree = {
                     'preventivo': preventivo_tree,
                     'consuntivo': consuntivo_tree,
-                    }
+                }
 
                 destination_document[str(year)] = year_tree
 
-            # add the document to the list that will be written to couchdb in bulks
-            self.docs_bulk.append(destination_document)
-
-            if len(self.docs_bulk) == self.bulk_size and not dryrun:
-                ret_value = couch.write_bulk(
-                            couchdb_dest=couchdb_dest,
-                            docs_bulk=self.docs_bulk,
-                            logger=self.logger)
-                if ret_value is False:
+            if not dryrun:
+                # write doc to couchdb dest
+                ret = self.cbw.write(destination_document)
+                if ret is False:
                     email_utils.send_notification_email(msg_string='Simplify has encountered problems')
-                self.docs_bulk = []
+                    self.logger.critical("Write critical problem. Quit")
+                    exit()
 
-        # if the buffer is still non-empty, flushes the docs to the db
-        if len(self.docs_bulk) > 0 and not dryrun:
+        if not dryrun:
+            # if the buffer in CBW is non-empty, flushes the docs to the db
+            ret = self.cbw.close()
 
-            ret_value = couch.write_bulk(
-                            couchdb_dest=couchdb_dest,
-                            docs_bulk=self.docs_bulk,
-                            logger=self.logger)
-            if ret_value is False:
+            if ret is False:
                 email_utils.send_notification_email(msg_string='Simplify has encountered problems')
-            self.docs_bulk = []
-
 
         email_utils.send_notification_email(msg_string="Simplify has finished")

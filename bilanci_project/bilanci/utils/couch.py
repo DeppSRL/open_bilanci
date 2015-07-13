@@ -1,4 +1,5 @@
 import couchdb
+import sys
 from couchdb.http import ResourceNotFound
 from django.conf import settings
 from django.core.cache import cache
@@ -59,17 +60,40 @@ def connect(couchdb_dbname=settings.COUCHDB_SIMPLIFIED_NAME, couchdb_server_sett
     return couch_db
 
 
-def write_bulk(couchdb_dest, docs_bulk, logger):
-        # writes bulk of bilanci to destination db and then empties the list of docs.
-        logger.info("Writing bulk of {} docs to db".format(len(docs_bulk)))
+class CouchBulkWriter(object):
+    logger = None
+    couchdb_dest = None
+    object_list = []
+    # bulk size is approx the size of 10 complete bilancio (preventivo and consuntivo)
+    bulk_size = 2744300
 
-        return_values = couchdb_dest.update(docs_bulk)
+    def __init__(self, logger, couchdb_dest):
+        self.logger = logger
+        self.couchdb_dest = couchdb_dest
+
+    def write(self, obj):
+        self.object_list.append(obj)
+        if sys.getsizeof(self.object_list, default=0) > self.bulk_size:
+            return self.flush()
+
+        return None
+
+    def close(self):
+        if len(self.object_list) > 0:
+            return self.flush()
+
+    def flush(self):
+        # writes bulk of bilanci to destination db and then empties the list of docs.
+        self.logger.info("Writing bulk of {} docs to db".format(len(self.object_list)))
+
+        return_values = self.couchdb_dest.update(self.object_list)
 
         for r in return_values:
             (success, docid, rev_or_exc) = r
-            logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
+            self.logger.debug("Write return values:{},{},{}".format(success,docid,rev_or_exc))
             if success is False:
-                logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
+                self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
                 return False
 
-        return True 
+        self.object_list=[]
+        return True

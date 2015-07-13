@@ -73,8 +73,7 @@ class Command(BaseCommand):
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
-    docs_bulk = []
-    bulk_size = 80
+    cbw = None
     couchdb_source = None
     couchdb_dest = None
 
@@ -190,6 +189,10 @@ class Command(BaseCommand):
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
         self.logger.info("Done")
+
+
+        # create couch bulk writer
+        self.cbw = couch.CouchBulkWriter(logger=self.logger, couchdb_dest=self.couchdb_dest)
 
         ###
         #   Mapping files from gdoc
@@ -313,30 +316,22 @@ class Command(BaseCommand):
                                         destination_document[bilancio_type][quadro_name][titolo_name]['data'] = \
                                             titolo_object['data']
 
-                # add the document to the list that will be written to couchdb in bulks
-                self.docs_bulk.append(destination_document)
+                if not dryrun:
+                    # write doc to couchdb dest
+                    ret = self.cbw.write(destination_document)
+                    if ret is False:
+                        email_utils.send_notification_email(msg_string='couch translate keys has encountered problems')
+                        self.logger.critical("Write critical problem. Quit")
+                        exit()
 
-                if len(self.docs_bulk) == self.bulk_size and not dryrun:
-                    ret_value = couch.write_bulk(
-                        couchdb_dest=self.couchdb_dest,
-                        docs_bulk=self.docs_bulk,
-                        logger=self.logger)
+        if not dryrun:
+            # if the buffer in CBW is non-empty, flushes the docs to the db
+            ret = self.cbw.close()
 
-                    if ret_value is False:
-                        email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
-                    self.docs_bulk = []
-
-        # if the last set was < bulk_size write the last documents
-        if len(self.docs_bulk) > 0 and not dryrun:
-            ret_value = couch.write_bulk(
-                couchdb_dest=self.couchdb_dest,
-                docs_bulk=self.docs_bulk,
-                logger=self.logger)
-
-            if ret_value is False:
-                email_utils.send_notification_email(msg_string='Couch translate key has encountered problems')
+            if ret is False:
+                email_utils.send_notification_email(msg_string='couch translate keys has encountered problems')
+                self.logger.critical("Write critical problem. Quit")
                 exit()
-            self.docs_bulk = []
 
         self.logger.info("Compact destination db...")
         self.couchdb_dest.compact()
@@ -347,4 +342,4 @@ class Command(BaseCommand):
             call_command('consuntivo_13_patch', verbosity=2, interactive=False)
 
         email_utils.send_notification_email(msg_string="Couch translate key has finished")
-        self.logger.info("finish couch translate keys")
+        self.logger.info("Finished couch translate keys")
