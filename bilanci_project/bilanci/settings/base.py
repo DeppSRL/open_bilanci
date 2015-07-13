@@ -45,7 +45,17 @@ ADMINS = (
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
+
 ########## END MANAGER CONFIGURATION
+
+
+########## PROJECT_OWNERS CONFIGURATION
+# PROJECT_OWNERS WILL GET AN EMAIL WHEN IMPORT MNG TASK ARE COMPLETED
+
+PROJECT_OWNERS = (
+    # ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
+    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+)
 
 
 ########## DATABASE CONFIGURATION
@@ -322,14 +332,15 @@ OUTPUT_PATH = '../scraper_project/scraper/output/'
 LISTA_COMUNI = 'listacomuni.csv'
 LISTA_COMUNI_PATH = OUTPUT_PATH + LISTA_COMUNI
 
+S3_LISTA_COMUNI_URL = env('S3_LISTA_COMUNI_URL')
+
 # preventivi url
 URL_PREVENTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/3/anno/%s/md/0/cod_modello/PCOU/tipo_modello/U/cod_quadro/%s"
 # consuntivi url
 URL_CONSUNTIVI_QUADRI = "http://finanzalocale.interno.it/apps/floc.php/certificati/index/codice_ente/%s/cod/4/anno/%s/md/0/cod_modello/CCOU/tipo_modello/U/cod_quadro/%s"
 
-# Google Account credentials
-GOOGLE_USER = env('GOOGLE_USER')
-GOOGLE_PASSWORD = env('GOOGLE_PASSWORD')
+# Google Account Oauth key
+OAUTH2_KEY_PATH=env('OAUTH2_KEY_PATH')
 
 # Google Docs keys
 GDOC_KEYS = {
@@ -338,7 +349,8 @@ GDOC_KEYS = {
     'simple_map': env('GDOC_VOCI_SIMPLE_MAP_KEY'),
     'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
     'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013'),
-    'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014')
+    'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014'),
+    'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -467,7 +479,7 @@ APP_END_YEAR = 2014
 APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
 APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
-LAST_VALID_CONSUNTIVO_YEAR = 2012
+LAST_VALID_CONSUNTIVO_YEAR = 2013
 CLASSIFICHE_START_YEAR = APP_START_DATE.year
 CLASSIFICHE_END_YEAR = LAST_VALID_CONSUNTIVO_YEAR
 

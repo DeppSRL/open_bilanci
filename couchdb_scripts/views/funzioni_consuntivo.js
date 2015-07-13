@@ -21,7 +21,7 @@ function (doc) {
                                         }
 
                                         var titolo_clean = nome_titolo.replace('quadro-','');
-                                        emit([funzione_clean,titolo_clean],1);
+                                        emit([funzione_clean,titolo_clean]);
                                     }
                                 }
                             }

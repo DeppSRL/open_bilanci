@@ -8,7 +8,7 @@ from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
-from bilanci.utils import couch, gdocs
+from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
 from .somma_funzioni import SommaFunzioniMixin
@@ -122,7 +122,6 @@ class Command(BaseCommand):
         valore = vb[0]['valore'] + vb[1]['valore']
         valore_procapite = vb[0]['valore_procapite'] + vb[1]['valore_procapite']
 
-        self.logger.debug("** start adding values")
         ValoreBilancio.objects.create(
             territorio=vb_filters['territorio'],
             anno=vb_filters['anno'],
@@ -130,7 +129,6 @@ class Command(BaseCommand):
             valore=valore,
             valore_procapite=valore_procapite
         )
-        self.logger.debug("** end adding values")
 
     def create_voci_tree(self, force_google):
         """
@@ -262,7 +260,7 @@ class Command(BaseCommand):
 
     def set_cities(self, cities_codes, start_from):
         # set considered cities
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
 
         if not cities_codes:
             if start_from:
@@ -374,8 +372,9 @@ class Command(BaseCommand):
         else:
             self.logger.info("Deleting values for selected cities, years")
 
-        if not self.dryrun:
+        if not self.dryrun and ValoreBilancio.objects.all().count()>0:
             values_to_delete.delete()
+        self.logger.info("Done deleting")
 
         # creates somma_funzioni_slug_baseset
         for slug in self.considered_somma_funzioni:
@@ -463,8 +462,7 @@ class Command(BaseCommand):
         # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
         # deletes old values before import
         self.prepare_for_import()
-
-        set_autocommit(autocommit=False)
+        counter = 0
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
@@ -479,8 +477,13 @@ class Command(BaseCommand):
                 self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
                 continue
 
-            self.logger.info(u"Processing city of {0}".format(city_finloc))
+            if counter == 100:
+                self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
+                counter = 0
+            else:
+                counter += 1
 
+            set_autocommit(False)
             for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
@@ -540,7 +543,7 @@ class Command(BaseCommand):
                         )
                         if len(certificato_tree.children) == 0:
                             continue
-                        self.logger.info(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
+                        self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         if not self.dryrun:
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
 
@@ -573,27 +576,47 @@ class Command(BaseCommand):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
-                # actually save data into posgres
-                commit()
+            # actually save data into posgres
+            self.logger.debug("Write valori bilancio to postgres")
+            commit()
 
-        set_autocommit(autocommit=True)
+        self.logger.info("Done importing into postgres")
+        set_autocommit(True)
+        if complete and not self.dryrun and not self.partial_import:
 
-        if complete:
+            ##
+            # Update voci medians
+            ##
+
+            self.logger.info(u"Update indicators medians")
+            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='voci',
+                         interactive=False)
+
             ##
             # Compute Indicators
             ##
             if not self.partial_import:
                 self.logger.info(u"Compute indicators for selected Comuni")
 
-                if not self.dryrun:
-                    call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
-                                 interactive=False)
+                call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                             interactive=False)
+
+            ##
+            # Update indicators medians
+            ##
+
+            self.logger.info(u"Update indicators medians")
+            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='indicatori',
+                         interactive=False)
+
 
             ##
             # Update opendata zip files
             ##
 
-            if not self.dryrun:
-                self.logger.info(u"Update opendata zip files for selected Comuni")
-                call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
-                             interactive=False)
+            self.logger.info(u"Update opendata zip files for selected Comuni")
+            call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
+                         interactive=False)
+            email_utils.send_notification_email(msg_string="Couch2pg, opendata, indicators and medians has finished.")
+        else:
+            email_utils.send_notification_email(msg_string="Couch2pg has finished.")

@@ -9,7 +9,7 @@ function (doc) {
 
               if( quadro_n in doc[tipo_bilancio] ){
                 for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
-                 emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo],1);
+                 emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo]);
                 }
               }
             }

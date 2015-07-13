@@ -4,6 +4,7 @@ __author__ = 'stefano'
 # coding: utf-8
 
 import sys
+import json
 import gspread
 import logging
 import argparse
@@ -129,6 +130,17 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
     return data_result_set
 
 
+def connect_to_drive():
+    from oauth2client.client import SignedJwtAssertionCredentials
+
+    json_key = json.load(open(settings_local.oauth2_key_path))
+    scope = ['https://spreadsheets.google.com/feeds']
+
+    credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], scope)
+    gc = gspread.authorize(credentials)
+    return gc
+
+
 def main(argv):
     parser = argparse.ArgumentParser(description='Merge keys for titoli / voci comparing couch db views and gdoc')
 
@@ -168,8 +180,8 @@ def main(argv):
     if translation_type in settings_local.accepted_types.keys():
 
         if server_name in settings_local.accepted_servers.keys():
-            # Login with the script Google account
-            gc = gspread.login(settings_local.g_user, settings_local.g_password)
+            # Login to drive as openpolis script
+            gc = connect_to_drive()
 
             # open the list worksheet
             list_sheet = None

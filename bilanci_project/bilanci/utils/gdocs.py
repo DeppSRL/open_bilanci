@@ -1,22 +1,26 @@
 import csv
 import glob
+import json
 import logging
 from urllib2 import URLError
 from django.conf import settings
 from gspread import exceptions
+from oauth2client.client import SignedJwtAssertionCredentials
 import gspread
 from bilanci import utils
 import os
 
 logger = logging.getLogger('management')
 
-def get_connection():
-    """
-    login into Google Account with credentials in the settings
-    """
-    # log into Google account
-    gc = gspread.login(settings.GOOGLE_USER, settings.GOOGLE_PASSWORD)
 
+def get_connection():
+    from oauth2client.client import SignedJwtAssertionCredentials
+
+    json_key = json.load(open(settings.OAUTH2_KEY_PATH))
+    scope = ['https://spreadsheets.google.com/feeds']
+
+    credentials = SignedJwtAssertionCredentials(json_key['client_email'], json_key['private_key'], scope)
+    gc = gspread.authorize(credentials)
     return gc
 
 

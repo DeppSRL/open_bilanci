@@ -1,15 +1,17 @@
 # coding: utf-8
 
 import logging
+import time
 from optparse import make_option
 from couchdb.http import ResourceNotFound
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, call_command
 from django.conf import settings
 from bilanci.utils import couch
-from bilanci.utils import gdocs
+from bilanci.utils import gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
+
 
 class Command(BaseCommand):
     """
@@ -60,13 +62,20 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
+        make_option('--no-patch',
+                    dest='no_patch',
+                    action='store_true',
+                    default=False,
+                    help='When translating Voci excludes Patch 2013 Consuntivo mng task (development only)'),
     )
 
     help = 'Translate the keys of couchdb documents, normalizing them.'
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
-
+    cbw = None
+    couchdb_source = None
+    couchdb_dest = None
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -79,7 +88,12 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
+        # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
+        # see later comment
+        timestamp = time.time()
+
         dryrun = options['dryrun']
+        no_patch = options['no_patch']
 
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
@@ -102,11 +116,14 @@ class Command(BaseCommand):
             raise Exception("Missing city parameter")
 
         self.logger.info("Opening Lista Comuni")
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
+        if not cities:
+            self.logger.critical("Cities cannot be null!")
+            exit()
+
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))
-
 
         years = options['years']
         if not years:
@@ -114,9 +131,10 @@ class Command(BaseCommand):
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
+            years = [int(y.strip()) for y in years.split(",") if
+                     settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -130,21 +148,25 @@ class Command(BaseCommand):
         couchdb_server_alias = options['couchdb_server']
 
         # set couch source and destination names
+        couchdb_source_name=''
+        couchdb_dest_name=''
         if translation_type == 't':
             couchdb_source_name = settings.COUCHDB_RAW_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
-        else:
+        elif translation_type == 'v':
             couchdb_source_name = settings.COUCHDB_NORMALIZED_TITOLI_NAME
             couchdb_dest_name = settings.COUCHDB_NORMALIZED_VOCI_NAME
-
+        else:
+            self.logger.critical(u"Translation type not accepted:{}".format(translation_type))
+            exit()
 
         if couchdb_server_alias not in settings.COUCHDB_SERVERS:
             raise Exception("Unknown couchdb server alias.")
 
-
-        self.logger.info("Connecting to source db: {0}".format(couchdb_source_name))
+        self.logger.info("Connecting to server: {}".format(couchdb_server_alias, ))
+        self.logger.info("Connecting source db: {}".format(couchdb_source_name))
         try:
-            couchdb_source = couch.connect(
+            self.couchdb_source = couch.connect(
                 couchdb_source_name,
                 couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
             )
@@ -153,15 +175,24 @@ class Command(BaseCommand):
             return
 
         self.logger.info("Connecting to destination db: {0}".format(couchdb_dest_name))
+        couchdb_dest_settings = settings.COUCHDB_SERVERS[couchdb_server_alias]
 
         try:
-            couchdb_dest = couch.connect(
+            self.couchdb_dest = couch.connect(
                 couchdb_dest_name,
-                couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+                couchdb_server_settings=couchdb_dest_settings
             )
         except ResourceNotFound:
             self.logger.error("Could not find destination db. Quitting")
             return
+
+        self.logger.info("Compact destination db...")
+        self.couchdb_dest.compact()
+        self.logger.info("Done")
+
+
+        # create couch bulk writer
+        self.cbw = couch.CouchBulkWriter(logger=self.logger, couchdb_dest=self.couchdb_dest)
 
         ###
         #   Mapping files from gdoc
@@ -169,19 +200,19 @@ class Command(BaseCommand):
         # connect to google account and fetch tree mapping and simple tree structure
         normalized_map = gdocs.get_normalized_map(translation_type, n_header_lines=2, force_google=force_google)
 
-        normalized_titoli_sheet = {'preventivo' : [row[2] for row in normalized_map['preventivo']],
-                                   'consuntivo' : [row[2] for row in normalized_map['consuntivo']],
+        normalized_titoli_sheet = {'preventivo': [row[2] for row in normalized_map['preventivo']],
+                                   'consuntivo': [row[2] for row in normalized_map['consuntivo']],
                                    }
-        normalized_voci_sheet = {  'preventivo' : [(row[2], row[3]) for row in normalized_map['preventivo']],
-                                   'consuntivo' : [(row[2], row[3]) for row in normalized_map['consuntivo']],
-                                   }
+        normalized_voci_sheet = {'preventivo': [(row[2], row[3]) for row in normalized_map['preventivo']],
+                                 'consuntivo': [(row[2], row[3]) for row in normalized_map['consuntivo']],
+                                 }
 
         # copying design documents
         if design_documents:
             self.logger.info(u"Copying design documents")
-            source_design_docs = couchdb_source.view("_all_docs",
-                startkey="_design/", endkey="_design0",
-                include_docs=True
+            source_design_docs = self.couchdb_source.view("_all_docs",
+                                                          startkey="_design/", endkey="_design0",
+                                                          include_docs=True
             )
             for row in source_design_docs.rows:
                 source_design_doc = row.doc
@@ -189,90 +220,126 @@ class Command(BaseCommand):
                 destination_document = {'_id': source_design_doc.id}
                 destination_document['language'] = source_design_doc['language']
                 destination_document['views'] = source_design_doc['views']
+                if not dryrun:
 
-                couchdb_dest.save(destination_document)
+                    self.couchdb_dest.save(destination_document)
 
-        if cities and years:
+        for city in cities:
+            self.logger.info(u"Updating {}".format(city))
 
-            for city in cities:
-                for year in years:
+            for year in years:
 
-                    doc_id = u"{0}_{1}".format(year, city)
+                doc_id = u"{0}_{1}".format(year, city)
+                if doc_id in self.couchdb_dest and skip_existing:
+                    self.logger.info("Skipping city of {}, as already existing".format(city))
+                    continue
 
-                    if doc_id in couchdb_dest and skip_existing:
-                        self.logger.info("Skipping city of {}, as already existing".format(city))
-                        continue
+                # identify source document or skip
+                source_document = self.couchdb_source.get(doc_id)
+                if source_document is None:
+                    self.logger.warning('"{0}" doc_id not found in source db. skipping.'.format(doc_id))
+                    continue
 
-                    # identify source document or skip
-                    source_document = couchdb_source.get(doc_id)
-                    if source_document is None:
-                        self.logger.warning("{0} doc_id not found in source db. skipping.".format(doc_id))
-                        continue
+                # create destination document, to REPLACE old one
+                # NB: the useless timestamps serves the only function to work around a bug in COUCHDB that
+                # if the written doc is exactly the same as the new doc then it will not be written
+                destination_document = {'_id': doc_id, 'useless_timestamp': timestamp}
 
-                    # create destination document, to REPLACE old one
-                    destination_document = {'_id': doc_id}
+                # if a doc with that id already exists on the destination document, gets the _rev value
+                # and insert it in the dest. document.
+                # this avoids document conflict on writing
+                # otherwise you should delete the old doc before writing the new one
 
-                    for bilancio_type in ['preventivo', 'consuntivo']:
-                        if bilancio_type in source_document.keys():
-                            bilancio_object = source_document[bilancio_type]
-                            destination_document[bilancio_type] = {}
+                old_destination_doc = self.couchdb_dest.get(doc_id, None)
+                if old_destination_doc:
+                    revision = old_destination_doc.get('_rev', None)
+                    if revision:
+                        destination_document['_rev'] = revision
+                        self.logger.debug("Adds rev value to doc:{}".format(doc_id))
 
-                            for quadro_name, quadro_object in bilancio_object.iteritems():
-                                destination_document[bilancio_type][quadro_name] = {}
+                for bilancio_type in ['preventivo', 'consuntivo']:
+                    if bilancio_type in source_document.keys():
+                        bilancio_object = source_document[bilancio_type]
+                        destination_document[bilancio_type] = {}
 
-                                for titolo_name, titolo_object in quadro_object.iteritems():
+                        for quadro_name, quadro_object in bilancio_object.iteritems():
+                            destination_document[bilancio_type][quadro_name] = {}
 
-                                    if translation_type == 't':
-                                        # for each titolo, apply translation_map, if valid
-                                        try:
-                                            idx = normalized_titoli_sheet[bilancio_type].index(titolo_name)
-                                            titolo_name = normalized_map[bilancio_type][idx][3]
-                                        except ValueError:
-                                            pass
+                            for titolo_name, titolo_object in quadro_object.iteritems():
 
-                                    # create dest doc titolo dictionary
-                                    destination_document[bilancio_type][quadro_name][titolo_name] = {}
+                                if translation_type == 't':
+                                    # for each titolo, apply translation_map, if valid
+                                    try:
+                                        idx = normalized_titoli_sheet[bilancio_type].index(titolo_name)
+                                        titolo_name = normalized_map[bilancio_type][idx][3]
+                                    except ValueError:
+                                        pass
 
-                                    # copy meta
-                                    if 'meta' in titolo_object.keys():
-                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = {}
-                                        destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = titolo_object['meta']
+                                # create dest doc titolo dictionary
+                                destination_document[bilancio_type][quadro_name][titolo_name] = {}
 
-                                    # copy data (normalize voci if needed)
-                                    if 'data' in titolo_object.keys():
-                                        destination_document[bilancio_type][quadro_name][titolo_name]['data'] = {}
+                                # copy meta
+                                if 'meta' in titolo_object.keys():
+                                    destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = {}
+                                    destination_document[bilancio_type][quadro_name][titolo_name]['meta'] = \
+                                        titolo_object['meta']
 
-                                        if translation_type == 'v':
-                                            # voci translation
-                                            for voce_name, voce_obj in titolo_object['data'].iteritems():
-                                                # voci are always translated into lowercase, unicode strings
-                                                # trailing dash is removed, if present
-                                                voce_name = unicode(voce_name.lower())
-                                                if voce_name.find("- ") == 0:
-                                                    voce_name = voce_name.replace("- ","")
+                                # copy data (normalize voci if needed)
+                                if 'data' in titolo_object.keys():
+                                    destination_document[bilancio_type][quadro_name][titolo_name]['data'] = {}
 
-                                                # for each voce, apply translation_map, if valid
-                                                try:
-                                                    idx = normalized_voci_sheet[bilancio_type].index((titolo_name,voce_name))
-                                                    voce_name = normalized_map[bilancio_type][idx][4]
-                                                except ValueError:
-                                                    pass
+                                    if translation_type == 'v':
+                                        # voci translation
+                                        for voce_name, voce_obj in titolo_object['data'].iteritems():
+                                            # voci are always translated into lowercase, unicode strings
+                                            # trailing dash is removed, if present
+                                            voce_name = unicode(voce_name.lower())
+                                            if voce_name.find("- ") == 0:
+                                                voce_name = voce_name.replace("- ", "")
 
-                                                # create voice dictionary with normalized name
-                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = {}
-                                                destination_document[bilancio_type][quadro_name][titolo_name]['data'][voce_name] = voce_obj
+                                            # for each voce, apply translation_map, if valid
+                                            try:
+                                                idx = normalized_voci_sheet[bilancio_type].index(
+                                                    (titolo_name, voce_name))
+                                                voce_name = normalized_map[bilancio_type][idx][4]
+                                            except ValueError:
+                                                pass
 
-                                        else:
-                                            # copy all voci in data, with no normalization
-                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'] = titolo_object['data']
+                                            # create voice dictionary with normalized name
+                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'][
+                                                voce_name] = {}
+                                            destination_document[bilancio_type][quadro_name][titolo_name]['data'][
+                                                voce_name] = voce_obj
 
+                                    else:
+                                        # copy all voci in data, with no normalization
+                                        destination_document[bilancio_type][quadro_name][titolo_name]['data'] = \
+                                            titolo_object['data']
 
-                    # overwrite detination document
-                    if doc_id in couchdb_dest:
-                        couchdb_dest.delete(couchdb_dest[doc_id])
-                    couchdb_dest[doc_id] = destination_document
-                    self.logger.info(u"Document {} updated".format(doc_id))
+                if not dryrun:
+                    # write doc to couchdb dest
+                    ret = self.cbw.write(destination_document)
+                    if ret is False:
+                        email_utils.send_notification_email(msg_string='couch translate keys has encountered problems')
+                        self.logger.critical("Write critical problem. Quit")
+                        exit()
 
+        if not dryrun:
+            # if the buffer in CBW is non-empty, flushes the docs to the db
+            ret = self.cbw.close()
 
+            if ret is False:
+                email_utils.send_notification_email(msg_string='couch translate keys has encountered problems')
+                self.logger.critical("Write critical problem. Quit")
+                exit()
 
+        self.logger.info("Compact destination db...")
+        self.couchdb_dest.compact()
+        self.logger.info("Done compacting")
 
+        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging' and no_patch is False:
+            self.logger.info(u"============Run patch 2013 for consuntivo======================")
+            call_command('consuntivo_13_patch', verbosity=2, interactive=False)
+
+        email_utils.send_notification_email(msg_string="Couch translate key has finished")
+        self.logger.info("Finished couch translate keys")

@@ -51,7 +51,7 @@ class Command(BaseCommand, TestCase):
         if not cities_codes:
             raise Exception("Missing city parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
         if cities_codes.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(cities))

@@ -19,7 +19,7 @@ function (doc) {
                                      if(funzione.indexOf("- ") == 0){
                                          funzione = funzione.replace("- ","");
                                          }
-                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase(),doc['_id'].substring(0,4)],1);
+                                     emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo,funzione.toLowerCase(),doc['_id'].substring(0,4)]);
                                  }
 
                              }

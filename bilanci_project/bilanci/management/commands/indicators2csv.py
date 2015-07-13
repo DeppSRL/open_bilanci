@@ -94,7 +94,7 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         # gets capoluoghi privincia finloc list from settings
         if cities_codes == 'capoluoghi':
             cities = Territorio.objects.\

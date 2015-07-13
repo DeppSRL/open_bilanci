@@ -7,10 +7,11 @@ from django.conf import settings
 from django.core.management import BaseCommand
 import shutil
 from bilanci import tree_models
-from bilanci.models import Voce, ValoreBilancio
+from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs
 from bilanci.utils import unicode_csv
 from bilanci.utils.comuni import FLMapper
+from bilanci.utils.converters import FLCSVEmitter
 from bilanci.utils.zipper import zipdir_prefix
 from territori.models import Territorio, ObjectDoesNotExist
 
@@ -59,12 +60,24 @@ class Command(BaseCommand):
                     help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
     )
 
-    help = 'Export values from the simplified couchdb database into a set of CSV files'
+    help = 'Export values from the raw couchdb database into a set of CSV files'
 
     logger = logging.getLogger('management')
     comuni_dicts = {}
     voci_dict = None
     years = None
+
+    def connect_to_couch(self, couchdb_server):
+        couchdb_server_alias = couchdb_server
+        couchdb_dbname = settings.COUCHDB_RAW_NAME
+
+        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
+            raise Exception("Unknown couchdb server alias.")
+
+        return couch.connect(
+            couchdb_dbname,
+            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
+        )
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -92,7 +105,7 @@ class Command(BaseCommand):
         if not cities_codes:
             raise Exception("Missing cities parameter")
 
-        mapper = FLMapper(settings.LISTA_COMUNI_PATH)
+        mapper = FLMapper()
         cities = mapper.get_cities(cities_codes)
 
         if not cities:
@@ -113,7 +126,7 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2013]
+            years = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR < int(y.strip()) < settings.APP_END_YEAR]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -121,20 +134,14 @@ class Command(BaseCommand):
         self.logger.info("Processing years: {0}".format(years))
         self.years = years
 
+        # instantiate emitter
+        # to emit CSV files
+        emitter = FLCSVEmitter(self.logger)
+
         ###
         # connect to couchdb
         ###
-
-        couchdb_server_alias = options['couchdb_server']
-        couchdb_dbname = settings.COUCHDB_SIMPLIFIED_NAME
-
-        if couchdb_server_alias not in settings.COUCHDB_SERVERS:
-            raise Exception("Unknown couchdb server alias.")
-
-        couchdb = couch.connect(
-            couchdb_dbname,
-            couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
-        )
+        couchdb = self.connect_to_couch(couchdb_server=options['couchdb_server'])
 
         output_abs_path = os.path.abspath(output_path)
         csv_path = os.path.join(output_abs_path, 'csv')
@@ -157,83 +164,67 @@ class Command(BaseCommand):
                     self.logger.info(u"Skipping city of {}, as already processed".format(city))
                     continue
 
-            # get all budgets for the city
-            city_budget = couchdb.get(city)
-
-            if city_budget is None:
-                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city))
-                continue
-
-            # get territorio corrsponding to city (to compute percapita values)
-            try:
-                territorio = Territorio.objects.get(cod_finloc=city)
-            except ObjectDoesNotExist:
-                territorio = None
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city))
-                continue
-
-            self.logger.info(u"Processing city of {0}".format(city))
-
+            self.logger.info(u"Processing city: {}".format(city))
             for year in years:
-                if str(year) not in city_budget:
-                    self.logger.warning(u"- Year {} not found in Couchdb. Skipping.".format(year))
+
+                # get year budgets for the city
+                key = u"{}_{}".format(year, city)
+                city_budget = couchdb.get(key)
+
+                if city_budget is None:
+                    self.logger.warning(u"Budget for:{} not found in couchdb. Skipping.".format(key))
                     continue
 
-                self.logger.info(u"- Processing year: {}".format(year))
+                self.logger.debug(u"Processing: {}".format(key))
 
                 # check year path
                 year_path = os.path.join(city_path, str(year))
                 if not os.path.exists(year_path):
                     os.mkdir(year_path)
 
-                # fetch valid population, starting from this year
-                # if no population found, set it to None, as not to break things
+
+                # if for current city/year was imported a XML bilancio, then skips the Couchdb data, xml file
+                # will be provided instead
                 try:
-                    (pop_year, population) = territorio.nearest_valid_population(year)
-                except TypeError:
-                    population = None
-                self.logger.debug("::Population: {0}".format(population))
+                    ImportXmlBilancio.objects.\
+                        get(territorio__cod_finloc=city, anno=year, tipologia=ImportXmlBilancio.TIPO_CERTIFICATO.preventivo)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    self.logger.info(u"Budget:{} for:{} will be provided only in xml".format('preventivo', key))
 
-                # build a BilancioItem tree, out of the couch-extracted dict
-                # for the given city and year
-                # add the totals by extracting them from the dict, or by computing
-                city_year_budget_dict = city_budget[str(year)]
-                city_year_preventivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['preventivo'], self.voci_dict, path=[u'preventivo'],
-                    population=population
-                )
-                city_year_consuntivo_tree = tree_models.make_tree_from_dict(
-                    city_year_budget_dict['consuntivo'], self.voci_dict, path=[u'consuntivo'],
-                    population=population
-                )
+                # save preventivo
+                self.logger.debug("    Preventivo")
+                prev_path = os.path.join(year_path, 'preventivo')
+                if not os.path.exists(prev_path):
+                    os.mkdir(prev_path)
 
-                # write csv file
-                csv_filename = os.path.join(year_path, "preventivo.csv")
-                csv_file = open(csv_filename, 'w')
-                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+                preventivo = city_budget.get('preventivo', None)
+                if preventivo:
+                    emitter.emit(q_data=preventivo, base_path=prev_path)
 
-                # build and emit header
-                row = ['Path', 'Valore', 'Valore procapite']
-                csv_writer.writerow(row)
+                # if for current city/year was imported a XML bilancio, then skips the Couchdb data, xml file
+                # will be provided instead
+                try:
+                    ImportXmlBilancio.objects.\
+                        get(territorio__cod_finloc=city, anno=year, tipologia=ImportXmlBilancio.TIPO_CERTIFICATO.consuntivo)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    self.logger.info(u"Budget:{} for:{} will be provided only in xml".format('consuntivo', key))
 
-                # emit preventivo content
-                _list = []
-                city_year_preventivo_tree.emit_as_list(_list, ancestors_separator="/")
-                csv_writer.writerows(_list)
+                # save consuntivo
 
-                # open csv file
-                csv_filename = os.path.join(year_path, "consuntivo.csv")
-                csv_file = open(csv_filename, 'w')
-                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+                self.logger.debug("    Consuntivo")
+                cons_path = os.path.join(year_path, 'Consuntivo')
+                if not os.path.exists(cons_path):
+                    os.mkdir(cons_path)
 
-                # build and emit header
-                row = ['Path', 'Valore', 'Valore procapite']
-                csv_writer.writerow(row)
+                consuntivo = city_budget.get('consuntivo', None)
 
-                # emit preventivo content
-                _list = []
-                city_year_consuntivo_tree.emit_as_list(_list, ancestors_separator="/")
-                csv_writer.writerows(_list)
+                # emit q_data as CSV files in a directory tree
+                if consuntivo:
+                    emitter.emit(q_data=consuntivo, base_path=cons_path)
 
             # if the zip file is requested, creates the zip folder,
             # creates zip file
@@ -250,21 +241,4 @@ class Command(BaseCommand):
                 zipdir_prefix(opendata_zipfile, csv_path, city, "csv")
                 zipdir_prefix(opendata_zipfile, xml_path, city, "xml")
 
-
                 self.logger.info("Created zip file: {}".format(zipfilename))
-
-    def write_csv(self, path, name, tree):
-
-        # open csv file
-        csv_filename = os.path.join(path, "{0}.csv".format(name))
-        csv_file = open(csv_filename, 'w')
-        csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
-
-        # build and emit header
-        row = ['Path', 'Valore', 'Valore procapite']
-        csv_writer.writerow(row)
-
-        # emit preventivo content
-        _list = []
-        tree.emit_as_list(_list, ancestors_separator="/")
-        csv_writer.writerows(_list)
