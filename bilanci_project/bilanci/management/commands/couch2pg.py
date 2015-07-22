@@ -2,6 +2,8 @@ from collections import OrderedDict
 import logging
 from optparse import make_option
 from pprint import pprint
+from os import listdir
+from os.path import isfile, join
 from django.conf import settings
 from django.core.management import BaseCommand, call_command
 from django.db.transaction import set_autocommit, commit
@@ -94,6 +96,7 @@ class Command(BaseCommand):
     root_treenode = None
     root_descendants = None
     import_set = OrderedDict()
+    imported_xml = None
     years = None
     cities_finloc = None
     skip_existing = None
@@ -348,21 +351,14 @@ class Command(BaseCommand):
 
         # get data about ImportXml: if there is data that has been imported from XML for a city/ year
         # then the couch import must NOT overwrite that data
-        imported_xml = ImportXmlBilancio.objects.\
+        self.imported_xml = ImportXmlBilancio.objects.\
             filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio).\
             order_by('territorio', 'anno')
 
-        if len(imported_xml) > 0:
-            for i in imported_xml:
-                self.logger.info("BILANCIO:{} YEAR:{} CITY:{} will be skipped: was imported with xml".\
+        if len(self.imported_xml) > 0:
+            for i in self.imported_xml:
+                self.logger.warning("BILANCIO:{} YEAR:{} CITY:{} will have to be reimported again: it was imported with xml".\
                     format(i.tipologia.title(), i.anno, i.territorio.denominazione))
-
-                #    bilancio type is removed from import set
-                import_set[i.territorio.cod_finloc][i.anno] = filter(lambda x: x != i.tipologia, import_set[i.territorio.cod_finloc][i.anno])
-                #    bilancio xml is removed from values_to_delete
-                values_to_delete = values_to_delete.exclude(territorio=i.territorio, anno=i.anno, voce__slug__startswith=i.tipologia)
-                if len(import_set[i.territorio.cod_finloc][i.anno]) == 0:
-                    import_set[i.territorio.cod_finloc].pop(i.anno)
 
         # set the import_set
         self.import_set = import_set
@@ -374,6 +370,7 @@ class Command(BaseCommand):
 
         if not self.dryrun and ValoreBilancio.objects.all().count()>0:
             values_to_delete.delete()
+
         self.logger.info("Done deleting")
 
         # creates somma_funzioni_slug_baseset
@@ -463,6 +460,8 @@ class Command(BaseCommand):
         # deletes old values before import
         self.prepare_for_import()
         counter = 0
+
+        set_autocommit(False)
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
@@ -483,7 +482,6 @@ class Command(BaseCommand):
             else:
                 counter += 1
 
-            set_autocommit(False)
             for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
                     self.logger.warning(u"- Year {} not found. Skipping.".format(year))
@@ -580,8 +578,24 @@ class Command(BaseCommand):
             self.logger.debug("Write valori bilancio to postgres")
             commit()
 
-        self.logger.info("Done importing into postgres")
         set_autocommit(True)
+
+        self.logger.info("Done importing couchDB values into postgres")
+
+        if cities_codes.lower() != 'all':
+            for bilancio_xml in self.imported_xml:
+                self.logger.info("IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,bilancio_xml.tipologia))
+        else:
+            # directly import xml files in default folder for bilancio XML
+            xml_path = settings.OPENDATA_XML_ROOT
+            xml_files = [ f for f in listdir(xml_path) if isfile(join(xml_path,f)) ]
+            for f in xml_files:
+                self.logger.info(u"Import XML bilancio file:'{}'".format(f))
+                call_command('xml2pg', verbosity=1, file=f, interactive=False)
+
+            if len(xml_files) != len(self.imported_xml):
+                self.logger.error("Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files), len(self.imported_xml)))
+
         if complete and not self.dryrun and not self.partial_import:
 
             ##
