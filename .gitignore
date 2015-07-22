@@ -8,6 +8,9 @@
 *.swp
 *~
 *.csv#
+*.sql
+*.tgz
+
 # Sphinx docs:
 build
 
