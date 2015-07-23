@@ -112,7 +112,7 @@ class Command(BaseCommand):
         """
 
         components = voce_sum.get_components_somma_funzioni()
-        self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
+        # self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
 
         vb = []
         for c in components:
@@ -459,7 +459,7 @@ class Command(BaseCommand):
         # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
         # deletes old values before import
         self.prepare_for_import()
-        counter = 0
+        counter = 100
 
         set_autocommit(False)
         for city_finloc, city_years in self.import_set.iteritems():
@@ -468,6 +468,7 @@ class Command(BaseCommand):
                 territorio = Territorio.objects.get(cod_finloc=city_finloc)
             except ObjectDoesNotExist:
                 self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city_finloc))
+                continue
 
             # get all budgets for the city
             city_budget = self.couchdb.get(city_finloc)
@@ -476,6 +477,7 @@ class Command(BaseCommand):
                 self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
                 continue
 
+            self.logger.debug(u"City of {0}".format(city_finloc))
             if counter == 100:
                 self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
                 counter = 0
@@ -495,7 +497,7 @@ class Command(BaseCommand):
                 except TypeError:
                     population = None
 
-                self.logger.debug("::Population: {0}".format(population))
+                # self.logger.debug("::Population: {0}".format(population))
 
                 # build a BilancioItem tree, out of the couch-extracted dict
                 # for the given city and year
