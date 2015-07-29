@@ -6,6 +6,7 @@ from os import listdir
 from os.path import isfile, join
 from django.conf import settings
 from django.core.management import BaseCommand, call_command
+from django.db import connection
 from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
 from bilanci import tree_models
@@ -98,6 +99,7 @@ class Command(BaseCommand):
     import_set = OrderedDict()
     imported_xml = None
     years = None
+    cities_param = None
     cities_finloc = None
     skip_existing = None
     voci_dict = None
@@ -369,7 +371,13 @@ class Command(BaseCommand):
             self.logger.info("Deleting values for selected cities, years")
 
         if not self.dryrun and ValoreBilancio.objects.all().count()>0:
-            values_to_delete.delete()
+            if self.partial_import is False and self.cities_param.lower() == 'all':
+                # sql query to delete all values in ValoreBilancio table: this should cut the time
+                cursor = connection.cursor()
+                cursor.execute("TRUNCATE bilanci_valorebilancio",)
+
+            else:
+                values_to_delete.delete()
 
         self.logger.info("Done deleting")
 
@@ -381,6 +389,7 @@ class Command(BaseCommand):
                 descendants.extend(c.get_descendants(include_self=True))
 
             self.somma_funzioni_slug_baseset[slug] = descendants
+
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
@@ -414,13 +423,19 @@ class Command(BaseCommand):
         ###
         self.couch_connect(options['couchdb_server'])
 
+        # # gets all couchdb data in a single instruction
+        # self.logger.info("start read")
+        # all_docs = self.couchdb.view('_all_docs',include_docs=True, )
+        # print len(all_docs)
+        # self.logger.info("finish")
+        # exit()
         ###
         # cities
         ###
-        cities_codes = options['cities']
+        self.cities_param = options['cities']
         start_from = options['start_from']
 
-        self.set_cities(cities_codes, start_from)
+        self.set_cities(self.cities_param, start_from)
 
         if len(self.cities_finloc) == 0:
             self.logger.info("No cities to process. Quit")
@@ -431,7 +446,7 @@ class Command(BaseCommand):
             self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
             exit()
 
-        if cities_codes.lower() != 'all':
+        if self.cities_param.lower() != 'all':
             self.logger.info("Processing cities: {0}".format(self.cities_finloc))
 
         ###
@@ -486,7 +501,7 @@ class Command(BaseCommand):
 
             for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
-                    self.logger.warning(u"- Year {} not found. Skipping.".format(year))
+                    self.logger.warning(u" {} - {} not found. Skip".format(city_finloc,year))
                     continue
 
                 # POPULATION
@@ -584,7 +599,7 @@ class Command(BaseCommand):
 
         self.logger.info("Done importing couchDB values into postgres")
 
-        if cities_codes.lower() != 'all':
+        if self.cities_param.lower() != 'all':
             for bilancio_xml in self.imported_xml:
                 self.logger.info("IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,bilancio_xml.tipologia))
         else:
