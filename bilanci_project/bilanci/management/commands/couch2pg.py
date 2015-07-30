@@ -476,7 +476,7 @@ class Command(BaseCommand):
         self.prepare_for_import()
         counter = 100
 
-        set_autocommit(False)
+        # set_autocommit(False)
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
@@ -593,9 +593,9 @@ class Command(BaseCommand):
 
             # actually save data into posgres
             self.logger.debug("Write valori bilancio to postgres")
-            commit()
+            # commit()
 
-        set_autocommit(True)
+        # set_autocommit(True)
 
         self.logger.info("Done importing couchDB values into postgres")
 
