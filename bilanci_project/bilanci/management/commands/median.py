@@ -15,7 +15,7 @@ from collections import OrderedDict
 from itertools import groupby
 from optparse import make_option
 
-from django.db.transaction import set_autocommit, commit
+from django.db.transaction import set_autocommit, commit, get_autocommit
 from django.core.management import BaseCommand
 from django.conf import settings
 
@@ -42,6 +42,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
+        make_option('--autocommit',
+                    dest='autocommit',
+                    action='store_true',
+                    default=False,
+                    help='Keeps autocommit enabled: needed for couch2pg mng task calls'),
         make_option('--dry-run',
                     dest='dryrun',
                     action='store_true',
@@ -67,6 +72,8 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.INFO)
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
+
+        autocommit = options['autocommit']
 
         ##
         # starting node slug
@@ -117,7 +124,8 @@ class Command(BaseCommand):
         cluster_count  = dict((k[0], Territorio.objects.filter(territorio="C", cluster=k[0]).count()/2) for k in Territorio.CLUSTER)
 
         self.logger.info("Cluster median values computation start")
-        set_autocommit(autocommit=False)
+        if autocommit is False:
+            set_autocommit(autocommit=False)
 
         for cluster_data in Territorio.CLUSTER:
             # creates a fake territorio for each cluster if it doens't exist already
@@ -213,8 +221,8 @@ class Command(BaseCommand):
                         self.logger.debug(u"cluster: {0}, year: {1}, voce: {2}".format(territorio_cluster, year, voce))
 
                         if year not in valori_dict or valori_dict[year] is None:
-                            self.logger.warning(
-                                "No values found for Voce: {0}, year:{1}, cluster:{2}. Median value not computed ".format(
+                            self.logger.debug(
+                                u"No values found for Voce: {0}, year:{1}, cluster:{2}. Median value not computed ".format(
                                     voce, year, cluster_data[0]
                                 ))
                             continue
@@ -247,7 +255,11 @@ class Command(BaseCommand):
                                         valore_mediano.save()
 
                         else:
-                            self.logger.debug("No median saved for voce:{0}, not enough values for cluster {1}. {2}<{3}".\
+                            self.logger.debug(u"No median saved for voce:{0}, not enough values for cluster {1}. {2}<{3}".\
                                 format(voce.slug, cluster_data[0], len(valori), cluster_count[cluster_data[0]]))
 
-            commit()
+            if autocommit is False:
+                commit()
+
+        if autocommit is False:
+            set_autocommit(True)

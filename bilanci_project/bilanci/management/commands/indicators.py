@@ -13,11 +13,7 @@ from territori.models import Territorio
 class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
-        make_option('--dry-run',
-                    dest='dryrun',
-                    action='store_true',
-                    default=False,
-                    help='Set the dry-run command mode: nothing is written in the couchdb'),
+
         make_option('--years',
                     dest='years',
                     default='',
@@ -40,6 +36,16 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Use the log file appending instead of overwriting (used when launching shell scripts)'),
+        make_option('--autocommit',
+                    dest='autocommit',
+                    action='store_true',
+                    default=False,
+                    help='Keeps autocommit enabled: needed for couch2pg mng task calls'),
+        make_option('--dry-run',
+                    dest='dryrun',
+                    action='store_true',
+                    default=False,
+                    help='Set the dry-run command mode: nothing is written in the couchdb'),
     )
 
     help = 'Compute indicators\' values for given cities and years.'
@@ -80,6 +86,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         dryrun = options['dryrun']
+        autocommit = options['autocommit']
         skip_existing = options['skip_existing']
 
         if options['append'] is True:
@@ -143,8 +150,9 @@ class Command(BaseCommand):
                     indicator_obj.save()
 
         # actual computation of the values
+        if autocommit is False:
+            set_autocommit(False)
 
-        set_autocommit(False)
         for indicator in indicators_instances:
             self.logger.info(u"Indicator: {0}".format(
                 indicator.label
@@ -155,5 +163,9 @@ class Command(BaseCommand):
             else:
                 # db storage
                 indicator.compute_and_commit(cities, self.years, logger=self.logger, skip_existing=skip_existing)
+            if autocommit is False:
+                commit()
 
-            commit()
+
+        if autocommit is False:
+            set_autocommit(True)

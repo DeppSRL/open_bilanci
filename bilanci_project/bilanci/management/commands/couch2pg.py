@@ -477,141 +477,141 @@ class Command(BaseCommand):
         counter = 100
 
         # set_autocommit(False)
-        for city_finloc, city_years in self.import_set.iteritems():
-
-            try:
-                territorio = Territorio.objects.get(cod_finloc=city_finloc)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city_finloc))
-                continue
-
-            # get all budgets for the city
-            city_budget = self.couchdb.get(city_finloc)
-
-            if city_budget is None:
-                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
-                continue
-
-            self.logger.debug(u"City of {0}".format(city_finloc))
-            if counter == 100:
-                self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
-                counter = 0
-            else:
-                counter += 1
-
-            for year, certificati_to_import in city_years.iteritems():
-                if str(year) not in city_budget:
-                    self.logger.warning(u" {} - {} not found. Skip".format(city_finloc,year))
-                    continue
-
-                # POPULATION
-                # fetch valid population, starting from this year
-                # if no population found, set it to None, as not to break things
-                try:
-                    (pop_year, population) = territorio.nearest_valid_population(year)
-                except TypeError:
-                    population = None
-
-                # self.logger.debug("::Population: {0}".format(population))
-
-                # build a BilancioItem tree, out of the couch-extracted dict
-                # for the given city and year
-                # add the totals by extracting them from the dict, or by computing
-                city_year_budget_dict = city_budget[str(year)]
-
-                if self.partial_import is True:
-                    self.logger.info(u"- Processing year: {}, subtree: {}".format(year, tree_node_slug))
-                    # start from a custom node
-                    path_not_found = False
-                    city_year_budget_node_dict = city_year_budget_dict.copy()
-
-                    # get the starting node in couchdb data
-                    for k in self.couch_path:
-                        try:
-                            city_year_budget_node_dict = city_year_budget_node_dict[k]
-                        except KeyError:
-                            self.logger.warning(
-                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
-                                                                                      str(year)))
-                            path_not_found = True
-                            break
-
-                    # if data path is found in the couch document, write data into postgres db
-                    if path_not_found is False:
-                        city_year_node_tree_patch = tree_models.make_tree_from_dict(
-                            city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
-                            population=population
-                        )
-
-                        # writes new sub-tree
-                        if not self.dryrun:
-                            tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
-                else:
-                    # import tipo_bilancio considered
-                    # normally is preventivo and consuntivo
-                    # otherwise only one of them
-
-                    for tipo_bilancio in certificati_to_import:
-                        certificato_tree = tree_models.make_tree_from_dict(
-                            city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
-                            population=population
-                        )
-                        if len(certificato_tree.children) == 0:
-                            continue
-                        self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
-                        if not self.dryrun:
-                            tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
-
-                # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
-                if len(self.considered_somma_funzioni) > 0:
-                    self.logger.debug("Somma funzioni patch")
-
-                    vb_filters = {
-                        'territorio': territorio,
-                        'anno': year,
-                    }
-                    for somma_funzioni_branch in self.considered_somma_funzioni:
-
-                        # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
-                        # somma_funzioni_slug_baseset
-                        needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
-                        vb = ValoreBilancio.objects.\
-                            filter(**vb_filters).\
-                            filter( voce__slug__in=needed_slugs).\
-                            values_list('voce__slug', 'valore', 'valore_procapite')
-
-                        if len(vb) == 0:
-                            self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
-                            continue
-
-                        vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-
-                        if not self.dryrun:
-                            for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
-                                self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                        del vb_dict
-
-            # actually save data into posgres
-            self.logger.debug("Write valori bilancio to postgres")
-            # commit()
-
-        # set_autocommit(True)
-
-        self.logger.info("Done importing couchDB values into postgres")
-
-        if self.cities_param.lower() != 'all':
-            for bilancio_xml in self.imported_xml:
-                self.logger.info("IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,bilancio_xml.tipologia))
-        else:
-            # directly import xml files in default folder for bilancio XML
-            xml_path = settings.OPENDATA_XML_ROOT
-            xml_files = [ f for f in listdir(xml_path) if isfile(join(xml_path,f)) ]
-            for f in xml_files:
-                self.logger.info(u"Import XML bilancio file:'{}'".format(f))
-                call_command('xml2pg', verbosity=1, file=f, interactive=False)
-
-            if len(xml_files) != len(self.imported_xml):
-                self.logger.error("Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files), len(self.imported_xml)))
+        # for city_finloc, city_years in self.import_set.iteritems():
+        #
+        #     try:
+        #         territorio = Territorio.objects.get(cod_finloc=city_finloc)
+        #     except ObjectDoesNotExist:
+        #         self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city_finloc))
+        #         continue
+        #
+        #     # get all budgets for the city
+        #     city_budget = self.couchdb.get(city_finloc)
+        #
+        #     if city_budget is None:
+        #         self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
+        #         continue
+        #
+        #     self.logger.debug(u"City of {0}".format(city_finloc))
+        #     if counter == 100:
+        #         self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
+        #         counter = 0
+        #     else:
+        #         counter += 1
+        #
+        #     for year, certificati_to_import in city_years.iteritems():
+        #         if str(year) not in city_budget:
+        #             self.logger.warning(u" {} - {} not found. Skip".format(city_finloc,year))
+        #             continue
+        #
+        #         # POPULATION
+        #         # fetch valid population, starting from this year
+        #         # if no population found, set it to None, as not to break things
+        #         try:
+        #             (pop_year, population) = territorio.nearest_valid_population(year)
+        #         except TypeError:
+        #             population = None
+        #
+        #         # self.logger.debug("::Population: {0}".format(population))
+        #
+        #         # build a BilancioItem tree, out of the couch-extracted dict
+        #         # for the given city and year
+        #         # add the totals by extracting them from the dict, or by computing
+        #         city_year_budget_dict = city_budget[str(year)]
+        #
+        #         if self.partial_import is True:
+        #             self.logger.info(u"- Processing year: {}, subtree: {}".format(year, tree_node_slug))
+        #             # start from a custom node
+        #             path_not_found = False
+        #             city_year_budget_node_dict = city_year_budget_dict.copy()
+        #
+        #             # get the starting node in couchdb data
+        #             for k in self.couch_path:
+        #                 try:
+        #                     city_year_budget_node_dict = city_year_budget_node_dict[k]
+        #                 except KeyError:
+        #                     self.logger.warning(
+        #                         "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
+        #                                                                               str(year)))
+        #                     path_not_found = True
+        #                     break
+        #
+        #             # if data path is found in the couch document, write data into postgres db
+        #             if path_not_found is False:
+        #                 city_year_node_tree_patch = tree_models.make_tree_from_dict(
+        #                     city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
+        #                     population=population
+        #                 )
+        #
+        #                 # writes new sub-tree
+        #                 if not self.dryrun:
+        #                     tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
+        #         else:
+        #             # import tipo_bilancio considered
+        #             # normally is preventivo and consuntivo
+        #             # otherwise only one of them
+        #
+        #             for tipo_bilancio in certificati_to_import:
+        #                 certificato_tree = tree_models.make_tree_from_dict(
+        #                     city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
+        #                     population=population
+        #                 )
+        #                 if len(certificato_tree.children) == 0:
+        #                     continue
+        #                 self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
+        #                 if not self.dryrun:
+        #                     tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
+        #
+        #         # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
+        #         if len(self.considered_somma_funzioni) > 0:
+        #             self.logger.debug("Somma funzioni patch")
+        #
+        #             vb_filters = {
+        #                 'territorio': territorio,
+        #                 'anno': year,
+        #             }
+        #             for somma_funzioni_branch in self.considered_somma_funzioni:
+        #
+        #                 # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
+        #                 # somma_funzioni_slug_baseset
+        #                 needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
+        #                 vb = ValoreBilancio.objects.\
+        #                     filter(**vb_filters).\
+        #                     filter( voce__slug__in=needed_slugs).\
+        #                     values_list('voce__slug', 'valore', 'valore_procapite')
+        #
+        #                 if len(vb) == 0:
+        #                     self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
+        #                     continue
+        #
+        #                 vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
+        #
+        #                 if not self.dryrun:
+        #                     for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
+        #                         self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
+        #                 del vb_dict
+        #
+        #     # actually save data into posgres
+        #     self.logger.debug("Write valori bilancio to postgres")
+        #     # commit()
+        #
+        # # set_autocommit(True)
+        #
+        # self.logger.info("Done importing couchDB values into postgres")
+        #
+        # if self.cities_param.lower() != 'all':
+        #     for bilancio_xml in self.imported_xml:
+        #         self.logger.info("IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,bilancio_xml.tipologia))
+        # else:
+        #     # directly import xml files in default folder for bilancio XML
+        #     xml_path = settings.OPENDATA_XML_ROOT
+        #     xml_files = [ f for f in listdir(xml_path) if isfile(join(xml_path,f)) ]
+        #     for f in xml_files:
+        #         self.logger.info(u"Import XML bilancio file:'{}'".format(f))
+        #         call_command('xml2pg', verbosity=1, file=f, interactive=False)
+        #
+        #     if len(xml_files) != len(self.imported_xml):
+        #         self.logger.error("Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files), len(self.imported_xml)))
 
         if complete and not self.dryrun and not self.partial_import:
 
@@ -620,7 +620,7 @@ class Command(BaseCommand):
             ##
 
             self.logger.info(u"Update indicators medians")
-            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='voci',
+            call_command('median', verbosity=2, autocommit=True, years=options['years'], cities=",".join(self.cities_finloc), type='voci',
                          interactive=False)
 
             ##
@@ -629,7 +629,7 @@ class Command(BaseCommand):
             if not self.partial_import:
                 self.logger.info(u"Compute indicators for selected Comuni")
 
-                call_command('indicators', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
+                call_command('indicators', verbosity=2, autocommit=True, years=options['years'], cities=",".join(self.cities_finloc), indicators='all',
                              interactive=False)
 
             ##
@@ -637,7 +637,7 @@ class Command(BaseCommand):
             ##
 
             self.logger.info(u"Update indicators medians")
-            call_command('median', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), type='indicatori',
+            call_command('median', verbosity=2, autocommit=True, years=options['years'], cities=",".join(self.cities_finloc), type='indicatori',
                          interactive=False)
 
 
@@ -646,7 +646,7 @@ class Command(BaseCommand):
             ##
 
             self.logger.info(u"Update opendata zip files for selected Comuni")
-            call_command('update_opendata', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
+            call_command('update_opendata', verbosity=2, autocommit=True, years=options['years'], cities=",".join(self.cities_finloc), compress=True,
                          interactive=False)
             email_utils.send_notification_email(msg_string="Couch2pg, opendata, indicators and medians has finished.")
         else:
