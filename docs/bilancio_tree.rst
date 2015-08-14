@@ -29,14 +29,14 @@ from the old tree to the new one.
 
 .. code-block:: bash
 
-    https://docs.google.com/spreadsheet/ccc?key=0ApDnbg0qraKMdHVDUEtlLWVzYWJkNUhWVE5lei1lTVE#gid=0
+    https://docs.google.com/spreadsheets/d/1w_DDlZOo_w9aEpP8vnV92zGRXWiIEK3zxvkDfMde99Y/edit#gid=0
 
 
 2. Associate the normalized Voci with the new leaves in the simplified tree in the Semplificazione bilancio depp Google doc.
 
 .. code-block:: bash
 
-    https://docs.google.com/spreadsheet/ccc?key=0An-5r4iUtWq7dFBoM2prSkZWcEc5Vmd5aU9iSXNOdHc&usp=drive_web#gid=30
+    https://docs.google.com/spreadsheets/d/136wQAuyiapvl_UBzeTtKYw-d3nlHfk4vk0p-FxPrZ3w/edit#gid=30
 
 **Note/1 : if different voce slug are to be associated with different column on a single table row in the bilancio then
 the following procedure must be followed:**

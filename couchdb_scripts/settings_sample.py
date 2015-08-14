@@ -1,6 +1,5 @@
-# Google Account credentials
-g_user = 'USERNAME@gmail.com'
-g_password = 'PASSWORD'
+# Google Account credentials (Oauth2)
+oauth2_key_path='PATH/TO/JSONFILE.JSON'
 
 # gdoc keys
 gdoc_keys= {

@@ -37,8 +37,6 @@ def main(argv):
                default='voci',
                help='Db to use: raw | titoli | voci | simple')
 
-
-
     parser.add_argument("--check-function","-ck", help="check function after synch",
                     action="store_true")
 
@@ -89,10 +87,7 @@ def main(argv):
                     print "Connection ERROR. Quitting..."
                 print "Db connection ok!"
 
-            reduce_fun = '_sum()'
-            # se la view punta ed esportare un csv, non serve la funzione di reduce
-            if "csv" in function_to_sync:
-                reduce_fun = None
+            reduce_fun = '_count()'
 
             # sync the view
             view = ViewDefinition(view_name,

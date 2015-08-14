@@ -429,12 +429,12 @@ class IncarichiGetterMixin(object):
                 'highlightColor': highlight_color,
                 'start': None,
                 'end': None,
-            }
+                }
 
-            # truncates date start to timeline start
             if not incarico.data_inizio:
                 continue
 
+            # truncates date start to timeline start
             if incarico.data_inizio < self.timeline_start_date:
                 dict_widget['start'] = self.timeline_start_date.strftime(self.date_fmt)
             else:
