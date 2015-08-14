@@ -2347,12 +2347,20 @@ class ClassificheSearchView(MiniClassificheMixin, RedirectView):
             Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list(
                 'pk', flat=True))
 
+        # gets the selected parameter: voce or indicatore
+        # if the parameter does NOT exist (wrong parameter) redirects to classifiche home page
         if selected_par_type == 'indicatori':
             all_ids_values = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
-            parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+            try:
+                parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+            except ObjectDoesNotExist:
+                return HttpResponseRedirect(reverse('classifiche-redirect'))
         else:
             all_ids_values = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
-            parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+            try:
+                parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+            except ObjectDoesNotExist:
+                return HttpResponseRedirect(reverse('classifiche-redirect'))
 
         # calculate territorio page
         try:
