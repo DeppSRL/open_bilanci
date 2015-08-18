@@ -470,14 +470,19 @@ class Command(BaseCommand):
         self.prepare_for_import()
         counter = 100
 
-        set_autocommit(False)
+        # set_autocommit(False)
         for city_finloc, city_years in self.import_set.iteritems():
 
             try:
                 territorio = Territorio.objects.get(cod_finloc=city_finloc)
             except ObjectDoesNotExist:
-                self.logger.warning(u"City {0} not found among territories in DB. Skipping.".format(city_finloc))
-                continue
+                self.logger.warning(u"City '{0}' not found among territories in DB. Trying only with finloc number...".format(city_finloc))
+                city_finloc_number=city_finloc[-10:]
+                try:
+                    territorio = Territorio.objects.get(cod_finloc__contains=city_finloc_number)
+                except ObjectDoesNotExist:
+                    self.logger.warning(u"City finloc '{0}' not found among territories in DB. Skip".format(city_finloc_number))
+                    continue
 
             # get all budgets for the city
             city_budget = self.couchdb.get(city_finloc)
