@@ -477,6 +477,9 @@ class Command(BaseCommand):
                 territorio = Territorio.objects.get(cod_finloc=city_finloc)
             except ObjectDoesNotExist:
                 self.logger.warning(u"City '{0}' not found among territories in DB. Trying only with finloc number...".format(city_finloc))
+
+                # the second query is needed for cities that have accent/apostrophes in their name
+                # and the value in the DB is different from the value in the dict returned by the mapper
                 city_finloc_number=city_finloc[-10:]
                 try:
                     territorio = Territorio.objects.get(cod_finloc__contains=city_finloc_number)
