@@ -2525,13 +2525,16 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         else:
             filters['voce__id'] = self.parameter.id
             objects = list(ValoreBilancio.objects.filter(**filters).select_related())
+
         objects_dict = dict((obj.territorio_id, obj) for obj in objects)
 
         # build context for objects in page, there are no db-access at this point
         for ordinal_position, territorio_id in enumerate(paginated_queryset, start=paginator_offset):
             incarichi = []
-
-            obj = objects_dict[territorio_id]
+            try:
+                obj = objects_dict[territorio_id]
+            except KeyError:
+                continue
 
             if self.parameter_type == 'indicatori':
                 valore = obj.valore
