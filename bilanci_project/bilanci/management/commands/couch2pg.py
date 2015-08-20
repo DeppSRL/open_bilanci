@@ -45,11 +45,6 @@ class Command(BaseCommand):
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
                     help='CouchDB server alias to connect to (staging | localhost). Defaults to staging.'),
-        make_option('--skip-existing',
-                    dest='skip_existing',
-                    action='store_true',
-                    default=False,
-                    help='Skip existing cities. Use to speed up long import of many cities, when errors occur'),
         make_option('--create-tree',
                     dest='create_tree',
                     action='store_true',
@@ -100,8 +95,7 @@ class Command(BaseCommand):
     imported_xml = None
     years = None
     cities_param = None
-    cities_finloc = None
-    skip_existing = None
+    cities = None
     voci_dict = None
     couchdb = None
     comuni_dicts = {}
@@ -256,7 +250,8 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years_list = range(int(start_year), int(end_year) + 1)
         else:
-            years_list = [int(y.strip()) for y in years.split(",") if settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
+            years_list = [int(y.strip()) for y in years.split(",") if
+                          settings.APP_START_YEAR <= int(y.strip()) <= settings.APP_END_YEAR]
 
         if not years_list:
             raise Exception("No suitable year found in {0}".format(years))
@@ -272,7 +267,7 @@ class Command(BaseCommand):
                 cities_codes = 'all'
                 all_cities = mapper.get_cities(cities_codes, logger=self.logger)
                 try:
-                    self.cities_finloc = all_cities[all_cities.index(start_from):]
+                    cities_finloc = all_cities[all_cities.index(start_from):]
                 except ValueError:
                     raise Exception("Start-from city not found in cities complete list, use name--cod_finloc. "
                                     "Example: ZUNGRI--4181030500")
@@ -282,20 +277,15 @@ class Command(BaseCommand):
                 raise Exception("Missing cities parameter or start-from parameter")
 
         else:
-            self.cities_finloc = mapper.get_cities(cities_codes, logger=self.logger)
+            cities_finloc = mapper.get_cities(cities_codes, logger=self.logger)
 
-        # if skip-existing flag is true: removes already present cities from the cities set
-        if self.skip_existing:
-            existing_cities_finloc = ValoreBilancio.objects.\
-                filter(territorio__cod_finloc__in=self.cities_finloc).\
-                distinct('territorio__cod_finloc').\
-                order_by('territorio__cod_finloc').\
-                values_list('territorio__cod_finloc', flat=True)
+        finloc_numbers = [c[-10:] for c in cities_finloc]
+        slug_list = []
+        for numb in finloc_numbers:
+            slug_list.append(Territorio.objects.get(territorio="C", cod_finloc__endswith=numb).slug)
 
-            if len(existing_cities_finloc) > 0:
+        self.cities = Territorio.objects.filter(territorio="C", slug__in=slug_list)
 
-                self.logger.info(u"Skipping following cities {}, because already in db".format(existing_cities_finloc))
-                self.cities_finloc = filter(lambda c: c not in existing_cities_finloc, self.cities_finloc)
 
     def checks_partial_import(self, tree_node_slug, couch_path_string):
         # based on the type of import set the type of bilancio that is considered
@@ -318,13 +308,13 @@ class Command(BaseCommand):
 
         self.root_descendants = self.root_treenode.get_descendants(include_self=True)
 
-        self.considered_tipo_bilancio = self.root_treenode.\
-            get_ancestors(include_self=True, ascending=False).\
+        self.considered_tipo_bilancio = self.root_treenode. \
+            get_ancestors(include_self=True, ascending=False). \
             get(slug__in=self.accepted_bilanci_types).slug
 
         # checks which branches of somma-funzioni are interested by the import
-        self.considered_somma_funzioni = self.root_descendants.\
-            filter(slug__in=self.somma_funzioni_branches).\
+        self.considered_somma_funzioni = self.root_descendants. \
+            filter(slug__in=self.somma_funzioni_branches). \
             values_list('slug', flat=True)
 
     def prepare_for_import(self):
@@ -344,37 +334,36 @@ class Command(BaseCommand):
         years_dict = OrderedDict((year, self.considered_tipo_bilancio) for year in self.years)
 
         # creates a dict in which for each city considered the value is the previous dict
-        import_set = OrderedDict((cod_finloc, years_dict) for cod_finloc in self.cities_finloc)
+        self.import_set = OrderedDict((territorio, years_dict) for territorio in self.cities)
 
         # construct values_to_delete
-        values_to_delete = ValoreBilancio.objects.filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years)
+        values_to_delete = ValoreBilancio.objects.filter(territorio__in=self.cities, anno__in=self.years)
         if self.partial_import:
             values_to_delete = values_to_delete.filter(voce__in=self.root_descendants)
 
         # get data about ImportXml: if there is data that has been imported from XML for a city/ year
         # then the couch import must NOT overwrite that data
-        self.imported_xml = ImportXmlBilancio.objects.\
-            filter(territorio__cod_finloc__in=self.cities_finloc, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio).\
+        self.imported_xml = ImportXmlBilancio.objects. \
+            filter(territorio__in=self.cities, anno__in=self.years, tipologia__in=self.considered_tipo_bilancio). \
             order_by('territorio', 'anno')
 
         if len(self.imported_xml) > 0:
             for i in self.imported_xml:
-                self.logger.warning("BILANCIO:{} YEAR:{} CITY:{} will have to be reimported again: it was imported with xml".\
-                    format(i.tipologia.title(), i.anno, i.territorio.denominazione))
+                self.logger.warning(
+                    "BILANCIO:{} YEAR:{} CITY:{} will have to be reimported again: it was imported with xml". \
+                        format(i.tipologia.title(), i.anno, i.territorio.denominazione))
 
-        # set the import_set
-        self.import_set = import_set
         # deletes ValoriBilanci that will be imported afterwards: this speeds up the import
         if self.partial_import:
             self.logger.info("Deleting values for selected cities, years and subtree")
         else:
             self.logger.info("Deleting values for selected cities, years")
 
-        if not self.dryrun and ValoreBilancio.objects.all().count()>0:
+        if not self.dryrun and ValoreBilancio.objects.all().count() > 0:
             if self.partial_import is False and self.cities_param.lower() == 'all':
                 # sql query to delete all values in ValoreBilancio table: this should cut the time
                 cursor = connection.cursor()
-                cursor.execute("TRUNCATE bilanci_valorebilancio",)
+                cursor.execute("TRUNCATE bilanci_valorebilancio", )
 
             else:
                 values_to_delete.delete()
@@ -406,7 +395,6 @@ class Command(BaseCommand):
         complete = options['complete']
         force_google = options['force_google']
         create_tree = options['create_tree']
-        self.skip_existing = options['skip_existing']
 
         tree_node_slug = options['tree_node_slug']
         couch_path_string = options['couch_path_string']
@@ -431,17 +419,14 @@ class Command(BaseCommand):
 
         self.set_cities(self.cities_param, start_from)
 
-        if len(self.cities_finloc) == 0:
+        if len(self.cities) == 0:
             self.logger.info("No cities to process. Quit")
             return
 
         # check if debug is active: the task may fail
-        if settings.DEBUG is True and settings.INSTANCE_TYPE != 'development' and len(self.cities_finloc) > 4000:
+        if settings.DEBUG is True and settings.INSTANCE_TYPE != 'development' and len(self.cities) > 4000:
             self.logger.error("DEBUG settings is True, task will fail. Disable DEBUG and retry")
             exit()
-
-        if self.cities_param.lower() != 'all':
-            self.logger.info("Processing cities: {0}".format(self.cities_finloc))
 
         ###
         # set considered years
@@ -455,7 +440,7 @@ class Command(BaseCommand):
         if tree_node_slug and couch_path_string:
             tree_node_slug = unicode(tree_node_slug)
             couch_path_string = unicode(couch_path_string)
-            self.checks_partial_import(tree_node_slug, couch_path_string )
+            self.checks_partial_import(tree_node_slug, couch_path_string)
 
         # create the tree if it does not exist or if forced to do so
         if create_tree or Voce.objects.count() == 0:
@@ -470,40 +455,39 @@ class Command(BaseCommand):
         self.prepare_for_import()
         counter = 100
 
-        # set_autocommit(False)
-        for city_finloc, city_years in self.import_set.iteritems():
+        for territorio, city_years in self.import_set.iteritems():
 
-            try:
-                territorio = Territorio.objects.get(cod_finloc=city_finloc)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"City '{0}' not found among territories in DB. Trying only with finloc number...".format(city_finloc))
-
-                # the second query is needed for cities that have accent/apostrophes in their name
-                # and the value in the DB is different from the value in the dict returned by the mapper
-                city_finloc_number=city_finloc[-10:]
-                try:
-                    territorio = Territorio.objects.get(cod_finloc__contains=city_finloc_number)
-                except ObjectDoesNotExist:
-                    self.logger.warning(u"City finloc '{0}' not found among territories in DB. Skip".format(city_finloc_number))
-                    continue
-
-            # get all budgets for the city
+            city_finloc = territorio.cod_finloc
+            # get all budgets data for the city
             city_budget = self.couchdb.get(city_finloc)
 
             if city_budget is None:
-                self.logger.warning(u"City {} not found in couchdb instance. Skipping.".format(city_finloc))
-                continue
+                # if city budget is not found, try again taking out apostrophe and re-slugging, this deals with
+                # slug name changes from finanza locale
+                if "'" in territorio.nome:
+                    nome_senza_apostrofo = territorio.nome.replace("'", "")
+                    finloc_number = city_finloc[-10:]
+                    city_finloc_noapostrophe = u"{}--{}".format(slugify(nome_senza_apostrofo), finloc_number).upper()
+                    city_budget = self.couchdb.get(city_finloc_noapostrophe)
+
+                    if city_budget is None:
+                        self.logger.warning(u"Document '{}' or '{}' not found in couchdb instance. Skipping.".format(city_finloc, city_finloc_noapostrophe))
+                        continue
+
+                else:
+                    self.logger.warning(u"Document '{}' not found in couchdb instance. Skipping.".format(city_finloc))
+                    continue
 
             self.logger.debug(u"City of {0}".format(city_finloc))
             if counter == 100:
-                self.logger.info(u"Reached city of {0}, continuing...".format(city_finloc))
+                self.logger.info(u"Reached city of '{0}', continuing...".format(city_finloc))
                 counter = 0
             else:
                 counter += 1
 
             for year, certificati_to_import in city_years.iteritems():
                 if str(year) not in city_budget:
-                    self.logger.warning(u" {} - {} not found. Skip".format(city_finloc,year))
+                    self.logger.warning(u" {} - {} not found. Skip".format(city_finloc, year))
                     continue
 
                 # POPULATION
@@ -533,7 +517,8 @@ class Command(BaseCommand):
                             city_year_budget_node_dict = city_year_budget_node_dict[k]
                         except KeyError:
                             self.logger.warning(
-                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path, territorio.cod_finloc,
+                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path,
+                                                                                      territorio.cod_finloc,
                                                                                       str(year)))
                             path_not_found = True
                             break
@@ -577,9 +562,9 @@ class Command(BaseCommand):
                         # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
                         # somma_funzioni_slug_baseset
                         needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
-                        vb = ValoreBilancio.objects.\
-                            filter(**vb_filters).\
-                            filter( voce__slug__in=needed_slugs).\
+                        vb = ValoreBilancio.objects. \
+                            filter(**vb_filters). \
+                            filter(voce__slug__in=needed_slugs). \
                             values_list('voce__slug', 'valore', 'valore_procapite')
 
                         if len(vb) == 0:
@@ -589,31 +574,33 @@ class Command(BaseCommand):
                         vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
 
                         if not self.dryrun:
-                            for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(include_self=True):
+                            for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(
+                                    include_self=True):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
 
             # actually save data into posgres
             self.logger.debug("Write valori bilancio to postgres")
-            # commit()
-
-        # set_autocommit(True)
 
         self.logger.info("Done importing couchDB values into postgres")
 
         if self.cities_param.lower() != 'all':
             for bilancio_xml in self.imported_xml:
-                self.logger.info("IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,bilancio_xml.tipologia))
+                self.logger.info(
+                    "IMPORTANT: Re-import XML bilancio {},{},{}".format(bilancio_xml.territorio, bilancio_xml.anno,
+                                                                        bilancio_xml.tipologia))
         else:
             # directly import xml files in default folder for bilancio XML
             xml_path = settings.OPENDATA_XML_ROOT
-            xml_files = [ f for f in listdir(xml_path) if isfile(join(xml_path,f)) ]
+            xml_files = [f for f in listdir(xml_path) if isfile(join(xml_path, f))]
             for f in xml_files:
                 self.logger.info(u"Import XML bilancio file:'{}'".format(f))
                 call_command('xml2pg', verbosity=1, file=f, interactive=False)
 
             if len(xml_files) != len(self.imported_xml):
-                self.logger.error("Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files), len(self.imported_xml)))
+                self.logger.error(
+                    "Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files),
+                                                                                               len(self.imported_xml)))
 
         if complete and not self.dryrun and not self.partial_import:
 
@@ -622,9 +609,11 @@ class Command(BaseCommand):
             ##
 
             self.logger.info(u"Update indicators medians")
-            call_command('data_completion', verbosity=2, years=options['years'], cities=",".join(self.cities_finloc), interactive=False)
+            call_command('data_completion', verbosity=2, years=options['years'], cities=options['cities'],
+                         interactive=False)
 
-            email_utils.send_notification_email(msg_string="Couch2pg, update opendata, indicators and medians has finished.")
+            email_utils.send_notification_email(
+                msg_string="Couch2pg, update opendata, indicators and medians has finished.")
 
         else:
             email_utils.send_notification_email(msg_string="Couch2pg has finished.")
