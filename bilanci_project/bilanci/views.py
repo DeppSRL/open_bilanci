@@ -11,7 +11,7 @@ from collections import OrderedDict
 from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
 from datetime import datetime, timedelta
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
@@ -2633,6 +2633,8 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         short_url_obj = None
         try:
             short_url_obj = ShortUrl.objects.get(long_url=long_url)
+        except MultipleObjectsReturned:
+            short_url_obj = ShortUrl.objects.filter(long_url=long_url)[0]
 
         except ObjectDoesNotExist:
 
