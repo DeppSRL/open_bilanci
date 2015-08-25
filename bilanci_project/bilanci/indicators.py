@@ -98,7 +98,12 @@ class BaseIndicator(object):
             try:
                 city_obj = Territorio.objects.get(cod_finloc=city)
             except ObjectDoesNotExist:
-                continue
+
+                try:
+                    city_obj = Territorio.objects.get(cod_finloc__endswith=city[-10:])
+                except ObjectDoesNotExist:
+                    continue
+                    
             for year in years:
                 try:
                     ValoreIndicatore.objects.create(
