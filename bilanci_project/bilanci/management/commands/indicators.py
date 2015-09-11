@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand
 from django.db.transaction import set_autocommit, commit
 from django.utils.module_loading import import_by_path
@@ -98,24 +99,37 @@ class Command(BaseCommand):
             exit()
 
         # massaging cities option and getting cities finloc codes
-        cities_codes = options['cities']
-        if not cities_codes:
+        cities_param = options['cities']
+        if not cities_param:
             self.logger.error("Missing cities parameter")
             exit()
 
+        if cities_param.lower() != 'all':
+            self.logger.info("Processing cities: {0}".format(cities_param))
+
         mapper = FLMapper()
-        cities = mapper.get_cities(cities_codes)
-        if len(cities) == 0 :
+        cities_codes = mapper.get_cities(cities_param)
+        if len(cities_codes) == 0 :
             self.logger.error("No cities found with id:{0}".format(cities_codes))
             exit()
 
-        if cities_codes.lower() != 'all':
-            self.logger.info("Processing cities: {0}".format(cities))
 
         # massaging years option
         self.set_years(options['years'])
 
         self.logger.info("Processing years: {0}".format(self.years))
+
+        # transform cities codes into territori slug
+        cities=[]
+        for city_code in cities_codes:
+            try:
+                if len(city_code)>10:
+                    cities.append(Territorio.objects.get(cod_finloc__endswith=city_code[-10:]))
+                else:
+                    cities.append(Territorio.objects.get(cod_finloc__endswith=city_code))
+            except ObjectDoesNotExist:
+                self.logger.warning(u"Territorio '{}' not found in db, skip".format(city_code))
+                continue
 
         # massaging indicators option
         indicators_slugs = options['indicators']
