@@ -8,6 +8,9 @@
 *.swp
 *~
 *.csv#
+*.sql
+*.tgz
+
 # Sphinx docs:
 build
 
@@ -22,7 +25,7 @@ build
 .env
 
 #deploy
-deploy_config
+deploy_config/*
 
 #settings
 bilanci_project/bilanci/settings/local.py

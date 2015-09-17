@@ -10,7 +10,7 @@ from itertools import groupby
 __author__ = 'guglielmo'
 
 def _keygen(item):
-    return (item['anno'], item['territorio__cod_finloc'], item['voce__slug'])
+    return (item['anno'], item['territorio__slug'], item['voce__slug'])
 
 def _abitanti_keygen(item):
     return (item['anno'], item['territorio__cod_finloc'],'bil_popolazione_residente')
@@ -28,10 +28,10 @@ class BaseIndicator(object):
             anno__in=years
         )
         if len(cities) < Territorio.objects.filter(territorio=Territorio.TERRITORIO.C).count():
-            qs = qs.filter(territorio__cod_finloc__in=cities)
+            qs = qs.filter(territorio__in=cities)
 
         return qs.values(
-            'voce__slug', 'anno', 'territorio__cod_finloc', 'valore', 'valore_procapite'
+            'voce__slug', 'anno', 'territorio__slug', 'valore', 'valore_procapite'
         ).order_by('anno', 'voce__slug')
 
 
@@ -58,27 +58,27 @@ class BaseIndicator(object):
     def compute(self, cities, years, logger=None):
         data_dict = self.get_data(cities, years)
 
-        ret = OrderedDict([])
+        data = OrderedDict([])
         for city in cities:
-            ret[city] = OrderedDict([])
+            data[city.slug] = OrderedDict([])
             for year in years:
                 try:
-                    ret[city][year] = self.get_formula_result(data_dict, city, year)
+                    data[city.slug][year] = self.get_formula_result(data_dict, city.slug, year)
                     if logger:
                         logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, ret[city][year]
+                            city.slug, year, data[city.slug][year]
                         ))
                 except KeyError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
+                            city.slug, year
                         ))
                 except ZeroDivisionError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
+                            city.slug, year
                         ))
-        return ret
+        return data
 
     def compute_and_commit(self, cities, years, logger=None, skip_existing=False):
         """
@@ -87,36 +87,33 @@ class BaseIndicator(object):
         data = self.compute(cities, years, logger=logger)
 
         if not skip_existing:
+            from pprint import pprint
             ValoreIndicatore.objects.filter(
                 indicatore=self.get_indicator_obj(),
-                territorio__cod_finloc__in=cities,
+                territorio__in=cities,
                 anno__in=years
             ).delete()
 
 
         for city in cities:
-            try:
-                city_obj = Territorio.objects.get(cod_finloc=city)
-            except ObjectDoesNotExist:
-                continue
             for year in years:
                 try:
                     ValoreIndicatore.objects.create(
-                        territorio=city_obj,
+                        territorio=city,
                         indicatore=self.get_indicator_obj(),
                         anno=year,
-                        valore=data[city][year]
+                        valore=data[city.slug][year]
                     )
                     if logger:
                         logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, data[city][year]
+                            city.slug, year, data[city.slug][year]
                         ))
                 except IntegrityError:
                     pass
                 except KeyError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Cannot compute indicator".format(
-                            city, year
+                            city.slug, year
                         ))
 
 
@@ -128,23 +125,23 @@ class PerCapitaIndicatorType(BaseIndicator):
 
         ret = OrderedDict([])
         for city in cities:
-            ret[city] = OrderedDict([])
+            ret[city.slug] = OrderedDict([])
             for year in years:
                 try:
-                    ret[city][year] = self.get_formula_result(data_dict, city, year)
+                    ret[city.slug][year] = self.get_formula_result(data_dict, city.slug, year)
                     if logger:
                         logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                            city, year, ret[city][year]
+                            city, year, ret[city.slug][year]
                         ))
                 except KeyError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
+                            city.slug, year
                         ))
                 except ZeroDivisionError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
+                            city.slug, year
                         ))
         return ret
 
@@ -160,41 +157,41 @@ class ThreeYearsMeanIndicatorType(BaseIndicator):
 
         ret = OrderedDict([])
         for city in cities:
-            ret[city] = OrderedDict([])
+            ret[city.slug] = OrderedDict([])
             for year in years:
                 n_available_years = 0
 
                 try:
-                    t0 = self.get_formula_result(data_dict, city, year)
+                    t0 = self.get_formula_result(data_dict, city.slug, year)
                     n_available_years += 1
                 except KeyError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valori mancanti.".format(
-                            city, year
+                            city.slug, year
                         ))
                     continue
                 except ZeroDivisionError:
                     if logger:
                         logger.warning("City: {0}, Year: {1}. Valore nullo al denominatore.".format(
-                            city, year
+                            city.slug, year
                         ))
                     continue
                 try:
-                    t1 = self.get_formula_result(data_dict, city, year-1)
+                    t1 = self.get_formula_result(data_dict, city.slug, year-1)
                     n_available_years += 1
                 except (KeyError, ZeroDivisionError):
                     t1 = 0
 
                 try:
-                    t2 = self.get_formula_result(data_dict, city, year-2)
+                    t2 = self.get_formula_result(data_dict, city.slug, year-2)
                     n_available_years += 1
                 except (KeyError, ZeroDivisionError):
                     t2 = 0
 
-                ret[city][year] = (t0 + t1 + t2) / n_available_years
+                ret[city.slug][year] = (t0 + t1 + t2) / n_available_years
                 if logger:
                     logger.debug("City: {0}, Year: {1}, valore: {2}".format(
-                        city, year, ret[city][year]
+                        city.slug, year, ret[city.slug][year]
                     ))
 
         return ret
@@ -365,8 +362,8 @@ class GradoRigiditaStrutturaleSpesaIndicator(BaseIndicator):
 
 
         return ((scip+csisciipeofd+cscpqcdmep)/(ceciet+cecee+ceccp))*100.0
-        
-        
+
+
 class EquilibrioParteCorrenteIndicator(BaseIndicator):
 
     """
@@ -386,12 +383,12 @@ class EquilibrioParteCorrenteIndicator(BaseIndicator):
 
 
     def get_formula_result(self, data_dict, city, year):
-        
+
         ecit = self.get_val(data_dict, city, year, 'ecit')
         eccp = self.get_val(data_dict, city, year, 'eccp')
         ecee = self.get_val(data_dict, city, year, 'ecee')
         scsc = self.get_val(data_dict, city, year, 'scsc')
-        
+
         return ((ecit + eccp + ecee)/scsc)*100.0
 
 
