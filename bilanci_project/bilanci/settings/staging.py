@@ -8,7 +8,11 @@ MAIN_HOST = ['openbilanci.staging.deppsviluppo.org',]
 
 # Allowed hosts expansion: needed for servizi ai Comuni
 HOSTS_COMUNI = [
-
+'novara.comuni.deppsviluppo.org',
+'rapallo.comuni.deppsviluppo.org',
+'castiglionedellestiviere.comuni.deppsviluppo.org',
+'firenze.comuni.deppsviluppo.org',
+'terni.comuni.deppsviluppo.org'
 ]
 
 ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI

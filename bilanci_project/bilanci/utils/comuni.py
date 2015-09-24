@@ -29,7 +29,7 @@ class FLMapper(object):
             lista_comuni_csv = requests.get(settings.S3_LISTA_COMUNI_URL)
             reader = csv.reader(lista_comuni_csv.iter_lines(), delimiter=',', quotechar='\n')
         except IOError:
-            raise Exception("Impossible to open file:%s" % self.lista_comuni_csv)
+            raise Exception("Impossible to open file:%s" % settings.S3_LISTA_COMUNI_URL)
 
         comuni_by_codes = {}
         comuni_by_slugs = {}

@@ -11,7 +11,7 @@ from collections import OrderedDict
 from requests.exceptions import ConnectionError, Timeout, SSLError, ProxyError
 from datetime import datetime, timedelta
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, DetailView, RedirectView, View, ListView
@@ -2347,12 +2347,20 @@ class ClassificheSearchView(MiniClassificheMixin, RedirectView):
             Territorio.objects.filter(cluster__in=selected_cluster, regione__in=selected_regioni_names).values_list(
                 'pk', flat=True))
 
+        # gets the selected parameter: voce or indicatore
+        # if the parameter does NOT exist (wrong parameter) redirects to classifiche home page
         if selected_par_type == 'indicatori':
             all_ids_values = ValoreIndicatore.objects.get_classifica_ids(selected_parameter_id, selected_year)
-            parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+            try:
+                parameter_slug = Indicatore.objects.get(pk=selected_parameter_id).slug
+            except ObjectDoesNotExist:
+                return HttpResponseRedirect(reverse('classifiche-redirect'))
         else:
             all_ids_values = ValoreBilancio.objects.get_classifica_ids(selected_parameter_id, selected_year)
-            parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+            try:
+                parameter_slug = Voce.objects.get(pk=selected_parameter_id).slug
+            except ObjectDoesNotExist:
+                return HttpResponseRedirect(reverse('classifiche-redirect'))
 
         # calculate territorio page
         try:
@@ -2517,13 +2525,16 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         else:
             filters['voce__id'] = self.parameter.id
             objects = list(ValoreBilancio.objects.filter(**filters).select_related())
+
         objects_dict = dict((obj.territorio_id, obj) for obj in objects)
 
         # build context for objects in page, there are no db-access at this point
         for ordinal_position, territorio_id in enumerate(paginated_queryset, start=paginator_offset):
             incarichi = []
-
-            obj = objects_dict[territorio_id]
+            try:
+                obj = objects_dict[territorio_id]
+            except KeyError:
+                continue
 
             if self.parameter_type == 'indicatori':
                 valore = obj.valore
@@ -2622,6 +2633,8 @@ class ClassificheListView(HierarchicalMenuMixin, MiniClassificheMixin, ListView)
         short_url_obj = None
         try:
             short_url_obj = ShortUrl.objects.get(long_url=long_url)
+        except MultipleObjectsReturned:
+            short_url_obj = ShortUrl.objects.filter(long_url=long_url)[0]
 
         except ObjectDoesNotExist:
 
