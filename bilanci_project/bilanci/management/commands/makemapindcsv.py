@@ -32,7 +32,7 @@ class Command(BaseCommand):
     )
 
     help = """
-        Compute indicators value for all cities and spits them out as CSV
+        Compute indicators values for all cities and spits them out as CSV. Used to build data used in CartoDB maps.
         """
 
     logger = logging.getLogger('management')
