@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from bilanci.models import Indicatore, ValoreIndicatore
 
 ##
-# compute indicators value for all cities, for given years
+# compute specific indicatore and budget voices values for all cities, in given years
 ##
 
 class Command(BaseCommand):
@@ -22,17 +22,23 @@ class Command(BaseCommand):
         make_option('--years',
                     dest='years',
                     default='',
-                    help='Years to fetch. From 2002 to 2012. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+                    help='Years to fetch. From 2002 to 2014. Use one of this formats: 2014 or 2003-2006 or 2002,2004,2006'),
         make_option('--dry-run',
                     dest='dryrun',
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written in the db'),
+        make_option('--indicators',
+                    dest='indicators',
+                    default='all',
+                    help='Indicators slugs. Use comma to separate values: autonomia-finanziaria,affidabilita-residui-attivi or "All"'),
+
 
     )
 
     help = """
-        Compute indicators values for all cities and spits them out as CSV. Used to build data used in CartoDB maps.
+        Compute indicators and budget voices values for all cities and spits them out as CSV in the current directory. 
+        Used to build data to be uploaded to CartoDB.
         """
 
     logger = logging.getLogger('management')
