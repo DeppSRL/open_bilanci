@@ -75,9 +75,7 @@ class Command(BaseCommand):
         # site_url
         site_url = options['site_url']
 
-        self.logger.info("Processing years: {0}".format(year))
         self.year = year
-
         self.logger.info("Processing year: {0}".format(self.year))
 
         indicators_slugs = options['indicators'].split(',')
@@ -92,7 +90,7 @@ class Command(BaseCommand):
         for i in indicatori:
             # extracts indicator values for all locations
             self.logger.debug(
-                " processing indicator: {0}".format(i.denominazione)
+                u" processing indicator: {0}".format(i.denominazione)
             )
             iv = ValoreIndicatore.objects.filter(
                 indicatore__slug=i.slug, anno=year
@@ -112,7 +110,9 @@ class Command(BaseCommand):
 
         self.logger.debug("adding voci values")
         for vo in voices:
-            self.logger.debug(" processing voice: {0}".format(vo.denominazione))
+            self.logger.debug(
+                u" processing voice: {0}".format(vo.denominazione)
+            )
             vv = ValoreBilancio.objects.filter(
                 voce__slug=vo.slug, anno=year
             ).values(
