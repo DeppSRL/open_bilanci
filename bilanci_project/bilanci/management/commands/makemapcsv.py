@@ -91,9 +91,10 @@ class Command(BaseCommand):
  
         indicatori_voci_year = {}
 
-        self.logger.debug(" reading indicatori values")
+        self.logger.debug("reading indicatori values")
         for i in indicatori: 
             # extracts indicator values for all locations
+            self.logger.debug(u" processing indicator: {0}".format(i.denominazione))
             iv = ValoreIndicatore.objects.filter(indicatore__slug=i.slug, anno=year).values('territorio__istat_id', 'territorio__slug', 'valore')
             for v in iv:
                 t_id = v['territorio__istat_id']
@@ -105,8 +106,9 @@ class Command(BaseCommand):
                 indicatori_voci_year[t_id]['values'][i.id] = val
 
 
-        self.logger.debug(" adding voci values")
+        self.logger.debug("adding voci values")
         for vo in voices: 
+            self.logger.debug(u" processing voice: {0}".format(vo.denominazione))
             vv = ValoreBilancio.objects.filter(voce__slug=vo.slug, anno=year).values('territorio__istat_id', 'territorio__slug', 'valore')
             for v in vv:
                 t_id = v['territorio__istat_id']
@@ -118,7 +120,7 @@ class Command(BaseCommand):
                 indicatori_voci_year[t_id]['values'][vo.id] = val
 
   
-        self.logger.debug(" writing output to map_{0}.csv".format(self.year))
+        self.logger.debug(u" writing output to map_{0}.csv".format(self.year))
         with open("map_{0}.csv".format(self.year), 'wb') as csvfile:
             writer = csvkit.py2.CSVKitWriter(csvfile, delimiter=";")
             writer.writerow(["istat_id", "url"] + [i.denominazione for i in indicatori] + [vo.denominazione for vo in voices])
