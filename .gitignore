@@ -24,6 +24,9 @@ build
 .idea/
 .env
 
+#ninja-editor
+*.nja
+
 #deploy
 deploy_config/*
 
