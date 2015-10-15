@@ -1857,7 +1857,10 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
             self.main_bilancio_year, self.main_bilancio_type = latest_tuple
             redirect_to_latest_bilancio = True
 
-        self.main_bilancio_year = int(self.main_bilancio_year)
+        try:
+            self.main_bilancio_year = int(self.main_bilancio_year)
+        except ValueError:
+            return HttpResponseRedirect(reverse('bilancio-not-found'))
 
         # if bilancio yr is outside app timeline, redirects to bil.not.found
         if self.main_bilancio_year > settings.APP_END_YEAR or\
