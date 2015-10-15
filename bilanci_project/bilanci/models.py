@@ -38,13 +38,13 @@ class Voce(MPTTModel):
     def get_natural_descendants(self):
         return self.get_descendants(include_self=True). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-cassa") |
-                Q(slug__startswith="consuntivo-entrate-cassa")). \
+            Q(slug__startswith="consuntivo-spese-cassa") |
+            Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
-                Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
-            )
+            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
+            Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
+        )
 
     # get_natural_children:
     # given a Voce returns the children of such node
@@ -54,13 +54,13 @@ class Voce(MPTTModel):
     def get_natural_children(self):
         return self.get_children(). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-cassa") |
-                Q(slug__startswith="consuntivo-entrate-cassa")). \
+            Q(slug__startswith="consuntivo-spese-cassa") |
+            Q(slug__startswith="consuntivo-entrate-cassa")). \
             exclude(
-                Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
-                Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
-                Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
-            )
+            Q(slug__startswith="consuntivo-spese-impegni-spese-somma-funzioni") |
+            Q(slug__startswith="consuntivo-spese-cassa-spese-somma-funzioni") |
+            Q(slug__startswith="preventivo-spese-spese-somma-funzioni")
+        )
 
     # get_components_cassa:
     # for the Voce in the spese-cassa branch
@@ -167,9 +167,9 @@ class Voce(MPTTModel):
 
 
 class ValoreBilancio(models.Model):
-    voce = models.ForeignKey(Voce, null=False, blank=False, db_index=True)
-    territorio = models.ForeignKey(Territorio, null=False, blank=False, db_index=True)
-    anno = models.PositiveSmallIntegerField(db_index=True)
+    voce = models.ForeignKey(Voce, null=False, blank=False)
+    territorio = models.ForeignKey(Territorio, null=False, blank=False)
+    anno = models.PositiveSmallIntegerField()
     valore = models.BigIntegerField(default=0, null=True, blank=True)
     valore_procapite = models.FloatField(default=0., null=True, blank=True)
 
@@ -177,6 +177,10 @@ class ValoreBilancio(models.Model):
 
     def __unicode__(self):
         return u"%s %s %s" % (self.voce.denominazione, self.anno, self.valore)
+
+    class Meta:
+        unique_together = ("voce", "territorio", "anno")
+        index_together = [["voce", "territorio", "anno"], ]
 
 
 class Indicatore(models.Model):
@@ -202,7 +206,8 @@ class ValoreIndicatore(models.Model):
 
     class Meta:
         verbose_name_plural = u'Valori indicatori'
-        unique_together = ('indicatore', 'anno', 'territorio', )
+        unique_together = ("indicatore", "territorio", "anno")
+        index_together = [["indicatore", "territorio", "anno"], ]
 
     def __unicode__(self):
         return u"%s: %s" % (self.indicatore, self.valore,)
@@ -217,7 +222,7 @@ class ImportXmlBilancio(models.Model):
     tipologia = models.CharField(max_length=12, choices=TIPO_CERTIFICATO, default='')
     territorio = models.ForeignKey(Territorio, null=False, blank=False)
     anno = models.PositiveSmallIntegerField(db_index=True)
-    data_fornitura = models.DateField(auto_now=False, auto_now_add=False, null=True )
+    data_fornitura = models.DateField(auto_now=False, auto_now_add=False, null=True)
     created_at = models.DateField(auto_now=False, auto_now_add=True, )
 
     class Meta:
@@ -248,7 +253,7 @@ class ImportXmlBilancio(models.Model):
             territorio=territorio,
             anno__gte=settings.APP_START_YEAR,
             anno__lte=settings.APP_END_YEAR,
-            ).count()
+        ).count()
 
         if imports > 0:
             return True
