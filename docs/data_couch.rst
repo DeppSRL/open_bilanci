@@ -1,5 +1,5 @@
 Data import: html -> Couch -> Pg
-====================================
+================================
 
 Data are fetched from the source site and recorded as documents in a CouchDB Database. 
 All tables are transformed into json structures.

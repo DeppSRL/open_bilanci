@@ -41,6 +41,7 @@ When deploying Open bilanci on an empty database follow these steps:
     python manage.py shell_plus
 
 - Launch the import on all cities, all years
+
 .. code-block:: bash
 
     python manage.py couch2pg -v2 --create-tree --force-google --cities=all --years=2003-2013

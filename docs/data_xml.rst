@@ -207,7 +207,7 @@ and for TOTALE (in Colonne sheet)
 
 
 Bilancio Codes - simplified slugs association for Colonne
-------------------------------------------------------
+---------------------------------------------------------
 
 
 The sheet *Colonne* requires the association of column names with partial slugs.
