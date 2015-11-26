@@ -64,6 +64,7 @@ oauth2/drive-access.json
 #data
 bilanci_project/dati/
 dati/
+data/
 /static/
 assets/
 open_data/
