@@ -350,7 +350,8 @@ GDOC_KEYS = {
     'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
     'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013'),
     'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014'),
-    'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014')
+    'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014'),
+    'bilancio_preventivo_2015': env('GDOC_BILANCIO_PREVENTIVO_2015')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
