@@ -411,6 +411,7 @@ GDP_DEFLATORS = {
     2013: 1.014412693,
     # TODO: update with real deflator value
     2014: 1.014412693,
+    2015: 1.014412693,
 }
 
 CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
@@ -475,8 +476,8 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 APP_DATE_FMT = '%Y-%m-%d'
 
-APP_START_YEAR = 2004
-APP_END_YEAR = 2014
+APP_START_YEAR = 2005
+APP_END_YEAR = 2015
 APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
 APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
