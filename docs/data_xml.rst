@@ -50,7 +50,7 @@ and not like
 **Note: if the script fails to read the Gdoc, UPDATE the package gspread and it will work fine**
 
 
-Share the Gdoc with openpolis.script@gmail.com with "edit" permits and the users working on the doc.
+Share the Gdoc with the email you find in the OAUTH2 Json file that looks like LONG-KEY@developer.gserviceaccount.com with "edit" permits.
 
 The spreadsheet has to have 3 sheets called *Voci*, *Colonne*, *slug*.
 
