@@ -350,7 +350,8 @@ GDOC_KEYS = {
     'simple_tree': env('GDOC_VOCI_SIMPLE_TREE_KEY'),
     'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013'),
     'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014'),
-    'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014')
+    'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014'),
+    'bilancio_preventivo_2015': env('GDOC_BILANCIO_PREVENTIVO_2015')
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -410,6 +411,7 @@ GDP_DEFLATORS = {
     2013: 1.014412693,
     # TODO: update with real deflator value
     2014: 1.014412693,
+    2015: 1.014412693,
 }
 
 CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
@@ -474,8 +476,8 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 APP_DATE_FMT = '%Y-%m-%d'
 
-APP_START_YEAR = 2004
-APP_END_YEAR = 2014
+APP_START_YEAR = 2005
+APP_END_YEAR = 2015
 APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
 APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
@@ -539,6 +541,8 @@ PREVENTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'preventivo-spese-spese-somma-funzioni'
 CONSUNTIVO_SOMMA_SPESE_FUNZIONI_SLUG = 'consuntivo-spese-cassa-spese-somma-funzioni'
 CONSUNTIVO_SPESE_INVESTIMENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-per-investimenti-interventi'
 CONSUNTIVO_SPESE_CORRENTI_INTERVENTI_SLUG = 'consuntivo-spese-cassa-spese-correnti-interventi'
+
+HOSTS_COMUNI=[]
 
 CLASSIFICHE_PAGINATE_BY = 15
 EARLYBIRD_ENABLE = env.bool('EARLYBIRD_ENABLE')

@@ -12,15 +12,19 @@ Contents:
    :maxdepth: 2
 
    install
-   data
+   data_couch
+   data_completion
    simplify
+   bilancio_tree
    indicators
    ai
    elements
    templates
    territori
    deploy
-
+   time_settings
+   services
+   data_xml
 
 
 
