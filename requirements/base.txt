@@ -1,22 +1,21 @@
 Django<1.7
-readline==6.2.4.1 # need easy_install on OSX
-ipython==0.13.2
+#readline==6.2.4.1
+#ipython==0.13.2
 django-braces==1.2.2
 django-extensions==1.2.5
 django-model-utils==1.5.0
 logutils==0.3.3
 South==0.8.4
-Scrapy==0.20.2
 python-slugify==0.0.6
 beautifulsoup4==4.3.2
 requests==2.1.0
 CouchDB==0.9
 psycopg2==2.5.1
 gspread==0.2.2
--e git+git@github.com:joke2k/django-environ.git@156b9344a42597e66bcb1d75d21f6101e4d12359#egg=environ
+git+https://github.com/joke2k/django-environ.git@156b9344a42597e66bcb1d75d21f6101e4d12359#egg=environ
 Django-Select2==4.2.2
 django-mptt==0.6.0
--e git+git@github.com:openpolis/django-treeadmin.git#egg=django-treeadmin
+git+https://github.com/openpolis/django-treeadmin.git#egg=django-treeadmin
 django-front==0.3.6
 numpy==1.8.1
 pyzmq==14.2.0
