@@ -1,12 +1,9 @@
 # coding: utf-8
-
 import logging
-import time
+from pprint import pprint
 from optparse import make_option
-from django.core.management import BaseCommand, call_command
-from django.conf import settings
-from bilanci.utils import couch
-from bilanci.utils import gdocs, email_utils
+from django.core.management import BaseCommand
+from bilanci.utils import gdocs
 
 __author__ = 'stefano'
 
@@ -38,7 +35,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         bilancio_types = ['preventivo', 'consuntivo']
-
+        error_found = False
         verbosity = options['verbosity']
         force_google = options['force_google']
 
@@ -62,10 +59,10 @@ class Command(BaseCommand):
 
         # reads the references list from CSV file
         if translation_type == 't':
-            filename = "titoli/{}.csv"
+            folder = "titoli_map"
             idx = 2
         else:
-            filename = "voci/{}.csv"
+            folder = "voci_map"
             idx = 3
 
         ###
@@ -74,17 +71,32 @@ class Command(BaseCommand):
         # connect to Drive and get the mapping: the original titolo/voce and the mapping
         normalized_map = gdocs.get_normalized_map(translation_type, n_header_lines=2, force_google=force_google)
 
-        normalized_sheet = {'preventivo': [(row[idx], row[idx + 1]) for row in normalized_map['preventivo']],
-                            'consuntivo': [(row[idx], row[idx + 1]) for row in normalized_map['consuntivo']],
-        }
+
+        references = gdocs.read_from_csv(folder,csv_base_dir='data/reference_test/')
 
         for bil_type in bilancio_types:
-            reference_list = gdocs.read_from_csv('reference_test',csv_base_dir='data/')
-            from pprint import pprint
+            gdoc_mapping = normalized_map[bil_type]
 
-            pprint(reference_list)
-            # pprint(normalized_sheet)
+            # checks if the reference list has no repetitions
+            reference_list =[tuple(l) for l in references[bil_type]]
+            reference_set = set(reference_list)
+            if len(reference_list)!=len(reference_set):
+                self.logger.error("reference list not univoque for bilancio:{}".format(bil_type))
+                exit()
 
+            for unique_row in references[bil_type]:
+                found = False
+                for gdoc_row in gdoc_mapping:
 
+                    normalized = gdoc_row[:idx]
+                    normalized.append(gdoc_row[idx+1])
+                    if normalized == unique_row:
+                        found = True
+                        break
 
+                if not found:
+                    self.logger.critical(u"Simplified row {} not found in GDOC map ".format(unique_row))
+                    error_found = True
 
+        if error_found:
+            self.logger.critical("The test encountered errors. Quit")

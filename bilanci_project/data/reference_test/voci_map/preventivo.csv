@@ -1,402 +1,373 @@
-preventivo;1;quadro-1-situazione-riassuntiva-entrate;avanzo di amministrazione
-preventivo;1;quadro-1-situazione-riassuntiva-entrate;avanzo di amministrazione
-preventivo;1;quadro-1-situazione-riassuntiva-spese;disavanzo di amministrazione
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;categoria 1^ - anticipazioni di cassa
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;categoria 2^ - finanziamenti a breve termine
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;categoria 3^ - assunzioni di mutui e prestiti
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;categoria 4^ - emissioni di prestiti obbigazionari
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;categoria 4^ - emissioni di prestiti obbigazionari
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti;totale titolo v
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 1^ - alienazione di beni patrimoniali
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 1^ - alienazione di beni patrimoniali
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 2^ - trasferimenti di capitali dallo stato
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 3^ - trasferimenti da capitali dalla regione
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 3^ - trasferimenti da capitali dalla regione
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 4^ - trasferimenti da capitali da altri enti del settore pubblico
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 4^ - trasferimenti da capitali da altri enti del settore pubblico
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 5^ - trasferimenti di capitali da altri soggetti
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;categoria 6^ - riscossioni di crediti
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti;totale titolo iv
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 1^ - contributi e trasferimenti correnti dallo stato
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 2^ - contributi e trasferimenti correnti dalla regione
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 3^ - contributi e trasferimenti correnti dalla regione per funzioni delegate
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 4^ - contributi e trasferimenti da parte di organismi comunitari e internazionali
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 4^ - contributi e trasferimenti da parte di organismi comunitari e internazionali
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 4^ - contributi e trasferimenti da parte di organismi comunitari e internazionali
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 5^ - contributi e trasferimenti correnti da altri enti del settore pubblico
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;categoria 5^ - contributi e trasferimenti correnti da altri enti del settore pubblico
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione;totale titolo ii
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-servizi-per-conto-di-terzi;totale generale delle entrate
-preventivo;2;quadro-2-entrate-entrate-derivanti-da-servizi-per-conto-di-terzi;totale titolo vi
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 1^ - proventi di servizi pubblici
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 1^ - proventi di servizi pubblici
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 2^ - proventi di beni comunali
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 2^ - proventi di beni comunali
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 3^ - interessi su anticipazioni o crediti
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 4^ - utili netti delle aziende speciali e partecipate, dividendi di società
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 4^ - utili netti delle aziende speciali e partecipate, dividendi di società
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 4^ - utili netti delle aziende speciali e partecipate, dividendi di società
-preventivo;2;quadro-2-entrate-entrate-extratributarie;categoria 5^ - proventi diversi
-preventivo;2;quadro-2-entrate-entrate-extratributarie;totale titolo iii
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale sul consumo di energia elettrica
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale erariale sulla tassa smaltimento rifiuti
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale i.r.p.e.f.
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale i.r.p.e.f.
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale sul consumo di energia elettrica
-preventivo;2;quadro-2-entrate-entrate-tributarie;addizionale sul consumo di energia elettrica
-preventivo;2;quadro-2-entrate-entrate-tributarie;altre imposte
-preventivo;2;quadro-2-entrate-entrate-tributarie;altre imposte di cui :
-preventivo;2;quadro-2-entrate-entrate-tributarie;altre tasse
-preventivo;2;quadro-2-entrate-entrate-tributarie;altre tasse di cui :
-preventivo;2;quadro-2-entrate-entrate-tributarie;canone per l'installazione dei mezzi pubblicitari
-preventivo;2;quadro-2-entrate-entrate-tributarie;categoria 1^ - imposte
-preventivo;2;quadro-2-entrate-entrate-tributarie;categoria 2^ - tasse
-preventivo;2;quadro-2-entrate-entrate-tributarie;categoria 3^ - tributi speciali ed altre entrate tributarie proprie
-preventivo;2;quadro-2-entrate-entrate-tributarie;compartecipazione i.r.p.e.f.
-preventivo;2;quadro-2-entrate-entrate-tributarie;compartecipazione i.r.p.e.f.
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.c.i. (1) con aliquota
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.c.i. su abitazione principale per fattispecie non esenti
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.c.i. su fattispecie diversa da abitazione principale
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.c.i.a.p.
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.m.u. -  fattispecie diversa da abitazione principale
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.m.u. di cui
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.m.u. sperimentale - abitazione principale e pertinenze
-preventivo;2;quadro-2-entrate-entrate-tributarie;i.m.u. sperimentale - fattispecie diversa da abitazione principale
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta comunale sulla pubblicità
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta comunale sulla pubblicità
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta di scopo
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta di soggiorno comuni località turistiche
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta di soggiorno comuni località turistiche
-preventivo;2;quadro-2-entrate-entrate-tributarie;imposta sulle insegne
-preventivo;2;quadro-2-entrate-entrate-tributarie;tariffa igiene ambientale
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa di concessione su atti e provvedimenti comunali
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa per l'occupazione degli spazi ed aree pubbliche
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa per la raccolta e lo smaltimento dei rifiuti solidi urbani
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa per la raccolta e lo smaltimento dei rifiuti solidi urbani
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa per la raccolta e lo smaltimento dei rifiuti solidi urbani
-preventivo;2;quadro-2-entrate-entrate-tributarie;tassa sui rifiuti (tari) - art. 1  co. 639 l. 147 /14
-preventivo;2;quadro-2-entrate-entrate-tributarie;totale titolo i
-preventivo;2;quadro-2-entrate-entrate-tributarie;tributo comunale sui rifiuti e sui servizi (tares)
-preventivo;2;quadro-2-entrate-entrate-tributarie;tributo sui servizi indivisibili (tasi) - art. 1  co. 639 l. 147 /13
-preventivo;3;quadro-3-spese-spese-correnti;totale titolo i
-preventivo;3;quadro-3-spese-spese-correnti;totale titolo i
-preventivo;3;quadro-3-spese-spese-in-conto-capitale;totale titolo ii
-preventivo;3;quadro-3-spese-spese-in-conto-capitale;totale titolo ii
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;rimborso di finanziamenti a breve termine
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;rimborso di prestiti obbligazionari
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;rimborso di quota capitale di debiti pluriennali
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;rimborso di quota capitale di mutui e prestiti
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;rimborso per anticipazioni di cassa
-preventivo;3;quadro-3-spese-spese-per-rimborso-prestiti;totale titolo iii
-preventivo;3;quadro-3-spese-spese-per-servizi-per-conto-di-terzi;totale generale delle spese
-preventivo;3;quadro-3-spese-spese-per-servizi-per-conto-di-terzi;totale titolo iv
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-fondo-di-riserva;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-fondo-di-riserva;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-fondo-svalutazione-crediti;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-fondo-svalutazione-crediti;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-imposte-e-tasse;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-personale;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni relative a servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-totale;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-trasferimenti;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi;totale
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzione di istruzione pubblica
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni di polizia locale
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni nel campo della viabilità e dei trasporti
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni nel campo dello sviluppo economico
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni nel campo turistico
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni nel settore sociale
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni nel settore sportivo e ricreativo
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni relative ai servizi produttivi
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni relative alla cultura ed ai beni culturali
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni relative alla giustizia
-preventivo;4;quadro-4-riepilogo-spese-correnti;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;4;quadro-4-riepilogo-spese-correnti;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale-totale;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitale;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali;totale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzione di istruzione pubblica
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzione di polizia locale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni generali di amministrazione, di gestione e di controllo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni nel campo della viabilità e dei trasporti
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni nel campo dello sviluppo economico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni nel campo turistico
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni nel settore sociale
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni nel settore sportivo e ricreativo
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni relative a servizi produttivi
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni relative alla cultura ed ai beni culturali
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni relative alla giustizia
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;funzioni riguardanti la gestione del territorio e dell'ambiente
-preventivo;5;quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia;totale
+"preventivo";"1";"quadro-1-situazione-riassuntiva-entrate";"avanzo di amministrazione"
+"preventivo";"1";"quadro-1-situazione-riassuntiva-spese";"disavanzo di amministrazione"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti";"categoria 1^ - anticipazioni di cassa"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti";"categoria 2^ - finanziamenti a breve termine"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti";"categoria 3^ - assunzioni di mutui e prestiti"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti";"categoria 4^ - emissioni di prestiti obbigazionari"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti";"totale titolo v"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 1^ - alienazione di beni patrimoniali"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 2^ - trasferimenti di capitali dallo stato"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 3^ - trasferimenti da capitali dalla regione"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 4^ - trasferimenti da capitali da altri enti del settore pubblico"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 5^ - trasferimenti di capitali da altri soggetti"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"categoria 6^ - riscossioni di crediti"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-alienazione-da-trasferimenti-di-capitali-e-da-riscossioni-di-crediti";"totale titolo iv"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"categoria 1^ - contributi e trasferimenti correnti dallo stato"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"categoria 2^ - contributi e trasferimenti correnti dalla regione"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"categoria 3^ - contributi e trasferimenti correnti dalla regione per funzioni delegate"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"categoria 4^ - contributi e trasferimenti da parte di organismi comunitari e internazionali"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"categoria 5^ - contributi e trasferimenti correnti da altri enti del settore pubblico"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-contributi-e-trasferimenti-correnti-dello-stato-della-regione-e-di-altri-enti-pubblici-anche-in-rapporto-funzioni-delegate-dalla-regione";"totale titolo ii"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-servizi-per-conto-di-terzi";"totale generale delle entrate"
+"preventivo";"2";"quadro-2-entrate-entrate-derivanti-da-servizi-per-conto-di-terzi";"totale titolo vi"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"categoria 1^ - proventi di servizi pubblici"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"categoria 2^ - proventi di beni comunali"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"categoria 3^ - interessi su anticipazioni o crediti"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"categoria 4^ - utili netti delle aziende speciali e partecipate, dividendi di società"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"categoria 5^ - proventi diversi"
+"preventivo";"2";"quadro-2-entrate-entrate-extratributarie";"totale titolo iii"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"addizionale erariale sulla tassa smaltimento rifiuti"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"addizionale i.r.p.e.f."
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"addizionale sul consumo di energia elettrica"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"altre imposte"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"altre imposte di cui :"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"altre tasse"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"altre tasse di cui :"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"canone per l'installazione dei mezzi pubblicitari"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"categoria 1^ - imposte"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"categoria 2^ - tasse"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"categoria 3^ - tributi speciali ed altre entrate tributarie proprie"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"compartecipazione i.r.p.e.f."
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.c.i. (1) con aliquota"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.c.i. su abitazione principale per fattispecie non esenti"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.c.i. su fattispecie diversa da abitazione principale"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.c.i.a.p."
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.m.u. -  fattispecie diversa da abitazione principale"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.m.u. di cui"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.m.u. sperimentale - abitazione principale e pertinenze"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"i.m.u. sperimentale - fattispecie diversa da abitazione principale"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"imposta comunale sulla pubblicità"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"imposta di scopo"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"imposta di soggiorno comuni località turistiche"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"imposta sulle insegne"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tariffa igiene ambientale"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tassa di concessione su atti e provvedimenti comunali"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tassa per l'occupazione degli spazi ed aree pubbliche"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tassa per la raccolta e lo smaltimento dei rifiuti solidi urbani"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tassa sui rifiuti (tari) - art. 1  co. 639 l. 147 /14"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"totale titolo i"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tributo comunale sui rifiuti e sui servizi (tares)"
+"preventivo";"2";"quadro-2-entrate-entrate-tributarie";"tributo sui servizi indivisibili (tasi) - art. 1  co. 639 l. 147 /13"
+"preventivo";"3";"quadro-3-spese-spese-correnti";"totale titolo i"
+"preventivo";"3";"quadro-3-spese-spese-in-conto-capitale";"totale titolo ii"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"rimborso di finanziamenti a breve termine"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"rimborso di prestiti obbligazionari"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"rimborso di quota capitale di debiti pluriennali"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"rimborso di quota capitale di mutui e prestiti"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"rimborso per anticipazioni di cassa"
+"preventivo";"3";"quadro-3-spese-spese-per-rimborso-prestiti";"totale titolo iii"
+"preventivo";"3";"quadro-3-spese-spese-per-servizi-per-conto-di-terzi";"totale generale delle spese"
+"preventivo";"3";"quadro-3-spese-spese-per-servizi-per-conto-di-terzi";"totale titolo iv"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-acquisto-di-beni-di-consumo-eo-materie-prime";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-ammortamenti-di-esercizio";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-fondo-di-riserva";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-fondo-di-riserva";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-fondo-svalutazione-crediti";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-fondo-svalutazione-crediti";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-imposte-e-tasse";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-interessi-passivi-ed-oneri-finanziari-diversi";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-oneri-straordinari-della-gestione-corrente";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-personale";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-prestazioni-di-servizi";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni relative a servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-totale";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-trasferimenti";"totale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzione di istruzione pubblica"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni di polizia locale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni nel campo dello sviluppo economico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni nel campo turistico"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni nel settore sociale"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni relative ai servizi produttivi"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni relative alla giustizia"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"4";"quadro-4-riepilogo-spese-correnti-utilizzo-di-beni-terzi";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitale-totale";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisizione-di-beni-immobili";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleacquisto-di-beni-specifici-per-realizzazioni-in-economia";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleaquisizione-di-beni-mobili-macchine-ed-attrezzature-tecnico-scientifiche";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconcessioni-di-crediti-e-anticipazioni";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleconferimenti-di-capitale";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleespropri-e-servit-onerose";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleincarichi-professionali-esterni";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitalepartecipazioni-azionarie";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaletrasferimenti-di-capitali";"totale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzione di istruzione pubblica"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzione di polizia locale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni generali di amministrazione, di gestione e di controllo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni nel campo della viabilità e dei trasporti"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni nel campo dello sviluppo economico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni nel campo turistico"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni nel settore sociale"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni nel settore sportivo e ricreativo"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni relative a servizi produttivi"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni relative alla cultura ed ai beni culturali"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni relative alla giustizia"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"funzioni riguardanti la gestione del territorio e dell'ambiente"
+"preventivo";"5";"quadro-5-riepilogo-spese-in-conto-capitaleutilizzo-di-beni-di-terzi-per-realizzazioni-in-economia";"totale"
