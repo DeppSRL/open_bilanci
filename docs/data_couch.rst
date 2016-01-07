@@ -111,8 +111,8 @@ titoli and for voci):
     cd couchdb_scripts
 
     # load one of the view in view in couchdb_scripts/views in a given couchdb instance
-    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
-    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple]
+    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple] -s [localhost| staging]
+    python getkeys.py -f [<view>] -db [raw|titoli|voci|simple] -s [localhost | staging]
     # browse to the view and wait for view generation to finish (status)
     
 
