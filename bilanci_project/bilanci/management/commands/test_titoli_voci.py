@@ -3,6 +3,7 @@ import logging
 from pprint import pprint
 from optparse import make_option
 from django.core.management import BaseCommand
+import itertools
 from bilanci.utils import gdocs
 
 __author__ = 'stefano'
@@ -24,6 +25,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Force reloading mapping files from gdocs (invalidate the csv cache)'),
+        make_option('--force',
+                    dest='force',
+                    action='store_true',
+                    default=False,
+                    help='Checks for errors but continues even if errors are found'),
     )
 
     help = """
@@ -38,6 +44,7 @@ class Command(BaseCommand):
         error_found = False
         verbosity = options['verbosity']
         force_google = options['force_google']
+        force = options['force']
 
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -71,32 +78,46 @@ class Command(BaseCommand):
         # connect to Drive and get the mapping: the original titolo/voce and the mapping
         normalized_map = gdocs.get_normalized_map(translation_type, n_header_lines=2, force_google=force_google)
 
-
-        references = gdocs.read_from_csv(folder,csv_base_dir='data/reference_test/')
+        references = gdocs.read_from_csv(folder, csv_base_dir='data/reference_test/')
 
         for bil_type in bilancio_types:
             gdoc_mapping = normalized_map[bil_type]
 
             # checks if the reference list has no repetitions
-            reference_list =[tuple(l) for l in references[bil_type]]
+            reference_list = [tuple(l) for l in references[bil_type]]
             reference_set = set(reference_list)
-            if len(reference_list)!=len(reference_set):
-                self.logger.error("reference list not univoque for bilancio:{}".format(bil_type))
+            if len(reference_list) != len(reference_set):
+                self.logger.critical("reference list not univoque for bilancio:{}".format(bil_type))
                 exit()
 
-            for unique_row in references[bil_type]:
-                found = False
-                for gdoc_row in gdoc_mapping:
+            # remove the n-1 col from gdoc mapping:
+            # this leaves us with
+            # FOR TITOLI
+            # tipo bilancio, quadro number, normalized titolo name (last col of GDOC)
+            # FOR VOCI
+            # tipo bilancio, quadro number, normalized titolo name,normalized voce name (last col of GDOC)
 
-                    normalized = gdoc_row[:idx]
-                    normalized.append(gdoc_row[idx+1])
-                    if normalized == unique_row:
-                        found = True
-                        break
+            x = ['',u'',None]
+            if translation_type == 't':
+                actual_mapping = set(r for r in ((row[0], row[1], row[3]) for row in gdoc_mapping) if r[idx] not in x)
+            else:
+                actual_mapping = set(r for r in ((row[0], row[1], row[2], row[4]) for row in gdoc_mapping) if r[idx] not in x)
 
-                if not found:
-                    self.logger.critical(u"Simplified row {} not found in GDOC map ".format(unique_row))
-                    error_found = True
+            not_in_reference = actual_mapping-reference_set
+            not_in_mapping= reference_set-actual_mapping
+
+            if len(not_in_mapping):
+                self.logger.error("Following rows not present in GDOC mapping")
+                pprint(not_in_mapping)
+                error_found=True
+
+            if len(not_in_reference):
+                self.logger.error("Following rows not present in REFERENCE mapping")
+                pprint(not_in_reference)
+                error_found=True
 
         if error_found:
-            self.logger.critical("The test encountered errors. Quit")
+            if force:
+                self.logger.critical("The test encountered errors. Force flag is TRUE, so continue")
+            else:
+                self.logger.critical("The test encountered errors. Quit")
