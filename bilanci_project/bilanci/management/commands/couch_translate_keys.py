@@ -67,6 +67,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='When translating Voci excludes Patch 2013 Consuntivo mng task (development only)'),
+        make_option('--force',
+                    dest='force',
+                    action='store_true',
+                    default=False,
+                    help='Continues even if errors are found in the mapping'),
     )
 
     help = 'Translate the keys of couchdb documents, normalizing them.'
@@ -79,6 +84,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
+        force = options['force']
+
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
         elif verbosity == '1':
@@ -87,6 +94,23 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.INFO)
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
+
+
+        # type option, different values are accepted:
+        #  v, V, voce, Voce, VOCE or
+        #  t, T, titolo, Titolo, TITOLO, Title
+        if 'type' not in options:
+            raise Exception("Missing type parameter")
+        if options['type'].lower()[0] not in ('v', 't'):
+            raise Exception("Wrong type parameter value (voce|titolo)")
+        translation_type = options['type'][0].lower()
+
+
+        # check that the mapping is correct before translating the DB
+        result = call_command('test_titoli_voci', type=translation_type, force=force, verbosity=2, interactive=False)
+        if result == -1 and force is False:
+            self.logger.critical("Test on mapping failed. Quitting")
+            exit()
 
         # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
         # see later comment
@@ -98,14 +122,6 @@ class Command(BaseCommand):
         if options['append'] is True:
             self.logger = logging.getLogger('management_append')
 
-        # type option, different values are accepted:
-        #  v, V, voce, Voce, VOCE or
-        #  t, T, titolo, Titolo, TITOLO, Title
-        if 'type' not in options:
-            raise Exception("Missing type parameter")
-        if options['type'].lower()[0] not in ('v', 't'):
-            raise Exception("Wrong type parameter value (voce|titolo)")
-        translation_type = options['type'][0].lower()
 
         force_google = options['force_google']
         skip_existing = options['skip_existing']

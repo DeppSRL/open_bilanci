@@ -18,8 +18,8 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--type',
-                    dest='type',
-                    help='Select translation type: [(v)oce | (t)itolo]'),
+                    dest='translation_type',
+                    help='Select translation translation_type: [(v)oce | (t)itolo]'),
         make_option('--force-google',
                     dest='force_google',
                     action='store_true',
@@ -29,7 +29,7 @@ class Command(BaseCommand):
                     dest='force',
                     action='store_true',
                     default=False,
-                    help='Checks for errors but continues even if errors are found'),
+                    help='Continues even if errors are found in the mapping'),
     )
 
     help = """
@@ -55,14 +55,14 @@ class Command(BaseCommand):
         elif verbosity == '3':
             self.logger.setLevel(logging.DEBUG)
 
-        # type option, different values are accepted:
+        # translation_type option, different values are accepted:
         #  v, V, voce, Voce, VOCE or
         #  t, T, titolo, Titolo, TITOLO, Title
-        if 'type' not in options:
-            raise Exception("Missing type parameter")
-        if options['type'].lower()[0] not in ('v', 't'):
-            raise Exception("Wrong type parameter value (voce|titolo)")
-        translation_type = options['type'][0].lower()
+        if 'translation_type' not in options:
+            raise Exception("Missing translation_type parameter")
+        if options['translation_type'].lower()[0] not in ('v', 't'):
+            raise Exception("Wrong translation_type parameter value (voce|titolo)")
+        translation_type = options['translation_type'][0].lower()
 
         # reads the references list from CSV file
         if translation_type == 't':
@@ -88,7 +88,7 @@ class Command(BaseCommand):
             reference_set = set(reference_list)
             if len(reference_list) != len(reference_set):
                 self.logger.critical("reference list not univoque for bilancio:{}".format(bil_type))
-                exit()
+                exit(-1)
 
             # remove the n-1 col from gdoc mapping:
             # this leaves us with
@@ -121,3 +121,6 @@ class Command(BaseCommand):
                 self.logger.critical("The test encountered errors. Force flag is TRUE, so continue")
             else:
                 self.logger.critical("The test encountered errors. Quit")
+                exit(-1)
+
+        exit(0)
