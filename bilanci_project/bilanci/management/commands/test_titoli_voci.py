@@ -123,4 +123,5 @@ class Command(BaseCommand):
                 self.logger.critical("The test encountered errors. Quit")
                 exit(-1)
 
+        self.logger.info("Test on mapping: PASSED")
         exit(0)
