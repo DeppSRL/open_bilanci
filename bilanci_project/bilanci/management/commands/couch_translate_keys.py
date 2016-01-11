@@ -240,8 +240,12 @@ class Command(BaseCommand):
 
                     self.couchdb_dest.save(destination_document)
 
+        counter = 0
         for city in cities:
-            self.logger.info(u"Updating {}".format(city))
+
+            if counter%50 == 0:
+                self.logger.info(u"Reached {}".format(city))
+            counter+=1
 
             for year in years:
 
