@@ -8,7 +8,7 @@ function (doc) {
             if(doc[tipo_bilancio]!==null){
 
             for (var quadro_n in doc[tipo_bilancio]) {
-                if(quadro_n in considered_quadro){
+                if(considered_quadro.indexOf(quadro_n)!=-1){
                     if( quadro_n in doc[tipo_bilancio] ){
                         for( var nome_titolo in doc[tipo_bilancio][quadro_n]){
                          emit([tipo_bilancio+"_"+quadro_n+"_"+nome_titolo]);
