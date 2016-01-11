@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('--type',
-                    dest='translation_type',
+                    dest='type',
                     help='Select translation translation_type: [(v)oce | (t)itolo]'),
         make_option('--force-google',
                     dest='force_google',
@@ -58,11 +58,11 @@ class Command(BaseCommand):
         # translation_type option, different values are accepted:
         #  v, V, voce, Voce, VOCE or
         #  t, T, titolo, Titolo, TITOLO, Title
-        if 'translation_type' not in options:
+        if 'type' not in options:
             raise Exception("Missing translation_type parameter")
-        if options['translation_type'].lower()[0] not in ('v', 't'):
+        if options['type'].lower()[0] not in ('v', 't'):
             raise Exception("Wrong translation_type parameter value (voce|titolo)")
-        translation_type = options['translation_type'][0].lower()
+        translation_type = options['type'][0].lower()
 
         # reads the references list from CSV file
         if translation_type == 't':
