@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import logging
+import gc
 import time
 from optparse import make_option
 from couchdb.http import ResourceNotFound
@@ -242,7 +243,7 @@ class Command(BaseCommand):
 
         counter = 0
         for city in cities:
-
+            gc.collect()
             if counter%50 == 0:
                 self.logger.info(u"Reached {}".format(city))
             counter+=1
