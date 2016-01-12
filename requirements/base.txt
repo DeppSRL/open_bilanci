@@ -26,3 +26,4 @@ Pillow==2.5.3
 django-robots==1.0
 oauth2client==1.4.11
 pyOpenSSL==0.13.1
+psutil==3.3.0
