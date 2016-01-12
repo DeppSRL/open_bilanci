@@ -88,7 +88,7 @@ class Command(BaseCommand):
             reference_set = set(reference_list)
             if len(reference_list) != len(reference_set):
                 self.logger.critical("reference list not univoque for bilancio:{}".format(bil_type))
-                return -1
+                exit()
 
             # remove the n-1 col from gdoc mapping:
             # this leaves us with
@@ -121,7 +121,6 @@ class Command(BaseCommand):
                 self.logger.critical("The test encountered errors. Force flag is TRUE, so continue")
             else:
                 self.logger.critical("The test encountered errors. Quit")
-                return -1
+                exit()
 
         self.logger.info("Test on mapping: PASSED")
-        return 0

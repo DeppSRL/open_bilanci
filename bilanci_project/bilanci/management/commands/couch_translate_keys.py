@@ -1,4 +1,5 @@
 # coding: utf-8
+from io import StringIO
 
 import logging
 import gc
@@ -12,6 +13,12 @@ from bilanci.utils import gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
 __author__ = 'guglielmo'
+
+
+import os
+import psutil
+
+
 
 
 class Command(BaseCommand):
@@ -68,11 +75,6 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='When translating Voci excludes Patch 2013 Consuntivo mng task (development only)'),
-        make_option('--force',
-                    dest='force',
-                    action='store_true',
-                    default=False,
-                    help='Continues even if errors are found in the mapping'),
     )
 
     help = 'Translate the keys of couchdb documents, normalizing them.'
@@ -85,7 +87,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         verbosity = options['verbosity']
-        force = options['force']
 
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -106,12 +107,9 @@ class Command(BaseCommand):
             raise Exception("Wrong type parameter value (voce|titolo)")
         translation_type = options['type'][0].lower()
 
-
-        # check that the mapping is correct before translating the DB
-        result = call_command('test_titoli_voci', type=translation_type, force=force, verbosity=2, interactive=False)
-        if result == -1 and force is False:
-            self.logger.critical("Test on mapping failed. Quitting")
-            exit()
+        # DEBUG
+        # process = psutil.Process(os.getpid())
+        # self.logger.info("MEM:{}".format(process.memory_info().rss))
 
         # get the timestamp to ensure the document will be written in couchdb, this is a workaround for a bug,
         # see later comment
@@ -224,6 +222,11 @@ class Command(BaseCommand):
                                  'consuntivo': [(row[2], row[3]) for row in normalized_map['consuntivo']],
                                  }
 
+
+        # check that the mapping is correct before translating the DB
+        call_command('test_titoli_voci', type=translation_type, verbosity='2', interactive=False, )
+
+
         # copying design documents
         if design_documents:
             self.logger.info(u"Copying design documents")
@@ -243,7 +246,7 @@ class Command(BaseCommand):
 
         counter = 0
         for city in cities:
-            gc.collect()
+            # self.logger.info("MEM start new city:{}".format(process.memory_info().rss))
             if counter%50 == 0:
                 self.logger.info(u"Reached {}".format(city))
             counter+=1
@@ -339,7 +342,9 @@ class Command(BaseCommand):
 
                 if not dryrun:
                     # write doc to couchdb dest
+                    # self.logger.debug("MEM bef write:{}".format(process.memory_info().rss))
                     ret = self.cbw.write(destination_document)
+                    # self.logger.debug("MEM aft write:{}".format(process.memory_info().rss))
                     if ret is False:
                         email_utils.send_notification_email(msg_string='couch translate keys has encountered problems')
                         self.logger.critical("Write critical problem. Quit")

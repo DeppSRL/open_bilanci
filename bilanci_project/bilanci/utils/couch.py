@@ -1,9 +1,7 @@
 import couchdb
 import sys
-from couchdb.http import ResourceNotFound
 from django.conf import settings
 from django.core.cache import cache
-from bilanci.utils import email_utils
 
 
 def get(key):
@@ -64,8 +62,7 @@ class CouchBulkWriter(object):
     logger = None
     couchdb_dest = None
     object_list = []
-    # bulk size is approx the size of 10 complete bilancio (preventivo and consuntivo)
-    bulk_size = 2744300
+    bulk_size = 24
 
     def __init__(self, logger, couchdb_dest):
         self.logger = logger
@@ -73,7 +70,7 @@ class CouchBulkWriter(object):
 
     def write(self, obj):
         self.object_list.append(obj)
-        if sys.getsizeof(self.object_list, default=0) > self.bulk_size:
+        if len(self.object_list) > self.bulk_size:
             return self.flush()
 
         return None
@@ -95,5 +92,5 @@ class CouchBulkWriter(object):
                 self.logger.critical("Document write failure! id:{} Reason:'{}'".format(docid, rev_or_exc))
                 return False
 
-        self.object_list=[]
+        self.object_list[:] = []
         return True
