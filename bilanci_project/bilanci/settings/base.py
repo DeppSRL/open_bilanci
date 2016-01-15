@@ -11,7 +11,7 @@ root = environ.Path(__file__) - 4  # (/open_bilanci/bilanci_project/bilanci/sett
 env = environ.Env(
     DEBUG=(bool, True),
 )
-env.read_env(root('.env'))
+env.read_env(root('config/.env'))
 
 ########## INSTANCE TYPE: production | staging | development | test
 INSTANCE_TYPE = env.str('INSTANCE_TYPE')
