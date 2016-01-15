@@ -22,7 +22,7 @@ root = environ.Path(__file__) - 2  # (/open_bilanci/bilanci_project/ - 2 = /)
 env = environ.Env(
     DEBUG=(bool, True),
 )
-env.read_env(root('.env'))
+env.read_env(root('config/.env'))
 
 
 PROJECT_ROOT = root('bilanci_project')
