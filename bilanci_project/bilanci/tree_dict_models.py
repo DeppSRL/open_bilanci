@@ -47,16 +47,16 @@ def deep_sum(node, exclude='totale', logger=None, level=0):
         for k, v in node.items():
             if logger:
                 if (isinstance(v, int) or isinstance(v, long)):
-                    logger.info(u"{0}node: {1} => {2}".format(level * "-", k, v))
+                    logger.debug(u"{0}node: {1} => {2}".format(level * "-", k, v))
                 else:
-                    logger.info(u"{0}node: {1} => *".format(level * "-", k))
+                    logger.debug(u"{0}node: {1} => *".format(level * "-", k))
 
             if k.lower() == exclude.lower():
                 continue
             s += deep_sum(v, exclude=exclude, logger=logger, level=level)
 
         if logger:
-            logger.info(u"{0}::::{1}:::::".format(level * "-", s))
+            logger.debug(u"{0}::::{1}:::::".format(level * "-", s))
 
         return s
 

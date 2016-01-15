@@ -12,8 +12,8 @@ import logging
 
 __author__ = 'guglielmo'
 
-class Command(BaseCommand, TestCase):
 
+class Command(BaseCommand, TestCase):
     option_list = BaseCommand.option_list + (
         make_option('--years',
                     dest='years',
@@ -62,7 +62,7 @@ class Command(BaseCommand, TestCase):
 
         if "-" in years:
             (start_year, end_year) = years.split("-")
-            years = range(int(start_year), int(end_year)+1)
+            years = range(int(start_year), int(end_year) + 1)
         else:
             years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
 
@@ -97,7 +97,6 @@ class Command(BaseCommand, TestCase):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
         self.logger.info("Hooked to normalized DB: {0}".format(norm_db_name))
-
 
         entrate_sections = OrderedDict([
             ('Accertamenti', 0),
@@ -134,7 +133,7 @@ class Command(BaseCommand, TestCase):
             {'norm': ('preventivo', '02',
                       'quadro-2-entrate-entrate-derivanti-da-accensioni-di-prestiti',
                       'data', 'totale titolo v', 0),
-             'simp': ('preventivo', 'ENTRATE', 'Prestiti')},
+             'simp': ('preventivo', 'ENTRATE', 'Prestiti', 'TOTALE')},
             {'norm': ('preventivo', '02',
                       'quadro-2-entrate-entrate-derivanti-da-servizi-per-conto-di-terzi',
                       'data', 'totale titolo vi', 0),
@@ -147,7 +146,7 @@ class Command(BaseCommand, TestCase):
             totali_consuntivo_entrate.extend([
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-i-entrate-tributarie',
-                          'data', 'totale  entrate  tributarie', section_idx),
+                          'data', 'totale entrate tributarie', section_idx),
                  'simp': ('consuntivo', 'ENTRATE', section_name, 'Imposte e tasse', 'TOTALE')},
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-ii-entrate-derivanti-da-contributi-e-trasferimenti-correnti',
@@ -159,18 +158,19 @@ class Command(BaseCommand, TestCase):
                  'simp': ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'TOTALE')},
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-iv-entrate-derivanti-da-alienazione-da-trasfer-di-capitali-e-da-riscossioni-di-crediti',
-                          'data', 'totale entrate derivanti da alienazione, trasferimenti di capitali e da riscossioni di crediti', section_idx),
+                          'data',
+                          'totale entrate derivanti da alienazione, trasferimenti di capitali e da riscossioni di crediti',
+                          section_idx),
                  'simp': ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali', 'TOTALE')},
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-v-entrate-derivanti-da-accensione-di-prestiti',
                           'data', 'totale entrate derivanti da accensione di prestiti', section_idx),
-                 'simp': ('consuntivo', 'ENTRATE', section_name, 'Prestiti')},
+                 'simp': ('consuntivo', 'ENTRATE', section_name, 'Prestiti', 'TOTALE')},
                 {'norm': ('consuntivo', '02',
                           'quadro-2-entrate-titolo-vi-entrate-da-servizi-per-conto-di-terzi',
                           'data', 'totale entrate  da servizi per conto di terzi', section_idx),
                  'simp': ('consuntivo', 'ENTRATE', section_name, 'Entrate per conto terzi')},
             ])
-
 
         totali_consuntivo_spese = []
 
@@ -193,7 +193,7 @@ class Command(BaseCommand, TestCase):
                 {'norm': ('consuntivo', '03',
                           'quadro-3-riepilogo-generale-delle-spese',
                           'data', 'titolo iii - spese per rimborso di prestiti', section_idx),
-                 'simp': ('consuntivo', 'SPESE', section_name, 'Prestiti')},
+                 'simp': ('consuntivo', 'SPESE', section_name, 'Prestiti', 'TOTALE')},
                 {'norm': ('consuntivo', '03',
                           'quadro-3-riepilogo-generale-delle-spese',
                           'data', 'titolo iv - spese per servirzi per conto di terzi', section_idx),
@@ -208,11 +208,11 @@ class Command(BaseCommand, TestCase):
              'simp': ('consuntivo', 'SPESE', 'Impegni', 'Spese correnti', 'TOTALE')},
             {'norm': ('consuntivo', '04',
                       'quadro-4-b-pagamenti-in-conto-competenza',
-                      'data', 'totali', -1),
+                      'data', 'totale', -1),
              'simp': ('consuntivo', 'SPESE', 'Pagamenti in conto competenza', 'Spese correnti', 'TOTALE')},
             {'norm': ('consuntivo', '04',
                       'quadro-4-c-pagamenti-in-conto-residui',
-                      'data', 'totali', -1),
+                      'data', 'totale', -1),
              'simp': ('consuntivo', 'SPESE', 'Pagamenti in conto residui', 'Spese correnti', 'TOTALE')},
         ])
 
@@ -232,7 +232,6 @@ class Command(BaseCommand, TestCase):
              'simp': ('consuntivo', 'SPESE', 'Pagamenti in conto residui', 'Spese per investimenti', 'TOTALE')},
         ])
 
-
         somme_consuntivo_nodes = []
         for section_name in entrate_sections.keys():
             somme_consuntivo_nodes.extend([
@@ -244,7 +243,8 @@ class Command(BaseCommand, TestCase):
                 ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Servizi pubblici'),
                 ('consuntivo', 'ENTRATE', section_name, 'Entrate extratributarie', 'Proventi di beni dell\'ente'),
                 ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali'),
-                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali', 'Trasferimenti di capitali da privati'),
+                ('consuntivo', 'ENTRATE', section_name, 'Vendite e trasferimenti di capitali',
+                 'Trasferimenti di capitali da privati'),
             ])
 
         somme_preventivo_nodes = [
@@ -308,7 +308,6 @@ class Command(BaseCommand, TestCase):
                     self.test_somme(somme_consuntivo_nodes, simple_doc, year)
 
 
-
     ###
     # TESTS
     ###
@@ -331,47 +330,29 @@ class Command(BaseCommand, TestCase):
         """
         for tot in totali:
             # extract year section from the simple doc (simple docs contain all years)
-            tot_simp = simple_doc[str(year)]
-            tot_norm = norm_doc
+            simple_doc_yr = simple_doc[str(year)]
 
             # drill through the tree to fetch the leaf value in tot['simp']
-            for t in tot['simp']:
-                tot_simp = tot_simp[t]
+            tot_simp = reduce(lambda d, k: d[k], tot['simp'], simple_doc_yr)
 
             # drill through the tree to fetch the leaf value in tot['simp']
             # catch exception om totale/totali, trying both before failing
             # in the normalized tree
-            for t in tot['norm']:
-                if t == 'totale':
-                    try:
-                        tot_norm = tot_norm['totale']
-                    except KeyError:
-                        try:
-                            tot_norm = tot_norm['totali']
-                        except KeyError:
-                            # log a warning and break away from the inner for loop
-                            # do not execute the else section
-                            self.logger.warning(
-                                "totale/i key not found in bilanci_voce. node: {0}".format(
-                                    tot['norm']
-                                )
-                            )
-                            break
-                else:
-                    tot_norm = tot_norm[t]
-            else:
-                # transform the string representation in the normalized doc,
-                # into an integer (used in the simplified doc)
-                # so that the comparison is possible
-                if tot_norm != '':
-                    tot_norm = int(round(float(tot_norm.replace('.', '').replace(',','.'))))
-                else:
-                    tot_norm = 0
 
-                if tot_simp != tot_norm:
-                    self.logger.warning("Totals are different.\n\tnorm val:{0}, node: {1}\n\tsimp val:{2}, node: {3}".format(
-                        tot_norm, tot['norm'],
-                        tot_simp, tot['simp'],
+            tot_norm = reduce(lambda d, k: d[k], tot['norm'], norm_doc)
+
+            # transform the string representation in the normalized doc,
+            # into an integer (used in the simplified doc)
+            # so that the comparison is possible
+            if tot_norm != '':
+                tot_norm = int(round(float(tot_norm.replace('.', '').replace(',', '.'))))
+            else:
+                tot_norm = 0
+
+            if tot_simp != tot_norm:
+                self.logger.warning(
+                    "Totals are different. Norm val:{}, Simp.val:{}\nnode norm: {}\nnode simp: {}".format(
+                        tot_norm, tot_simp, tot['norm'], tot['simp'],
                     ))
 
 
@@ -385,21 +366,21 @@ class Command(BaseCommand, TestCase):
         somma_interventi = deep_sum(simple_tree_node['interventi'])
 
         if self.nearly_equal(totale, somma_interventi) and \
-           self.nearly_equal(totale, somma_funzioni):
+                self.nearly_equal(totale, somma_funzioni):
             self.logger.debug(u"node: {0}. OK. totale: {1}".format(
                 simple_tree_label, totale
             ))
         else:
-            self.logger.warning(u"\nnode: {0}. NOT OK.\n  totale:\t\t {1}\n  somma_funzioni:\t {2}\n  somma_interventi:\t {3}".format(
-                simple_tree_label, totale, somma_funzioni, somma_interventi
-            ))
+            self.logger.warning(
+                u"\nnode: {0}. NOT OK.\n  totale:\t\t {1}\n  somma_funzioni:\t {2}\n  somma_interventi:\t {3}".format(
+                    simple_tree_label, totale, somma_funzioni, somma_interventi
+                ))
 
             # dump non-matching details to logger
             if not self.nearly_equal(totale, somma_funzioni):
                 _ = deep_sum(simple_tree_node['funzioni'], logger=self.logger)
             if not self.nearly_equal(totale, somma_interventi):
                 _ = deep_sum(simple_tree_node['interventi'], logger=self.logger)
-
 
 
     ###
@@ -415,7 +396,7 @@ class Command(BaseCommand, TestCase):
         """
         test_results = OrderedDict()
         for node in nodes:
-            node_path = u"/{0}/../{1}".format(node[0], node[-1])
+            node_path = u"/".join(node)
             simp = simple_doc[str(year)]
             for t in node:
                 simp = simp[t]
@@ -426,18 +407,17 @@ class Command(BaseCommand, TestCase):
             test_results[node[-1]] = (totale == somma)
 
             if self.nearly_equal(totale, somma):
-                self.logger.debug(u"node: {0}. OK. totale: {1}".format(
+                self.logger.debug(u'"{0}". OK. totale: {1}'.format(
                     node_path, totale
                 ))
             else:
-                self.logger.warning(u"node: {0}. NOT OK. totale: {1}. somma: {2}".format(
+                self.logger.warning(u'"{0}". NOT OK. totale: {1}. somma: {2}'.format(
                     node_path, totale, somma
                 ))
 
                 # dump non-matching details to logger
                 if not self.nearly_equal(totale, somma):
                     _ = deep_sum(simp, logger=self.logger)
-
 
 
     def nearly_equal(self, a, b):
