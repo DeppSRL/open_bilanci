@@ -62,7 +62,7 @@ class CouchBulkWriter(object):
     logger = None
     couchdb_dest = None
     object_list = []
-    bulk_size = 24
+    bulk_size = settings.COUCH_TRANSLATION_BULK_SIZE
 
     def __init__(self, logger, couchdb_dest):
         self.logger = logger
