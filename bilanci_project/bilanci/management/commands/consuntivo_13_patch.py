@@ -155,6 +155,7 @@ class Command(BaseCommand):
         for comune_slug in all_cities:
             doc_key = "2013_{}".format(comune_slug)
             bilancio_2013 = self.couchdb_dest.get(doc_key)
+            self.logger.info(u"patch {}".format(doc_key))
 
             old_destination_doc = self.couchdb_dest.get(doc_key, None)
             if old_destination_doc:
