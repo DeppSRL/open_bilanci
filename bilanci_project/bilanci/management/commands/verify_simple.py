@@ -1,11 +1,9 @@
 from bilanci.tree_dict_models import deep_sum
 from bilanci.utils import couch, nearly_equal
 from bilanci.utils.comuni import FLMapper
-
 from django.test import TestCase
 from django.core.management import BaseCommand
 from django.conf import settings
-
 from collections import OrderedDict
 from optparse import make_option
 import logging
