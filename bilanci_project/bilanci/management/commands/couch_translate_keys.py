@@ -36,7 +36,7 @@ def translate(source_document, destination_document):
                             idx = normalized_titoli_sheet[bilancio_type].index(titolo_name)
                             titolo_name = normalized_map[bilancio_type][idx][3]
                         except ValueError:
-                            pass
+                            continue
 
                     # create dest doc titolo dictionary
                     destination_document[bilancio_type][quadro_name][titolo_name] = {}
@@ -66,7 +66,7 @@ def translate(source_document, destination_document):
                                         (titolo_name, voce_name))
                                     voce_name = normalized_map[bilancio_type][idx][4]
                                 except ValueError:
-                                    pass
+                                    continue
 
                                 # create voice dictionary with normalized name
                                 destination_document[bilancio_type][quadro_name][titolo_name]['data'][
