@@ -383,9 +383,9 @@ class Command(BaseCommand):
         self.couchdb_dest.compact()
         self.logger.info("Done compacting")
 
-        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE == 'production' or settings.INSTANCE_TYPE == 'staging' and no_patch is False:
+        if not dryrun and couchdb_dest_name == settings.COUCHDB_NORMALIZED_VOCI_NAME and settings.INSTANCE_TYPE in ['production','staging'] and no_patch is False:
             self.logger.info(u"============Run patch 2013 for consuntivo======================")
-            call_command('consuntivo_13_patch', verbosity=2, interactive=False)
+            call_command('patch_consuntivo_13', verbosity=2, interactive=False)
 
         email_utils.send_notification_email(msg_string="Couch translate key has finished")
         self.logger.info("Finished couch translate keys")
