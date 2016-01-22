@@ -375,7 +375,7 @@ COUCHDB_SERVERS = {
 }
 COUCHDB_DEFAULT_SERVER = 'staging'
 # number of bilanci to be copied in bulk while doing the normalization
-COUCH_TRANSLATION_BULK_SIZE=25
+COUCH_TRANSLATION_BULK_SIZE=30
 
 CACHES = {
     "default": {

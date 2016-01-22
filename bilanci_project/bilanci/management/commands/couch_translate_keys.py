@@ -355,7 +355,7 @@ class Command(BaseCommand):
 
                 params.append((source_document, destination_document))
 
-                if counter % settings.COUCH_TRANSLATION_BULK_SIZE == 0:
+                if counter % settings.COUCH_TRANSLATION_BULK_SIZE == 0 and counter !=0:
                     self.logger.info(u"Reached {}, time to write to Couch...".format(doc_id))
                     results = [pool.apply_async(translate, p) for p in params]
                     params=[]
