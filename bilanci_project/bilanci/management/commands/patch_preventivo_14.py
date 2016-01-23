@@ -101,8 +101,13 @@ class Command(BaseCommand):
 
         mapper = FLMapper()
         all_cities = mapper.get_cities('all', logger=self.logger)
+        counter=0
         for comune_slug in all_cities:
             doc_key = "2014_{}".format(comune_slug)
+            if counter%50==0:
+                self.logger.info(u"Reached {}".format(comune_slug))
+            counter+=1
+            
             bilancio_2014 = self.couchdb_dest.get(doc_key)
 
             old_destination_doc = self.couchdb_dest.get(doc_key, None)
