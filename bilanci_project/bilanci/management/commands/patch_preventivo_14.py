@@ -55,7 +55,7 @@ class Command(BaseCommand):
             return
 
         try:
-            ici_pep = preventivo['02']['quadro-2-entrate-entrate-tributarie']['data']['i.c.i. per poste esercizi precedenti (recupero evasione e altre fattispecie particolari)']
+            ici_pep = preventivo['02']['quadro-2-entrate-entrate-tributarie']['data']['i.c.i. per poste esercizi precedenti (recupero evasione e altre fattispecie particolari)'][0]
         except KeyError:
             self.logger.error("Cannot find preventivo['02']['quadro-2-entrate-entrate-tributarie']['data']['i.c.i. per poste esercizi precedenti (recupero evasione e altre fattispecie particolari)'] for {}".format(comune_slug))
             return
