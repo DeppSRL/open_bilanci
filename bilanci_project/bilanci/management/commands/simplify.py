@@ -257,7 +257,7 @@ class Command(BaseCommand):
                     destination_document['_rev'] = revision
                     self.logger.debug("Adds rev value to doc")
 
-            self.logger.info(u"Processing city of {0}".format(city_id, ))
+            self.logger.debug(u"Processing city of {0}".format(city_id, ))
             for year in years:
                 # need this for logging
                 self.city = city_id
