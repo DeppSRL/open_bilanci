@@ -82,7 +82,6 @@ class CouchBulkWriter(object):
     def flush(self):
         # writes bulk of bilanci to destination db and then empties the list of docs.
         self.logger.debug("Writing bulk of {} docs to db".format(len(self.object_list)))
-
         return_values = self.couchdb_dest.update(self.object_list)
 
         for r in return_values:

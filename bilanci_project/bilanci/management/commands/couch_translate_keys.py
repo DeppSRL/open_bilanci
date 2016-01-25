@@ -1,9 +1,7 @@
 # coding: utf-8
-import multiprocessing
-
 __author__ = 'guglielmo'
+import multiprocessing
 import logging
-import gc
 import time
 from optparse import make_option
 from couchdb.http import ResourceNotFound
@@ -318,7 +316,6 @@ class Command(BaseCommand):
                 if not dryrun:
                     self.couchdb_dest.save(destination_document)
 
-        counter = 0
         params = []
         pool = multiprocessing.Pool()
         for city in cities:
@@ -355,22 +352,20 @@ class Command(BaseCommand):
 
                 params.append((source_document, destination_document))
 
-                if counter % settings.COUCH_TRANSLATION_BULK_SIZE == 0 and counter !=0:
+                if len(params) % settings.COUCH_TRANSLATION_BULK_SIZE == 0 and len(params)!=0:
                     self.logger.info(u"Reached {}, time to write to Couch...".format(doc_id))
                     results = [pool.apply_async(translate, p) for p in params]
                     params=[]
                     if not dryrun:
                         self.pass_to_bulkwriter(results)
                     self.logger.debug("Writing done")
-                counter += 1
 
         if not dryrun:
             # if the buffer in CBW is non-empty, flushes the docs to the db
             if len(params)>0:
                 results = [pool.apply_async(translate, p) for p in params]
                 params=[]
-                if not dryrun:
-                    self.pass_to_bulkwriter(results)
+                self.pass_to_bulkwriter(results)
 
             ret = self.cbw.close()
 

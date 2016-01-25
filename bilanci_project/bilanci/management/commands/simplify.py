@@ -1,13 +1,84 @@
+__author__ = 'guglielmo'
 import logging
+import time
+import multiprocessing
 from optparse import make_option
 from django.core.management import BaseCommand
 from django.conf import settings
-import time
 from bilanci.tree_dict_models import *
 from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 
-__author__ = 'guglielmo'
+simplified_subtrees_leaves = None
+voci_map = None
+
+
+def simplify(destination_document, city_bilanci):
+    logger = logging.getLogger('management')
+    for element in city_bilanci:
+        year = element['year']
+        source_doc = element['data']
+
+        # build the sub-trees, using the mapping and the source doc
+        # catch exceptions for non-existing sections in source doc
+        preventivo_tree = {}
+        consuntivo_tree = {}
+        try:
+            if 'preventivo' in source_doc and source_doc['preventivo']:
+                preventivo_entrate_tree = PreventivoEntrateBudgetTreeDict(logger=logger).build_tree(
+                    leaves=simplified_subtrees_leaves['preventivo-entrate'],
+                    mapping=(voci_map['preventivo'], source_doc)
+                )
+                preventivo_tree.update(preventivo_entrate_tree)
+
+                preventivo_spese_tree = PreventivoSpeseBudgetTreeDict(logger=logger).build_tree(
+                    leaves=simplified_subtrees_leaves['preventivo-spese'],
+                    mapping=(voci_map['preventivo'], voci_map['interventi'], source_doc)
+                )
+                preventivo_tree.update(preventivo_spese_tree)
+            else:
+                logger.warning(u"Could not find preventivo in source doc [{}]".format(
+                    source_doc.get('_id')
+                ))
+
+            if 'consuntivo' in source_doc and source_doc['consuntivo']:
+                consuntivo_entrate_tree = ConsuntivoEntrateBudgetTreeDict(logger=logger).build_tree(
+                    leaves=simplified_subtrees_leaves['consuntivo-entrate'],
+                    mapping=(voci_map['consuntivo'], source_doc)
+                )
+                consuntivo_tree.update(consuntivo_entrate_tree)
+
+                consuntivo_spese_tree = ConsuntivoSpeseBudgetTreeDict(logger=logger).build_tree(
+                    leaves=simplified_subtrees_leaves['consuntivo-spese'],
+                    mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
+                )
+                consuntivo_tree.update(consuntivo_spese_tree)
+
+                # creates branch RIASSUNTIVO
+
+                consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(
+                    logger=logger).build_tree(
+                    leaves=simplified_subtrees_leaves['consuntivo-riassuntivo'],
+                    mapping=(voci_map['consuntivo'], source_doc)
+                )
+                consuntivo_tree.update(consuntivo_riassuntivo_tree)
+
+            else:
+                logger.warning(u"Could not find consuntivo in source doc [{}]".format(
+                    source_doc.get('_id')
+                ))
+
+        except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
+            logger.error(e)
+
+        year_tree = {
+            'preventivo': preventivo_tree,
+            'consuntivo': consuntivo_tree,
+        }
+
+        destination_document[str(year)] = year_tree
+
+    return destination_document
 
 
 class Command(BaseCommand):
@@ -56,7 +127,21 @@ class Command(BaseCommand):
     comuni_dicts = {}
     cbw = None
 
+
+    def pass_to_bulkwriter(self, results):
+        for r in results:
+            # gets result dict from ApplyResult object and write doc to couchdb dest
+            ret = self.cbw.write(r.get())
+            if ret is False:
+                email_utils.send_notification_email(
+                    msg_string='simplify has encountered problems')
+                self.logger.critical("Write critical problem. Quit")
+                exit()
+
     def handle(self, *args, **options):
+        global voci_map
+        global simplified_subtrees_leaves
+
         verbosity = options['verbosity']
         if verbosity == '0':
             self.logger.setLevel(logging.ERROR)
@@ -95,7 +180,7 @@ class Command(BaseCommand):
             (start_year, end_year) = years.split("-")
             years = range(int(start_year), int(end_year) + 1)
         else:
-            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2014]
+            years = [int(y.strip()) for y in years.split(",") if 2001 < int(y.strip()) < 2020]
 
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
@@ -144,8 +229,12 @@ class Command(BaseCommand):
         voci_map = gdocs.get_simple_map(n_header_lines=2, force_google=force_google)
         simplified_subtrees_leaves = gdocs.get_simplified_leaves(force_google=force_google)
 
-        for city_id in cities:
+        # multiprocessing basics
+        params = []
+        pool = multiprocessing.Pool()
 
+        for city_id in cities:
+            city_bilanci = []
             dest_doc_id = city_id
             if skip_existing:
                 if dest_doc_id in couchdb_dest:
@@ -181,79 +270,30 @@ class Command(BaseCommand):
                     continue
 
                 source_doc = source_db.get(doc_id)
+                city_bilanci.append({'year': year, 'data': source_doc})
 
-                # build the sub-trees, using the mapping and the source doc
-                # catch exceptions for non-existing sections in source doc
-                preventivo_tree = {}
-                consuntivo_tree = {}
-                try:
-                    if 'preventivo' in source_doc and source_doc['preventivo']:
-                        preventivo_entrate_tree = PreventivoEntrateBudgetTreeDict(logger=self.logger).build_tree(
-                            leaves=simplified_subtrees_leaves['preventivo-entrate'],
-                            mapping=(voci_map['preventivo'], source_doc)
-                        )
-                        preventivo_tree.update(preventivo_entrate_tree)
+            params.append((destination_document, city_bilanci))
 
-                        preventivo_spese_tree = PreventivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
-                            leaves=simplified_subtrees_leaves['preventivo-spese'],
-                            mapping=(voci_map['preventivo'], voci_map['interventi'], source_doc)
-                        )
-                        preventivo_tree.update(preventivo_spese_tree)
-                    else:
-                        self.logger.warning(u"Could not find preventivo in source doc [{}]".format(
-                            source_doc.get('_id')
-                        ))
-
-                    if 'consuntivo' in source_doc and source_doc['consuntivo']:
-                        consuntivo_entrate_tree = ConsuntivoEntrateBudgetTreeDict(logger=self.logger).build_tree(
-                            leaves=simplified_subtrees_leaves['consuntivo-entrate'],
-                            mapping=(voci_map['consuntivo'], source_doc)
-                        )
-                        consuntivo_tree.update(consuntivo_entrate_tree)
-
-                        consuntivo_spese_tree = ConsuntivoSpeseBudgetTreeDict(logger=self.logger).build_tree(
-                            leaves=simplified_subtrees_leaves['consuntivo-spese'],
-                            mapping=(voci_map['consuntivo'], voci_map['interventi'], source_doc)
-                        )
-                        consuntivo_tree.update(consuntivo_spese_tree)
-
-                        # creates branch RIASSUNTIVO
-
-                        consuntivo_riassuntivo_tree = ConsuntivoRiassuntivoBudgetTreeDict(
-                            logger=self.logger).build_tree(
-                            leaves=simplified_subtrees_leaves['consuntivo-riassuntivo'],
-                            mapping=(voci_map['consuntivo'], source_doc)
-                        )
-                        consuntivo_tree.update(consuntivo_riassuntivo_tree)
-
-                    else:
-                        self.logger.warning(u"Could not find consuntivo in source doc [{}]".format(
-                            source_doc.get('_id')
-                        ))
-
-                except (SubtreeDoesNotExist, SubtreeIsEmpty) as e:
-                    self.logger.error(e)
-
-                year_tree = {
-                    'preventivo': preventivo_tree,
-                    'consuntivo': consuntivo_tree,
-                }
-
-                destination_document[str(year)] = year_tree
-
-            if not dryrun:
-                # write doc to couchdb dest
-                ret = self.cbw.write(destination_document)
-                if ret is False:
-                    email_utils.send_notification_email(msg_string='Simplify has encountered problems')
-                    self.logger.critical("Write critical problem. Quit")
-                    exit()
+            if len(params) % settings.COUCH_TRANSLATION_BULK_SIZE == 0 and len(params) != 0:
+                self.logger.info(u"Reached {}, time to write to Couch...".format(city_id))
+                results = [pool.apply_async(simplify, p) for p in params]
+                params = []
+                if not dryrun:
+                    self.pass_to_bulkwriter(results)
+                self.logger.debug("Writing done")
 
         if not dryrun:
             # if the buffer in CBW is non-empty, flushes the docs to the db
+            if len(params) > 0:
+                results = [pool.apply_async(simplify, p) for p in params]
+                params = []
+                self.pass_to_bulkwriter(results)
+
             ret = self.cbw.close()
 
             if ret is False:
-                email_utils.send_notification_email(msg_string='Simplify has encountered problems')
+                email_utils.send_notification_email(msg_string='simplify has encountered problems')
+                self.logger.critical("Write critical problem. Quit")
+                exit()
 
         email_utils.send_notification_email(msg_string="Simplify has finished")
