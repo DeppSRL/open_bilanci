@@ -124,7 +124,6 @@ class EntrateBudgetMixin(object):
                 bilancio_type,simplified_bc
             ))
 
-
         # compute the sum of the matching voices
         for voce_match in voci_matches:
             try:

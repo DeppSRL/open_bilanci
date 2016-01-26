@@ -71,7 +71,7 @@ class Command(BaseCommand):
         # transform altre imposte di cui back to string with the correct format:
         # from: 123456.00 to: 123,456.00
         altre_imposte_di_cui= Decimal(altre_imposte_di_cui)
-        preventivo['02']['quadro-2-entrate-entrate-tributarie']['data']['altre imposte di cui :'][0] = moneyfmt(altre_imposte_di_cui,2,'')
+        preventivo['02']['quadro-2-entrate-entrate-tributarie']['data']['altre imposte di cui :'][0] = moneyfmt(altre_imposte_di_cui,2,curr='',sep='.', dp=',')
 
         return
 
