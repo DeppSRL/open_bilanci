@@ -96,6 +96,7 @@ class Command(BaseCommand):
     years = None
     cities_param = None
     cities = None
+    cities_not_found = []
     voci_dict = None
     couchdb = None
     comuni_dicts = {}
@@ -282,7 +283,11 @@ class Command(BaseCommand):
         finloc_numbers = [c[-10:] for c in cities_finloc]
         slug_list = []
         for numb in finloc_numbers:
-            slug_list.append(Territorio.objects.get(territorio="C", cod_finloc__endswith=numb).slug)
+            try:
+                slug_list.append(Territorio.objects.get(territorio="C", cod_finloc__endswith=numb).slug)
+            except ObjectDoesNotExist:
+                self.logger.warning(u"City with codfinloc:{} not found, skip".format(numb))
+                self.cities_not_found.append(numb)
 
         self.cities = Territorio.objects.filter(territorio="C", slug__in=slug_list)
 
@@ -601,6 +606,8 @@ class Command(BaseCommand):
                 self.logger.error(
                     "Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files),
                                                                                                len(self.imported_xml)))
+        if len(self.cities_not_found)>0:
+            self.logger.warning("Following COD FINLOC NOT FOUND and not imported:{}".format(",".join(self.cities_not_found)))
 
         if complete and not self.dryrun and not self.partial_import:
 
