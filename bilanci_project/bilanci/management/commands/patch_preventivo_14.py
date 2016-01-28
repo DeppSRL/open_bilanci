@@ -1,3 +1,6 @@
+__author__ = 'stefano'
+
+
 import logging
 import locale
 from optparse import make_option
