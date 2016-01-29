@@ -12,9 +12,9 @@ from territori.models import Territorio
 
 nodes_to_check=[
     'preventivo-spese-prestiti',
-    'preventivo-spese-spese-correnti-funzioni'
+    'preventivo-spese-spese-correnti-funzioni',
     'preventivo-spese-spese-correnti-interventi',
-    'preventivo-spese-spese-per-investimenti-funzioni'
+    'preventivo-spese-spese-per-investimenti-funzioni',
     'preventivo-spese-spese-per-investimenti-interventi',
     'preventivo-spese-spese-somma-funzioni',
     'preventivo-entrate',
@@ -85,6 +85,7 @@ years_to_check = range(settings.APP_START_YEAR, settings.APP_END_YEAR)
 def check_city(city_slug):
     errors = []
     for voce_slug in nodes_to_check:
+        print voce_slug
         for anno in years_to_check:
             totale_children=0
             totale_voce=0
@@ -97,7 +98,7 @@ def check_city(city_slug):
             except IndexError:
                 totale_children=None
 
-            if totale_children==None and totale_voce==None:
+            if totale_children==None or totale_voce==None:
                 diff = None
             else:
                 diff = abs(totale_voce-totale_children)
@@ -147,9 +148,16 @@ class Command(BaseCommand):
             self.logger.info("Checking {}".format(c))
             ret = check_city(c)
             if ret:
-                pprint(ret)
-                # exit()
-
+                for line in ret:
+                    self.logger.warning("City:{}, year:{}, voce:{}, value_voce:{}, value_children:{}, diff:{}".format(
+                        line['city_slug'],
+                        line['anno'],
+                        line['voce_slug'],
+                        line['totale_voce'],
+                        line['totale_children'],
+                        line['diff'],
+                    ))
+    
         return
 
 
