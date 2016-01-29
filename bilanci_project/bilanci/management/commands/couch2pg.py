@@ -460,14 +460,14 @@ class Command(BaseCommand):
         # deletes old values before import
         self.prepare_for_import()
         counter = 100
-
+        set_autocommit(False)
         for territorio, city_years in self.import_set.iteritems():
 
             city_finloc = territorio.cod_finloc
             # get all budgets data for the city
-            start_time = time.clock()
+            # start_time = time.clock()
             city_budget = self.couchdb.get(city_finloc)
-            self.logger.info("Execution time for couch get: %.2gs seconds" % (time.clock()-start_time))
+            # self.logger.info("Execution time for couch get: %.2gs seconds" % (time.clock()-start_time))
 
             if city_budget is None:
                 # if city budget is not found, try again taking out apostrophe and re-slugging, this deals with
@@ -476,9 +476,7 @@ class Command(BaseCommand):
                     nome_senza_apostrofo = territorio.nome.replace("'", "")
                     finloc_number = city_finloc[-10:]
                     city_finloc_noapostrophe = u"{}--{}".format(slugify(nome_senza_apostrofo), finloc_number).upper()
-                    start_time = time.clock()
                     city_budget = self.couchdb.get(city_finloc_noapostrophe)
-                    self.logger.info("Execution time for couch get noapostrophe: %.2gs seconds" % (time.clock()-start_time))
 
                     if city_budget is None:
                         self.logger.warning(u"Document '{}' or '{}' not found in couchdb instance. Skipping.".format(city_finloc, city_finloc_noapostrophe))
@@ -492,6 +490,7 @@ class Command(BaseCommand):
             if counter == 100:
                 self.logger.info(u"Reached city of '{0}', continuing...".format(city_finloc))
                 counter = 0
+                commit()
             else:
                 counter += 1
 
@@ -557,9 +556,9 @@ class Command(BaseCommand):
                             continue
                         self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         if not self.dryrun:
-                            start_time = time.clock()
+                            # start_time = time.clock()
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
-                            self.logger.info("Execution time for postgres write: %.2gs seconds" % (time.clock()-start_time))
+                            # self.logger.info("Execution time for postgres write {}: {}s seconds".format(tipo_bilancio,time.clock()-start_time))
 
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
                 if len(self.considered_somma_funzioni) > 0:
@@ -569,7 +568,7 @@ class Command(BaseCommand):
                         'territorio': territorio,
                         'anno': year,
                     }
-                    start_time = time.clock()
+                    # start_time = time.clock()
                     for somma_funzioni_branch in self.considered_somma_funzioni:
 
                         # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
@@ -591,11 +590,12 @@ class Command(BaseCommand):
                                     include_self=True):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
-                    self.logger.info("Execution time for somma funzioni write: %.2gs seconds" % (time.clock()-start_time))
+                    # self.logger.info("Execution time for somma funzioni write: %.2gs seconds" % (time.clock()-start_time))
 
             # actually save data into posgres
             self.logger.debug("Write valori bilancio to postgres")
-
+        commit()
+        set_autocommit(True)
         self.logger.info("Done importing couchDB values into postgres")
 
         if self.cities_param.lower() != 'all':
