@@ -9,6 +9,7 @@ from django.core.management import BaseCommand, call_command
 from django.db import connection
 from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
+import time
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs, email_utils
@@ -464,7 +465,9 @@ class Command(BaseCommand):
 
             city_finloc = territorio.cod_finloc
             # get all budgets data for the city
+            start_time = time.clock()
             city_budget = self.couchdb.get(city_finloc)
+            self.logger.info("Execution time for couch get: %.2gs seconds" % (time.clock()-start_time))
 
             if city_budget is None:
                 # if city budget is not found, try again taking out apostrophe and re-slugging, this deals with
@@ -473,7 +476,9 @@ class Command(BaseCommand):
                     nome_senza_apostrofo = territorio.nome.replace("'", "")
                     finloc_number = city_finloc[-10:]
                     city_finloc_noapostrophe = u"{}--{}".format(slugify(nome_senza_apostrofo), finloc_number).upper()
+                    start_time = time.clock()
                     city_budget = self.couchdb.get(city_finloc_noapostrophe)
+                    self.logger.info("Execution time for couch get noapostrophe: %.2gs seconds" % (time.clock()-start_time))
 
                     if city_budget is None:
                         self.logger.warning(u"Document '{}' or '{}' not found in couchdb instance. Skipping.".format(city_finloc, city_finloc_noapostrophe))
@@ -552,7 +557,9 @@ class Command(BaseCommand):
                             continue
                         self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
                         if not self.dryrun:
+                            start_time = time.clock()
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
+                            self.logger.info("Execution time for postgres write: %.2gs seconds" % (time.clock()-start_time))
 
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
                 if len(self.considered_somma_funzioni) > 0:
@@ -562,6 +569,7 @@ class Command(BaseCommand):
                         'territorio': territorio,
                         'anno': year,
                     }
+                    start_time = time.clock()
                     for somma_funzioni_branch in self.considered_somma_funzioni:
 
                         # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
@@ -583,6 +591,7 @@ class Command(BaseCommand):
                                     include_self=True):
                                 self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
                         del vb_dict
+                    self.logger.info("Execution time for somma funzioni write: %.2gs seconds" % (time.clock()-start_time))
 
             # actually save data into posgres
             self.logger.debug("Write valori bilancio to postgres")
