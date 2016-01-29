@@ -370,8 +370,8 @@ class Command(BaseCommand, TestCase):
             ))
         else:
             self.logger.warning(
-                u"\nnode: {0}. NOT OK.\n  totale:\t\t {1}\n  somma_funzioni:\t {2}\n  somma_interventi:\t {3}".format(
-                    simple_tree_label, totale, somma_funzioni, somma_interventi
+                u"\nnode: {0}. NOT OK.\n  totale:\t\t {1}\n  somma_funzioni:\t {2}\n  somma_interventi:\t {3}, diff:{4}".format(
+                    simple_tree_label, totale, somma_funzioni, somma_interventi, abs(somma_funzioni-somma_interventi)
                 ))
 
             # dump non-matching details to logger
@@ -409,8 +409,8 @@ class Command(BaseCommand, TestCase):
                     node_path, totale
                 ))
             else:
-                self.logger.warning(u'"{0}". NOT OK. totale: {1}. somma: {2}'.format(
-                    node_path, totale, somma
+                self.logger.warning(u'"{0}". NOT OK. totale: {1}, somma: {2}, diff:{3}'.format(
+                    node_path, totale, somma, abs(totale-somma)
                 ))
 
                 # dump non-matching details to logger
