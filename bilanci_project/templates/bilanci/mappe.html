@@ -5,53 +5,47 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <link rel="shortcut icon" href="http://www.openbilanci.it/static/img/favicon.ico" />
-    
+
     <style>
       html, body, #map {
         height: 97%;
         padding: 0;
         margin: 0;
       }
-      
-      #cartocss {
-          position: absolute;
-          bottom: 200px;
-          left: 20px;
-      }
-      .layer_selector {
-          background: rgba(255,255,255,0.9);
-          border-radius: 5px;
-          padding: 0;
-          border: 1px solid #999;
-          width: 300px;
-      }
+    </style>
 
-      .layer_selector ul {
-          padding: 0; margin: 0;
-          list-style-type: none;
-      }
-      .layer_selector li {
-          padding: 15px 30px;
-          font-family: Helvetica, Arial;
-          font-size: 13px;
-          color: #444;
-          cursor: pointer;
-      }
-      .layer_selector li:not(:last-child) {
-          border-bottom: 1px solid #999;
-      }
-      .layer_selector li:hover {
-          background-color: #F0F0F0;
-          cursor: pointer;
-      }
-      .layer_selector li.sql_selected,
-      .layer_selector li.cartocss_selected {
-          background-color: #A6CEE3;
-      }      
-      #map .cartodb-legend {
-          bottom: 90px;
-          right: 30px;
-      }
+    <style type="cartocss/text" id="choropleth">
+        /** choropleth visualization */
+
+        #ob_ind_voci_2013_merge{
+          polygon-fill: #dedede;
+          polygon-opacity: 0.8;
+          line-color: #000;
+          line-width: 0.05;
+          line-opacity: 1;
+        }
+        
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 8000] {
+         polygon-fill: #d73027;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 1500] {
+         polygon-fill: #f79272;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 900] {
+         polygon-fill: #fed6b0;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 750] {
+         polygon-fill: #fff2cc;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 500] {
+         polygon-fill: #d2ecb4;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 350] {
+         polygon-fill: #8cce8a;
+        }
+        #ob_ind_voci_2013_merge [ imposte_e_tasse <= 250] {
+         polygon-fill: #1a9850;
+        } 
     </style>
 
     <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
@@ -59,165 +53,49 @@
   <body>
     <div id="map"></div>
 
-    <div id="cartocss" class="layer_selector">
-        <ul>
-            <li data="spesa-personale-per-abitante" data-type="cartocss" class="cartocss_selected">
-              Spesa per il personale, per abitante (€)
-            </li>
-            <li data="affidabilita-residui-attivi" data-type="cartocss">
-              Affidabilità dei residui attivi (%)
-            </li>
-            <li data="autonomia-finanziaria" data-type="cartocss">
-              Autonomia finanziaria (%)
-            </li>
-        </ul>
-    </div>
-
-
     <!-- include cartodb.js library -->
     <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
 
-    
     <script>
 
-    /**
-     *
-     * 
-     *
-     **/
     window.onload = function() {
+      var tableName = "ob_ind_voci_2013_merge";
 
-        // the published map's json configuration URL (from CartoDB)
-       
-        // 2013
-        // var vizjson = 'https://openpolis.cartodb.com/api/v2/viz/aa59eaa0-2a3c-11e5-b4f1-0e9d821ea90d/viz.json';
-
-        // 2014
-        var vizjson = 'https://openpolis.cartodb.com/api/v2/viz/e685fa2a-62ac-11e5-aa48-0e4fddd5de28/viz.json';
-
-        // maps data attributes in layer_selector's li's to layer's 
-        // order in CartoDB map editor
-        // all layers should be set to visible in CartoDB editor
-        var layers_map = {
-          'spesa-personale-per-abitante': 2,
-          'affidabilita-residui-attivi': 1,
-          'autonomia-finanziaria': 0
-        };
-      
-
-        /**
-         * global function that switches the n-th layer within cartodb_layer on 
-         * (and all other off)
-         *
-         * this function also (re)draws the legend, reading values from the
-         * layer's objects 
-         *
-         * cartodb_layer - the layer in the map containing data sub layers
-         * n             - the layer that has to be switched on; starting from 0
-         **/
-        function switchLayer(cartodb_layer, n){
-          for (var i=0; i<cartodb_layer.getSubLayerCount(); i++) {
-              if (i == n) {
-                cartodb_layer.getSubLayer(i).show();
-              } else {
-                cartodb_layer.getSubLayer(i).hide();
-              }
+      // Put layer data into a JS object
+      var layerSource = {
+              user_name: 'openpolis', 
+              type: 'cartodb',
+              sublayers: [{ 
+                  sql: "SELECT * FROM " + tableName, // All recorded earthquakes past 30 days
+                  cartocss: $("#choropleth").text() // Simple visualization
+              }]
           }
-          
 
-          /**
-           * extract colors array to be used in Legend.Density constructor
-           * using CartoCSS extracted from currently selected layer
-           * and parsed with a regular expression
-           **/
-          var css = cartodb_layer.getSubLayer(n).getCartoCSS();  // the CartoCSS string
-          var r = /polygon-fill: (#.*);/g                        // extract all colors
-          var colors = [];
-          var color;
-          while (color = r.exec(css)) {
-            colors.push(color[1])
-          }
-          colors.shift();                                        // first color is removed, as is the general color
-          colors.reverse();                                      // the array is reversed, to match the legend sorting
+      // For storing the sublayer
+      var sublayer;
 
+      // Instantiate new map object, place it in 'map' element
+      var map_object = new L.Map('map', {
+          center: [41.900,12.483], // Italy
+          zoom: 6
+      });
 
-          /**
-           * create a new instance of densityLegend, with 
-           * title, colors and left and right values read from current layer
-           **/
-          var selected_layer = cartodb_layer.layers[n];
-          var legend = new cdb.geo.ui.Legend.Choropleth({
-           		title: selected_layer.legend.title + "<br/><span style=\"font-size: 9px;\">Dati forniti da <a href='http://www.openbilanci.it'>Openbilanci</a></span>",
-           		show_title: true,
-            	left: selected_layer.legend.items[0].value, 
-            	right: selected_layer.legend.items[1].value, 
-            	colors: colors
-          });
-          legend.model.set('template', '<div>CIAO</div>');
-          
-          $('#map.cartodb-legend').remove();                      // remove legend from DOM
-          $('#map').append(legend.render().el);            // add new legend in DOM
-        }
-      
-        /**
-         * Create event handling for the layer selector
-         **/
-        function createSelector(cartodb_layer) {
-            var cartocss = "";
-            var $options = $(".layer_selector").find("li");
-            
-            $options.click(function(e) {
-                var $li = $(e.target);
-                var selected = $li.attr('data');
+      L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map_object);
 
-                $options.removeClass('cartocss_selected');        // change style for selected li
-                $li.addClass('cartocss_selected');
+      // Add data layer to your map
+      cartodb.createLayer(map_object,layerSource)
+          .addTo(map_object)
+          .done(function(layer) {
+              sublayer = layer.getSubLayer(0);
+          })
+          .error(function(err) {
+              console.log("error: " + err);
+          });   
 
-                switchLayer(cartodb_layer, layers_map[selected]); // show only selected layer
-            });
-        }
-        
-       
-        /**
-         * map visualization
-         **/
-        cartodb.createVis('map', vizjson, {
-          legends: false,
-          center: [42.00, 12.00], // somewhere around Rome
-          zoom: 6,
-          scrollwheel: false,
-          cartodb_logo: false
-        })
-        .done(function(vis, layers) {
-            // find layer with cartodb sublayers
-            var cartodb_layer;
-
-
-            vis.map.set({
-              minZoom: 6,
-              maxZoom: 10
-            });
-            
-            for (var l=0; l<layers.length; l++){
-              if (layers[l].type == 'layergroup') {
-                cartodb_layer = layers[l];
-                break;
-              }
-            }                    
-            createSelector(cartodb_layer);
-            
-            // switch default layer on
-            switchLayer(cartodb_layer, layers_map['spesa-personale-per-abitante']);
-            
-            
-        })
-        .error(function(err) {
-            console.log("An error occurred: " + err);
-        });
-                              
+      $('#map .cartodb-logo').remove();
     }
-
-
     </script>
 
   </body>
