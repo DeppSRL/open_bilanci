@@ -459,7 +459,7 @@ class Command(BaseCommand):
         # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
         # deletes old values before import
         self.prepare_for_import()
-        counter = 100
+        counter = 0
         set_autocommit(False)
         for territorio, city_years in self.import_set.iteritems():
 
@@ -561,7 +561,8 @@ class Command(BaseCommand):
                             # self.logger.info("Execution time for postgres write {}: {}s seconds".format(tipo_bilancio,time.clock()-start_time))
 
                 # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
-                if len(self.considered_somma_funzioni) > 0:
+                # if len(self.considered_somma_funzioni) > 0:
+                if False:
                     self.logger.debug("Somma funzioni patch")
 
                     vb_filters = {
