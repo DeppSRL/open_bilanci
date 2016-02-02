@@ -21,7 +21,7 @@
             {#            composition widget#}
             <div class="tab-content composition-widget-container">
                 <iframe class="composition-widget" frameborder='0'
-                    src="{% url 'composition-widget' widget_type=selected_section territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?values_type={{ values_type }}&cas_com_type={{ cas_com_type }}">
+                    src="{% url 'composition-widget' widget_type=selected_section territorio_slug=territorio.slug bilancio_year=selected_year bilancio_type=tipo_bilancio %}?cas_com_type={{ cas_com_type }}">
 
                 </iframe>
             </div>

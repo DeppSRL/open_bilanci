@@ -15,11 +15,10 @@ class BilancioBaseSitemap(Sitemap):
     def generate_items(self):
 
         # Return list of url names for views to include in sitemap
-        # ?year=2013&type=preventivo&values_type=real&cas_com_type=cassa
+        # ?year=2013&type=preventivo&cas_com_type=cassa
         territori = Territorio.objects.filter(territorio="C").values_list('slug', flat=True)
         years = range(settings.APP_START_YEAR, settings.APP_END_YEAR + 1)
         bilancio_types = ['preventivo', 'consuntivo']
-        values_types = ['real','nominal']
         cas_com_types = ['cassa','competenza']
         section_types = ['entrate','spese']
 
@@ -27,32 +26,28 @@ class BilancioBaseSitemap(Sitemap):
         for territorio in territori:
             for year in years:
                 for bilancio_type in bilancio_types:
-                    for value_type in values_types:
-                        for cas_com_type in cas_com_types:
-
-                            if self.destination_view == 'bilanci-overview':
+                    for cas_com_type in cas_com_types:
+                        if self.destination_view == 'bilanci-overview':
+                            items.append(
+                                {
+                                    'slug': territorio,
+                                    'year':year,
+                                    'type':bilancio_type,
+                                    'cas_com_type': cas_com_type
+                                }
+                            )
+                        else:
+                            for section in section_types:
                                 items.append(
-                                    {
-                                        'slug': territorio,
-                                        'year':year,
-                                        'type':bilancio_type,
-                                        'values_type':value_type,
-                                        'cas_com_type': cas_com_type
-                                    }
-                                )
-                            else:
-                                for section in section_types:
-                                    items.append(
-                                    {
-                                        'slug': territorio,
-                                        'year':year,
-                                        'type':bilancio_type,
-                                        'values_type':value_type,
-                                        'cas_com_type': cas_com_type,
-                                        'section': section
+                                {
+                                    'slug': territorio,
+                                    'year':year,
+                                    'type':bilancio_type,
+                                    'cas_com_type': cas_com_type,
+                                    'section': section
 
-                                    }
-                                )
+                                }
+                            )
 
         return items
 
@@ -66,7 +61,7 @@ class BilancioOverviewSitemap(BilancioBaseSitemap):
     destination_view = 'bilanci-overview'
 
     def location(self, item):
-        query_string = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(item['year'],item['type'], item['values_type'], item['cas_com_type'])
+        query_string = "?year={0}&type={1}&cas_com_type={2}".format(item['year'],item['type'], item['cas_com_type'])
         return reverse('bilanci-overview', kwargs={'slug':item['slug']}, )+ query_string
 
 
@@ -75,7 +70,7 @@ class BilancioComposizioneSitemap(BilancioBaseSitemap):
     destination_view = 'bilanci-composizione'
 
     def location(self, item):
-        query_string = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(item['year'],item['type'], item['values_type'], item['cas_com_type'])
+        query_string = "?year={0}&type={1}&cas_com_type={2}".format(item['year'],item['type'], item['cas_com_type'])
         return reverse(self.destination_view, kwargs={'slug':item['slug'], 'section': item['section']}, )+ query_string
 
 

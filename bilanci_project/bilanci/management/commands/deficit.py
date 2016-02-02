@@ -61,14 +61,6 @@ class Command(BaseCommand):
         slug = options['slug']
 
         ###
-        # type
-        ###
-        values_type = options['type']
-        if values_type not in ['voci', 'indicatori']:
-            self.logger.error(u"Type parameter not accepted. Choose between 'voci' and 'indicatori'.")
-            return
-
-        ###
         # years
         ###
         years = options['years']

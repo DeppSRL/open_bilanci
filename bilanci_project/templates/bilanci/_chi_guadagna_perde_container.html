@@ -28,7 +28,7 @@
                 <div class="col-md-6">
                     <h4>{{ selected_section|upper }}</h4>
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=chiguadagnaperde type=selected_section territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                        {% chi_guadagna_perde voce_set=chiguadagnaperde type=selected_section territorio=territorio tipo_bilancio=tipo_bilancio selected_year=selected_year cas_com_type=cas_com_type %}
                     </div>
                 </div>
             {% else %}
@@ -36,13 +36,13 @@
                 <div class="col-md-6">
                     <h4>ENTRATE</h4>
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde link=chiguadagnaperde_entrate_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                        {% chi_guadagna_perde voce_set=entrate_chiguadagnaperde link=chiguadagnaperde_entrate_link tipo_bilancio=tipo_bilancio selected_year=selected_year cas_com_type=cas_com_type %}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <h4>SPESE</h4>
                     <div class="panel panel-default">
-                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde link=chiguadagnaperde_spese_link tipo_bilancio=tipo_bilancio selected_year=selected_year values_type=values_type cas_com_type=cas_com_type %}
+                        {% chi_guadagna_perde voce_set=spese_chiguadagnaperde link=chiguadagnaperde_spese_link tipo_bilancio=tipo_bilancio selected_year=selected_year cas_com_type=cas_com_type %}
                     </div>
                 </div>
             {% endif %}
