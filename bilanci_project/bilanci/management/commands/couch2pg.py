@@ -381,31 +381,39 @@ class Command(BaseCommand):
 
 
         if 'preventivo' in certificati_to_import:
-            prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
-            prev_spese_dict[u'Spese somma funzioni'] = {}
+            if 'preventivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['preventivo']:
+                prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
+                prev_spese_dict[u'Spese somma funzioni'] = {}
 
-            somma_funzioni(
-                prev_spese_dict['Spese correnti']['funzioni'],
-                prev_spese_dict['Spese per investimenti']['funzioni'],
-                prev_spese_dict[u'Spese somma funzioni']
-            )
+                somma_funzioni(
+                    prev_spese_dict['Spese correnti']['funzioni'],
+                    prev_spese_dict['Spese per investimenti']['funzioni'],
+                    prev_spese_dict[u'Spese somma funzioni']
+                )
 
         if 'consuntivo' in certificati_to_import:
-            cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
-            cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
-            somma_funzioni(
-                cons_spese_cassa_dict['Spese correnti']['funzioni'],
-                cons_spese_cassa_dict['Spese per investimenti']['funzioni'],
-                cons_spese_cassa_dict[u'Spese somma funzioni']
-            )
+            if 'consuntivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['consuntivo'] and\
+                'Impegni' in city_year_budget_dict['consuntivo']['SPESE']:
+                cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
+                cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
+                somma_funzioni(
+                    cons_spese_cassa_dict['Spese correnti']['funzioni'],
+                    cons_spese_cassa_dict['Spese per investimenti']['funzioni'],
+                    cons_spese_cassa_dict[u'Spese somma funzioni']
+                )
 
-            cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
-            cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
-            somma_funzioni(
-                cons_spese_impegni_dict['Spese correnti']['funzioni'],
-                cons_spese_impegni_dict['Spese per investimenti']['funzioni'],
-                cons_spese_impegni_dict[u'Spese somma funzioni']
-            )
+            if 'consuntivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['consuntivo'] and\
+                'Cassa' in city_year_budget_dict['consuntivo']['SPESE']:
+                cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
+                cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
+                somma_funzioni(
+                    cons_spese_impegni_dict['Spese correnti']['funzioni'],
+                    cons_spese_impegni_dict['Spese per investimenti']['funzioni'],
+                    cons_spese_impegni_dict[u'Spese somma funzioni']
+                )
 
 
     def handle(self, *args, **options):
