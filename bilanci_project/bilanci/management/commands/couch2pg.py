@@ -352,45 +352,68 @@ class Command(BaseCommand):
             city_year_budget_dict (dict): dictionary containing the budget from couch
             certificati_to_import (list): which type, preventivo, consuntivo or both
         """
+
+        def somma_funzioni(cor_dict, inv_dict, somma_dict):
+            """Internal function that sums the dictionary keys recursively
+
+            Non-existing dictionary keys, are assigned default zero values
+
+            Args:
+                cor_dict (dict): spese correnti dict (first addendum)
+                inv_dict (dict): investimenti dict (second addendum)
+                somma_dict (dict): dict that will contain the sum
+            """
+            for k in cor_dict:
+                # get values corresponding to the key or zero
+                # if the key is not present in the dict
+                cor = cor_dict.get(k, 0)
+                inv = inv_dict.get(k, 0)
+                if isinstance(cor, dict) and isinstance(inv, dict):
+                    somma_dict[unicode(k)] = {}
+                    somma_funzioni(cor, inv, somma_dict[unicode(k)])
+                elif isinstance(cor, dict) or isinstance(inv, dict):
+                    self.logger.warning(
+                        "Errore in somma funzioni: chiave {0}. Skipping".format(k)
+                    )
+                    continue
+                else:
+                    somma_dict[unicode(k)] = cor + inv
+
+
         if 'preventivo' in certificati_to_import:
-            prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
-            prev_spese_dict[u'Spese somma funzioni'] = {}
-            for k in prev_spese_dict['Spese correnti']['funzioni'].keys():
-                prev_spese_dict['Spese somma funzioni'][unicode(k)] = \
-                    prev_spese_dict['Spese correnti']['funzioni'][k] +\
-                    prev_spese_dict['Spese per investimenti']['funzioni'][k]
+            if 'preventivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['preventivo']:
+                prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
+                prev_spese_dict[u'Spese somma funzioni'] = {}
+
+                somma_funzioni(
+                    prev_spese_dict['Spese correnti']['funzioni'],
+                    prev_spese_dict['Spese per investimenti']['funzioni'],
+                    prev_spese_dict[u'Spese somma funzioni']
+                )
 
         if 'consuntivo' in certificati_to_import:
-            cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
-            cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
-            for k in cons_spese_cassa_dict['Spese correnti']['funzioni'].keys():
+            if 'consuntivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['consuntivo'] and\
+                'Impegni' in city_year_budget_dict['consuntivo']['SPESE']:
+                cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
+                cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
+                somma_funzioni(
+                    cons_spese_cassa_dict['Spese correnti']['funzioni'],
+                    cons_spese_cassa_dict['Spese per investimenti']['funzioni'],
+                    cons_spese_cassa_dict[u'Spese somma funzioni']
+                )
 
-                if isinstance(cons_spese_cassa_dict['Spese correnti']['funzioni'][k], dict):
-                    cons_spese_cassa_dict[u'Spese somma funzioni'][k] = {}
-                    for kk in cons_spese_cassa_dict['Spese correnti']['funzioni'][k]:
-                        cons_spese_cassa_dict['Spese somma funzioni'][unicode(k)][unicode(kk)] = \
-                            cons_spese_cassa_dict['Spese correnti']['funzioni'][k][kk] +\
-                            cons_spese_cassa_dict['Spese per investimenti']['funzioni'][k][kk]
-                else:
-                    cons_spese_cassa_dict['Spese somma funzioni'][unicode(k)] = \
-                        cons_spese_cassa_dict['Spese correnti']['funzioni'][k] +\
-                        cons_spese_cassa_dict['Spese per investimenti']['funzioni'][k]
-
-            cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
-            cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
-            for k in cons_spese_impegni_dict['Spese correnti']['funzioni'].keys():
-
-                if isinstance(cons_spese_impegni_dict['Spese correnti']['funzioni'][k], dict):
-                    cons_spese_impegni_dict[u'Spese somma funzioni'][k] = {}
-                    for kk in cons_spese_impegni_dict['Spese correnti']['funzioni'][k]:
-                        cons_spese_impegni_dict['Spese somma funzioni'][unicode(k)][unicode(kk)] = \
-                            cons_spese_impegni_dict['Spese correnti']['funzioni'][k][kk] +\
-                            cons_spese_impegni_dict['Spese per investimenti']['funzioni'][k][kk]
-                else:
-                    cons_spese_impegni_dict['Spese somma funzioni'][unicode(k)] = \
-                        cons_spese_impegni_dict['Spese correnti']['funzioni'][k] +\
-                        cons_spese_impegni_dict['Spese per investimenti']['funzioni'][k]
-
+            if 'consuntivo' in city_year_budget_dict and\
+                'SPESE' in city_year_budget_dict['consuntivo'] and\
+                'Cassa' in city_year_budget_dict['consuntivo']['SPESE']:
+                cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
+                cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
+                somma_funzioni(
+                    cons_spese_impegni_dict['Spese correnti']['funzioni'],
+                    cons_spese_impegni_dict['Spese per investimenti']['funzioni'],
+                    cons_spese_impegni_dict[u'Spese somma funzioni']
+                )
 
 
     def handle(self, *args, **options):
