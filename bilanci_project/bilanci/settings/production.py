@@ -10,6 +10,7 @@ MAIN_HOST = ['www.openbilanci.it',]
 HOSTS_COMUNI = [
 'openbilanci.comune.fi.it',
 'openbilanci.comune.castiglione.mn.it',
+'openbilanci.comune.spilamberto.mo.it'
 ]
 
 ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI

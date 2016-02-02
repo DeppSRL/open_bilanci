@@ -117,6 +117,7 @@
         {% endif %}
 
      {% if not request.servizi_comuni %}
+     {% comment %}
      <!-- 5xmille  -->
       <script src="https://s3.eu-central-1.amazonaws.com/op-5xmille/5xmille.js"></script>
       <script type="text/javascript">
@@ -127,6 +128,7 @@
           });
       </script>
       <!-- end5xmille  -->
+      {% endcomment %}
       {% endif %}
 
         {% block extra_js %}{% endblock extra_js %}
