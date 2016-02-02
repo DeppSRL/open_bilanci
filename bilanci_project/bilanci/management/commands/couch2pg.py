@@ -86,8 +86,6 @@ class Command(BaseCommand):
     ]
     considered_tipo_bilancio = accepted_bilanci_types
     considered_somma_funzioni = somma_funzioni_branches
-    # somma_funzioni_slug_baseset: dict that stores the slugs needed to compute somma funzioni branches
-    somma_funzioni_slug_baseset = {}
 
     #if the import is partial root_treenode is the root node of the sub-tree to be imported
     root_treenode = None
@@ -101,35 +99,6 @@ class Command(BaseCommand):
     voci_dict = None
     couchdb = None
     comuni_dicts = {}
-
-    def apply_somma_funzioni_patch(self, voce_sum, vb_filters, vb_dict):
-        """
-        Compute spese correnti and spese per investimenti for funzioni, and write into spese-somma
-
-        Overwrite values if found.
-        """
-
-        components = voce_sum.get_components_somma_funzioni()
-        # self.logger.debug("Applying somma_funzioni_patch to {0}".format(voce_sum.slug))
-
-        vb = []
-        for c in components:
-            try:
-                vb.append(vb_dict[c.slug])
-            except KeyError:
-                self.logger.error("Somma funz: cannot find slug: {} in vb_dict".format(c.slug))
-                return
-
-        valore = vb[0]['valore'] + vb[1]['valore']
-        valore_procapite = vb[0]['valore_procapite'] + vb[1]['valore_procapite']
-
-        ValoreBilancio.objects.create(
-            territorio=vb_filters['territorio'],
-            anno=vb_filters['anno'],
-            voce=voce_sum,
-            valore=valore,
-            valore_procapite=valore_procapite
-        )
 
     def create_voci_tree(self, force_google):
         """
@@ -376,14 +345,52 @@ class Command(BaseCommand):
 
         self.logger.info("Done deleting")
 
-        # creates somma_funzioni_slug_baseset
-        for slug in self.considered_somma_funzioni:
-            components = Voce.objects.get(slug=slug).get_components_somma_funzioni()
-            descendants = []
-            for c in components:
-                descendants.extend(c.get_descendants(include_self=True))
+    def patch_somma_funzioni(self, city_year_budget_dict, certificati_to_import):
+        """Patches city_year_budget_dict with sums for Spese correnti and Investimenti
 
-            self.somma_funzioni_slug_baseset[slug] = descendants
+        Args:
+            city_year_budget_dict (dict): dictionary containing the budget from couch
+            certificati_to_import (list): which type, preventivo, consuntivo or both
+        """
+        if 'preventivo' in certificati_to_import:
+            prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
+            prev_spese_dict[u'Spese somma funzioni'] = {}
+            for k in prev_spese_dict['Spese correnti']['funzioni'].keys():
+                prev_spese_dict['Spese somma funzioni'][unicode(k)] = \
+                    prev_spese_dict['Spese correnti']['funzioni'][k] +\
+                    prev_spese_dict['Spese per investimenti']['funzioni'][k]
+
+        if 'consuntivo' in certificati_to_import:
+            cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
+            cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
+            for k in cons_spese_cassa_dict['Spese correnti']['funzioni'].keys():
+
+                if isinstance(cons_spese_cassa_dict['Spese correnti']['funzioni'][k], dict):
+                    cons_spese_cassa_dict[u'Spese somma funzioni'][k] = {}
+                    for kk in cons_spese_cassa_dict['Spese correnti']['funzioni'][k]:
+                        cons_spese_cassa_dict['Spese somma funzioni'][unicode(k)][unicode(kk)] = \
+                            cons_spese_cassa_dict['Spese correnti']['funzioni'][k][kk] +\
+                            cons_spese_cassa_dict['Spese per investimenti']['funzioni'][k][kk]
+                else:
+                    cons_spese_cassa_dict['Spese somma funzioni'][unicode(k)] = \
+                        cons_spese_cassa_dict['Spese correnti']['funzioni'][k] +\
+                        cons_spese_cassa_dict['Spese per investimenti']['funzioni'][k]
+
+            cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
+            cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
+            for k in cons_spese_impegni_dict['Spese correnti']['funzioni'].keys():
+
+                if isinstance(cons_spese_impegni_dict['Spese correnti']['funzioni'][k], dict):
+                    cons_spese_impegni_dict[u'Spese somma funzioni'][k] = {}
+                    for kk in cons_spese_impegni_dict['Spese correnti']['funzioni'][k]:
+                        cons_spese_impegni_dict['Spese somma funzioni'][unicode(k)][unicode(kk)] = \
+                            cons_spese_impegni_dict['Spese correnti']['funzioni'][k][kk] +\
+                            cons_spese_impegni_dict['Spese per investimenti']['funzioni'][k][kk]
+                else:
+                    cons_spese_impegni_dict['Spese somma funzioni'][unicode(k)] = \
+                        cons_spese_impegni_dict['Spese correnti']['funzioni'][k] +\
+                        cons_spese_impegni_dict['Spese per investimenti']['funzioni'][k]
+
 
 
     def handle(self, *args, **options):
@@ -514,6 +521,11 @@ class Command(BaseCommand):
                 # add the totals by extracting them from the dict, or by computing
                 city_year_budget_dict = city_budget[str(year)]
 
+                # patch by adding Spese Somma Funzioni nodes, with subnodes,
+                # summing Spese correnti and Spese per investimenti to a new
+                # key within the budget dict
+                self.patch_somma_funzioni(city_year_budget_dict, certificati_to_import)
+
                 if self.partial_import is True:
                     self.logger.info(u"- Processing year: {}, subtree: {}".format(year, tree_node_slug))
                     # start from a custom node
@@ -559,39 +571,7 @@ class Command(BaseCommand):
                             # start_time = time.clock()
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
                             # self.logger.info("Execution time for postgres write {}: {}s seconds".format(tipo_bilancio,time.clock()-start_time))
-
-                # applies somma-funzioni patch only to the interested somma-funzioni branches (if any)
-                # if len(self.considered_somma_funzioni) > 0:
-                if False:
-                    self.logger.debug("Somma funzioni patch")
-
-                    vb_filters = {
-                        'territorio': territorio,
-                        'anno': year,
-                    }
-                    # start_time = time.clock()
-                    for somma_funzioni_branch in self.considered_somma_funzioni:
-
-                        # get data for somma-funzioni patch, getting only the needed ValoreBilancio using the
-                        # somma_funzioni_slug_baseset
-                        needed_slugs = self.somma_funzioni_slug_baseset[somma_funzioni_branch]
-                        vb = ValoreBilancio.objects. \
-                            filter(**vb_filters). \
-                            filter(voce__slug__in=needed_slugs). \
-                            values_list('voce__slug', 'valore', 'valore_procapite')
-
-                        if len(vb) == 0:
-                            self.logger.debug("Skipping {} branch: no values in db".format(somma_funzioni_branch))
-                            continue
-
-                        vb_dict = dict((v[0], {'valore': v[1], 'valore_procapite': v[2]}) for v in vb)
-
-                        if not self.dryrun:
-                            for voce_slug in Voce.objects.get(slug=somma_funzioni_branch).get_descendants(
-                                    include_self=True):
-                                self.apply_somma_funzioni_patch(voce_slug, vb_filters, vb_dict)
-                        del vb_dict
-                    # self.logger.info("Execution time for somma funzioni write: %.2gs seconds" % (time.clock()-start_time))
+                            tree_models.flush_values_to_vb()
 
             # actually save data into posgres
             self.logger.debug("Write valori bilancio to postgres")
