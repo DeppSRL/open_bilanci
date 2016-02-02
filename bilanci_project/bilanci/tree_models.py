@@ -151,6 +151,13 @@ def make_tree_from_db(voce_node, valori_bilancio):
         return make_composite(*treeitem_children, **voce_node_params)
 
 
+values_list = []
+def flush_values_to_vb():
+    global values_list
+    ValoreBilancio.objects.bulk_create(values_list)
+    values_list = []
+
+
 def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
     """
     Write a record in the VoceBilancio model
@@ -161,6 +168,8 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
     :para valori:         a dict, with valore and valore_procapito values, to be persisted
     :param get_or_create: A flag, signaling whether to use the get_or_create method (slower)
     """
+    global values_list
+
     if get_or_create:
         vb, created = ValoreBilancio.objects.get_or_create(
             territorio=territorio,
@@ -176,13 +185,16 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
             vb.valore_procapite = valori['valore_procapite']
             vb.save()
     else:
-
-        ValoreBilancio(
+        vb = ValoreBilancio(
             territorio=territorio,
             anno=anno,
             voce=voce,
             valore=valori['valore'],
-            valore_procapite=valori['valore_procapite']).save()
+            valore_procapite=valori['valore_procapite']
+        )
+        values_list.append(vb)
+        if len(values_list) > settings.BULK_INSERT_THRESHOLD:
+            flush_values_to_vb()
 
 
 
