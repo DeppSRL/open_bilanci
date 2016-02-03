@@ -1,8 +1,8 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Sum
-
 __author__ = 'stefano'
 import logging
+import multiprocessing
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Sum
 from optparse import make_option
 from pprint import pprint
 from django.conf import settings
@@ -142,20 +142,27 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         comuni = Territorio.objects.filter(territorio="C").order_by('slug')
+        pool = multiprocessing.Pool()
 
-        for c in settings.CAPOLUOGHI_PROVINCIA:
-            self.logger.info("Checking {}".format(c))
-            ret = check_city(c)
+        self.logger.info(u"Start calculation...")
+        results = [pool.apply_async(check_city, (p,)) for p in settings.CAPOLUOGHI_PROVINCIA]
+        for ret in results:
             if ret:
+                ret = ret.get()
                 for line in ret:
-                    self.logger.warning("City:{}, year:{}, voce:{}, value_voce:{}, value_children:{}, diff:{}".format(
-                        line['city_slug'],
-                        line['anno'],
-                        line['voce_slug'],
-                        line['totale_voce'],
-                        line['totale_children'],
-                        line['diff'],
-                    ))
+
+                    if line['totale_voce'] is None and line['totale_children'] is None and  line['diff'] is None:
+                        self.logger.warning("City:{}, year:{}, voce:{} is missing".format(line['city_slug'], line['anno'],line['voce_slug']))
+                    else:
+
+                        self.logger.warning("City:{}, year:{}, voce:{}, value_voce:{}, value_children:{}, diff:{}".format(
+                            line['city_slug'],
+                            line['anno'],
+                            line['voce_slug'],
+                            line['totale_voce'],
+                            line['totale_children'],
+                            line['diff'],
+                        ))
     
         return
 
