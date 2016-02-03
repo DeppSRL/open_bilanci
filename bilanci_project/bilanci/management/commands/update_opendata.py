@@ -79,6 +79,12 @@ class Command(BaseCommand):
             couchdb_server_settings=settings.COUCHDB_SERVERS[couchdb_server_alias]
         )
 
+    def create_if_not_exist(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
+            return False
+        return True
+
     def handle(self, *args, **options):
         verbosity = options['verbosity']
         if verbosity == '0':
@@ -148,6 +154,10 @@ class Command(BaseCommand):
         xml_path = os.path.join(output_abs_path, 'xml')
         zip_path = os.path.join(output_abs_path, 'zip')
 
+        self.create_if_not_exist(csv_path)
+        self.create_if_not_exist(xml_path)
+        self.create_if_not_exist(zip_path)
+
         # build the map of slug to pk for the Voce tree
         self.voci_dict = Voce.objects.get_dict_by_slug()
 
@@ -155,10 +165,8 @@ class Command(BaseCommand):
 
             # check city path (skip if existing and skip-existing active)
             city_path = os.path.join(csv_path, city)
-            if not os.path.exists(city_path):
-                os.makedirs(city_path)
-            else:
-                # if the file for the city already exists and
+            if self.create_if_not_exist(city_path):
+                # if the folder for the city already exists and
                 # skip-existing was specified then skips
                 if skip_existing:
                     self.logger.info(u"Skipping city of {}, as already processed".format(city))
@@ -179,9 +187,7 @@ class Command(BaseCommand):
 
                 # check year path
                 year_path = os.path.join(city_path, str(year))
-                if not os.path.exists(year_path):
-                    os.mkdir(year_path)
-
+                self.create_if_not_exist(year_path)
 
                 # if for current city/year was imported a XML bilancio, then skips the Couchdb data, xml file
                 # will be provided instead
@@ -196,8 +202,7 @@ class Command(BaseCommand):
                 # save preventivo
                 self.logger.debug("    Preventivo")
                 prev_path = os.path.join(year_path, 'preventivo')
-                if not os.path.exists(prev_path):
-                    os.mkdir(prev_path)
+                self.create_if_not_exist(prev_path)
 
                 preventivo = city_budget.get('preventivo', None)
                 if preventivo:
@@ -217,8 +222,7 @@ class Command(BaseCommand):
 
                 self.logger.debug("    Consuntivo")
                 cons_path = os.path.join(year_path, 'Consuntivo')
-                if not os.path.exists(cons_path):
-                    os.mkdir(cons_path)
+                self.create_if_not_exist(cons_path)
 
                 consuntivo = city_budget.get('consuntivo', None)
 
@@ -229,10 +233,6 @@ class Command(BaseCommand):
             # if the zip file is requested, creates the zip folder,
             # creates zip file
             if compress:
-
-                if not os.path.exists(zip_path):
-                    os.mkdir(zip_path)
-
                 zipfilename = os.path.join(zip_path, "{}.zip".format(city))
 
                 # zips the csv and the xml folders and creates a zip file containing both
