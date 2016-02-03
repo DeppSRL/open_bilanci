@@ -375,7 +375,7 @@ COUCHDB_SERVERS = {
 }
 COUCHDB_DEFAULT_SERVER = 'staging'
 # number of bilanci to be copied in bulk while doing the normalization
-COUCH_TRANSLATION_BULK_SIZE=30
+COUCH_TRANSLATION_BULK_SIZE=100
 
 CACHES = {
     "default": {
@@ -544,4 +544,4 @@ ENABLED_STATIC_PAGES = [
 
 # number of values of VoceBilancio that triggers the
 # bulk insert (speeds insertion)
-BULK_INSERT_THRESHOLD = 1000
+BULK_INSERT_THRESHOLD = 5000
