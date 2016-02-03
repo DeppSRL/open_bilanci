@@ -527,7 +527,7 @@ class IncarichiGetterMixin(object):
     # transform bilancio values to be feeded to Visup widget
     ##
 
-    def transform_for_widget(self, voce_values, line_id, line_color, decimals=0, values_type='real', per_capita=False):
+    def transform_for_widget(self, voce_values, line_id, line_color, decimals=0, per_capita=False):
 
         line_dict = {
             'id': line_id,
@@ -546,11 +546,7 @@ class IncarichiGetterMixin(object):
                 value_to_consider = voce_value.get('valore_procapite', None)
 
             if value_to_consider is not None:
-                # real values are multiplied by GDP_DEFLATOR rates
-                if values_type == 'real':
-                    valore = value_to_consider * settings.GDP_DEFLATORS[voce_value['anno']]
-                else:
-                    valore = value_to_consider
+                valore = value_to_consider
 
                 serie.append(
                     [voce_value['anno'], round(valore, decimals)]
@@ -589,7 +585,7 @@ class IncarichiGetterMixin(object):
     # get bilancio values of specified Voce for Territorio in the time span
     ##
 
-    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color, values_type='real', per_capita=False):
+    def get_voce_struct(self, territorio, voce_bilancio, line_id, line_color, per_capita=False):
 
         voce_values = ValoreBilancio.objects.filter(
             territorio=territorio,
@@ -598,8 +594,7 @@ class IncarichiGetterMixin(object):
             anno__lte=self.timeline_end_date.year
         ).values('anno', 'valore', 'valore_procapite').order_by('anno')
 
-        return self.transform_for_widget(voce_values, line_id, line_color, values_type=values_type,
-                                         per_capita=per_capita)
+        return self.transform_for_widget(voce_values, line_id, line_color, per_capita=per_capita)
 
     ##
     # get indicatori values of specified Indicatore for Territorio in the time span
@@ -614,7 +609,7 @@ class IncarichiGetterMixin(object):
             anno__lte=self.timeline_end_date.year
         ).values('anno', 'valore').order_by('anno')
 
-        return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2, values_type='nominal')
+        return self.transform_for_widget(indicatore_values, line_id, line_color, decimals=2)
 
 
 class IncarichiVoceJSONView(View, IncarichiGetterMixin):
@@ -646,7 +641,6 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             voce_bilancio,
             line_id=1,
             line_color=settings.TERRITORIO_1_COLOR,
-            values_type=self.request.GET.get('values_type', 'real'),
             per_capita=True
         )
 
@@ -655,7 +649,6 @@ class IncarichiVoceJSONView(View, IncarichiGetterMixin):
             voce_bilancio,
             line_id=2,
             line_color=settings.CLUSTER_LINE_COLOR,
-            values_type=self.request.GET.get('values_type', 'real'),
             per_capita=True
         )
 
@@ -759,20 +752,15 @@ class IncarichiIndicatoriJSONView(View, IncarichiGetterMixin, IndicatorSlugVerif
 
 class CalculateVariationsMixin(object):
     somma_funzioni_affix = '-spese-somma-funzioni'
-    main_gdp_deflator = comp_gdb_deflator = None
-    main_gdp_multiplier = comp_gdp_multiplier = 1.0
-
-
     # calculates the % variation of main_value compared to comparison_values
-    # adjusting the values with gdp deflator if needed
 
     def calculate_variation(self, main_val, comp_val, ):
 
         if main_val is None or comp_val is None:
             return None
 
-        deflated_main_val = float(main_val) * self.main_gdp_multiplier
-        deflated_comp_val = float(comp_val) * self.comp_gdp_multiplier
+        deflated_main_val = float(main_val)
+        deflated_comp_val = float(comp_val)
 
         if deflated_comp_val != 0 and deflated_main_val != 0:
             # sets 2 digit precision for variation after decimal point
@@ -898,12 +886,9 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
     serie_start_year = settings.APP_START_YEAR
     serie_end_year = settings.APP_END_DATE.year
     widget_type = None
-    main_gdp_deflator = comp_gdb_deflator = None
-    main_gdp_multiplier = comp_gdp_multiplier = 1.0
     main_bilancio_year = main_bilancio_type = None
     comp_bilancio_year = comp_bilancio_type = None
     comparison_available = True
-    values_type = None
     cas_com_type = None
 
     # data struct for main bilancio / comparison bilancio entrate/spese
@@ -967,11 +952,9 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
         # get params from GET
         # identifies territorio, bilancio yr, bilancio type for main bilancio
         # calculates the best comparison yr and comparison bilancio type
-        # set gdp deflator / multiplier for selected yrs
         # set the right template based on widget type
         ##
 
-        self.values_type = self.request.GET.get('values_type', 'real')
         self.cas_com_type = self.request.GET.get('cas_com_type', 'cassa')
         self.main_bilancio_year = int(kwargs.get('bilancio_year', settings.APP_END_YEAR))
         self.main_bilancio_type = kwargs.get('bilancio_type', 'consuntivo')
@@ -1005,17 +988,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
         if self.comp_bilancio_year is None:
             self.comparison_available = False
-
-        # sets current gdp deflator
-        self.main_gdp_deflator = settings.GDP_DEFLATORS[int(self.main_bilancio_year)]
-
-        if self.comparison_available:
-            self.comp_gdb_deflator = settings.GDP_DEFLATORS[int(self.comp_bilancio_year)]
-
-        if self.values_type == 'real':
-            self.main_gdp_multiplier = self.main_gdp_deflator
-            if self.comparison_available:
-                self.comp_gdp_multiplier = self.comp_gdb_deflator
 
         if self.widget_type == 'overview':
             self.template_name = 'bilanci/composizione_bilancio.html'
@@ -1089,14 +1061,14 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             # unpacks year values for the considered voice of entrate/spese
             for index, single_value in enumerate(main_value_set):
-                single_value_deflated = float(single_value['valore']) * self.main_gdp_multiplier
-                single_value_pc_deflated = float(single_value['valore_procapite']) * self.main_gdp_multiplier
+                value = float(single_value['valore'])
+                value_pc = float(single_value['valore_procapite'])
 
-                value_dict['series'].append([single_value['anno'], single_value_deflated])
+                value_dict['series'].append([single_value['anno'], value])
 
                 if single_value['anno'] == self.main_bilancio_year:
-                    value_dict['value'] = round(single_value_deflated, 0)
-                    value_dict['procapite'] = single_value_pc_deflated
+                    value_dict['value'] = round(value, 0)
+                    value_dict['procapite'] = value_pc
 
                     #insert the % of variation between main_bilancio and comparison bilancio
                     value_dict['variation'] = variations[main_value_denominazione]
@@ -1155,14 +1127,14 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
 
             # unpacks year values for the considered voice of entrate/spese
             for index, single_value in enumerate(main_value_set):
-                single_value_deflated = float(single_value['valore']) * self.main_gdp_multiplier
-                single_value_pc_deflated = float(single_value['valore_procapite']) * self.main_gdp_multiplier
+                value = float(single_value['valore'])
+                value_pc = float(single_value['valore_procapite'])
 
-                value_dict['series'].append([single_value['anno'], single_value_deflated])
+                value_dict['series'].append([single_value['anno'], value])
 
                 if single_value['anno'] == self.main_bilancio_year:
-                    value_dict['value'] = round(single_value_deflated, 0)
-                    value_dict['procapite'] = single_value_pc_deflated
+                    value_dict['value'] = round(value, 0)
+                    value_dict['procapite'] = value_pc
 
                     #insert the % of variation between main_bilancio and comparison bilancio
                     value_dict['variation'] = variations[main_value_denominazione]
@@ -1265,8 +1237,8 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
             'label': "Entrate - Totale",
             'sublabel1': "",
             'sublabel2': "SUL {0} {1}".format(self.comp_bilancio_type, self.comp_bilancio_year),
-            'value': float(e_main_totale['valore']) * self.main_gdp_multiplier,
-            'value_procapite': float(e_main_totale['valore_procapite']) * self.main_gdp_multiplier,
+            'value': float(e_main_totale['valore']),
+            'value_procapite': float(e_main_totale['valore_procapite']),
             'variation': None,
         }
         # standard spese totale widget
@@ -1275,8 +1247,8 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
             'label': "Spese - Totale",
             'sublabel1': "",
             'sublabel2': "SUL {0} {1}".format(self.comp_bilancio_type, self.comp_bilancio_year),
-            'value': float(s_main_totale['valore']) * self.main_gdp_multiplier,
-            'value_procapite': float(s_main_totale['valore_procapite']) * self.main_gdp_multiplier,
+            'value': float(s_main_totale['valore']),
+            'value_procapite': float(s_main_totale['valore_procapite']),
             'variation': None,
         }
 
@@ -1378,10 +1350,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
                             spese = ValoreBilancio.objects.get(anno=year, voce__slug=self.main_tot_s,
                                                                territorio=self.territorio).valore
 
-                            if self.values_type == 'real':
-                                entrate = float(entrate) * settings.GDP_DEFLATORS[year]
-                                spese = float(spese) * settings.GDP_DEFLATORS[year]
-
                         except ObjectDoesNotExist:
                             continue
                         else:
@@ -1428,8 +1396,6 @@ class CompositionWidgetView(CalculateVariationsMixin, TemplateView):
         context['comparison_bilancio_type'] = self.comp_bilancio_type
         context['comparison_bilancio_year'] = self.comp_bilancio_year
         context['cas_com_type'] = self.cas_com_type
-        context['values_type'] = self.values_type
-
         return context
 
 
@@ -1612,11 +1578,8 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     main_bilancio_year = comp_bilancio_year = None
     main_bilancio_type = comp_bilancio_type = None
     main_bilancio_xml = comp_bilancio_xml = False
-    main_gdp_deflator = comp_gdb_deflator = None
-    main_gdp_multiplier = comp_gdp_multiplier = 1.0
     latest_bilancio_tuple = None
     territorio = None
-    values_type = None
     cas_com_type = None
     fun_int_view = None
     share_url = None
@@ -1764,10 +1727,9 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
     def get_bilancio_url(self):
         # given all the variables, builds the url to redirect the app to the right bilancio page
 
-        querystring = "?year={0}&type={1}&values_type={2}&cas_com_type={3}".format(
+        querystring = "?year={0}&type={1}&cas_com_type={2}".format(
             self.main_bilancio_year,
             self.main_bilancio_type,
-            self.values_type,
             self.cas_com_type
         )
 
@@ -1809,8 +1771,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         if self.selected_section not in self.accepted_bilancio_sections:
             return False
         if self.cas_com_type != 'cassa' and self.cas_com_type != 'competenza':
-            return False
-        if self.values_type != 'real' and self.values_type != 'nominal':
             return False
         if self.fun_int_view != 'funzioni' and self.fun_int_view != 'interventi':
             return False
@@ -1870,7 +1830,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
 
         # check low-priority parameters, forcing default values as fallback
         self.selected_section = kwargs.get('section', 'overview')
-        self.values_type = self.request.GET.get('values_type', 'real')
         self.fun_int_view = self.request.GET.get('fun_int_view', 'funzioni')
 
         if self.main_bilancio_type == "preventivo":
@@ -1926,17 +1885,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         # identifies the bilancio for comparison
         self.set_comparison_bilancio()
 
-        # sets current gdp deflator / multiplier
-        self.main_gdp_deflator = settings.GDP_DEFLATORS[self.main_bilancio_year]
-
-        if self.comp_bilancio_available:
-            self.comp_gdb_deflator = settings.GDP_DEFLATORS[self.comp_bilancio_year]
-
-        if self.values_type == 'real':
-            self.main_gdp_multiplier = self.main_gdp_deflator
-            if self.comp_bilancio_available:
-                self.comp_gdp_multiplier = self.comp_gdb_deflator
-
         # check if bilancio main / comparison have been imported from xml file
         self.main_bilancio_xml = ImportXmlBilancio.import_exists(self.territorio, self.main_bilancio_year,
                                                               self.main_bilancio_type)
@@ -1966,7 +1914,6 @@ class BilancioOverView(ShareUrlMixin, CalculateVariationsMixin, BilancioView):
         context['query_string'] = query_string
         context['selected_year'] = str(self.main_bilancio_year)
         context['selector_default_year'] = settings.CLASSIFICHE_END_YEAR
-        context['values_type'] = self.values_type
         context['cas_com_type'] = self.cas_com_type
 
         context['main_bilancio_xml'] = self.main_bilancio_xml
@@ -2114,13 +2061,13 @@ class BilancioDettaglioView(BilancioOverView):
 
             absolute_values = dict(
                 map(
-                    lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                    lambda x: (x[0], x[1]),
                     absolute_values
                 )
             )
             percapita_values = dict(
                 map(
-                    lambda x: (x[0], x[1] * self.main_gdp_multiplier),
+                    lambda x: (x[0], x[1]),
                     percapita_values
                 )
             )
@@ -2202,7 +2149,6 @@ class BilancioDettaglioView(BilancioOverView):
         if self.main_bilancio_type == 'consuntivo' and settings.CLASSIFICHE_START_YEAR <= self.main_bilancio_year <= settings.CLASSIFICHE_END_YEAR:
             context['link_to_classifiche_available'] = True
 
-        context['values_type'] = self.values_type
         context['query_string'] = query_string
         context['year'] = self.main_bilancio_year
         context['bilancio_type'] = self.main_bilancio_type

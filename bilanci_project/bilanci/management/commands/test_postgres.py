@@ -85,7 +85,6 @@ years_to_check = range(settings.APP_START_YEAR, settings.APP_END_YEAR)
 def check_city(city_slug):
     errors = []
     for voce_slug in nodes_to_check:
-        print voce_slug
         for anno in years_to_check:
             totale_children=0
             totale_voce=0

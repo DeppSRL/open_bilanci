@@ -34,9 +34,9 @@
 
             {# values type    #}
             {% if tipo_bilancio == "consuntivo" %}
-                {% section_values_type cas_com_type=cas_com_type values_type=values_type tooltip=True %}
+                {% section_values_type cas_com_type=cas_com_type tooltip=True %}
             {% else %}
-                {% section_values_type values_type=values_type tooltip=True %}
+                {% section_values_type tooltip=True %}
             {% endif %}
 
             {#   settings menu  #}
@@ -85,25 +85,6 @@
                                             {% if selected_bilancio_type == "preventivo" %}style="color:#d3d3d3"{% endif %}>
                                             Competenza {% popover_info 'competenza' %}
                                         </label>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <ul class="list-group">
-                            <li class="list-group-item label">Valori</li>
-                            <li class="list-group-item">
-                                <div class="row">
-                                    <div class="col-md-5">
-                                        <input type="radio" value="real"
-                                                   {% if values_type == "real" %}checked="checked"{% endif %}
-                                                   id="values_type_real" name="values_type">
-                                        <label for="values_type_real">Reali {% popover_info 'valore-reale' %}</label>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <input type="radio" value="nominal"
-                                                   {% if values_type == "nominal" %}checked="checked"{% endif %}
-                                                   id="values_type_nominal" name="values_type">
-                                        <label for="values_type_nominal">Nominali {% popover_info 'valore-nominale' %}</label>
                                     </div>
                                 </div>
                             </li>

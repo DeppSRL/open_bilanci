@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import logging
 from optparse import make_option
+import os
 from pprint import pprint
 from os import listdir
 from os.path import isfile, join
@@ -610,6 +611,12 @@ class Command(BaseCommand):
         else:
             # directly import xml files in default folder for bilancio XML
             xml_path = settings.OPENDATA_XML_ROOT
+
+            # if the folder doesnt exist, create the folder
+            if not os.path.exists(xml_path):
+                self.logger.error("XML folder {} not found! Created now".format(xml_path))
+                os.makedirs(xml_path)
+
             xml_files = [f for f in listdir(xml_path) if isfile(join(xml_path, f))]
             for f in xml_files:
                 self.logger.info(u"Import XML bilancio file:'{}'".format(f))

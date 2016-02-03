@@ -396,26 +396,6 @@ SOUTH_TESTS_MIGRATE = False
 # Application variables
 ##
 
-GDP_DEFLATORS = {
-    2000: 0.777728432,
-    2001: 0.800109527,
-    2002: 0.825777358,
-    2003: 0.851531437,
-    2004: 0.871901728,
-    2005: 0.887745029,
-    2006: 0.902904158,
-    2007: 0.924337811,
-    2008: 0.947752751,
-    2009: 0.967550814,
-    2010: 0.971307248,
-    2011: 0.984445032,
-    2012: 1,
-    2013: 1.014412693,
-    # TODO: update with real deflator value
-    2014: 1.014412693,
-    2015: 1.014412693,
-}
-
 CAPOLUOGHI_PROVINCIA = [u'agrigento-comune-ag', u'alessandria-comune-al', u'ancona-comune-an', u'andria-comune-bt',
                         u'aosta-comune-ao', u'arezzo-comune-ar', u'ascoli-piceno-comune-ap',
                         u'asti-comune-at', u'avellino-comune-av', u'bari-comune-ba', u'barletta-comune-bt',

@@ -13,9 +13,9 @@
 {% endif %}
 
 <span class="values_type">
-    VALORI {% if per_capita %}PROCAPITE{% endif %} {% if values_type == 'real' %}REALI {% else %} NOMINALI{% endif %}
+    VALORI {% if per_capita %}PROCAPITE{% endif %} NOMINALI
     {% if tooltip %}
-        {% if values_type == 'real' %}{% popover_info 'valore-reale' %}{% else %}{% popover_info 'valore-nominale' %}{% endif %}
+        {% popover_info 'valore-nominale' %}
     {% endif %}
 </span>
 
