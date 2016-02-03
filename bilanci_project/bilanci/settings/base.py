@@ -564,4 +564,4 @@ ENABLED_STATIC_PAGES = [
 
 # number of values of VoceBilancio that triggers the
 # bulk insert (speeds insertion)
-BULK_INSERT_THRESHOLD = 1000
+BULK_INSERT_THRESHOLD = 5000
