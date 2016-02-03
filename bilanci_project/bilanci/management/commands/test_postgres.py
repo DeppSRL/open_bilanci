@@ -146,23 +146,25 @@ class Command(BaseCommand):
 
         self.logger.info(u"Start calculation...")
         results = [pool.apply_async(check_city, (p,)) for p in settings.CAPOLUOGHI_PROVINCIA]
-        for ret in results:
-            if ret:
-                ret = ret.get()
-                for line in ret:
+        for result in results:
 
-                    if line['totale_voce'] is None and line['totale_children'] is None and  line['diff'] is None:
-                        self.logger.warning("City:{}, year:{}, voce:{} is missing".format(line['city_slug'], line['anno'],line['voce_slug']))
-                    else:
+            ret = result.get()
+            if ret is None:
+                continue
+            for line in ret:
 
-                        self.logger.warning("City:{}, year:{}, voce:{}, value_voce:{}, value_children:{}, diff:{}".format(
-                            line['city_slug'],
-                            line['anno'],
-                            line['voce_slug'],
-                            line['totale_voce'],
-                            line['totale_children'],
-                            line['diff'],
-                        ))
+                if line['totale_voce'] is None and line['totale_children'] is None and  line['diff'] is None:
+                    self.logger.warning("City:{}, year:{}, voce:{} is missing".format(line['city_slug'], line['anno'],line['voce_slug']))
+                else:
+
+                    self.logger.warning("City:{}, year:{}, voce:{}, value_voce:{}, value_children:{}, diff:{}".format(
+                        line['city_slug'],
+                        line['anno'],
+                        line['voce_slug'],
+                        line['totale_voce'],
+                        line['totale_children'],
+                        line['diff'],
+                    ))
     
         return
 
