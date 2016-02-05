@@ -428,8 +428,9 @@ class Command(BaseCommand):
         if not self.dryrun:
             if not os.path.exists(xml_path):
                 os.makedirs(xml_path)
-
-            shutil.copyfile(src=input_file_path, dst=destination_file)
+            # avoid error if it's the same file
+            if input_file_path != destination_file:
+                shutil.copyfile(src=input_file_path, dst=destination_file)
         self.logger.info("Copied Xml file to {}".format(destination_file))
 
         self.logger.info("** Update open data zip file for {} **".format(self.territorio.denominazione))
