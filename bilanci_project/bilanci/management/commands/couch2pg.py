@@ -1,22 +1,154 @@
 from collections import OrderedDict
 import logging
+import multiprocessing
 from optparse import make_option
 import os
 from pprint import pprint
 from os import listdir
 from os.path import isfile, join
+from django import db
 from django.conf import settings
 from django.core.management import BaseCommand, call_command
-from django.db import connection
-from django.db.transaction import set_autocommit, commit
 from django.utils.text import slugify
-import time
 from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
 from bilanci.utils import couch, gdocs, email_utils
 from bilanci.utils.comuni import FLMapper
 from territori.models import Territorio, ObjectDoesNotExist
 from .somma_funzioni import SommaFunzioniMixin
+
+
+def patch_somma_funzioni(city_year_budget_dict, certificati_to_import):
+    """Patches city_year_budget_dict with sums for Spese correnti and Investimenti
+
+    Args:
+        city_year_budget_dict (dict): dictionary containing the budget from couch
+        certificati_to_import (list): which type, preventivo, consuntivo or both
+    """
+
+    def somma_funzioni(cor_dict, inv_dict, somma_dict):
+        """Internal function that sums the dictionary keys recursively
+
+        Non-existing dictionary keys, are assigned default zero values
+
+        Args:
+            cor_dict (dict): spese correnti dict (first addendum)
+            inv_dict (dict): investimenti dict (second addendum)
+            somma_dict (dict): dict that will contain the sum
+        """
+        for k in cor_dict:
+            # get values corresponding to the key or zero
+            # if the key is not present in the dict
+            cor = cor_dict.get(k, 0)
+            inv = inv_dict.get(k, 0)
+            if isinstance(cor, dict) and isinstance(inv, dict):
+                somma_dict[unicode(k)] = {}
+                somma_funzioni(cor, inv, somma_dict[unicode(k)])
+            elif isinstance(cor, dict) or isinstance(inv, dict):
+                print "WARNING Errore in somma funzioni: chiave {0}. Skipping".format(k)
+                continue
+            else:
+                somma_dict[unicode(k)] = cor + inv
+
+
+    if 'preventivo' in certificati_to_import:
+        if 'preventivo' in city_year_budget_dict and \
+                        'SPESE' in city_year_budget_dict['preventivo']:
+            prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
+            prev_spese_dict[u'Spese somma funzioni'] = {}
+
+            somma_funzioni(
+                prev_spese_dict['Spese correnti']['funzioni'],
+                prev_spese_dict['Spese per investimenti']['funzioni'],
+                prev_spese_dict[u'Spese somma funzioni']
+            )
+
+    if 'consuntivo' in certificati_to_import:
+        if 'consuntivo' in city_year_budget_dict and \
+                        'SPESE' in city_year_budget_dict['consuntivo'] and \
+                        'Impegni' in city_year_budget_dict['consuntivo']['SPESE']:
+            cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
+            cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
+            somma_funzioni(
+                cons_spese_cassa_dict['Spese correnti']['funzioni'],
+                cons_spese_cassa_dict['Spese per investimenti']['funzioni'],
+                cons_spese_cassa_dict[u'Spese somma funzioni']
+            )
+
+        if 'consuntivo' in city_year_budget_dict and \
+                        'SPESE' in city_year_budget_dict['consuntivo'] and \
+                        'Cassa' in city_year_budget_dict['consuntivo']['SPESE']:
+            cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
+            cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
+            somma_funzioni(
+                cons_spese_impegni_dict['Spese correnti']['funzioni'],
+                cons_spese_impegni_dict['Spese per investimenti']['funzioni'],
+                cons_spese_impegni_dict[u'Spese somma funzioni']
+            )
+
+
+def map_tree(territorio, populations, city_budget, city_years, partial_import, tree_node_slug, couch_path, voci_dict):
+    results = []
+    city_finloc = territorio.cod_finloc
+    for year, certificati_to_import in city_years.iteritems():
+        if str(year) not in city_budget:
+            # logger.warning(u" {} - {} not found. Skip".format(city_finloc, year))
+            print "WARNING '{}' YEAR:{} not found".format(city_finloc, year)
+            continue
+
+        # POPULATION
+        # fetch valid population, starting from this year
+        # if no population found, set it to None, as not to break things
+        population = populations.get(year, None)
+
+        # build a BilancioItem tree, out of the couch-extracted dict
+        # for the given city and year
+        # add the totals by extracting them from the dict, or by computing
+        city_year_budget_dict = city_budget[str(year)]
+
+        # patch by adding Spese Somma Funzioni nodes, with subnodes,
+        # summing Spese correnti and Spese per investimenti to a new
+        # key within the budget dict
+        patch_somma_funzioni(city_year_budget_dict, certificati_to_import)
+
+        if partial_import is True:
+            # start from a custom node
+            path_not_found = False
+            city_year_budget_node_dict = city_year_budget_dict.copy()
+
+            # get the starting node in couchdb data
+            for k in couch_path:
+                try:
+                    city_year_budget_node_dict = city_year_budget_node_dict[k]
+                except KeyError:
+                    print "couch path:{} not present for {}, anno:{}".format(couch_path, territorio.cod_finloc,
+                                                                             str(year))
+                    path_not_found = True
+                    break
+
+            # if data path is found in the couch document, write data into postgres db
+            if not path_not_found:
+                city_year_node_tree_patch = tree_models.make_tree_from_dict(
+                    city_year_budget_node_dict, voci_dict, path=[tree_node_slug],
+                    population=population
+                )
+
+                # writes new sub-tree
+                results.append((territorio, year, city_year_node_tree_patch))
+        else:
+            # import tipo_bilancio considered
+            # normally is preventivo and consuntivo
+            # otherwise only one of them
+            for tipo_bilancio in certificati_to_import:
+                certificato_tree = tree_models.make_tree_from_dict(
+                    city_year_budget_dict[tipo_bilancio], voci_dict, path=[unicode(tipo_bilancio)],
+                    population=population
+                )
+                if len(certificato_tree.children) == 0:
+                    continue
+                results.append((territorio, year, certificato_tree))
+
+    return results
 
 
 class Command(BaseCommand):
@@ -39,10 +171,6 @@ class Command(BaseCommand):
                     dest='cities',
                     default='',
                     help='Cities codes or slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
-        make_option('--start-from',
-                    dest='start_from',
-                    default='',
-                    help='Start importing cities from such city. Use codfinloc: GARAGUSO--4170470090'),
         make_option('--couchdb-server',
                     dest='couchdb_server',
                     default=settings.COUCHDB_DEFAULT_SERVER,
@@ -230,34 +358,29 @@ class Command(BaseCommand):
 
         self.years = years_list
 
-    def set_cities(self, cities_codes, start_from):
+    def set_cities(self, cities_codes):
         # set considered cities
         mapper = FLMapper()
 
         if not cities_codes:
-            if start_from:
-                cities_codes = 'all'
-                all_cities = mapper.get_cities(cities_codes, logger=self.logger)
-                try:
-                    cities_finloc = all_cities[all_cities.index(start_from):]
-                except ValueError:
-                    raise Exception("Start-from city not found in cities complete list, use name--cod_finloc. "
-                                    "Example: ZUNGRI--4181030500")
-                else:
-                    self.logger.info("Processing cities starting from: {0}".format(start_from))
-            else:
-                raise Exception("Missing cities parameter or start-from parameter")
+            raise Exception("Missing cities parameter or start-from parameter")
 
         else:
             cities_finloc = mapper.get_cities(cities_codes, logger=self.logger)
 
         finloc_numbers = [c[-10:] for c in cities_finloc]
+
+        territorio_finlocs = {t['cod_finloc'][-10:]: t['slug'] for t in
+                              Territorio.objects.filter(territorio="C").order_by('slug').values('cod_finloc', 'slug')}
+
         slug_list = []
         for numb in finloc_numbers:
-            try:
-                slug_list.append(Territorio.objects.get(territorio="C", cod_finloc__endswith=numb).slug)
-            except ObjectDoesNotExist:
-                self.logger.warning(u"City with codfinloc:{} not found, skip".format(numb))
+            if numb == "ICE_COMUNE":
+                continue
+            if numb in territorio_finlocs.keys():
+                slug_list.append(territorio_finlocs[numb])
+            else:
+                self.logger.warning(u"City with codfinloc:'{}' not found in Postgres DB, skip".format(numb))
                 self.cities_not_found.append(numb)
 
         self.cities = Territorio.objects.filter(territorio="C", slug__in=slug_list)
@@ -338,83 +461,13 @@ class Command(BaseCommand):
         if not self.dryrun and ValoreBilancio.objects.all().count() > 0:
             if self.partial_import is False and self.cities_param.lower() == 'all':
                 # sql query to delete all values in ValoreBilancio table: this should cut the time
-                cursor = connection.cursor()
+                cursor = db.connection.cursor()
                 cursor.execute("TRUNCATE bilanci_valorebilancio", )
 
             else:
                 values_to_delete.delete()
 
         self.logger.info("Done deleting")
-
-    def patch_somma_funzioni(self, city_year_budget_dict, certificati_to_import):
-        """Patches city_year_budget_dict with sums for Spese correnti and Investimenti
-
-        Args:
-            city_year_budget_dict (dict): dictionary containing the budget from couch
-            certificati_to_import (list): which type, preventivo, consuntivo or both
-        """
-
-        def somma_funzioni(cor_dict, inv_dict, somma_dict):
-            """Internal function that sums the dictionary keys recursively
-
-            Non-existing dictionary keys, are assigned default zero values
-
-            Args:
-                cor_dict (dict): spese correnti dict (first addendum)
-                inv_dict (dict): investimenti dict (second addendum)
-                somma_dict (dict): dict that will contain the sum
-            """
-            for k in cor_dict:
-                # get values corresponding to the key or zero
-                # if the key is not present in the dict
-                cor = cor_dict.get(k, 0)
-                inv = inv_dict.get(k, 0)
-                if isinstance(cor, dict) and isinstance(inv, dict):
-                    somma_dict[unicode(k)] = {}
-                    somma_funzioni(cor, inv, somma_dict[unicode(k)])
-                elif isinstance(cor, dict) or isinstance(inv, dict):
-                    self.logger.warning(
-                        "Errore in somma funzioni: chiave {0}. Skipping".format(k)
-                    )
-                    continue
-                else:
-                    somma_dict[unicode(k)] = cor + inv
-
-
-        if 'preventivo' in certificati_to_import:
-            if 'preventivo' in city_year_budget_dict and\
-                'SPESE' in city_year_budget_dict['preventivo']:
-                prev_spese_dict = city_year_budget_dict['preventivo']['SPESE']
-                prev_spese_dict[u'Spese somma funzioni'] = {}
-
-                somma_funzioni(
-                    prev_spese_dict['Spese correnti']['funzioni'],
-                    prev_spese_dict['Spese per investimenti']['funzioni'],
-                    prev_spese_dict[u'Spese somma funzioni']
-                )
-
-        if 'consuntivo' in certificati_to_import:
-            if 'consuntivo' in city_year_budget_dict and\
-                'SPESE' in city_year_budget_dict['consuntivo'] and\
-                'Impegni' in city_year_budget_dict['consuntivo']['SPESE']:
-                cons_spese_cassa_dict = city_year_budget_dict['consuntivo']['SPESE']['Impegni']
-                cons_spese_cassa_dict[u'Spese somma funzioni'] = {}
-                somma_funzioni(
-                    cons_spese_cassa_dict['Spese correnti']['funzioni'],
-                    cons_spese_cassa_dict['Spese per investimenti']['funzioni'],
-                    cons_spese_cassa_dict[u'Spese somma funzioni']
-                )
-
-            if 'consuntivo' in city_year_budget_dict and\
-                'SPESE' in city_year_budget_dict['consuntivo'] and\
-                'Cassa' in city_year_budget_dict['consuntivo']['SPESE']:
-                cons_spese_impegni_dict = city_year_budget_dict['consuntivo']['SPESE']['Cassa']
-                cons_spese_impegni_dict[u'Spese somma funzioni'] = {}
-                somma_funzioni(
-                    cons_spese_impegni_dict['Spese correnti']['funzioni'],
-                    cons_spese_impegni_dict['Spese per investimenti']['funzioni'],
-                    cons_spese_impegni_dict[u'Spese somma funzioni']
-                )
 
 
     def handle(self, *args, **options):
@@ -452,9 +505,8 @@ class Command(BaseCommand):
         # cities
         ###
         self.cities_param = options['cities']
-        start_from = options['start_from']
 
-        self.set_cities(self.cities_param, start_from)
+        self.set_cities(self.cities_param)
 
         if len(self.cities) == 0:
             self.logger.info("No cities to process. Quit")
@@ -490,13 +542,14 @@ class Command(BaseCommand):
         # considering years,cities and limitations set creates a comprehensive map of all bilancio to be imported,
         # deletes old values before import
         self.prepare_for_import()
-        counter = 0
-        set_autocommit(False)
+        # multiprocessing basics
+        params = []
+        pool = multiprocessing.Pool()
+        self.logger.info("Start import")
         for territorio, city_years in self.import_set.iteritems():
-
+            populations = {year: territorio.nearest_valid_population(year)[1] for year, budgets in city_years.iteritems()}
             city_finloc = territorio.cod_finloc
             # get all budgets data for the city
-            # start_time = time.clock()
             city_budget = self.couchdb.get(city_finloc)
             # self.logger.info("Execution time for couch get: %.2gs seconds" % (time.clock()-start_time))
 
@@ -510,7 +563,9 @@ class Command(BaseCommand):
                     city_budget = self.couchdb.get(city_finloc_noapostrophe)
 
                     if city_budget is None:
-                        self.logger.warning(u"Document '{}' or '{}' not found in couchdb instance. Skipping.".format(city_finloc, city_finloc_noapostrophe))
+                        self.logger.warning(
+                            u"Document '{}' or '{}' not found in couchdb instance. Skipping.".format(city_finloc,
+                                                                                                     city_finloc_noapostrophe))
                         continue
 
                 else:
@@ -518,89 +573,27 @@ class Command(BaseCommand):
                     continue
 
             self.logger.debug(u"City of {0}".format(city_finloc))
-            if counter == 100:
+            # map the Couch document tree into memory struct that will be written on Postgres DB later
+            params.append((
+                territorio, populations, city_budget, city_years, self.partial_import, tree_node_slug, self.couch_path,
+                self.voci_dict))
+
+            if len(params) == 100:
                 self.logger.info(u"Reached city of '{0}', continuing...".format(city_finloc))
-                counter = 0
-                commit()
-            else:
-                counter += 1
+                maptree_results = [pool.apply_async(map_tree, p) for p in params]
+                params = []
 
-            for year, certificati_to_import in city_years.iteritems():
-                if str(year) not in city_budget:
-                    self.logger.warning(u" {} - {} not found. Skip".format(city_finloc, year))
-                    continue
+                for mtr in maptree_results:
+                    results = mtr.get()
+                    for result in results:
+                        (territorio, year, certificato_tree) = result
 
-                # POPULATION
-                # fetch valid population, starting from this year
-                # if no population found, set it to None, as not to break things
-                try:
-                    (pop_year, population) = territorio.nearest_valid_population(year)
-                except TypeError:
-                    population = None
-
-                # self.logger.debug("::Population: {0}".format(population))
-
-                # build a BilancioItem tree, out of the couch-extracted dict
-                # for the given city and year
-                # add the totals by extracting them from the dict, or by computing
-                city_year_budget_dict = city_budget[str(year)]
-
-                # patch by adding Spese Somma Funzioni nodes, with subnodes,
-                # summing Spese correnti and Spese per investimenti to a new
-                # key within the budget dict
-                self.patch_somma_funzioni(city_year_budget_dict, certificati_to_import)
-
-                if self.partial_import is True:
-                    self.logger.info(u"- Processing year: {}, subtree: {}".format(year, tree_node_slug))
-                    # start from a custom node
-                    path_not_found = False
-                    city_year_budget_node_dict = city_year_budget_dict.copy()
-
-                    # get the starting node in couchdb data
-                    for k in self.couch_path:
-                        try:
-                            city_year_budget_node_dict = city_year_budget_node_dict[k]
-                        except KeyError:
-                            self.logger.warning(
-                                "Couch path:{0} not present for {1}, anno:{2}".format(self.couch_path,
-                                                                                      territorio.cod_finloc,
-                                                                                      str(year)))
-                            path_not_found = True
-                            break
-
-                    # if data path is found in the couch document, write data into postgres db
-                    if path_not_found is False:
-                        city_year_node_tree_patch = tree_models.make_tree_from_dict(
-                            city_year_budget_node_dict, self.voci_dict, path=[tree_node_slug],
-                            population=population
-                        )
-
-                        # writes new sub-tree
-                        if not self.dryrun:
-                            tree_models.write_tree_to_vb_db(territorio, year, city_year_node_tree_patch, self.voci_dict)
-                else:
-                    # import tipo_bilancio considered
-                    # normally is preventivo and consuntivo
-                    # otherwise only one of them
-
-                    for tipo_bilancio in certificati_to_import:
-                        certificato_tree = tree_models.make_tree_from_dict(
-                            city_year_budget_dict[tipo_bilancio], self.voci_dict, path=[unicode(tipo_bilancio)],
-                            population=population
-                        )
-                        if len(certificato_tree.children) == 0:
-                            continue
-                        self.logger.debug(u"- Processing year: {} bilancio: {}".format(year, tipo_bilancio))
-                        if not self.dryrun:
-                            # start_time = time.clock()
+                        if self.dryrun is False:
                             tree_models.write_tree_to_vb_db(territorio, year, certificato_tree, self.voci_dict)
-                            # self.logger.info("Execution time for postgres write {}: {}s seconds".format(tipo_bilancio,time.clock()-start_time))
-                            tree_models.flush_values_to_vb()
 
-            # actually save data into posgres
-            self.logger.debug("Write valori bilancio to postgres")
-        commit()
-        set_autocommit(True)
+                if self.dryrun is False:
+                    tree_models.flush_values_to_vb()
+
         self.logger.info("Done importing couchDB values into postgres")
 
         if self.cities_param.lower() != 'all':
@@ -626,8 +619,9 @@ class Command(BaseCommand):
                 self.logger.error(
                     "Found {} Xml files compared to {} objs in ImportXML table in DB!!".format(len(xml_files),
                                                                                                len(self.imported_xml)))
-        if len(self.cities_not_found)>0:
-            self.logger.warning("Following COD FINLOC NOT FOUND and not imported:{}".format(",".join(self.cities_not_found)))
+        if len(self.cities_not_found) > 0:
+            self.logger.warning(
+                "Following COD FINLOC NOT FOUND and not imported:{}".format(",".join(self.cities_not_found)))
 
         if complete and not self.dryrun and not self.partial_import:
 

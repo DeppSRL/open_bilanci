@@ -127,7 +127,6 @@ class Command(BaseCommand):
     comuni_dicts = {}
     cbw = None
 
-
     def pass_to_bulkwriter(self, results):
         for r in results:
             # gets result dict from ApplyResult object and write doc to couchdb dest

@@ -24,6 +24,7 @@ def make_item(**kwargs):
     """
     return BilancioItem(**kwargs)
 
+
 def make_composite(*items, **kwargs):
     """
     Return an instance of BilancioItem, containing other items (composite pattern)
@@ -76,11 +77,10 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, populati
         voce_node = voci_dict[slug]
 
         voce_node_params = {
-            'denominazione':     voce_node.denominazione,
-            'descrizione':       voce_node.descrizione,
-            'slug':              voce_node.slug,
+            'denominazione': voce_node.denominazione,
+            'descrizione': voce_node.descrizione,
+            'slug': voce_node.slug,
         }
-
 
     if isinstance(budget_node, dict):
         treeitem_children = []
@@ -115,6 +115,7 @@ def make_tree_from_dict(budget_node, voci_dict, path=None, logger=None, populati
             voce_node_params['valore_procapite'] = budget_node / float(population)
         return make_item(**voce_node_params)
 
+
 def make_tree_from_db(voce_node, valori_bilancio):
     """
     Return a BilancioItem object, starting from a Voce MPTT model node
@@ -134,9 +135,9 @@ def make_tree_from_db(voce_node, valori_bilancio):
         raise Exception("Wrong type {} for valori_bilancio. dict expected.".format(type(valori_bilancio)))
 
     voce_node_params = {
-        'denominazione':     voce_node.denominazione,
-        'descrizione':       voce_node.descrizione,
-        'slug':              voce_node.slug,
+        'denominazione': voce_node.denominazione,
+        'descrizione': voce_node.descrizione,
+        'slug': voce_node.slug,
     }
     if voce_node.pk in valori_bilancio:
         voce_node_params['valore'] = valori_bilancio[voce_node.pk]['valore'],
@@ -152,6 +153,8 @@ def make_tree_from_db(voce_node, valori_bilancio):
 
 
 values_list = []
+
+
 def flush_values_to_vb():
     global values_list
     ValoreBilancio.objects.bulk_create(values_list)
@@ -195,7 +198,6 @@ def write_values_to_vb(territorio, anno, voce, valori, get_or_create=False):
         values_list.append(vb)
         if len(values_list) > settings.BULK_INSERT_THRESHOLD:
             flush_values_to_vb()
-
 
 
 def write_record_to_vb_db(territorio, anno, tree_node, voci_dict, get_or_create=False):
