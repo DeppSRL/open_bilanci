@@ -429,8 +429,11 @@ class Command(BaseCommand):
             if not os.path.exists(xml_path):
                 os.makedirs(xml_path)
             # avoid error if it's the same file
-            if input_file_path != destination_file:
+            try:
                 shutil.copyfile(src=input_file_path, dst=destination_file)
+            except shutil.Error:
+                self.logger.warning("Error while copying the file into the opendata folder. This is normal if using the same file for import, otherwise, check")
+                
         self.logger.info("Copied Xml file to {}".format(destination_file))
 
         self.logger.info("** Update open data zip file for {} **".format(self.territorio.denominazione))
