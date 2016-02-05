@@ -53,8 +53,7 @@ MANAGERS = ADMINS
 # PROJECT_OWNERS WILL GET AN EMAIL WHEN IMPORT MNG TASK ARE COMPLETED
 
 PROJECT_OWNERS = (
-    # ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
-    ('Stefano Vergani', 'stefano.vergani.it@gmail.com'),
+    ('Guglielmo Celata', 'guglielmo.celata@depp.it'),
 )
 
 
