@@ -72,5 +72,5 @@ class Command(BaseCommand):
         ##
 
         self.logger.info(u"Update opendata zip files for selected Comuni")
-        call_command('update_opendata', verbosity=2, autocommit=True, years=options['years'], cities=options['cities'], compress=True,
+        call_command('update_opendata', verbosity=2, autocommit=True, years=options['years'], cities=options['cities'],
                      interactive=False)

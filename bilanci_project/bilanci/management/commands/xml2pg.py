@@ -441,5 +441,5 @@ class Command(BaseCommand):
         # updates open data zip file for considered Comune
         if not self.dryrun:
             years = "{0}-{1}".format(settings.APP_START_YEAR, settings.APP_END_YEAR)
-            call_command('update_opendata', verbosity=2, years=years, cities=numeric_finloc, compress=True,
+            call_command('update_opendata', verbosity=2, years=years, cities=numeric_finloc,
                          interactive=False)
