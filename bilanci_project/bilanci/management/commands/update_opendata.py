@@ -18,7 +18,7 @@ from territori.models import Territorio, ObjectDoesNotExist
 
 class Command(BaseCommand):
     """
-     Export values from the simplified couchdb database into a set of CSV files or ZIP files
+     Export values from the simplified couchdb database into a set of ZIP files
     """
 
     option_list = BaseCommand.option_list + (
@@ -48,11 +48,6 @@ class Command(BaseCommand):
                     dest='output_path',
                     default=settings.OPENDATA_ROOT,
                     help='Path to the base directory where the file(s) will be created: default to opendata folder'),
-        make_option('--compress',
-                    dest='compress',
-                    action='store_true',
-                    default=False,
-                    help="Generate compressed zip archive of the directory for each city, remove directory structure"),
         make_option('--append',
                     dest='append',
                     action='store_true',
@@ -98,7 +93,6 @@ class Command(BaseCommand):
 
         dryrun = options['dryrun']
         output_path = options['output_path']
-        compress = options['compress']
         skip_existing = options['skip_existing']
 
         if options['append'] is True:
@@ -230,15 +224,17 @@ class Command(BaseCommand):
                 if consuntivo:
                     emitter.emit(q_data=consuntivo, base_path=cons_path)
 
-            # if the zip file is requested, creates the zip folder,
-            # creates zip file
-            if compress:
-                zipfilename = os.path.join(zip_path, "{}.zip".format(city))
+            # creates the zip folder, creates zip file
+            zipfilename = os.path.join(zip_path, "{}.zip".format(city))
 
-                # zips the csv and the xml folders and creates a zip file containing both
-                # zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
-                opendata_zipfile = zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED)
-                zipdir_prefix(opendata_zipfile, csv_path, city, "csv")
-                zipdir_prefix(opendata_zipfile, xml_path, city, "xml")
+            # zips the csv and the xml folders and creates a zip file containing both
+            # zipdir(city, zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED), root_path=csv_path)
+            opendata_zipfile = zipfile.ZipFile(zipfilename, "w", zipfile.ZIP_DEFLATED)
+            zipdir_prefix(opendata_zipfile, csv_path, city, "csv")
+            zipdir_prefix(opendata_zipfile, xml_path, city, "xml")
+            opendata_zipfile.close()
+            # remove the CSV file directory
+            import shutil
+            shutil.rmtree(csv_path)
 
-                self.logger.info("Created zip file: {}".format(zipfilename))
+            self.logger.info("Created zip file: {}".format(zipfilename))
