@@ -127,6 +127,14 @@ def merge(view_data, worksheet, translation_type, tipo_bilancio):
 
             data_result_set.append(values)
 
+    # if the translation is simplify order by the right part of the sheet, order by the normalized tree.
+    # empty or new lines will be on top of the sheet
+    if translation_type == 'simplify':
+        if tipo_bilancio == 'preventivo':
+            data_result_set = sorted(data_result_set, key=lambda x: (x[7],x[6],x[5],x[4],x[1]))
+        else:
+            data_result_set = sorted(data_result_set, key=lambda x: (x[8],x[7],x[6],x[5],x[4],x[1]))
+
     return data_result_set
 
 
@@ -212,7 +220,6 @@ def main(argv):
             host = settings_local.accepted_servers[server_name]['host']
             server_connection_address ='http://{0}:5984/{1}/_design/{2}/_view/{3}?group_level=4'.format(host,source_db_name, view_name,view_name)
             logging.info("Getting Json data from couch View:{0}".format(view_name))
-
 
             user = passw = None
             if settings_local.accepted_servers[server_name]['user']:
