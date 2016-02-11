@@ -1,9 +1,9 @@
 # coding=utf-8
+__author__ = 'stefano'
 import os
+from collections import OrderedDict
 from pprint import pprint
 from bilanci.utils import unicode_csv
-
-__author__ = 'stefano'
 
 import csvkit
 import logging
@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from bilanci.models import Voce, ValoreBilancio
-from territori.models import Territorio,Contesto,Incarico
+from territori.models import Territorio, Contesto, Incarico
 
 ##
 # extract values for selected Voce, all published indicators and creates a zip file for massive download.
@@ -42,7 +42,6 @@ def convert(queryset, key_field):
         indice_keygen = lambda x: x[key_field]
 
     return dict((k, list(v)) for k, v in groupby(queryset, key=indice_keygen))
-
 
 
 class Command(BaseCommand):
@@ -97,11 +96,20 @@ class Command(BaseCommand):
         # gathers all the data with few queries
         self.logger.info("Gathering data...")
         voce_nodes = Voce.objects.filter(slug__in=self.node_slugs).order_by('slug')
-        comuni = Territorio.objects.filter(territorio="C").order_by('slug')
-        valore_bilancio = ValoreBilancio.objects.filter(voce__in=voce_nodes, territorio__in=comuni, anno__in=self.years).values('valore','valore_procapite','anno','territorio__slug','voce__slug')
-        vb_dict = convert(valore_bilancio,('territorio__slug','voce__slug','anno'))
-        contexts = Contesto.objects.filter(territorio__in=comuni).values('anno','territorio__slug','bil_popolazione_residente')
-        contexts_dict = convert(contexts,('territorio__slug','anno'))
+        # get data for Comuni
+        comuni = Territorio.objects.filter(territorio="C")
+        comuni_values = comuni.values('slug', 'denominazione', 'regione', 'cluster', 'prov')
+        comuni_dict = convert(comuni_values, 'slug')
+
+        # get data for Valore bilancio
+        valore_bilancio = ValoreBilancio.objects.filter(voce__in=voce_nodes, territorio__in=comuni,
+                                                        anno__in=self.years). \
+            values('valore', 'valore_procapite', 'anno', 'territorio__slug', 'voce__slug')
+        vb_dict = convert(valore_bilancio, ('territorio__slug', 'voce__slug', 'anno'))
+        # get data for Comune context (abitanti)
+        contexts = Contesto.objects.filter(territorio__in=comuni).values('anno', 'territorio__slug',
+                                                                         'bil_popolazione_residente')
+        contexts_dict = convert(contexts, ('territorio__slug', 'anno'))
         self.logger.info("Done")
         folder_path = 'data/export_complete_temp/'
         if not os.path.exists(folder_path):
@@ -111,24 +119,60 @@ class Command(BaseCommand):
             for voce in node.get_descendants(include_self=True):
                 self.logger.info("Processing voce: {0}".format(voce))
                 for anno in years:
-                     # create csv file
-                    filename="{}/{}_{}.csv".format(folder_path, voce.slug,anno)
+                # get incarichi for yr
+                    incarichi = Incarico.get_incarichi_fineanno(comuni, anno).values('territorio__slug', 'nome',
+                                                                                     'cognome', 'party_name',
+                                                                                     'party_acronym', 'tipologia')
+                    incarichi_dict = convert(incarichi, 'territorio__slug')
+                    # create csv file
+                    filename = "{}/{}_{}.csv".format(folder_path, voce.slug, anno)
                     csv_file = open(filename, 'w')
                     csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+                    # write file header
+                    csv_writer.writerow(['cluster', 'nome_comune', 'prov', 'regione', 'pop', 'valore', 'valore_pc','nome','cognome','party_name','party_acronym','tipologia','n_incarichi'])
                     empty_file = True
                     for comune in comuni:
                         try:
-                            vb = vb_dict[(comune.slug,voce.slug,anno)]
+                            vb = vb_dict[(comune.slug, voce.slug, anno)][0]
                         except KeyError:
-                            self.logger.debug(u"Data for {},{},{} not found in DB".format(voce,anno,comune))
+                            self.logger.debug(
+                                u"Bilancio data for {},{},{} not found in DB".format(voce, anno, comune))
                         else:
-                            vb=vb[0]
-                            vb['valore']=str("%.2f" % vb['valore'])
-                            vb['valore_procapite']=str("%.2f" % vb['valore_procapite'])
-                            csv_writer.writerow([vb['territorio__slug'], vb['valore'], vb['valore_procapite']])
-                            empty_file=False
+                            vb['valore'] = str("%.2f" % vb['valore'])
+                            vb['valore_procapite'] = str("%.2f" % vb['valore_procapite'])
+
+                            comune_data = comuni_dict[vb['territorio__slug']][0]
+                            comune_data.pop('slug', None)
+                            od = OrderedDict(sorted(comune_data.items(), key=lambda t: t[0]))
+                            od['pop'] = str(
+                                contexts_dict[(vb['territorio__slug'], anno)][0]['bil_popolazione_residente'])
+                            od['valore'] = vb['valore']
+                            od['valore_procapite'] = vb['valore_procapite']
+                            incarichi_comune = []
+                            try:
+                                incarichi_comune = incarichi_dict[vb['territorio__slug']]
+                            except KeyError:
+                                self.logger.warning(u"Incarichi for {},{} not found in DB".format(anno, comune))
+                                # todo: gestire questa casistica
+                                od['nome']=''
+                                od['cognome']=''
+                                od['party_name']=''
+                                od['party_acronym']=''
+                                od['tipologia']=''
+                                od['n_incarichi']='0'
+                            else:
+                                incarico_to_write = incarichi_comune[0]
+                                incarico_to_write.pop('territorio__slug', None)
+                                od.update(incarico_to_write)
+
+                                od['n_incarichi'] = str(len(incarichi_comune))
+
+                            csv_writer.writerow(od.values())
+                            empty_file = False
 
                     csv_file.close()
+                    exit()
                     if empty_file:
                         # delete the empty file
+                        self.logger.warning(u"No data for {},{}!".format(voce.slug, anno))
                         os.remove(filename)

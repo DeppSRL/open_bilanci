@@ -442,6 +442,14 @@ class Incarico(models.Model):
                    Q(data_fine__gte=jan_1_date) | Q(data_fine__isnull=True),
         )
 
+    @staticmethod
+    def get_incarichi_fineanno(territorio_set,anno):
+        date_fmt = '%Y-%m-%d'
+        jan_1_date = datetime.strptime(str(anno) + "-01-01", date_fmt).date()
+        dec_31_date = datetime.strptime(str(anno) + "-12-31", date_fmt).date()
+        return Incarico.objects.filter(territorio__in=territorio_set).\
+            filter(data_inizio__lte=dec_31_date).\
+            filter(Q(data_fine__gt=dec_31_date) | Q(data_fine__isnull=True)).order_by('territorio')
 
     def __unicode__(self):
         return u"{0} - {1} - ({2}-{3})".format(self.territorio, self.cognome, self.data_inizio, self.data_fine, )
