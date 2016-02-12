@@ -325,4 +325,3 @@ class Command(BaseCommand):
         shutil.make_archive(zipfile_path, 'zip', folder_path)
         self.logger.info("Created zip file {}".format(zipfile_path))
         shutil.rmtree(folder_path)
-
