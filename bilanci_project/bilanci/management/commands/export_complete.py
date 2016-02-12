@@ -62,9 +62,24 @@ class Command(BaseCommand):
     logger = logging.getLogger('management')
     comuni_dicts = {}
     node_slugs = [
+        # entrate
         'preventivo-entrate',
-        # 'consuntivo-entrate-riscossioni-in-conto-competenza',
-        # 'consuntivo-entrate-cassa',
+        'consuntivo-entrate-riscossioni-in-conto-competenza',
+        'consuntivo-entrate-cassa',
+        # spese
+        'preventivo-spese-spese-somma-funzioni',
+        'preventivo-spese-disavanzo-di-amministrazione',
+        'preventivo-spese-prestiti',
+        'preventivo-spese-spese-per-conto-terzi',
+        'consuntivo-spese-cassa-spese-somma-funzioni',
+        'consuntivo-spese-cassa-prestiti',
+        'consuntivo-spese-cassa-spese-per-conto-terzi',
+        'consuntivo-spese-pagamenti-in-conto-competenza-spese-per-conto-terzi',
+        'consuntivo-spese-pagamenti-in-conto-competenza-prestiti',
+        'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti',
+        'consuntivo-spese-pagamenti-in-conto-competenza-spese-per-investimenti',
+        'consuntivo-spese-pagamenti-in-conto-competenza-spese-correnti-interventi',
+        'consuntivo-spese-pagamenti-in-conto-competenza-spese-per-investimenti-interventi'
     ]
 
 
@@ -208,11 +223,7 @@ class Command(BaseCommand):
                     else:
                         counter+=1
 
-
-
-
         # create the zip file
-
         self.logger.info("Start creating zip file")
         zipfile_path = "data/export_complete"
         import shutil
