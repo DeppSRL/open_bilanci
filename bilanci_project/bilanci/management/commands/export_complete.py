@@ -167,79 +167,79 @@ class Command(BaseCommand):
         for ind in Indicatore.objects.all():
 
             self.logger.info("Processing ind: {0}".format(ind.slug))
-                for anno in self.years:
-                # get incarichi for yr
-                    incarichi = Incarico.get_incarichi_fineanno(self.comuni, anno).values('territorio__slug', 'nome',
-                                                                                     'cognome', 'party_name',
-                                                                                     'party_acronym', 'tipologia')
-                    incarichi_dict = convert(incarichi, 'territorio__slug')
-                    # create csv file
-                    filename = "{}/{}_{}.csv".format(folder_path, ind.slug, anno)
-                    csv_file = open(filename, 'w')
-                    csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
-                    # write file header
-                    csv_writer.writerow(
-                        ['cluster', 'nome_comune', 'prov', 'regione', 'pop', 'valore', 'valore_cluster', 'nome', 'cognome', 'party_name', 'party_acronym', 'tipo_incarico',
-                         'n_incarichi'])
-                    empty_file = True
-                    for comune in self.comuni:
-                        try:
-                            vi = self.ind_dict[(comune.slug, ind.slug, anno)][0]
-                        except KeyError:
-                            self.logger.debug(
-                                u"Indicator data for {},{},{} not found in DB".format(ind.slug, anno, comune))
-                            continue
+            for anno in self.years:
+            # get incarichi for yr
+                incarichi = Incarico.get_incarichi_fineanno(self.comuni, anno).values('territorio__slug', 'nome',
+                                                                                 'cognome', 'party_name',
+                                                                                 'party_acronym', 'tipologia')
+                incarichi_dict = convert(incarichi, 'territorio__slug')
+                # create csv file
+                filename = "{}/{}_{}.csv".format(folder_path, ind.slug, anno)
+                csv_file = open(filename, 'w')
+                csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
+                # write file header
+                csv_writer.writerow(
+                    ['cluster', 'nome_comune', 'prov', 'regione', 'pop', 'valore', 'valore_cluster', 'nome', 'cognome', 'party_name', 'party_acronym', 'tipo_incarico',
+                     'n_incarichi'])
+                empty_file = True
+                for comune in self.comuni:
+                    try:
+                        vi = self.ind_dict[(comune.slug, ind.slug, anno)][0]
+                    except KeyError:
+                        self.logger.debug(
+                            u"Indicator data for {},{},{} not found in DB".format(ind.slug, anno, comune))
+                        continue
 
-                        # add comune context data
-                        comune_data = self.comuni_dict[vi['territorio__slug']][0]
-                        comune_data.pop('slug', None)
-                        od = OrderedDict(sorted(comune_data.items(), key=lambda t: t[0]))
-                        try:
-                            od['pop'] = str(
-                                self.contexts_dict[(vi['territorio__slug'], anno)][0]['bil_popolazione_residente'])
-                        except KeyError:
-                            self.logger.debug("Population not found for {},{}".format(vi['territorio__slug'], anno))
-                            od['pop']='-'
+                    # add comune context data
+                    comune_data = self.comuni_dict[vi['territorio__slug']][0]
+                    comune_data.pop('slug', None)
+                    od = OrderedDict(sorted(comune_data.items(), key=lambda t: t[0]))
+                    try:
+                        od['pop'] = str(
+                            self.contexts_dict[(vi['territorio__slug'], anno)][0]['bil_popolazione_residente'])
+                    except KeyError:
+                        self.logger.debug("Population not found for {},{}".format(vi['territorio__slug'], anno))
+                        od['pop']='-'
 
-                        # get value for comune
-                        od['valore'] = str("%.2f" % vi['valore'])
-                        # get values for cluster
-                        try:
-                            vb_cluster = self.ind_cluster_dict[(comune.cluster, ind.slug, anno)][0]
-                        except KeyError:
-                            self.logger.debug(
-                                u"Cluster data for {},{},{} not found in DB".format(ind.slug, anno, comune.cluster))
-                            od['valore_cluster'] = ''
-                        else:
-                            od['valore_cluster'] = str("%.2f" % vb_cluster['valore'])
+                    # get value for comune
+                    od['valore'] = str("%.2f" % vi['valore'])
+                    # get values for cluster
+                    try:
+                        vb_cluster = self.ind_cluster_dict[(comune.cluster, ind.slug, anno)][0]
+                    except KeyError:
+                        self.logger.debug(
+                            u"Cluster data for {},{},{} not found in DB".format(ind.slug, anno, comune.cluster))
+                        od['valore_cluster'] = ''
+                    else:
+                        od['valore_cluster'] = str("%.2f" % vb_cluster['valore'])
 
-                        #  get incarichi data for comune (sindaco, vicesindaco, ecc) in charge at 31/12
-                        incarichi_comune = []
-                        try:
-                            incarichi_comune = incarichi_dict[vi['territorio__slug']]
-                        except KeyError:
-                            self.logger.warning(u"Incarichi for {},{} not found in DB".format(anno, comune))
+                    #  get incarichi data for comune (sindaco, vicesindaco, ecc) in charge at 31/12
+                    incarichi_comune = []
+                    try:
+                        incarichi_comune = incarichi_dict[vi['territorio__slug']]
+                    except KeyError:
+                        self.logger.warning(u"Incarichi for {},{} not found in DB".format(anno, comune))
 
-                            od['nome'] = ''
-                            od['cognome'] = ''
-                            od['party_name'] = ''
-                            od['party_acronym'] = ''
-                            od['tipologia'] = ''
-                            od['n_incarichi'] = '0'
-                        else:
-                            incarico_to_write = incarichi_comune[0]
-                            incarico_to_write.pop('territorio__slug', None)
-                            od.update(incarico_to_write)
-                            od['n_incarichi'] = str(len(incarichi_comune))
+                        od['nome'] = ''
+                        od['cognome'] = ''
+                        od['party_name'] = ''
+                        od['party_acronym'] = ''
+                        od['tipologia'] = ''
+                        od['n_incarichi'] = '0'
+                    else:
+                        incarico_to_write = incarichi_comune[0]
+                        incarico_to_write.pop('territorio__slug', None)
+                        od.update(incarico_to_write)
+                        od['n_incarichi'] = str(len(incarichi_comune))
 
-                        csv_writer.writerow(od.values())
-                        empty_file = False
+                    csv_writer.writerow(od.values())
+                    empty_file = False
 
-                    csv_file.close()
-                    if empty_file:
-                        # delete the empty file
-                        self.logger.warning(u"No data for {},{}!".format(ind.slug, anno))
-                        os.remove(filename)
+                csv_file.close()
+                if empty_file:
+                    # delete the empty file
+                    self.logger.warning(u"No data for {},{}!".format(ind.slug, anno))
+                    os.remove(filename)
 
 
 
@@ -318,7 +318,6 @@ class Command(BaseCommand):
         self.export_indicatori(folder_path)
 
         #         create zip file
-
         self.logger.info("Start creating zip file")
         zipfile_path = "data/export_complete"
 
