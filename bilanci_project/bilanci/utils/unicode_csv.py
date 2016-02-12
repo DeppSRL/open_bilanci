@@ -102,7 +102,7 @@ class UnicodeWriter:
         self.encoding = encoding
 
     def writerow(self, row):
-        self.writer.writerow([s.encode(self.encoding) for s in row])
+        self.writer.writerow([s.encode(self.encoding) if s is not None else '' for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
         data = data.decode(self.encoding)

@@ -1,19 +1,15 @@
-from collections import OrderedDict
 import logging
 from optparse import make_option
 import os
 import zipfile
 from django.conf import settings
 from django.core.management import BaseCommand
-import shutil
-from bilanci import tree_models
 from bilanci.models import Voce, ValoreBilancio, ImportXmlBilancio
-from bilanci.utils import couch, gdocs
-from bilanci.utils import unicode_csv
+from bilanci.utils import couch
 from bilanci.utils.comuni import FLMapper
 from bilanci.utils.converters import FLCSVEmitter
 from bilanci.utils.zipper import zipdir_prefix
-from territori.models import Territorio, ObjectDoesNotExist
+from territori.models import ObjectDoesNotExist
 
 
 class Command(BaseCommand):
