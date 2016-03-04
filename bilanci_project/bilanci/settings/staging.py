@@ -4,7 +4,7 @@ from base import *
 
 ########## HOST CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.5/releases/1.5/#allowed-hosts-required-in-production
-MAIN_HOST = ['openbilanci.staging.deppsviluppo.org',]
+MAIN_HOST = ['openbilanci.staging.deppsviluppo.org', 'staging.openbilanci.it', 'www.openbilanci.it']
 
 # Allowed hosts expansion: needed for servizi ai Comuni
 HOSTS_COMUNI = [
