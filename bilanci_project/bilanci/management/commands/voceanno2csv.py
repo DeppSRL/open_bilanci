@@ -21,11 +21,11 @@ class Command(BaseCommand):
         make_option('--years',
                     dest='years',
                     default='',
-                    help='Years to fetch. From 2002 to 2012. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+                    help='Years to fetch. From 2002 to 2020. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
     )
 
     help = """
-        Compute indicators value for all cities and spits them out as CSV
+        Extract values for a single voce, in the given years, for all cities and spits them out as CSV
         """
 
     logger = logging.getLogger('management')
@@ -76,15 +76,17 @@ class Command(BaseCommand):
             self.logger.info("Processing year: {0}".format(year))
             self.logger.debug(" reading voce values")
             valori = ValoreBilancio.objects.filter(voce=voce, anno=year) \
-                .values('territorio__denominazione', 'territorio__istat_id', 'valore', 'valore_procapite')
+                .values('territorio__denominazione', 'territorio__prov', 'territorio__regione', 'territorio__istat_id', 'valore', 'valore_procapite')
 
             self.logger.debug(" writing output to {0}_{1}.csv".format(voce_slug, year))
             with open("{0}_{1}.csv".format(voce_slug, year), 'wb') as csvfile:
                 writer = csvkit.py2.CSVKitWriter(csvfile, delimiter=",")
-                writer.writerow(["comune", "codice_istat", "valore", "valore_procapite"])
+                writer.writerow(["comune", "prov", "regione", "codice_istat", "valore", "valore_procapite"])
                 for v in valori:
                     writer.writerow([
                         v['territorio__denominazione'],
+                        v['territorio__prov'],
+                        v['territorio__regione'],
                         v['territorio__istat_id'],
                         "{0}".format(v['valore']),
                         "{0:.2f}".format(v['valore_procapite'])
