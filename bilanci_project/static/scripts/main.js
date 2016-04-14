@@ -546,8 +546,8 @@ $(document).ready(function(){
     // Tooltips
     function setupTooltips()
     {
-        $( '[data-toggle="tooltip"]' ).tooltip({ placement: 'right', container: 'body' });
-        $( '[data-toggle="popover"]' ).popover({ placement: 'right', html: true });
+        //$( '[data-toggle="tooltip"]' ).tooltip({ placement: 'right', container: 'body' });
+        //$( '[data-toggle="popover"]' ).popover({ placement: 'right', html: true });
     }
 
     // Donut chart
