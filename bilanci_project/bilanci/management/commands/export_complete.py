@@ -31,6 +31,7 @@ from territori.models import Territorio, Contesto, Incarico
 
 
 # converts a qset into a dict using the key field
+import pdb
 def convert(queryset, key_field):
     if type(key_field) == tuple or type(key_field) == list:
         if len(key_field) == 0:
@@ -50,6 +51,10 @@ class Command(BaseCommand):
                     dest='years',
                     default='',
                     help='Years to fetch. From 2002 to 2012. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+        make_option('--zip_filename',
+                    dest='zip_filename',
+                    default='complete',
+                    help='Name of the file to be produced. Defaults to "complete". Zip extension is added automatically.'),
     )
 
     help = """
@@ -81,15 +86,9 @@ class Command(BaseCommand):
 
     def export_voci_bilancio(self, folder_path):
 
-        for node in self.voce_nodes:
-            for voce in node.get_descendants(include_self=True):
+        for voce in self.voce_nodes:
                 self.logger.info("Processing voce: {0}".format(voce))
                 for anno in self.years:
-                # get incarichi for yr
-                    incarichi = Incarico.get_incarichi_fineanno(self.comuni, anno).values('territorio__slug', 'nome',
-                                                                                     'cognome', 'party_name',
-                                                                                     'party_acronym', 'tipologia')
-                    incarichi_dict = convert(incarichi, 'territorio__slug')
                     # create csv file
                     filename = "{}/{}_{}.csv".format(folder_path, voce.slug, anno)
                     csv_file = open(filename, 'w')
@@ -137,9 +136,9 @@ class Command(BaseCommand):
                         #  get incarichi data for comune (sindaco, vicesindaco, ecc) in charge at 31/12
                         incarichi_comune = []
                         try:
-                            incarichi_comune = incarichi_dict[vb['territorio__slug']]
+                            incarichi_comune = self.incarichi_dict[anno][vb['territorio__slug']]
                         except KeyError:
-                            self.logger.warning(u"Incarichi for {},{} not found in DB".format(anno, comune))
+                            self.logger.debug(u"Incarichi for {},{} not found in DB".format(anno, comune))
 
                             od['nome'] = ''
                             od['cognome'] = ''
@@ -165,15 +164,10 @@ class Command(BaseCommand):
     def export_indicatori(self, folder_path):
 
         for ind in Indicatore.objects.all():
-
             self.logger.info("Processing ind: {0}".format(ind.slug))
             for anno in self.years:
-            # get incarichi for yr
-                incarichi = Incarico.get_incarichi_fineanno(self.comuni, anno).values('territorio__slug', 'nome',
-                                                                                 'cognome', 'party_name',
-                                                                                 'party_acronym', 'tipologia')
-                incarichi_dict = convert(incarichi, 'territorio__slug')
                 # create csv file
+
                 filename = "{}/{}_{}.csv".format(folder_path, ind.slug, anno)
                 csv_file = open(filename, 'w')
                 csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
@@ -216,9 +210,9 @@ class Command(BaseCommand):
                     #  get incarichi data for comune (sindaco, vicesindaco, ecc) in charge at 31/12
                     incarichi_comune = []
                     try:
-                        incarichi_comune = incarichi_dict[vi['territorio__slug']]
+                        incarichi_comune = self.incarichi_dict[anno][vi['territorio__slug']]
                     except KeyError:
-                        self.logger.warning(u"Incarichi for {},{} not found in DB".format(anno, comune))
+                        self.logger.debug(u"Incarichi for {},{} not found in DB".format(anno, comune))
 
                         od['nome'] = ''
                         od['cognome'] = ''
@@ -241,7 +235,70 @@ class Command(BaseCommand):
                     self.logger.warning(u"No data for {},{}!".format(ind.slug, anno))
                     os.remove(filename)
 
+    def gather_data(self):
+        self.logger.info("- fetch voci")
+        self.voce_nodes = []
+        for node in Voce.objects.filter(slug__in=self.node_slugs).order_by('slug'):
+            self.voce_nodes.append(node)
 
+        # get data for Comunia
+        self.logger.info("- fetch comuni")
+        self.comuni = Territorio.objects.filter(territorio="C")
+        comuni_values = self.comuni.values('slug', 'denominazione', 'regione', 'cluster', 'prov')
+        self.comuni_dict = convert(comuni_values, 'slug')
+
+        # get data for Valore bilancio
+        self.logger.info("- fetch valori")
+        valore_bilancio = ValoreBilancio.objects.filter(
+            voce__in=self.voce_nodes, 
+            territorio__in=self.comuni,
+            anno__in=self.years
+        ).order_by('territorio__slug', 'voce__slug', 'anno').\
+          values('valore', 'valore_procapite', 'anno', 'territorio__slug', 'voce__slug')
+        self.vb_dict = convert(valore_bilancio, ('territorio__slug', 'voce__slug', 'anno'))
+
+        # get data for CLUSTER Valore bilancio
+        self.logger.info("- fetch valori for clusters")
+        valore_bilancio_cluster = ValoreBilancio.objects.filter(
+            voce__in=self.voce_nodes, 
+            territorio__territorio="L",
+            anno__in=self.years
+        ).order_by('territorio__cluster', 'voce__slug', 'anno')\
+         .values('valore', 'valore_procapite', 'anno', 'territorio__cluster', 'voce__slug')
+        self.vb_cluster_dict = convert(valore_bilancio_cluster, ('territorio__cluster', 'voce__slug', 'anno'))
+
+        # get data for Comune context (abitanti)
+        self.logger.info("- fetch contesti")
+        contexts = Contesto.objects.filter(territorio__in=self.comuni)\
+        .order_by('territorio__slug', 'anno')\
+        .values('anno', 'territorio__slug','bil_popolazione_residente')
+        self.contexts_dict = convert(contexts, ('territorio__slug', 'anno'))
+
+        # get data indicatori
+        self.logger.info("- fetch indicatori")
+        valore_ind = ValoreIndicatore.objects.filter(
+            territorio__in=self.comuni, anno__in=self.years
+        ).order_by('indicatore__slug', 'territorio__slug','anno')\
+         .values('valore', 'indicatore__slug', 'territorio__slug','anno')
+        self.ind_dict = convert(valore_ind, ('territorio__slug','indicatore__slug', 'anno'))
+
+        # get data for CLUSTER Indicatori
+        self.logger.info("- fetch indicatori for clusters")
+        valore_bilancio_cluster = ValoreIndicatore.objects.filter(
+            territorio__territorio="L", 
+            anno__in=self.years
+        ).order_by('territorio__cluster', 'indicatore__slug', 'anno')\
+         .values('valore', 'anno', 'territorio__cluster', 'indicatore__slug')
+        self.ind_cluster_dict = convert(valore_bilancio_cluster, ('territorio__cluster', 'indicatore__slug', 'anno'))
+
+        # get incarichi sindaci
+        self.incarichi_dict = {}
+        for anno in self.years:  
+            incarichi = Incarico.get_incarichi_fineanno(self.comuni, anno)\
+                .values('territorio__slug', 'nome',
+	                'cognome', 'party_name',
+			'party_acronym', 'tipologia')
+            self.incarichi_dict[anno] = convert(incarichi, 'territorio__slug')
 
 
     def handle(self, *args, **options):
@@ -272,55 +329,29 @@ class Command(BaseCommand):
             raise Exception("No suitable year found in {0}".format(years))
 
         self.years=years
+
+        self.zip_filename = options['zip_filename']
+
         # gathers all the data with few queries
         self.logger.info("Gathering data...")
-        voce_nodes = Voce.objects.filter(slug__in=self.node_slugs).order_by('slug')
-        # get data for Comuni
-        comuni = Territorio.objects.filter(territorio="C")
-        comuni_values = comuni.values('slug', 'denominazione', 'regione', 'cluster', 'prov')
-        self.comuni_dict = convert(comuni_values, 'slug')
+        self.gather_data()
+        self.logger.info("Data fetched")
 
-        # get data for Comuni Valore bilancio
-        valore_bilancio = ValoreBilancio.objects.filter(voce__in=voce_nodes, territorio__in=comuni,
-                                                        anno__in=years).order_by('territorio__slug', 'voce__slug', 'anno').\
-            values('valore', 'valore_procapite', 'anno', 'territorio__slug', 'voce__slug')
-        self.vb_dict = convert(valore_bilancio, ('territorio__slug', 'voce__slug', 'anno'))
-
-        # get data for CLUSTER Valore bilancio
-        valore_bilancio_cluster = ValoreBilancio.objects.filter(voce__in=voce_nodes, territorio__territorio="L",
-                                                                anno__in=years).order_by('cluster', 'voce__slug', 'anno').\
-            values('valore', 'valore_procapite', 'anno', 'territorio__cluster', 'voce__slug')
-        self.vb_cluster_dict = convert(valore_bilancio_cluster, ('cluster', 'voce__slug', 'anno'))
-
-        # get data for Comune context (abitanti)
-        contexts = Contesto.objects.filter(territorio__in=comuni).order_by('territorio__slug', 'anno').\
-            values('anno', 'territorio__slug','bil_popolazione_residente')
-        self.contexts_dict = convert(contexts, ('territorio__slug', 'anno'))
-
-        # get data indicatori
-        valore_ind = ValoreIndicatore.objects.filter(territorio__in=comuni, anno__in=years).order_by('indicatore__slug', 'territorio__slug','anno').values('indicatore__slug', 'territorio__slug','anno')
-        self.ind_dict = convert(valore_ind, ('indicatore__slug', 'territorio__slug','anno'))
-
-        # get data for CLUSTER Indicatori
-        valore_bilancio_cluster = ValoreIndicatore.objects.filter(territorio__territorio="L", anno__in=years).order_by('cluster', 'indicatore__slug', 'anno').\
-            values('valore', 'valore_procapite', 'anno', 'territorio__cluster', 'indicatore__slug')
-        self.ind_cluster_dict = convert(valore_bilancio_cluster, ('cluster', 'indicatore__slug', 'anno'))
-
-
-        self.logger.info("Done")
         folder_path = 'data/export_complete/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
+
         # export voci bilancio
+        self.logger.info("exporting voci")
         self.export_voci_bilancio(folder_path)
 
         #         export indicatori
+        self.logger.info("exporting indicatori")
         self.export_indicatori(folder_path)
 
         #         create zip file
         self.logger.info("Start creating zip file")
-        zipfile_path = "data/export_complete"
 
-        shutil.make_archive(zipfile_path, 'zip', folder_path)
-        self.logger.info("Created zip file {}".format(zipfile_path))
+        shutil.make_archive("data/{0}".format(self.zip_filename), 'zip', folder_path)
+        self.logger.info("Created zip file {}".format(self.zip_filename))
         shutil.rmtree(folder_path)
