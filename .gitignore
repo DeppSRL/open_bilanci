@@ -24,6 +24,9 @@ build
 .idea/
 .env
 
+# mac
+.DS_Store
+
 #deploy
 deploy_config/*
 
