@@ -10,6 +10,7 @@ MAIN_HOST = ['www.openbilanci.it',]
 HOSTS_COMUNI = [
 'openbilanci.comune.fi.it',
 'openbilanci.comune.castiglione.mn.it',
+'openbilanci.comune.rapallo.ge.it',
 'openbilanci.comune.spilamberto.mo.it'
 ]
 

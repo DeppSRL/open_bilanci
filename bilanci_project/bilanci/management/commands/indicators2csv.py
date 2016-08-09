@@ -47,7 +47,7 @@ class Command(BaseCommand):
         make_option('--indicators',
                     dest='indicators',
                     default='all',
-                    help='Indicators slugs. Use comma to separate values: Roma,Napoli,Torino or  "All"'),
+                    help='Indicators slugs. Use comma to separate values: investimenti,costo-indebitamento or  "All"'),
         make_option('--csv-base-dir',
                     dest='csv_base_dir',
                     default='data/csv/',
@@ -159,7 +159,7 @@ class Command(BaseCommand):
                 csv_writer = unicode_csv.UnicodeWriter(csv_file, dialect=unicode_csv.excel_semicolon)
 
                 # build and emit header
-                row = ['City', 'Cluster', 'Region']
+                row = ['Codice Fin Loc', 'Cluster', 'Comune', 'Provincia', 'Regione']
                 row.extend(map(str, years))
                 csv_writer.writerow(row)
 
@@ -174,8 +174,10 @@ class Command(BaseCommand):
 
                     # emit
                     cluster = territorio.cluster if territorio.cluster else ''
+                    comune = territorio.denominazione
                     region = territorio.regione if territorio.regione else ''
-                    row = [city, cluster, region]
+                    province = territorio.prov if territorio.prov else ''
+                    row = [city, cluster, comune, province, region]
                     for year in years:
                         if year not in valori_dict[city]:
                             row.append('')
