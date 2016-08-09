@@ -350,7 +350,8 @@ GDOC_KEYS = {
     'bilancio_consuntivo_2013': env('GDOC_BILANCIO_CONSUNTIVO_2013'),
     'bilancio_preventivo_2014': env('GDOC_BILANCIO_PREVENTIVO_2014'),
     'bilancio_consuntivo_2014': env('GDOC_BILANCIO_CONSUNTIVO_2014'),
-    'bilancio_preventivo_2015': env('GDOC_BILANCIO_PREVENTIVO_2015')
+    'bilancio_preventivo_2015': env('GDOC_BILANCIO_PREVENTIVO_2015'),
+    'bilancio_consuntivo_2015': env('GDOC_BILANCIO_CONSUNTIVO_2015'),
 }
 
 COUCHDB_RAW_NAME = 'bilanci'
@@ -458,7 +459,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 APP_DATE_FMT = '%Y-%m-%d'
 
 APP_START_YEAR = 2005
-APP_END_YEAR = 2015
+APP_END_YEAR = 2016
 APP_START_DATE = datetime.strptime("{0}-01-01".format(APP_START_YEAR), APP_DATE_FMT)
 APP_END_DATE = datetime.strptime("{0}-12-31".format(APP_END_YEAR), APP_DATE_FMT)
 
