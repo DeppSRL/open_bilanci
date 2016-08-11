@@ -20,6 +20,11 @@ class Command(BaseCommand):
                     action='store_true',
                     default=False,
                     help='Set the dry-run command mode: nothing is written on the db'),
+        make_option('--update-open-data',
+                    dest='update_opendata',
+                    action='store_true',
+                    default=False,
+                    help='Update open data zip files'),
         make_option('--file',
                     dest='input_file',
                     default='',
@@ -335,6 +340,7 @@ class Command(BaseCommand):
             self.logger.setLevel(logging.DEBUG)
 
         self.dryrun = options['dryrun']
+        self.update_opendata = options['update_opendata']
         input_file_path = options['input_file']
 
         if options['append'] is True:
@@ -435,10 +441,11 @@ class Command(BaseCommand):
                 
         self.logger.info("Copied Xml file to {}".format(destination_file))
 
-        self.logger.info("** Update open data zip file for {} **".format(self.territorio.denominazione))
-
         # updates open data zip file for considered Comune
-        if not self.dryrun:
+        if self.update_opendata and not self.dryrun:
+            self.logger.info("** Update open data zip file for {} **".format(
+                self.territorio.denominazione))
+
             years = "{0}-{1}".format(settings.APP_START_YEAR, settings.APP_END_YEAR)
             call_command('update_opendata', verbosity=2, years=years, cities=numeric_finloc,
                          interactive=False)
