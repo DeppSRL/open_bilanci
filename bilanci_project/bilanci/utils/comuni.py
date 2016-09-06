@@ -16,8 +16,9 @@ class FLMapper(object):
     from a list of partial elements (slugs or codes).
     """
 
-    def __init__(self):
-        self.lista_comuni_csv = requests.get(settings.S3_LISTA_COMUNI_URL).iter_lines()
+    def __init__(self, lista_comuni_url=settings.S3_LISTA_COMUNI_URL):
+        self.lista_comuni_url = lista_comuni_url
+        self.lista_comuni_csv = requests.get(lista_comuni_url).iter_lines()
         self.comuni_dicts = []
 
     def get_comuni_dicts(self):
@@ -26,10 +27,10 @@ class FLMapper(object):
         having the code as key and the slug as value
         """
         try:
-            lista_comuni_csv = requests.get(settings.S3_LISTA_COMUNI_URL)
+            lista_comuni_csv = requests.get(self.lista_comuni_url)
             reader = csv.reader(lista_comuni_csv.iter_lines(), delimiter=',', quotechar='\n')
         except IOError:
-            raise Exception("Impossible to open file:%s" % settings.S3_LISTA_COMUNI_URL)
+            raise Exception("Impossible to open file:%s" % self.lista_comuni_url)
 
         comuni_by_codes = {}
         comuni_by_slugs = {}
