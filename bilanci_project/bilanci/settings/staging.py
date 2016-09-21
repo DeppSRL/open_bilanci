@@ -12,7 +12,8 @@ HOSTS_COMUNI = [
 'rapallo.comuni.deppsviluppo.org',
 'castiglionedellestiviere.comuni.deppsviluppo.org',
 'firenze.comuni.deppsviluppo.org',
-'terni.comuni.deppsviluppo.org'
+'terni.comuni.deppsviluppo.org',
+'roma.comuni.deppsviluppo.org',
 ]
 
 ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI
@@ -27,7 +28,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ########## TOOLBAR CONFIGURATION
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 INSTALLED_APPS += (
-    'debug_toolbar',
+#    'debug_toolbar',
 )
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
@@ -35,7 +36,7 @@ INTERNAL_IPS = ('176.31.74.29',)
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
 MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ) + MIDDLEWARE_CLASSES
 
 # See: https://github.com/django-debug-toolbar/django-debug-toolbar#installation
@@ -62,4 +63,16 @@ PATH_CONSUNTIVI = BILANCI_PATH+"/%s/%s/Consuntivo/%s.html"
 
 BILANCI_RAW_DB = 'bilanci_raw'
 
-
+# add this definitions to see what happens through loggers
+#LOGGING['handlers']['logfile'] = {
+#            'level': 'DEBUG',
+#            'class': 'logging.FileHandler',
+#            'filename': REPO_ROOT + "/log/logfile",
+#            'mode': 'w',
+#            'formatter': 'standard',
+#}
+#LOGGING['loggers']['bilanci_project'] = {
+#            'handlers': ['logfile'],
+#            'level': 'DEBUG',
+#            'propagate': False,
+#}
