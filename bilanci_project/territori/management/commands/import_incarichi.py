@@ -124,8 +124,8 @@ class Command(BaseCommand):
             return capoluoghi_provincia
 
         elif territori_type == 'all':
-            all_cities = capoluoghi_provincia[:]
-            all_cities.extend(altri_territori)
+            all_cities = list(capoluoghi_provincia[:])
+            all_cities.extend(list(altri_territori))
             return all_cities
 
     def get_incarichi_api(self, territorio_opid):
