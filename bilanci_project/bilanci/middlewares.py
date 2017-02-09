@@ -1,3 +1,4 @@
+import logging
 import re
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,6 +9,7 @@ from services import urls
 
 from services.models import PaginaComune
 
+logger = logging.getLogger('bilanci_project')
 
 class PrivateBetaMiddleware(object):
     """
@@ -57,6 +59,8 @@ class ComuniServicesMiddleware(object):
          # http_host gets the http_host string removing the eventual port number
         regex = re.compile("^([\w\.]+):?.*")
         http_host = regex.findall(request.META['HTTP_HOST'])[0]
+
+        logger.debug('http_host: ' + http_host)
 
         if http_host in settings.HOSTS_COMUNI:
 

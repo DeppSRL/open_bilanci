@@ -8,6 +8,7 @@ MAIN_HOST = ['www.openbilanci.it',]
 
 # Allowed hosts expansion: needed for servizi ai Comuni
 HOSTS_COMUNI = [
+'openbilanci.comune.roma.it',
 'openbilanci.comune.fi.it',
 'openbilanci.comune.castiglione.mn.it',
 'openbilanci.comune.rapallo.ge.it',

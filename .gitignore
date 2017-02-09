@@ -30,9 +30,6 @@ build
 # redis dump (development)
 *.rdb
 
-#deploy
-deploy_config/*
-
 #settings
 bilanci_project/bilanci/settings/local.py
 
