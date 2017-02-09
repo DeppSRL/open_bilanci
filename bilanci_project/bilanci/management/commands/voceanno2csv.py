@@ -1,4 +1,6 @@
 # coding=utf-8
+import os
+
 import csvkit
 import logging
 from optparse import make_option
@@ -22,6 +24,11 @@ class Command(BaseCommand):
                     dest='years',
                     default='',
                     help='Years to fetch. From 2002 to 2020. Use one of this formats: 2012 or 2003-2006 or 2002,2004,2006'),
+        make_option('--csv-base-dir',
+                    dest='csv_base_dir',
+                    default='data/csv/',
+                    help='Path to the directory where the CSV files will be '
+                         'written.'),
     )
 
     help = """
@@ -67,6 +74,11 @@ class Command(BaseCommand):
         if not years:
             raise Exception("No suitable year found in {0}".format(years))
 
+        csv_base_path = os.path.abspath(options['csv_base_dir'])
+        voci_path = os.path.join(csv_base_path, "voci")
+        if not os.path.exists(voci_path):
+            os.makedirs(voci_path)
+
         self.logger.info("Processing voce: {0} for years: {1}".format(voce_slug, years))
         self.voce_slug = voce_slug
         self.years = years
@@ -78,8 +90,11 @@ class Command(BaseCommand):
             valori = ValoreBilancio.objects.filter(voce=voce, anno=year) \
                 .values('territorio__denominazione', 'territorio__prov', 'territorio__regione', 'territorio__istat_id', 'valore', 'valore_procapite')
 
-            self.logger.debug(" writing output to {0}_{1}.csv".format(voce_slug, year))
-            with open("{0}_{1}.csv".format(voce_slug, year), 'wb') as csvfile:
+            csv_filename = os.path.join(voci_path,
+                                        "{0}_{1}.csv".format(voce_slug, year))
+
+            self.logger.debug(" writing output to {0}".format(csv_filename))
+            with open(csv_filename, 'wb') as csvfile:
                 writer = csvkit.py2.CSVKitWriter(csvfile, delimiter=",")
                 writer.writerow(["comune", "prov", "regione", "codice_istat", "valore", "valore_procapite"])
                 for v in valori:

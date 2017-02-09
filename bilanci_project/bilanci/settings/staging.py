@@ -12,7 +12,8 @@ HOSTS_COMUNI = [
 'rapallo.comuni.deppsviluppo.org',
 'castiglionedellestiviere.comuni.deppsviluppo.org',
 'firenze.comuni.deppsviluppo.org',
-'terni.comuni.deppsviluppo.org'
+'terni.comuni.deppsviluppo.org',
+'roma.comuni.openbilanci.it',
 ]
 
 ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI
