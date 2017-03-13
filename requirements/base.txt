@@ -29,3 +29,4 @@ psutil==3.3.0
 django-redis==3.3
 lxml==3.6.1
 csvkit
+pandas
