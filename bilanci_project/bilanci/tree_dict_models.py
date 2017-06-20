@@ -607,7 +607,7 @@ class ConsuntivoSpeseBudgetTreeDict(BudgetTreeDict, SpeseBudgetMixin):
 
     def build_tree(self, leaves, mapping=None):
         """
-        Builds a BudgetTreeDict for the consuntivo/entrate section.
+        Builds a BudgetTreeDict for the consuntivo/spese section.
 
         When mapping is not passed, an empty tree (default value = 0) is built.
 
