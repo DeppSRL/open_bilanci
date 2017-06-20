@@ -431,8 +431,15 @@ class IncarichiGetterMixin(object):
                 'end': None,
                 }
 
+            # exclude wrong cases
             if not incarico.data_inizio:
                 continue
+
+            # exclude cases out of the considered timeline interval
+            if incarico.data_inizio > self.timeline_end_date or \
+                incarico.data_fine < self.timeline_start_date:
+                continue
+
 
             # truncates date start to timeline start
             if incarico.data_inizio < self.timeline_start_date:
