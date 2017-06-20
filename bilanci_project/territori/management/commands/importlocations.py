@@ -10,7 +10,6 @@ from territori.models import Territorio
 __author__ = 'guglielmo'
 
 
-
 class Command(BaseCommand):
     """
     Import territori from OP API
@@ -18,15 +17,18 @@ class Command(BaseCommand):
     help = "Import territori data from openpolis API"
 
     option_list = BaseCommand.option_list + (
-        make_option('--dry-run',
-                    dest='dryrun',
-                    action='store_true',
-                    default=False,
-                    help='Set the dry-run command mode: no actual import is made'),
+        make_option(
+            '--dry-run',
+            dest='dryrun',
+            action='store_true',
+            default=False,
+            help='Set the dry-run command mode: no actual import is made'
+        ),
         make_option('--api-domain',
                     dest='apidomain',
                     default='api3.openpolis.it',
-                    help='The domain of the API. Defaults to api3.staging.deppsviluppo.org'),
+                    help='The domain of the API. '
+                        'Defaults to api3.staging.deppsviluppo.org'),
         make_option('--auth',
                     dest='auth',
                     default='',
@@ -54,6 +56,7 @@ class Command(BaseCommand):
     baseurl = None
     dryrun = None
     apidomain = None
+    import_geom = None
 
     def handle(self, *args, **options):
 
@@ -75,7 +78,9 @@ class Command(BaseCommand):
         self.apidomain = options['apidomain']
         if options['auth']:
             (user, pwd) = options['auth'].split(",")
-            self.baseurl = "http://{0}:{1}@{2}".format(user, pwd, self.apidomain)
+            self.baseurl = "http://{0}:{1}@{2}".format(
+                user, pwd, self.apidomain
+            )
         else:
             self.baseurl = "http://{0}".format(self.apidomain)
 
@@ -83,9 +88,15 @@ class Command(BaseCommand):
 
         c = 0
 
-        cl = requests.get("{0}/maps/classifications/{1}".format(self.baseurl, classification))
+        cl = requests.get("{0}/maps/classifications/{1}".format(
+            self.baseurl, classification
+        ))
         if cl.status_code == 403:
-            raise Exception("Authentication failed. {0}/maps/classifications/{1}".format(self.baseurl, classification))
+            raise Exception(
+                "Authentication failed. {0}/maps/classifications/{1}".format(
+                    self.baseurl, classification
+                )
+            )
         else:
             cl = cl.json()
 
@@ -116,7 +127,12 @@ class Command(BaseCommand):
                     self.logger.debug("CITY_URL: {0}".format(city_url))
                     city = requests.get(city_url).json()
                     city_place = requests.get(city['place']['_self']).json()
-                    self.add_place(city_place, parent_url=city['parent'], region=region['place']['name'], counter=c)
+                    self.add_place(
+                        city_place,
+                        parent_url=city['parent'],
+                        region=region['place']['name'],
+                        counter=c
+                    )
 
     def add_place(self, place, parent_url=None, counter=0, region=''):
         slug = place['slug']
@@ -129,31 +145,12 @@ class Command(BaseCommand):
 
         denominazione = place['name']
         abitanti = place['inhabitants']
-        tipo_territorio = self.get_tipo_territorio(place['place_type'])
+        tipo_territorio = get_tipo_territorio(place['place_type'])
         defaults = {
             'territorio': tipo_territorio,
             'denominazione': denominazione,
             'abitanti': abitanti,
         }
-
-        # get identifiers needed and build the finloc code
-        identifiers = place['placeidentifiers']
-        macroregion_id = None
-        region_id = None
-        province_id = None
-        city_id = None
-        for i in identifiers:
-            identifier = i['identifier']
-            value = i['value']
-            if 'istat-macroregion-id' in identifier:
-                macroregion_id = int(value)
-            if 'minint-region-id' in identifier:
-                region_id = int(value)
-            if 'minint-province-id' in identifier:
-                province_id = int(value)
-            if 'minint-city-id' in identifier:
-                city_id = int(value)
-
 
         # geometry features
         if self.import_geom:
@@ -169,8 +166,6 @@ class Command(BaseCommand):
 
             if region:
                 defaults['region'] = region
-
-
 
         t, created = Territorio.objects.get_or_create(
             slug=slug,
@@ -193,6 +188,6 @@ class Command(BaseCommand):
 
 
 
-    def get_tipo_territorio(self, place_type_url):
-        t = requests.get(place_type_url).json()
-        return t['name'][0]
+def get_tipo_territorio(place_type_url):
+    t = requests.get(place_type_url).json()
+    return t['name'][0]
