@@ -33,7 +33,7 @@ Click on the desired link and at the bottom of the page click and download the d
 That is the file that associates the official voce codes to bilanci voci.
 
 Creating a dedicated Google Drive document
--------------------------------------------
+------------------------------------------
 
 Create a new Google drive spreadsheet **using the old format of Gdocs** so the document will have a url similar to 
 
@@ -270,7 +270,7 @@ codes and normalized slugs.
 This management task will access the google document, download the map in a simple csv file and creates the associations that were implicit:
 for example those regarding funzioni / interventi.
 
-The values created will be stored in the CodiceValore table in Postgres DB.
+The values created will be stored in the CodiceVoce table in Postgres DB.
 
 Xml import
 ----------
