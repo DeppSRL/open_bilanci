@@ -81,3 +81,6 @@ bilanci_project/data/indicators/
 bilanci_project/data/indicators_capoluoghi/
 bilanci_project/templates/visup_test.html
 html_templates/
+
+#notebooks
+notebooks/

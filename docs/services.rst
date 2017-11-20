@@ -28,18 +28,19 @@ To activate services for a Comune follow the steps
 -  restart nginx: service nginx restart
 -  restart uwsgi: supervisor-ctl stop uwsgi -> supervisor-ctl start uwsgi
 
-After the domain name is correctly set with the DNS pointing to the application server then browsing
+After the domain name is correctly set with the DNS pointing
+to the application server then browsing
 
 .. code-block:: bash
 
     http://www.comune.bilancio.EXAMPLE.it
-    
+
 will show the page
 
 .. code-block:: bash
 
     http://www.openbilanci.it/bilanci/slug-comune-pr/
-    
+
 with Comune template
-    
+
 
