@@ -1,11 +1,10 @@
-@import url(http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
-
-@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
 /**
  * Main style
  * @author agiangiulio <a.giangiulio@mister-wolf.it>
  * @version 1.8.5
  **/
+@import url(http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
+@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic);
 body {
   background-color: #5e6a77;
   font-family: "Lato", sans-serif;
@@ -288,28 +287,20 @@ p.details {
 .btn-group .btn-ob {
   background: #c54c27;
   /* Old browsers */
-
   background: -moz-linear-gradient(top, #c54c27 0%, #b94a3c 100%);
   /* FF3.6+ */
-
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c54c27), color-stop(100%, #b94a3c));
   /* Chrome,Safari4+ */
-
   background: -webkit-linear-gradient(top, #c54c27 0%, #b94a3c 100%);
   /* Chrome10+,Safari5.1+ */
-
   background: -o-linear-gradient(top, #c54c27 0%, #b94a3c 100%);
   /* Opera 11.10+ */
-
   background: -ms-linear-gradient(top, #c54c27 0%, #b94a3c 100%);
   /* IE10+ */
-
   background: linear-gradient(to bottom, #c54c27 0%, #b94a3c 100%);
   /* W3C */
-
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c54c27', endColorstr='#b94a3c', GradientType=0);
   /* IE6-9 */
-
   color: #fff;
   width: 100%;
   font-weight: 300;
@@ -544,7 +535,7 @@ p.details {
 }
 #main-content .bread {
   font-size: 16px;
-  overfloaw: hidden;
+  overflow: hidden;
   margin-bottom: 0px;
 }
 #main-content .bread p {
@@ -668,7 +659,6 @@ p.details {
 #main-content .track.dragging {
   background: #d9d9d9;
   /* Browsers without rgba support */
-
   background: rgba(0, 0, 0, 0.15);
 }
 #main-content .handle {
@@ -862,11 +852,8 @@ p.details {
   overflow: hidden;
   display: block;
   /* Firefox 10+, Firefox on Android */
-
   /* IE 6-9 */
-
   /* Chrome 19+, Safari 6+, Safari 6+ iOS */
-
 }
 #results td.chart-wrapper .label {
   color: #2a3036;
@@ -1212,7 +1199,6 @@ p.details {
 @media (min-width: 380px) {
   #balance .panel-default .table > tbody > tr > td {
     /*padding: 8px;*/
-  
   }
 }
 #balance .panel-default .table > tbody > tr:hover > td {
@@ -1438,14 +1424,12 @@ p.details {
 #sidebar #side-menu {
   /*position: relative;
         width: 100%;*/
-
 }
 #sidebar .panel {
   margin: 0;
   background: #f8f8f8;
   border-color: #b9c5c4;
   /*position: relative;*/
-
   padding: 0px;
 }
 #sidebar .panel h3,
@@ -2717,7 +2701,6 @@ a.active .sprite-mappa-big {
 #home #header h2 {
   color: #fff;
   /*font-weight: @light;*/
-
   font-size: 22px;
   line-height: 24px;
 }
@@ -3103,7 +3086,6 @@ a.active .sprite-mappa-big {
   position: absolute !important;
   top: 35px !important;
   /*left: -12px !important;*/
-
   display: none;
 }
 .cas_com_box {
@@ -3126,7 +3108,6 @@ button .pull-left {
 			padding-right:0px;
 		}
 	}*/
-
 }
 .panel-tree .nopad {
   padding-left: 0px;
@@ -3470,7 +3451,6 @@ button .pull-left {
   }
   .cas_com_box.pull-right {
     /*float:left !important;*/
-  
   }
   #main-content .values_type {
     font-size: 10px;
@@ -3484,7 +3464,6 @@ button .pull-left {
   }
   .cas_com_box #settings {
     /*left:0px !important;*/
-  
     top: 110% !important;
   }
   #comune .phrase {
@@ -3725,7 +3704,6 @@ button .pull-left {
   }
   .cas_com_box.pull-right {
     /*float:left !important;*/
-  
   }
   #main-content .values_type {
     font-size: 10px;
@@ -3739,7 +3717,6 @@ button .pull-left {
   }
   .cas_com_box #settings {
     /*left:0px !important;*/
-  
     top: 110% !important;
   }
   #comune .phrase {
@@ -4043,20 +4020,24 @@ button .pull-left {
     margin-top: 4px;
   }
 }
-@media (min-width: 1200px) {
-  
-}
 .select2-container {
   width: 100% !important;
 }
 /* ribbon */
+.ribbon-container {
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 150px;
+}
 .ribbon {
   background-color: #a00;
+  position: relative;
+  right: -50px;
+  top: 37px;
   overflow: hidden;
   white-space: nowrap;
-  position: absolute;
-  right: -50px;
-  top: 30px;
   -webkit-transform: rotate(45deg);
   -moz-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
@@ -4517,7 +4498,6 @@ affix navbar
 #bilancio-header.affix > p {
   /*Giangiulio fix *
     /*margin: 4px 10px 0 0;*/
-
   line-height: 1.4;
   margin-top: 0;
 }
@@ -4544,7 +4524,6 @@ affix navbar
   display: inline-block;
   border-right: 1px solid #99a5b1;
   /*Giangiulio fix*/
-
   margin-left: 10px;
 }
 #bilancio-header.affix > p.details span {
@@ -4561,6 +4540,18 @@ affix navbar
 }
 #bilancio-header.affix > p.details span.location {
   border-left: 0;
+}
+/*
+ * link to archives
+ */
+#storici {
+  color: white;
+  font-size: 14px;
+  padding: 0.5em;
+}
+#storici a {
+  color: white;
+  padding: 6px 20px;
 }
 /*
 share box

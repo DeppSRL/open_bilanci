@@ -1572,6 +1572,33 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
         csv_package_filename = "{0}.zip".format(territorio.cod_finloc)
         context['csv_package_file'] = self.get_complete_file(csv_package_filename)
         context['open_data_url'] = settings.OPENDATA_URL
+
+        future_path = self.request.\
+            get_full_path().\
+            replace(
+                '/bilanci', '/armonizzati/bilanci'
+            ).replace(
+                'type=consuntivo', 'type=preventivo'
+            ).replace(
+                'cas_com_type=competenza', 'cas_com_type=cassa'
+            ).replace(
+                'composizione', 'dettaglio'
+            )
+
+        future_path = re.sub(
+            r'\?year=[0-9]*',
+            '?year=2016',
+            future_path
+        )
+
+        if 'dettaglio' not in future_path:
+            future_path = future_path.replace(
+                '?',
+                '/entrate/dettaglio?'
+            )
+
+        context['future_path'] = future_path
+
         return context
 
 

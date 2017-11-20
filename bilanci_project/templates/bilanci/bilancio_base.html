@@ -110,10 +110,22 @@
         {% block page_controls %}
             {# page subtitle: bilancio / entrate /spese/ indicatori  #}
             <div class="row page-subtitle">
-                <div class="col-md-8 col-sm-6 col-xs-6">
+                <div class="col-sm-6 col-xs-12">
                     <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
                 </div>
-                <div class="col-md-4 col-sm-6 col-xs-6 share-box">
+
+                <div class="col-sm-4 col-xs-12" id="storici">
+                    <div class="btn-group nolenght pull-right">
+                        <a class="btn btn-ob btn-xs"
+                            href="http://staging.armonizzati.openbilanci.it{{ future_path }}"
+                            target="_blank">
+                            Per i bilanci di questo comune, relativi <br/>
+                            agli anni a partire dal 2016, clicca qui
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-sm-2 col-xs-12 share-box" id="share">
                     {% include "bilanci/_share_button.html" %}
                 </div>
             </div>
