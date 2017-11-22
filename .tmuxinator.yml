@@ -35,7 +35,7 @@ windows:
     - workon open-bilanci
     - python bilanci_project/manage.py runserver
   - ssh_tunnel_to_postgres:
-    - ssh root@staging.openbilanci.it -L 5433:127.0.0.1:5432 -Nv
+    - ssh root@storico.staging.openbilanci.it -L 5433:127.0.0.1:5432 -Nv
   - redis_server:
     - redis-server
   - free_shell:
