@@ -8,12 +8,12 @@ MAIN_HOST = ['storico.staging.openbilanci.it', 'staging.openbilanci.it']
 
 # Allowed hosts expansion: needed for servizi ai Comuni
 HOSTS_COMUNI = [
-'storico.novara.comuni.openbilanci.it',
-'storico.rapallo.comuni.openbilanci.it',
-'storico.castiglionedellestiviere.comuni.openbilanci.it',
-'storico.firenze.comuni.openbilanci.it',
-'storico.roma.comuni.openbilanci.it',
-'storico.terni.comuni.openbilanci.it',
+'novara.comuni.storico.openbilanci.it',
+'rapallo.storico.comuni.openbilanci.it',
+'castiglionedellestiviere.comuni.storico.openbilanci.it',
+'firenze.comuni.storico.openbilanci.it',
+'roma.comuni.storico.openbilanci.it',
+'terni.comuni.storico.openbilanci.it',
 ]
 
 ALLOWED_HOSTS += MAIN_HOST + HOSTS_COMUNI
