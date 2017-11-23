@@ -1599,7 +1599,8 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
 
         context['future_path'] = future_path
         context['future_domain'] = self.request.META['HTTP_HOST'].replace(
-            'storico.openbilanci.', 'openbilanci.',
+            'storico.openbilanci.', 'openbilanci.'
+        ).replace(
             'storico.staging.openbilanci.', 'staging.openbilanci.'
         )
 
