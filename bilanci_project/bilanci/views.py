@@ -1593,6 +1593,9 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
 
         if 'dettaglio' not in future_path:
             future_path = future_path.replace(
+                '?year',
+                '/entrate/dettaglio?year'
+            ).replace(
                 '/?',
                 '/entrate/dettaglio?'
             )
