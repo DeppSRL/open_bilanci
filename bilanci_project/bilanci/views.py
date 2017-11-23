@@ -1604,6 +1604,8 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
             'storico.staging.openbilanci.', 'staging.openbilanci.'
         )
 
+        context['is_storico'] = 'storico' in self.request.META['HTTP_HOST']
+
         return context
 
 

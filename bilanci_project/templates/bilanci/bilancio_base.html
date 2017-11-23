@@ -114,20 +114,29 @@
                     <h2 class="panel-title text-alt" style="text-transform: capitalize;">{% block subtitle %}{{ selected_section }}{% endblock %}</h2>
                 </div>
 
-                <div class="col-sm-4 col-xs-12" id="storici">
-                    <div class="btn-group nolenght pull-right">
-                        <a class="btn btn-ob btn-xs"
-                            href="http://{{ future_domain }}{{ future_path }}"
-                            target="_blank">
-                            Per i bilanci di questo comune, relativi <br/>
-                            agli anni a partire dal 2016, clicca qui
-                        </a>
+                {# TODO: remove once transition to historic is complete #}
+                {% if is_storico %}
+                    <div class="col-sm-4 col-xs-12" id="storici">
+                        <div class="btn-group nolenght pull-right">
+                            <a class="btn btn-ob btn-xs"
+                                href="http://{{ future_domain }}{{ future_path }}"
+                                target="_blank">
+                                Per i bilanci di questo comune, relativi <br/>
+                                agli anni a partire dal 2016, clicca qui
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-sm-2 col-xs-12 share-box" id="share">
-                    {% include "bilanci/_share_button.html" %}
-                </div>
+                    <div class="col-sm-2 col-xs-12 share-box" id="share">
+                        {% include "bilanci/_share_button.html" %}
+                    </div>
+                {% else %}
+                    <div class="col-sm-6 col-xs-12 share-box" id="share">
+                        {% include "bilanci/_share_button.html" %}
+                    </div>
+                {% endif %}
+                {# TODO END: remove once transition to historic is complete #}
+
             </div>
 
             {% block year_selector %}
