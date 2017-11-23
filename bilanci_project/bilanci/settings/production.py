@@ -12,7 +12,7 @@ HOSTS_COMUNI = [
 'storico.openbilanci.comune.fi.it',
 'storico.openbilanci.comune.castiglione.mn.it',
 'storico.openbilanci.comune.rapallo.ge.it',
-'storico.openbilanci.comune.spilamberto.mo.it'
+'storico.openbilanci.comune.spilamberto.mo.it',
 'openbilanci.comune.roma.it',
 'openbilanci.comune.fi.it',
 'openbilanci.comune.castiglione.mn.it',

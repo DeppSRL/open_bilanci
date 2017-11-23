@@ -545,5 +545,3 @@ ENABLED_STATIC_PAGES = [
 # number of values of VoceBilancio that triggers the
 # bulk insert (speeds insertion)
 BULK_INSERT_THRESHOLD = 5000
-
-FUTURE_DOMAIN = env('FUTURE_DOMAIN', default='www.openbilanci.it')
