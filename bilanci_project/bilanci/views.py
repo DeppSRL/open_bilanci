@@ -1566,6 +1566,9 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
             return {}
 
     def get_context_data(self, **kwargs):
+
+        self.check_servizi_comuni(self.request)
+
         context = super(BilancioView, self).get_context_data(**kwargs)
 
         territorio = self.get_object()
@@ -1591,14 +1594,29 @@ class BilancioView(DetailView, ServiziComuniMixin, NavigationMenuMixin):
             future_path
         )
 
-        if 'dettaglio' not in future_path:
+        future_path = re.sub(
+            r'/indicatori.*',
+            '/',
+            future_path
+        )
+
+        if self.servizi_comuni:
             future_path = future_path.replace(
-                '?year',
-                '/entrate/dettaglio?year'
+                '/entrate/dettaglio?year',
+                '/entrate?year'
             ).replace(
-                '/?',
-                '/entrate/dettaglio?'
+                '/spese/dettaglio?year',
+                '/spese?year'
             )
+        else:
+            if 'dettaglio' not in future_path:
+                future_path = future_path.replace(
+                    '?year',
+                    '/entrate/dettaglio?year'
+                ).replace(
+                    '/?',
+                    '/entrate/dettaglio?'
+                )
 
         context['future_path'] = future_path
         context['future_domain'] = self.request.META['HTTP_HOST'].replace(
