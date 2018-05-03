@@ -67,6 +67,20 @@
 
     <body id="{% block body_id %}{% if request.servizi_comuni %}comune{% endif %}{% endblock %}">
 
+        {% if not request.servizi_comuni %}
+        <div class="row">
+            <div class="col-md-12" style="background-color: white;">
+                <a href="https://www.openpolis.it/fondazione/sostienici/5xmille/">
+                    <img
+                        class="center-block"
+                        src="{% static 'img/banner_op_5x1000.png' %}"
+                        alt="banner 5xmille fondazione openpolis"
+                    />
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
         {% block container %}
             <div class="container">
 
